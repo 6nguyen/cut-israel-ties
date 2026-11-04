@@ -1,5 +1,5 @@
 # Decision points and context
-Researched: 2026-11-04 · Informs: none yet
+Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
 
 ## Federal: the five decision points and who owns each
 

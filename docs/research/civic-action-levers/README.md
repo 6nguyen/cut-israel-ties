@@ -1,5 +1,5 @@
 # Civic-action levers — study index
-Researched: 2026-11-04 · Informs: none yet
+Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
 
 Status: working notes as of 2026-11-04. Study folder (rules in `../README.md`). Compiled from web research in one working session; every claim is sourced inline. Items marked **VERIFY** were not confirmed and should be checked before any product feature depends on them.
 

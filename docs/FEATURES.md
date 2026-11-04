@@ -5,4 +5,4 @@
 
 | Feature | State | What it does | Spec | Change | Updated |
 |---|---|---|---|---|---|
-| district-routed-vote-tracker | PLANNED | District-routed vote tracker | - | Next #1 | - |
+| vote-tracker | PLANNED | District-routed vote tracker | - | [vote-tracker](prd/vote-tracker.md) 0/4 | 2026-11-04 |

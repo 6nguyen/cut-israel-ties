@@ -1,5 +1,5 @@
 # Speaker vote context (why leadership pressure isn't the lever)
-Researched: 2026-11-04 · Informs: none yet
+Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
 
 ## Timeline
 - Nov 3, 2026: Democrats win House (≥250–258 seats projected) and Senate.
