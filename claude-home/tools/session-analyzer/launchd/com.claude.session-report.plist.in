@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Rendered by claude-home/install.sh (@PYTHON@, @BIN@). Mondays 08:00: ingest, verdicts,
+     report --since -7d to ~/.claude-archive/reports/YYYY-Www.md (0600), one notification.
+     Zero model tokens; writes nothing below the 10 GB free floor. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.claude.session-report</string>
+  <key>ProgramArguments</key>
+  <array><string>@PYTHON@</string><string>@BIN@</string><string>weekly</string></array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+  <key>ProcessType</key><string>Background</string>
+  <key>LowPriorityIO</key><true/>
+  <key>Nice</key><integer>10</integer>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>/dev/null</string>
+  <key>StandardErrorPath</key><string>/dev/null</string>
+</dict>
+</plist>

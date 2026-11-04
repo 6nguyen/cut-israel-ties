@@ -1,0 +1,19 @@
+# ops
+ops/logs/
+
+# env & os
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# claude
+.claude/settings.local.json
+.claude/worktrees/
+
+# add stack-specific ignores below (node_modules/, .venv/, build/, …)
+!ops/logs/.gitkeep
+
+# python
+__pycache__/
+*.pyc

@@ -1,0 +1,42 @@
+name: ci
+
+# Runs the same quiet-check targets agents run locally, so CI and local
+# verification never disagree. Add setup steps for your stack, then list the
+# targets in CI_TARGETS. Require the `checks` job in branch protection once
+# it has run once (see scripts/bootstrap.sh output).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      CI_TARGETS: ""   # e.g. "pytest tsc build"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }  # features.sh dates specs from git history
+      # - uses: actions/setup-python@v5
+      #   with: { python-version: '3.12', cache: pip }
+      # - run: python -m venv backend/.venv && backend/.venv/bin/pip install -e "backend[dev]"
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
+      # - run: npm ci
+      #   working-directory: web
+      - name: quiet-check
+        run: |
+          if [ -z "$CI_TARGETS" ]; then echo "no CI_TARGETS configured yet"; exit 0; fi
+          rc=0
+          for t in $CI_TARGETS; do scripts/quiet-check.sh "$t" || rc=1; done
+          exit $rc
+      - name: template-only checks (skipped once bootstrap removes claude-home/; adopt drops this step)
+        if: hashFiles('claude-home/tools/session-analyzer/session-analyzer') != ''
+        run: |
+          rc=0
+          for t in session-analyzer adopt migrate-prds prd-guard prd-lint doc-lint features area-maps; do scripts/quiet-check.sh "$t" || rc=1; done
+          exit $rc
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: quiet-logs, path: ops/logs/ }
