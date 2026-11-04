@@ -1,5 +1,5 @@
 # Repo setup — PRD
-Status: APPROVED 2026-11-04 (bootstrap) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #2) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 llm-repo-template's per-repo layer was just added. `CLAUDE.md`,

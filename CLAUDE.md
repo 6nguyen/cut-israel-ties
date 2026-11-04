@@ -53,5 +53,3 @@ None yet. The first product PRD sets them.
   receipt.
 - Don't let the product's numbers (whip counts, tallies) come from an LLM;
   deterministic code counts, sourced rows feed it.
-
-Setup pending: when no other task is given or when asked to continue setup, run /implement-prd-section docs/prd/repo-setup.md. <!-- prd-pointer: docs/prd/repo-setup.md -->

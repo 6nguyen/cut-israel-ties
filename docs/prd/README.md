@@ -41,7 +41,6 @@ never load them.
 ## Index (open changes only)
 | PRD | Status | Owner surfaces |
 |---|---|---|
-| [repo-setup](repo-setup.md) | APPROVED | `CLAUDE.md`, `scripts/quiet-check.sh`, area maps |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
