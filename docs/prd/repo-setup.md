@@ -41,10 +41,15 @@ none — setup only.
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [~] 1. CLAUDE.md · feat/repo-setup-1-claude-md
-  - [ ] 2. quiet-check targets
-  - [ ] 3. Area maps
+  - [~] 2. quiet-check targets · feat/repo-setup-1-claude-md
+  - [~] 3. Area maps · feat/repo-setup-1-claude-md
+- Completed: all three on feat/repo-setup-1-claude-md (no code in the repo: §2 keeps the bootstrap targets `prd-lint doc-lint`, each run once; §3 measure lists no directory, none picked).
+- Folded: none (spec delta: none).
 - Branch / open PRs: feat/repo-setup-1-claude-md
-- Remaining: all.
-- Next action: build §1 on feat/repo-setup-1-claude-md.
+- Files changed (file:line map): CLAUDE.md:1-60 (repo map, commands, gotchas, don'ts).
+- Tests run + result: quiet-check prd-lint PASS, doc-lint PASS.
+- Remaining: none.
+- Next action: open PR, archive.
 ## Changes
 - 2026-11-04 — created by bootstrap.
+- 2026-11-04 — §1–3 built together on feat/repo-setup-1-claude-md: docs-only repo, §2 and §3 change no files.
