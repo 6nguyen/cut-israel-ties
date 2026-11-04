@@ -48,7 +48,7 @@ Targets is an existing spec stem or `new`. Writing the PRD deletes its row
 in the same commit; dropping an idea deletes its row.
 | # | Idea | Targets | Notes |
 |---|---|---|---|
-| 1 | District-routed civic-action tool: one named vote with a date, a public whip count per member, per-constituent contact (Na Pressão pattern); private commitment first, then a related hard ask | new | Evidence: `docs/research/civic-action-levers/`; VERIFY items there first |
+| 1 | District-routed vote tracker | new | One named vote with a date, public whip count per member, per-constituent contact (Na Pressão pattern); private commitment first, then a related hard ask. Evidence: `docs/research/civic-action-levers/`; check its VERIFY items first |
 
 ## Template (copy for a new feature)
 

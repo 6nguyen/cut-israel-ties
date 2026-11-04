@@ -5,4 +5,4 @@
 
 | Feature | State | What it does | Spec | Change | Updated |
 |---|---|---|---|---|---|
-| district-routed-civic-action-tool-one-na | PLANNED | District-routed civic-action tool: one named vote with a da… | - | Next #1 | - |
+| district-routed-vote-tracker | PLANNED | District-routed vote tracker | - | Next #1 | - |
