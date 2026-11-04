@@ -28,3 +28,4 @@ Rules:
 ## Index
 | Research | Question | Researched | Informs |
 |---|---|---|---|
+| [civic-action-levers](civic-action-levers/) | Which citizen actions actually move US aid, ties and military partnership with Israel at each level of government; which channels and behavioral mechanics make a civic-action tool work | 2026-11-04 | none yet |
