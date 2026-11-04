@@ -40,11 +40,11 @@ none — setup only.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. CLAUDE.md
+  - [~] 1. CLAUDE.md · feat/repo-setup-1-claude-md
   - [ ] 2. quiet-check targets
   - [ ] 3. Area maps
+- Branch / open PRs: feat/repo-setup-1-claude-md
 - Remaining: all.
-- Next action: `/implement-prd-section docs/prd/repo-setup.md`.
-
+- Next action: build §1 on feat/repo-setup-1-claude-md.
 ## Changes
 - 2026-11-04 — created by bootstrap.
