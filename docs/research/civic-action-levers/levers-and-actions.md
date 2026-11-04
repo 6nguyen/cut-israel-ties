@@ -1,5 +1,5 @@
 # Levers and actions, scored
-Researched: 2026-11-04 · Informs: none yet
+Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
 
 Goal: end US aid, ties, and military partnership with Israel at federal, state, and local levels. Reference user location: Orange, CA (city split between CA-40 and CA-46 after Prop 50).
 

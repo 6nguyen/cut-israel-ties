@@ -1,5 +1,5 @@
 # Organizing channels and tools
-Researched: 2026-11-04 · Informs: none yet
+Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
 
 ## What exists today for this cause
 
