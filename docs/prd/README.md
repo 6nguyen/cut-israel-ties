@@ -41,7 +41,6 @@ never load them.
 ## Index (open changes only)
 | PRD | Status | Owner surfaces |
 |---|---|---|
-| [repo-setup](repo-setup.md) | APPROVED | `CLAUDE.md`, `scripts/quiet-check.sh`, area maps |
 | [vote-tracker](vote-tracker.md) | APPROVED | new: vote page, address routing, funnel, receipts |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
