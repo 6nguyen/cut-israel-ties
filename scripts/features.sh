@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# managed by llm-repo-template adopt; edit it there
 # features.sh — generate docs/FEATURES.md, the repo's feature list
 # (docs/specs/feature-list.md).
 #   features.sh [--check|--json] [repo]   repo: default the git top level

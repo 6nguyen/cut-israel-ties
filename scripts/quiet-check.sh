@@ -15,15 +15,8 @@
 # Parsers: pytest unittest tsc nextbuild playwright vitest jest xcodebuild go cargo generic
 
 TARGETS='
-session-analyzer|claude-home/tools/session-analyzer|python3 -m unittest discover -s tests -v|unittest
-token-tooling|claude-home/token-tooling|python3 -m unittest discover -s tests -v|unittest
-adopt|claude-home|bash tests/adopt_test.sh|generic
-migrate-prds|claude-home/skills/migrate-prds|bash tests/migrate_test.sh|generic
-prd-guard|claude-home/skills/implement-prd-section|bash tests/prd_guard_test.sh|generic
-prd-lint|claude-home/skills/implement-prd-section|bash scripts/prd-lint.sh|generic
-doc-lint|claude-home/skills/implement-prd-section|bash tests/doc_lint_test.sh|generic
-features|claude-home/skills/implement-prd-section|bash tests/features_test.sh|generic
-area-maps|claude-home/skills/area-maps|bash tests/measure_test.sh|generic
+prd-lint|.|bash scripts/prd-lint.sh|generic
+doc-lint|.|bash scripts/doc-lint.sh|generic
 # pytest|backend|.venv/bin/python -m pytest -q -rfE --tb=short|pytest
 # tsc|web|npx tsc --noEmit|tsc
 # build|web|npm run build|nextbuild

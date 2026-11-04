@@ -41,7 +41,7 @@ never load them.
 ## Index (open changes only)
 | PRD | Status | Owner surfaces |
 |---|---|---|
-| [token-tooling](token-tooling.md) | APPROVED | `claude-home/install.sh` (rtk hook), CLAUDE.md §Quality bar, session-analyzer |
+| [repo-setup](repo-setup.md) | APPROVED | `CLAUDE.md`, `scripts/quiet-check.sh`, area maps |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row

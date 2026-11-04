@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# managed by llm-repo-template adopt; edit it there
 # prd-lint.sh — catch PRD structure loss before it is committed.
 #   prd-lint.sh [prd…]   default: docs/prd/*.md at the repo root, except
 #                        README.md and migration-plan.md

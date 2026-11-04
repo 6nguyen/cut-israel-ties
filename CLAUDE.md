@@ -1,4 +1,4 @@
-# CLAUDE.md — {{PROJECT}}
+# CLAUDE.md — cut-israel-ties
 
 Repo-specific facts only. Communication, token/agent rules, sessions, git,
 PRD-first, verification cadence and the quality bar are global
@@ -21,7 +21,6 @@ here; every line in this file is re-read on every request.
      Code loads one when files under it are read. `/area-maps measure` says
      which directories earn one; `/area-maps write <dir>` adds it here. -->
 Before editing code under a mapped area, read its map.
-- session-analyzer: `claude-home/tools/session-analyzer/CLAUDE.md` — transcript metrics pipeline (template-only)
 
 ## Commands
 - Agents and long loops: `scripts/quiet-check.sh <target>` (`list` shows
@@ -37,3 +36,5 @@ Before editing code under a mapped area, read its map.
 
 ## Don'ts
 <!-- Product decisions and constraints that aren't obvious from the code. -->
+
+Setup pending: when no other task is given or when asked to continue setup, run /implement-prd-section docs/prd/repo-setup.md. <!-- prd-pointer: docs/prd/repo-setup.md -->

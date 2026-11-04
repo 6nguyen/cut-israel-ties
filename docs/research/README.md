@@ -28,5 +28,3 @@ Rules:
 ## Index
 | Research | Question | Researched | Informs |
 |---|---|---|---|
-| [reference-docs](reference-docs.md) | Where contracts, architecture, maps, plans and how-tos go, and how to split big reference docs | 2026-10-02 | [migrate-docs](../prd/archive/2026-10-migrate-docs.md) |
-| [feature-list](feature-list.md) | Which features exist and in what lifecycle state, kept in one generated list | 2026-10-02 | [feature-list](../prd/archive/2026-10-feature-list.md) |

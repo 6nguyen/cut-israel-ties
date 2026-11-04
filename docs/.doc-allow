@@ -1,4 +1,0 @@
-# doc-lint allowlist (docs/specs/doc-placement.md): `<glob>  # <reason>`.
-# Template-only; scripts/bootstrap.sh removes it with claude-home/.
-claude-home/*  # template tooling: skills, references, fixtures, templates
-TEMPLATE.md  # template guide for new repos; bootstrap removes it

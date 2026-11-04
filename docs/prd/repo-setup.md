@@ -1,5 +1,5 @@
 # Repo setup — PRD
-Status: APPROVED {{DATE}} ({{SOURCE}}) · Owner: {{OWNER}} · Last updated: {{DATE}}
+Status: APPROVED 2026-11-04 (bootstrap) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 llm-repo-template's per-repo layer was just added. `CLAUDE.md`,
@@ -26,19 +26,6 @@ and each target once.
 `/area-maps measure` lists the directories big enough for a map; run
 `/area-maps write <dir>` for each one the owner picks. None picked → the
 section is done.
-{{MIGRATE}}Maps that already exist elsewhere (a `docs/*-map.md`, a primer) move
-{{MIGRATE}}to `<dir>/CLAUDE.md` in the Migrate PRDs move PR, not here.
-{{MIGRATE}}
-{{MIGRATE}}### 4. Migrate PRDs
-{{MIGRATE}}{{N}} PRDs without State or a line-2 `Status:`. Run the `/migrate-prds`
-{{MIGRATE}}phases in order (inventory, move, fold, split), merging each PR before
-{{MIGRATE}}the next. A PRD that stays active with merged sections either goes
-{{MIGRATE}}through `split`, or gains a `## Spec delta` and has its merged
-{{MIGRATE}}sections folded into `docs/specs/` in the same PR. Research (studies,
-{{MIGRATE}}memos, design proposals) moves to `docs/research/` in the move PR, each
-{{MIGRATE}}file with the header from `docs/research/README.md`. Done when
-{{MIGRATE}}`docs/prd/migration-plan.md` is gone, no `docs/prd/research-*` file is
-{{MIGRATE}}left and `prd-lint.sh` passes.
 
 ## Spec delta
 none — setup only.
@@ -49,19 +36,15 @@ none — setup only.
 - [ ] `scripts/quiet-check.sh list` shows the repo's targets and each passes
       once; CI runs `CI_TARGETS`.
 - [ ] Every directory the owner picked from `/area-maps measure` has a map.
-{{MIGRATE}}- [ ] `docs/prd/migration-plan.md` is gone.
-{{MIGRATE}}- [ ] Every active PRD passes `prd-lint.sh`, and its merged sections
-{{MIGRATE}}      are in `docs/specs/`.
 - [ ] On archive, the setup pointer line is gone from `CLAUDE.md`.
 
-## State (updated {{DATE}})
+## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [ ] 1. CLAUDE.md
   - [ ] 2. quiet-check targets
   - [ ] 3. Area maps
-{{MIGRATE}}  - [ ] 4. Migrate PRDs
 - Remaining: all.
 - Next action: `/implement-prd-section docs/prd/repo-setup.md`.
 
 ## Changes
-- {{DATE}} — created by {{SOURCE}}.
+- 2026-11-04 — created by bootstrap.

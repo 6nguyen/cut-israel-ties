@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# managed by llm-repo-template adopt; edit it there
 # doc-lint.sh — every doc in its home (docs/specs/doc-placement.md).
 #   doc-lint.sh [repo]          default: the current repo's root
 #   doc-lint.sh --only <path>…  from inside the repo: report only these
