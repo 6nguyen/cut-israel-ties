@@ -16,15 +16,6 @@ Rules:
 ## Index (the feature set)
 | Spec | Capability | Owner surfaces |
 |---|---|---|
-| [adopt](adopt.md) | Bring the per-repo layer into an existing repo as a PR | `claude-home/adopt.sh`, `claude-home/lib/`, `scripts/bootstrap.sh` |
-| [area-maps](area-maps.md) | Per-directory `CLAUDE.md` maps: format, measure, write, audit | `claude-home/skills/area-maps`, CLAUDE.md §Area maps |
-| [doc-placement](doc-placement.md) | Where each kind of doc goes (`docs/README.md`) | `docs/README.md`, `adopt.sh`, `migrate-prds` inventory |
-| [feature-list](feature-list.md) | Generated `docs/FEATURES.md`: every feature with its derived lifecycle state, plus the `## Next` queue | `features.sh`, `docs/prd/README.md` §Next |
-| [prd-lifecycle](prd-lifecycle.md) | Change PRDs, spec deltas, fold and archive | `docs/prd/README.md`, `implement-prd-section`, `handoff`, `bootstrap.sh` |
-| [prd-fold](prd-fold.md) | Fold shipped PRDs and reference docs into specs, split half-built PRDs | `claude-home/skills/migrate-prds` (`fold.sh`, `sections.py`) |
-| [prd-migration](prd-migration.md) | Inventory existing PRDs and docs, move them into place with history and links kept | `claude-home/skills/migrate-prds` |
-| [prd-progress](prd-progress.md) | PRD `Sections:` tracking: auto-pick, reconcile, backfill, bootstrap | `claude-home/skills/implement-prd-section`, `claude-home/skills/handoff`, `docs/prd/README.md` State template |
-| [research](research.md) | `docs/research/`: evidence behind PRDs, header and supersede rules, never read by builds | `docs/research/README.md`, prd-lint, `implement-prd-section`, `adopt.sh`, `bootstrap.sh` |
 
 ## Template (copy for a new capability)
 
