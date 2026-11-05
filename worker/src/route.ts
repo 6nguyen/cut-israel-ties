@@ -1,6 +1,7 @@
 // POST /api/route — §1.2–§1.4 + §5. Builds the response the results page renders.
 import type { Action, Delegation, Goal, Member, Position, Repo } from './types';
 import { topTwo } from './ranking';
+import { fillAsk, holdingsLine } from './state-copy';
 
 export interface TargetCard {
   bioguide_id: string | null;
@@ -11,6 +12,11 @@ export interface TargetCard {
   position_source_url: string | null;
   prior_vote: string;
   phone: string | null;
+  // State targets only (state-holdings-sweep §3): the states.csv cells behind the holdings line.
+  holdings_status?: 'held' | 'none' | 'unknown';
+  holdings_usd?: number | null;
+  holdings_date?: string | null;
+  holdings_source_url?: string | null;
 }
 
 export interface GoalCard {
@@ -72,8 +78,12 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
         party: null,
         position: 'unknown',
         position_source_url: null,
-        prior_vote: s?.israel_bonds_usd ? `Holds Israel Bonds (${s.holdings_date ?? 'date not sourced'})` : 'Holdings not yet sourced',
+        prior_vote: holdingsLine(s),
         phone: s?.treasurer_phone ?? null,
+        holdings_status: s?.holdings_status ?? 'unknown',
+        holdings_usd: s?.holdings_status === 'held' ? s.israel_bonds_usd : null,
+        holdings_date: s?.holdings_status === 'unknown' ? null : s?.holdings_date ?? null,
+        holdings_source_url: s?.holdings_status === 'unknown' ? null : s?.holdings_source ?? null,
       },
     ];
   }
@@ -113,7 +123,7 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
         summary: g.summary,
         decision_date: g.decision_date,
         this_week: g.this_week,
-        ask_text: action?.ask_text ?? g.what_we_want,
+        ask_text: fillAsk(action?.ask_text ?? g.what_we_want, g.category === 'state' ? d.state_row : null),
         action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,
         targets: targetsFor(g, action, d, positions),
       };

@@ -21,6 +21,9 @@ export interface Member {
   money_url: string | null;
 }
 
+export const HOLDINGS_STATUSES = ['held', 'none', 'unknown'] as const;
+export type HoldingsStatus = (typeof HOLDINGS_STATUSES)[number];
+
 export interface StateRow {
   state: string;
   treasurer_name: string | null;
@@ -32,6 +35,7 @@ export interface StateRow {
   campaign_name: string | null;
   campaign_url: string | null;
   next_comment_date: string | null;
+  holdings_status: HoldingsStatus; // held | none | unknown; `held` rows carry amount, date and source
 }
 
 export interface Goal {

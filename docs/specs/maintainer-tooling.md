@@ -25,7 +25,14 @@ and nothing here writes to `data/` or to `positions`.
    78 no `ANTHROPIC_API_KEY`, 65 unknown goal slug.
 2. **Lint** — the loader (`loadRows`) throws on a positions row without
    `source_url` or `source_date`, so the seed and every test fail before a
-   sourceless row reaches D1.
+   sourceless row reaches D1. For `states.csv` (`checkStates`) it throws on
+   a row with `israel_bonds_usd` but no `holdings_source` or
+   `holdings_date`, an amount that is not a positive whole number, a
+   `holdings_status` outside `held | none | unknown` or inconsistent with
+   the amount (`held` needs one, `none` and `unknown` carry none, `none`
+   needs source and date), a `next_comment_date` before the seed date, or
+   a `campaign_url` without a `campaign_name`. An empty `holdings_status`
+   cell reads as `unknown`.
 3. **Nightly digest** — a Worker cron (`0 9 * * *` UTC) runs `runDigest`:
    reports created after the last recorded run (first run: the past 24 h),
    screenings in the same window and devices blocked at run time. With no
@@ -45,6 +52,25 @@ and nothing here writes to `data/` or to `positions`.
    is the whole publishing flow. User tables (`receipts`, `reports`,
    `screenings`, `blocks`, `generations`, `digest_runs`) are never touched
    by the seed.
+5. **Draft a holding** — `npm run draft-holding -w worker -- <STATE>
+   <url>` is `draft-position` for `states.csv`: it fetches the treasurer
+   report or pension disclosure (HTML or plain text; a PDF body is
+   refused with a reason, no PDF parser ships), asks Haiku for the
+   state's Israel-bond holding in whole USD, its as-of date, the deciding
+   body and a verbatim quote, and code checks that the quote is on the
+   page, that the amount is a dollar figure inside the quote
+   (`amountsIn`: `$12.5 million`, `$62,000,000`, `1.2 billion`), that the
+   date is `YYYY-MM-DD` and that the decider text appears on the page
+   (else the existing row's decider, else empty). On success it prints
+   the quote, amount, date and decider to stderr and one `states.csv` row
+   to stdout in the file's column order, carrying the state's existing
+   treasurer, campaign and comment-date cells, with `holdings_source` =
+   the URL and `holdings_status` = `held` or `none`; the maintainer
+   replaces that state's row in a PR. Any failure (status `unknown`,
+   quote not on the page, no date, amount not in the quote, PDF,
+   unreadable reply) prints `# no sourced holding: <reason>` and no row.
+   Exit codes: 64 usage, 65 not a two-letter state code, 78 no
+   `ANTHROPIC_API_KEY`.
 
 ## Data & contracts
 - `worker/scripts/draft-position.ts` (CLI) → `worker/src/draft-position.ts`
@@ -53,6 +79,13 @@ and nothing here writes to `data/` or to `positions`.
   `{kind:'none', reason}`). Row columns:
   `bioguide_id,position,source_url,source_date,changed_by` with
   `changed_by = draft-position`; `position` ∈ for | uncommitted | against.
+- `worker/src/draft-shared.ts` holds what both draft tools share:
+  `fetchPageText` (HTML stripped or plain text, PDF → `unsupported`),
+  `stripTags`, `normalise`, `quoteAppears`, `csvCell`, `DRAFT_MODEL`.
+  `worker/scripts/draft-holding.ts` (CLI) → `worker/src/draft-holding.ts`
+  (`draftHolding(fetch, apiKey, {state, url, existing?})` →
+  `{kind:'row', row, status, amount, date, decider, quote, reason}` or
+  `{kind:'none', reason}`; `STATES_HEADER` is the `states.csv` header).
 - `worker/src/digest.ts`: `buildDigest(reports, members, goals, since, now)`
   (pure; counts member × goal × outcome, CSV header
   `bioguide_id,member,goal_slug,outcome,note,created_at,device_hash`),
@@ -90,8 +123,16 @@ and nothing here writes to `data/` or to `positions`.
 - [ ] Tests run with no network: the page and the Anthropic endpoint are
       stubbed, the sender is injected.
 - [ ] The seed rewrites only the five data tables and leaves user tables.
+- [ ] `draft-holding` never writes a file; a row is printed only when the
+      quote is verbatim on the page, the date is `YYYY-MM-DD` and, for
+      `held`, the amount is a dollar figure inside the quote; a PDF URL
+      prints no row and never reaches the model.
+- [ ] `loadRows` throws for a `states.csv` row with an amount and no
+      source or date, a past `next_comment_date`, or a `campaign_url`
+      without a `campaign_name`.
 
 ## Performance budget
 Infra cost excluding LLM and domain stays $0/month: one cron invocation
 and at most one Email Routing message per day, one Haiku call per digest
-and one per `draft-position` run.
+and one per `draft-position` or `draft-holding` run (Haiku, ≤60k characters
+of page text, about $0.01 per run).

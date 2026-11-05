@@ -1,4 +1,5 @@
 import type { GoalCard, TargetCard } from '../lib/api';
+import { RESEARCH_URL } from '@worker/state-copy';
 
 export const CATEGORY: Record<GoalCard['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
 const POSITION: Record<TargetCard['position'], string> = { for: 'With us', uncommitted: 'Uncommitted', against: 'Against', unknown: 'No stated position' };
@@ -27,6 +28,13 @@ export function Target({ t }: { t: TargetCard }) {
       <p class="mt-2 text-sm"><span class={`chip mr-2 ${POSITION_CLASS[t.position]}`}>{POSITION[t.position]}</span>
         {t.position_source_url && <a href={t.position_source_url} class="underline label-ticker" rel="noopener">source</a>}
       </p>
+      {t.holdings_status && (
+        <p class="mt-1 text-sm label-ticker text-ink/70">
+          {t.holdings_status === 'unknown'
+            ? <a href={RESEARCH_URL} class="underline" rel="noopener noreferrer">help us find it →</a>
+            : t.holdings_source_url && <a href={t.holdings_source_url} class="underline" rel="noopener noreferrer">source</a>}
+        </p>
+      )}
     </li>
   );
 }

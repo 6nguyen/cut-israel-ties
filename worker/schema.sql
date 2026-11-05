@@ -90,7 +90,8 @@ CREATE TABLE states (
   holdings_source TEXT,
   campaign_name TEXT,
   campaign_url TEXT,
-  next_comment_date TEXT
+  next_comment_date TEXT,
+  holdings_status TEXT NOT NULL DEFAULT 'unknown'
 );
 
 -- §4 write tables. No document text, no address, no user field is ever stored:

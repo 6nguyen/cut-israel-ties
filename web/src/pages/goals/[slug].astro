@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import GoalTargets from '../../components/GoalTargets';
+import { fillAsk } from '@worker/state-copy';
 import { actionsFor, CATEGORY, fmtDate, markdown, picks, publishedGoals, sources, type Goal } from '../../lib/goals';
 export function getStaticPaths() {
   return publishedGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
@@ -67,7 +68,7 @@ const open = goal.status === 'active';
           <ul class="mt-4 flex flex-col gap-3 max-w-2xl">
             {actions.map((a) => (
               <li class="card p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <p class="flex-1 font-semibold">{a.ask_text}</p>
+                <p class="flex-1 font-semibold">{fillAsk(a.ask_text, null)}</p>
                 <a href={`/goals/${goal.slug}/act/${a.slug}`} class="btn btn-primary shrink-0">{a.type === 'call' ? 'Get my call script' : a.type === 'letter' ? 'Write my letter' : 'Comment'} →</a>
               </li>
             ))}

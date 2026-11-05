@@ -3,6 +3,7 @@
 import type { Action, Goal, Member, Position, Repo, ScreenClass, StateRow } from './types';
 import { DOC_MODEL, SCREEN_MODEL, callMessage, streamMessage } from './anthropic';
 import { priorVote } from './route';
+import { fillAsk } from './state-copy';
 
 export interface FormField { name: string; label: string; max: number; required: boolean; multiline?: boolean; hint?: string }
 export interface DocFormat { kind: 'call_script' | 'letter' | 'public_comment'; min_words: number; max_words: number; mentions: string[]; ask: string }
@@ -145,7 +146,7 @@ export function factBlock(goal: Goal, action: Action, fmt: DocFormat, t: Target)
   if (goal.decision_date) L.push(`Decision date: ${goal.decision_date}`);
   if (goal.window_end) L.push(`Window closes: ${goal.window_end}`);
   if (fmt.mentions.length) L.push(`Section or vote to name: ${fmt.mentions.join(' / ')}`);
-  L.push(`The ask: ${action.ask_text}`);
+  L.push(`The ask: ${fillAsk(action.ask_text, t.kind === 'state' ? t.row : null)}`);
   const pick = firstPick(goal);
   if (pick) L.push(`Our pick: ${pick.name} — ${pick.rationale}`);
   return L.join('\n');

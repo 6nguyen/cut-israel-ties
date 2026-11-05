@@ -107,6 +107,18 @@ receipts and reports are in `personalised-documents.md`.
     (address → Census Geocoder through the Worker, not logged; form fields
     → Anthropic, not retained by the site; Turnstile; Stripe handles
     payments in its own tab).
+14. **State goal copy.** The treasurer target (results card and the goal
+    page's "Your targets") carries one holdings line built by code from
+    the `states.csv` row's `holdings_status`: `held` → "Israel Bonds:
+    holds $<israel_bonds_usd> (as of <holdings_date>)" with a "source"
+    link to `holdings_source`; `none` → "Israel Bonds: holds none (as of
+    <holdings_date>)" with the same source link; `unknown` → "Israel
+    Bonds: not yet sourced" with a "help us find it" link to the research
+    file on GitHub (`RESEARCH_URL`). The state action's ask replaces
+    `{decider}` with the row's `decider` when set, else "your state
+    treasurer" (static pages, which have no state, always show the
+    fallback). `worker/src/state-copy.ts`: `holdingsLine`, `fillAsk`,
+    `moneyUsd`.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
@@ -169,7 +181,10 @@ receipts and reports are in `personalised-documents.md`.
       an all-Republican delegation gets the NDAA goal plus the state goal.
 - [ ] Leadership-goal targets are Democrats only.
 - [ ] Every number and name on a card traces to a `data/` row; nothing is
-      computed by an LLM.
+      computed by an LLM. Every dollar amount a state target shows equals
+      the `states.csv` cell (`web/src/components/Target.test.ts`); a
+      `none` state shows "holds none" with a source link and an `unknown`
+      state links the research file.
 - [ ] `/api/route` never writes to D1.
 - [ ] Fixture delegations D/DD, D/RR, R/DD, R/RR, R/DR, D/DR (one in a
       split city) resolve to the goals in `worker/test/fixtures.ts`.
