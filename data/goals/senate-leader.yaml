@@ -10,6 +10,8 @@ decision_date: 2027-01-05   # placeholder: caucus leadership election date
 priority: 2
 eligibility: {"senator": {"party": "D"}}
 our_picks: []
+sources: []
+decider: Senate Democrats, by secret ballot in caucus
 this_week: ""
 this_week_date: ""
 detail_md: ""

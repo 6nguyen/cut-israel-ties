@@ -1,8 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import AddressForm from '../components/AddressForm';
-import { loadGoals } from '../lib/goals';
-const goals = loadGoals().filter((g) => g.status === 'active');
+import { activeGoals, CATEGORY } from '../lib/goals';
+const goals = activeGoals();
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 ---
 <Base title="Cut the Ties — find the two things you can do this week">
@@ -26,7 +26,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
         <article class="card flex flex-col">
           <div class="relative hero-gradient text-newsprint p-4 min-h-[140px] flex flex-col justify-end">
             <div class="absolute inset-0 halftone pointer-events-none"></div>
-            <span class="relative chip bg-hazard text-ink self-start mb-2">{g.category.replace('_', ' ')}</span>
+            <span class="relative chip bg-hazard text-ink self-start mb-2">{CATEGORY[g.category]}</span>
             <h3 class="relative headline-md">{g.title}</h3>
           </div>
           <div class="p-4 flex flex-col gap-3 flex-1">

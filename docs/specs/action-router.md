@@ -44,6 +44,32 @@ receipts are later capabilities and are still stubs.
    relevant chamber; state goals target the state treasurer row. Role,
    phone and position come from `data/` rows (phone falls back to the
    Capitol switchboard until office numbers are sourced).
+8. **Goals overview (`/goals`).** Every `active` goal as a card in
+   priority order: category chip, "Priority n" chip, title, summary (≤60
+   words, enforced at seed), "We want" sentence, decision date or "not yet
+   scheduled", CTA to `/goals/<slug>`. Below, an "Outcomes" strip lists
+   every `completed` and `expired` goal with its `outcome_note` and
+   decision date (empty state: "No goal has closed yet"). Two columns at
+   ≥768 px.
+9. **Goal detail (`/goals/<slug>`).** Hero (category chip, status chip
+   when closed, title, summary, decision date); "The situation"
+   (`detail_md` rendered as markdown, else the summary); "What we want";
+   "Who decides and when" (`decider`, decision date, window end); "Our
+   pick" block when `our_picks` is non-empty (first pick: name, rationale,
+   source link, signal date); the goal's actions as buttons to
+   `/goals/<slug>/act/<action>`; partner campaign link when `partner_url`
+   is set; sources list (`sources` rows) or a "not yet sourced" line. The
+   sidebar's "Your targets" island reads the stored `{state, district}`
+   and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
+   "Enter your address" linking to `/`. A closed goal shows its outcome
+   block instead of targets and actions. Every page carries Open Graph
+   and Twitter share metadata with a 1200×630 card at
+   `/goals/<slug>/card.png` (other pages use `/card.png`).
+10. **Goal lifecycle.** `upcoming → active → completed | expired`. An
+   `upcoming` goal has no page, is absent from `/api/goals` and from the
+   ranking. When the goal naming it in `successor_slug` is `completed` or
+   `expired`, the loader flips it to `active` on the next seed and build,
+   so retiring a goal is one YAML edit and no code change.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
@@ -55,7 +81,10 @@ receipts are later capabilities and are still stubs.
 - Turnstile is verified when `TURNSTILE_SECRET` is set and skipped
   otherwise (local dev). `GEOCODER_URL` overrides the Census base URL.
 - `GET /api/goals` lists active goals in rank order without eligibility
-  rules.
+  rules. `GET /api/goals/:slug/targets?state=XX&district=N` → `{targets:
+  TargetCard[]}` for one active goal, same rules as the results cards;
+  400 `missing`, 404 `no_goal` (unknown, upcoming or closed) or
+  `no_delegation`.
 - Ranking (`worker/src/ranking.ts`): eligibility rule JSON (`always`,
   `all`, `any`, `house{field: value}`, `senator{…}`, `state{nonempty:
   […]}`) evaluated against the delegation; score = priority × urgency
@@ -70,7 +99,16 @@ receipts are later capabilities and are still stubs.
 - D1 tables `goals`, `actions`, `members`, `positions`, `states`
   (`worker/schema.sql`) are regenerated from `data/` by
   `npm run seed -w worker`; the seed validates slugs, categories,
-  priorities and that every position row carries a source.
+  priorities, summary length (≤60 words), `outcome_note` on closed goals,
+  `our_picks` (≤3 rows with name, rationale, source_url), `sources`
+  (`{title, url}` rows), `successor_slug` targets, and that every
+  position row carries a source. `goals.status` also allows `upcoming`;
+  `goals.decider` is the one-line "who decides".
+- The static site reads `data/` at build through the Worker's loader
+  (Vite alias `@worker` → `worker/src`, `web/src/lib/goals.ts`), so
+  pages and API agree on every row and on the lifecycle. Share cards are
+  rendered at build by `sharp` from an SVG template; absolute share URLs
+  need `SITE_URL` in the Pages build environment.
 - Browser storage: `localStorage` `cut-ties:place` = `{state, district}`;
   `sessionStorage` `cut-ties:route` = last route response.
 
@@ -89,9 +127,17 @@ receipts are later capabilities and are still stubs.
       split city) resolve to the goals in `worker/test/fixtures.ts`.
 - [ ] A goal YAML whose rule names an unknown field, a wrong value type
       or an unknown key fails `npm run seed` and `parseRule`.
+- [ ] Flipping a goal to `completed`/`expired` in YAML moves its
+      `upcoming` successor to `active` on the next load, the ranking picks
+      it up, and a closed goal without `outcome_note` fails the seed
+      (`worker/test/goals.test.ts`).
+- [ ] An `upcoming` goal has no page, no act page and is absent from
+      `/api/goals`; `/api/goals/:slug/targets` returns Democrats only for
+      leadership goals and the treasurer row for state goals.
 
 ## Performance budget
-Landing ≤100 KB transferred (measured 2026-11-04: 20 KB gzip for HTML,
-CSS and all JS chunks, fonts excluded); LCP ≤1.5 s on a mid-range phone
+Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
+CSS and the page's JS chunks, fonts excluded; `/goals` 6 KB,
+`/goals/<slug>` 7 KB); LCP ≤1.5 s on a mid-range phone
 over 4G; `/api/route` ≤2 s p95; infra cost excluding LLM and domain
 = $0/month.

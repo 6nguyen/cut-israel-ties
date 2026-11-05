@@ -64,3 +64,12 @@
 }
 @utility hero-gradient { background: linear-gradient(160deg, #1E2028 0%, #090A0F 55%, #2a1a1f 100%); }
 @utility halftone { background-image: radial-gradient(#FAF7F0 0.75px, transparent 0.75px); background-size: 8px 8px; opacity: 0.12; }
+
+/* Maintainer markdown on goal pages (§2.2). */
+.prose-cut { font-size: 1.0625rem; line-height: 1.6; }
+.prose-cut p + p, .prose-cut ul, .prose-cut ol { margin-top: 1rem; }
+.prose-cut ul { list-style: square; padding-left: 1.25rem; }
+.prose-cut ol { list-style: decimal; padding-left: 1.25rem; }
+.prose-cut a { text-decoration: underline; text-decoration-color: var(--color-acid); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.prose-cut h2, .prose-cut h3 { font-family: var(--font-syne); font-weight: 800; margin-top: 1.5rem; }
+.prose-cut strong { font-weight: 600; }

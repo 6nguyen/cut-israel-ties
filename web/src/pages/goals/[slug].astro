@@ -1,16 +1,102 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadGoals } from '../../lib/goals';
+import GoalTargets from '../../components/GoalTargets';
+import { actionsFor, CATEGORY, fmtDate, markdown, picks, publishedGoals, sources, type Goal } from '../../lib/goals';
 export function getStaticPaths() {
-  return loadGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
+  return publishedGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
 }
-const { goal } = Astro.props;
+const { goal } = Astro.props as { goal: Goal };
+const actions = actionsFor(goal);
+const pick = picks(goal)[0];
+const srcs = sources(goal);
+const situation = markdown(goal.detail_md);
+const date = fmtDate(goal.decision_date);
+const open = goal.status === 'active';
 ---
-<Base title={`${goal.title} — Cut the Ties`}>
-  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
-    <span class="chip bg-hazard">{goal.category.replace('_', ' ')}</span>
-    <h1 class="display-lg mt-3 max-w-4xl">{goal.title}</h1>
-    <p class="mt-4 max-w-2xl text-lg">{goal.summary}</p>
-    <p class="mt-6 card p-4 max-w-2xl text-sm">Stub: the goal detail page and its actions land with §2 and §4. <a href="/" class="underline">Back to your actions</a>.</p>
+<Base title={`${goal.title} — Cut the Ties`} description={goal.summary} image={`/goals/${goal.slug}/card.png`}>
+  <section class="relative hero-gradient text-newsprint overflow-hidden">
+    <div class="absolute inset-0 halftone pointer-events-none"></div>
+    <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-12 lg:py-16">
+      <div class="flex gap-2 mb-4">
+        <span class="chip bg-hazard text-ink border-ink">{CATEGORY[goal.category]}</span>
+        {!open && <span class={`chip ${goal.status === 'completed' ? 'bg-acid text-ink' : 'bg-crimson text-paper'} border-newsprint`}>{goal.status}</span>}
+      </div>
+      <h1 class="display-lg max-w-4xl">{goal.title}</h1>
+      <p class="mt-5 text-lg max-w-2xl">{goal.summary}</p>
+      {open && <p class="mt-4 label-code text-hazard">Decision: {date ?? 'not yet scheduled'}</p>}
+    </div>
   </section>
+
+  <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-8 lg:gap-12">
+    <div class="flex flex-col gap-10">
+      {!open && (
+        <section class="card p-5" aria-labelledby="outcome">
+          <p class="label-code">Outcome</p>
+          <h2 id="outcome" class="headline-md mt-1">{goal.status === 'completed' ? 'Decided' : 'Window closed'}{date ? ` · ${date}` : ''}</h2>
+          <p class="mt-2">{goal.outcome_note}</p>
+        </section>
+      )}
+      <section aria-labelledby="situation">
+        <p class="label-code">The situation</p>
+        <h2 id="situation" class="headline-lg mt-1">What is happening</h2>
+        {situation
+          ? <div class="prose-cut mt-4 max-w-2xl" set:html={situation} />
+          : <p class="mt-4 max-w-2xl">{goal.summary}</p>}
+      </section>
+      <section class="card-lg p-5 lg:p-6 bg-acid" aria-labelledby="want">
+        <p class="label-code">What we want</p>
+        <h2 id="want" class="headline-lg mt-1">{goal.what_we_want}</h2>
+      </section>
+      <section aria-labelledby="decides">
+        <p class="label-code">Who decides and when</p>
+        <h2 id="decides" class="headline-md mt-1">{goal.decider ?? 'Not yet sourced'}</h2>
+        <p class="mt-2 label-code text-ink/70">{date ? `Decision ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · window closes ${fmtDate(goal.window_end)}` : ''}</p>
+      </section>
+      {pick && (
+        <section class="card p-5" aria-labelledby="pick">
+          <p class="label-code">Our pick</p>
+          <h2 id="pick" class="headline-lg mt-1">{pick.name}</h2>
+          <p class="mt-3 max-w-2xl">{pick.rationale}</p>
+          <p class="mt-3 label-ticker"><a href={pick.source_url} rel="noopener" class="underline">Source</a>{pick.signal_date ? ` · ${fmtDate(pick.signal_date)}` : ''}</p>
+        </section>
+      )}
+      {open && (
+        <section aria-labelledby="actions">
+          <p class="label-code">Actions</p>
+          <h2 id="actions" class="headline-lg mt-1">What you can do</h2>
+          <ul class="mt-4 flex flex-col gap-3 max-w-2xl">
+            {actions.map((a) => (
+              <li class="card p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <p class="flex-1 font-semibold">{a.ask_text}</p>
+                <a href={`/goals/${goal.slug}/act/${a.slug}`} class="btn btn-primary shrink-0">{a.type === 'call' ? 'Get my call script' : a.type === 'letter' ? 'Write my letter' : 'Comment'} →</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+
+    <aside class="flex flex-col gap-8">
+      {open && (
+        <section aria-labelledby="targets">
+          <p class="label-code">Your targets</p>
+          <h2 id="targets" class="headline-md mt-1 mb-3">Who to call</h2>
+          <GoalTargets client:load slug={goal.slug} />
+        </section>
+      )}
+      {goal.partner_url && (
+        <section aria-labelledby="partner">
+          <p class="label-code">Partner campaign</p>
+          <a id="partner" href={goal.partner_url} rel="noopener" class="btn btn-ghost mt-2 self-start">Join the campaign ↗</a>
+        </section>
+      )}
+      <section aria-labelledby="sources">
+        <p class="label-code">Sources</p>
+        {srcs.length === 0
+          ? <p id="sources" class="mt-2 text-sm text-ink/70">Sources are added as the record is sourced; nothing on this page is computed.</p>
+          : <ul id="sources" class="mt-2 flex flex-col gap-1 text-sm">{srcs.map((s) => <li><a href={s.url} rel="noopener" class="underline">{s.title}</a></li>)}</ul>}
+      </section>
+      <p><a href="/goals" class="label-code underline underline-offset-4">All goals →</a></p>
+    </aside>
+  </div>
 </Base>

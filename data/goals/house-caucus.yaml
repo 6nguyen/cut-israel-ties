@@ -10,6 +10,8 @@ decision_date: 2026-11-18   # placeholder: caucus meeting date
 priority: 2
 eligibility: {"house": {"party": "D"}}
 our_picks: []
+sources: []
+decider: The House Democratic caucus, after private calls with each member
 this_week: ""
 this_week_date: ""
 detail_md: ""

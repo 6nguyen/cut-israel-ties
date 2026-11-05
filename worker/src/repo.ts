@@ -11,6 +11,10 @@ export class D1Repo implements Repo {
     return results;
   }
 
+  async goalBySlug(slug: string): Promise<Goal | null> {
+    return (await this.db.prepare(`SELECT * FROM goals WHERE slug = ?`).bind(slug).first<Goal>()) ?? null;
+  }
+
   async actionsFor(goalIds: number[]): Promise<Action[]> {
     if (goalIds.length === 0) return [];
     const marks = goalIds.map(() => '?').join(',');
@@ -65,6 +69,9 @@ export class MemoryRepo implements Repo {
     return this.rows.goals
       .filter((g) => g.status === 'active')
       .sort((a, b) => b.priority - a.priority || a.slug.localeCompare(b.slug));
+  }
+  async goalBySlug(slug: string): Promise<Goal | null> {
+    return this.rows.goals.find((g) => g.slug === slug) ?? null;
   }
   async actionsFor(goalIds: number[]): Promise<Action[]> {
     return this.rows.actions.filter((a) => goalIds.includes(a.goal_id)).sort((a, b) => a.goal_id - b.goal_id || a.order - b.order);

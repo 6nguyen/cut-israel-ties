@@ -1,0 +1,19 @@
+slug: ndaa-report-vote
+category: federal_vote
+title: Vote no on an NDAA report that keeps the integration section
+summary: Once the conference report is filed, it is voted on without amendment. A no vote from your member is the last lever on the integration section this year.
+what_we_want: Your representative and senators vote no on the conference report if the integration section survived conference.
+status: upcoming   # becomes active on the deploy after ndaa-1217 is completed or expired (§2.3)
+window_start: 2026-12-01
+window_end: 2026-12-31
+decision_date: ""   # set to the floor vote date when scheduled
+priority: 3
+eligibility: {"any": [{"house": {}}, {"senator": {}}]}
+our_picks: []
+sources: []
+decider: Every member of the House and Senate, on the conference report
+this_week: ""
+this_week_date: ""
+detail_md: ""
+prep_md: ""
+partner_url: ""

@@ -1,0 +1,9 @@
+slug: ndaa-report-vote-call
+goal: ndaa-report-vote
+type: call
+target_scope: both
+order: 1
+ask_text: Ask your member to vote no on the NDAA conference report because it keeps the integration section.
+form_schema: {"fields": []}
+prompt_template: ""
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}

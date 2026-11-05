@@ -1,14 +1,34 @@
-// Build-time read of data/goals for the stub pages §2 will replace.
-import { readFileSync, readdirSync } from 'node:fs';
+// Build-time view of data/ for the goal pages. Uses the Worker's loader so the
+// status lifecycle (§2.3), validations and row shapes are one code path.
 import { join } from 'node:path';
-import { parse } from 'yaml';
+import { marked } from 'marked';
+import { loadRows } from '@worker/load';
+import type { Action, Goal } from '@worker/types';
 
-export interface GoalStub { slug: string; title: string; summary: string; category: string; status: string; priority: number; decision_date: string | null }
+export type { Action, Goal };
+export interface Pick { name: string; rationale: string; source_url: string; signal?: string; signal_date?: string }
+export interface Source { title: string; url: string }
 
-export function loadGoals(): GoalStub[] {
-  const dir = join(process.cwd(), '..', 'data', 'goals');
-  return readdirSync(dir).filter((f) => f.endsWith('.yaml')).sort().map((f) => {
-    const y = parse(readFileSync(join(dir, f), 'utf8')) as Record<string, unknown>;
-    return { slug: String(y.slug), title: String(y.title), summary: String(y.summary), category: String(y.category), status: String(y.status), priority: Number(y.priority), decision_date: y.decision_date ? String(y.decision_date) : null };
-  }).sort((a, b) => b.priority - a.priority || a.slug.localeCompare(b.slug));
+let cache: ReturnType<typeof loadRows> | null = null;
+function rows() { return (cache ??= loadRows(join(process.cwd(), '..', 'data'))); }
+
+const byPriority = (a: Goal, b: Goal) => b.priority - a.priority || a.slug.localeCompare(b.slug);
+
+export function activeGoals(): Goal[] { return rows().goals.filter((g) => g.status === 'active').sort(byPriority); }
+/** Completed and expired goals, newest decision first; the Outcomes strip (§2.1). */
+export function closedGoals(): Goal[] {
+  return rows().goals.filter((g) => g.status === 'completed' || g.status === 'expired').sort((a, b) => (b.decision_date ?? '').localeCompare(a.decision_date ?? '') || a.slug.localeCompare(b.slug));
+}
+/** Every goal that gets a page: active and closed; upcoming goals stay unpublished. */
+export function publishedGoals(): Goal[] { return [...activeGoals(), ...closedGoals()]; }
+export function actionsFor(goal: Goal): Action[] { return rows().actions.filter((a) => a.goal_id === goal.id).sort((a, b) => a.order - b.order); }
+export function picks(goal: Goal): Pick[] { return JSON.parse(goal.our_picks) as Pick[]; }
+export function sources(goal: Goal): Source[] { return JSON.parse(goal.sources) as Source[]; }
+export function markdown(md: string | null): string { return md ? (marked.parse(md, { async: false }) as string) : ''; }
+
+export const CATEGORY: Record<Goal['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
+export function fmtDate(d: string | null): string | null {
+  if (!d) return null;
+  const t = Date.parse(d + 'T00:00:00');
+  return Number.isNaN(t) ? d : new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }

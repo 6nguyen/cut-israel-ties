@@ -234,12 +234,12 @@ Relies on: `docs/research/social-platform-trends.md`,
   `data/states.csv`. `scripts/seed.ts` loads them into D1.
 - D1 tables:
   - `goals(id, slug, category federal_vote|leadership|state|electoral,
-    title, summary, what_we_want, status active|completed|expired,
+    title, summary, what_we_want, status upcoming|active|completed|expired,
     outcome_note, window_start, window_end, decision_date, priority,
     eligibility json, our_picks json[{name, rationale, source_url,
-    signal, signal_date}] (≤3, ordered),
-    successor_slug, this_week text, this_week_date, detail_md, prep_md,
-    partner_url, updated_at)`
+    signal, signal_date}] (≤3, ordered), sources json[{title, url}],
+    decider text, successor_slug, this_week text, this_week_date,
+    detail_md, prep_md, partner_url, updated_at)`
   - `actions(id, goal_id, slug, type call|letter|public_comment,
     target_scope house|senate|state, order, ask_text, form_schema json,
     prompt_template, doc_format json{kind, min_words, max_words})`
@@ -258,7 +258,8 @@ Relies on: `docs/research/social-platform-trends.md`,
   - `generations(id, action_id, target_id, shingles blob, created_at,
     device_hash, input_tokens, output_tokens, model)` — no document text.
 - Worker endpoints: `POST /api/route {address}` → `{state, district,
-  house, senators[], state_row, goals[2]}`; `GET /api/goals`; `POST
+  house, senators[], state_row, goals[2]}`; `GET /api/goals`; `GET
+  /api/goals/:slug/targets?state&district` → `{targets[]}`; `POST
   /api/generate {action, target, fields, turnstile}` (SSE stream); `POST
   /api/receipt`; `POST /api/report`. All JSON, no cookies, device hash =
   SHA-256 of a random localStorage id.
@@ -350,25 +351,27 @@ page shows the real number from `MONTHLY_COST_USD`.
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [x] 1. Landing and address routing · PR #8 merged
-  - [~] 5. Goal ranking (deterministic) · feat/action-router-goal-ranking · PR #9
-  - [ ] 2. Goals overview and detail
+  - [x] 5. Goal ranking (deterministic) · PR #9 merged
+  - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
   - [ ] 4. Actions and personalised documents
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
-- Completed: §1 (PR #8). §5 engine landed in §1; this PR adds strict rule
-  validation and the grammar doc.
-- Folded: §1, §5 (`docs/specs/action-router.md`).
-- Branch / open PRs: feat/action-router-goal-ranking · PR #9.
-- Files changed: `worker/src/ranking.ts` (validateRule),
-  `worker/test/ranking.test.ts`, `data/README.md`, spec.
-- Tests run: quiet-check tsc PASS, test PASS (43 vitest); topTwo 3.4 µs
-  per delegation.
-- Remaining: §2, §4, §3, §6, §7.
-- Decisions since last update: rule fields limited to the §5.1 inputs;
-  flags are integers 0/1 in rules, matching the CSV loader.
-- Next action: merge PR #9, then /implement-prd-section
-  docs/prd/action-router.md (next: §2. Goals overview and detail).
+- Completed: §1 (PR #8), §5 (PR #9).
+- Folded: §1, §5, §2 (`docs/specs/action-router.md`).
+- Branch / open PRs: feat/action-router-goals-overview (PR #10).
+- Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
+  of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
+  goal), card PNG, 375 px layout. Landing 7 KB gzip, `/goals` 6 KB,
+  detail 7 KB.
+- Remaining: §4, §3, §6, §7.
+- Decisions since last update: `upcoming` status + loader promotion
+  implements §2.3 (one YAML edit retires a goal); `decider` and
+  `sources` columns added so "who decides" and sources are data rows,
+  not page copy; share cards are built from an SVG template by `sharp`
+  (system font fallback until a licence-safe face is vendored).
+- Next action: merge PR #10, then /implement-prd-section
+  docs/prd/action-router.md (next: §4. Actions and personalised documents).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
    the goal ships with up to three picks (`our_picks`), chosen by a
@@ -424,3 +427,12 @@ page shows the real number from `MONTHLY_COST_USD`.
   allowlist and value types (party `D|R|I`, flags `0|1`, text), so a bad
   seed rule fails at seed time instead of silently excluding a goal;
   grammar documented in `data/README.md`; 3 tests added.
+- 2026-11-04 — §2 built: `/goals` overview (priority-ordered cards +
+  Outcomes strip) and `/goals/<slug>` detail (situation markdown, what we
+  want, decider and date, our-pick block, stored-district targets via
+  `GET /api/goals/:slug/targets`, action buttons, partner link, sources,
+  share metadata + build-time card PNG). Contract additions: goal status
+  `upcoming` (hidden until its predecessor closes; the loader promotes the
+  successor, §2.3), `goals.sources` and `goals.decider`; the seed now
+  enforces summary ≤60 words and `outcome_note` on closed goals. The web
+  build reads `data/` through the Worker loader. 10 tests added.

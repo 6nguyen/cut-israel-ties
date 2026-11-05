@@ -1,21 +1,17 @@
 ---
 import Base from '../../../../layouts/Base.astro';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-import { parse } from 'yaml';
+import { actionsFor, publishedGoals } from '../../../../lib/goals';
 export function getStaticPaths() {
-  const dir = join(process.cwd(), '..', 'data', 'actions');
-  return readdirSync(dir).filter((f) => f.endsWith('.yaml')).map((f) => {
-    const y = parse(readFileSync(join(dir, f), 'utf8')) as { slug: string; goal: string; ask_text: string };
-    return { params: { slug: y.goal, action: y.slug }, props: { ask: y.ask_text } };
-  });
+  return publishedGoals().filter((g) => g.status === 'active').flatMap((g) =>
+    actionsFor(g).map((a) => ({ params: { slug: g.slug, action: a.slug }, props: { ask: a.ask_text, goal: g.slug } })),
+  );
 }
-const { ask } = Astro.props;
+const { ask, goal } = Astro.props;
 ---
 <Base title="Your action — Cut the Ties">
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
     <p class="label-code">The ask</p>
     <h1 class="headline-lg mt-2 max-w-3xl">{ask}</h1>
-    <p class="mt-6 card p-4 max-w-2xl text-sm">Stub: the personalised call script and letter generator land with §4. <a href="/results" class="underline">Back to your actions</a>.</p>
+    <p class="mt-6 card p-4 max-w-2xl text-sm">Stub: the personalised call script and letter generator land with §4. <a href={`/goals/${goal}`} class="underline">Back to the goal</a> · <a href="/results" class="underline">your actions</a>.</p>
   </section>
 </Base>
