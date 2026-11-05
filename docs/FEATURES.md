@@ -12,4 +12,4 @@
 | 2028-primary-target-goal-with-candidate- | PLANNED | 2028 primary-target goal with candidate picks | - | Next #4 | - |
 | on-device-district-lookup | PLANNED | On-device district lookup | - | Next #5 | - |
 | senate-leader-candidate-scan-ig-tiktok-w | PLANNED | Senate leader candidate scan (IG, TikTok, web) | - | Next #6 | - |
-| personalised-documents | SHIPPED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | - | 2026-11-04 |
+| personalised-documents | SHIPPED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | - | - |
