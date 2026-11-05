@@ -114,13 +114,13 @@ listing; share of districts with any listing.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Listing a visit · feat/office-visits · PR pending
-  - [~] 2. Finding and joining a visit · feat/office-visits · PR pending
-  - [~] 3. Safety · feat/office-visits · PR pending
+  - [~] 1. Listing a visit · feat/office-visits · PR #28
+  - [~] 2. Finding and joining a visit · feat/office-visits · PR #28
+  - [~] 3. Safety · feat/office-visits · PR #28
 - Completed: §1–3 implemented and tested on the branch; not merged.
 - Folded: docs/specs/office-visits.md added; maintainer-tooling.md §3 digest
   and action-router.md item 13 updated (same PR).
-- Branch / open PRs: feat/office-visits → integ/next-prds (PR pending).
+- Branch / open PRs: feat/office-visits → integ/next-prds (PR #28, https://github.com/6nguyen/cut-the-ties/pull/28).
 - Files changed: worker/schema.sql (members +2 cols, visits, visit_requests);
   worker/src/visits.ts (new); worker/src/types.ts, repo.ts (visit methods),
   index.ts (6 routes, CORS DELETE), digest.ts (pending block), load.ts,
@@ -134,7 +134,7 @@ listing; share of districts with any listing.
 - Tests run: quiet-check prd-lint, doc-lint, tsc, test, test-web, build — PASS.
 - Remaining: merge via integ/next-prds; fill district_office_* in data/;
   set VISITS_REVIEW_SECRET on the Worker; measure /api/visits p95 live.
-- Next action: review and merge PR; then /handoff.
+- Next action: review and merge PR #28 into integ/next-prds; then /handoff.
 ## Open questions
 1. Decided 2026-11-04: host listings, gated by maintainer approval from
    the digest, with coordination in the organiser's own channel. Revisit
@@ -150,7 +150,7 @@ listing; share of districts with any listing.
 - 2026-11-04 — APPROVED: owner decided to host listings behind the
   digest gate and to treat the contact link as deletable personal data
   (§3.4, privacy spec delta, new acceptance criterion).
-- 2026-11-04 — §1–3 built on `feat/office-visits` (PR pending). Deviation:
+- 2026-11-04 — §1–3 built on `feat/office-visits` (PR #28). Deviation:
   `members.district_office_city` is empty for every row, so until a data/
   PR fills it the organiser types the office city (letters only); the
   column wins once set. Note screening runs on the raw note before
