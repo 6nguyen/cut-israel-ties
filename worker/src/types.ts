@@ -106,7 +106,8 @@ export interface GenerationRow {
   output_tokens: number;
   model: string;
 }
-export interface ReceiptRow { goal_id: number; action_id: number; target_id: string; state: string | null; district: number | null; created_at: string; device_hash: string }
+export type ReceiptKind = 'action' | 'captain-list'; // commitment-funnel §2.1: 'captain-list' rows have no action and no target
+export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind }
 export type ReportOutcome = 'will_support' | 'undecided' | 'opposed' | 'no_answer' | 'other';
 export interface ReportRow { bioguide_id: string; goal_id: number; outcome: ReportOutcome; note: string | null; created_at: string; device_hash: string }
 export type ScreenClass = 'off_topic' | 'injection' | 'harmful';

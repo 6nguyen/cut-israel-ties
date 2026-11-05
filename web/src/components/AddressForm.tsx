@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { route } from '../lib/api';
 import { STATES, cacheRoute, loadPlace, savePlace } from '../lib/store';
+import { hasOpenItems } from '../lib/commitments';
 
 declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => void } } }
 
@@ -20,8 +21,8 @@ export default function AddressForm({ siteKey }: Props) {
   const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // §1.5 return visit: skip the field.
-    if (loadPlace()) { location.replace('/results'); return; }
+    // §1.6 return visit: skip the field, unless an open commitment or captain list puts "Your week" on this page (commitment-funnel §2.1).
+    if (loadPlace() && !hasOpenItems()) { location.replace('/results'); return; }
     if (siteKey && widget.current) {
       const s = document.createElement('script');
       s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';

@@ -99,14 +99,19 @@ CREATE TABLE states (
 CREATE TABLE receipts (
   id INTEGER PRIMARY KEY,
   goal_id INTEGER NOT NULL REFERENCES goals(id),
-  action_id INTEGER NOT NULL REFERENCES actions(id),
-  target_id TEXT NOT NULL,
+  action_id INTEGER REFERENCES actions(id),
+  target_id TEXT,
   state TEXT,
   district INTEGER,
   created_at TEXT NOT NULL,
-  device_hash TEXT NOT NULL
+  device_hash TEXT NOT NULL,
+  -- commitment-funnel §2.1: a completed captain list is a receipt of kind 'captain-list' with no
+  -- action and no target (names never reach the server); 'action' rows keep both and the FK.
+  kind TEXT NOT NULL DEFAULT 'action' CHECK (kind IN ('action','captain-list')),
+  CHECK (CASE kind WHEN 'action' THEN action_id IS NOT NULL AND target_id IS NOT NULL ELSE action_id IS NULL AND target_id IS NULL END)
 );
 CREATE INDEX receipts_created ON receipts(created_at);
+CREATE INDEX receipts_kind_goal ON receipts(kind, goal_id, state, district);
 
 CREATE TABLE reports (
   id INTEGER PRIMARY KEY,

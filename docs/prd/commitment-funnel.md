@@ -1,5 +1,5 @@
 # Commitment funnel and captains — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 The shipped flow ends at a receipt and a share button
@@ -85,8 +85,11 @@ want to see what is still open and tick it off, not re-enter an address.
 ## Data & contracts
 - `localStorage` `cut-ties:commitments` (array), `cut-ties:captain`
   (object); schema versioned with a `v: 1` field.
-- `receipts.action_id` gains the synthetic value `captain-list`
-  (CHECK updated); `POST /api/receipt` accepts it with `target` null.
+- `receipts` gains `kind IN ('action','captain-list')`; `action_id` and
+  `target_id` become nullable and a CHECK ties them to `kind`, so the FK
+  still guards ordinary receipts (a synthetic `action_id` value cannot
+  live in an integer FK column). `POST /api/receipt` accepts `action:
+  'captain-list'` with no target.
 - `.ics` is generated in the browser from a template
   (`web/src/lib/ics.ts`); nothing is fetched.
 - New island `web/src/components/YourWeek.tsx`; `ActForm.tsx` gains the
@@ -126,16 +129,18 @@ return visits with an open item (client counter sent with the receipt as
 a boolean).
 
 ## State (updated 2026-11-04)
+- Status: BUILDING
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Commitment after the receipt
-  - [ ] 2. Checklist and return visit
-  - [ ] 3. Share after the list
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all.
-- Next action: /implement-prd-section docs/prd/commitment-funnel.md (§1).
-
+  - [~] 1. Commitment after the receipt · feat/commitment-funnel · PR #24
+  - [~] 2. Checklist and return visit · feat/commitment-funnel · PR #24
+  - [~] 3. Share after the list · feat/commitment-funnel · PR #24
+- Completed: §1–3 implemented and tested on the branch; nothing merged.
+- Folded: spec delta applied on the branch (`docs/specs/commitment-funnel.md` added; `personalised-documents.md` §4 and `action-router.md` §1/§6 modified); counts as folded when the PR merges.
+- Branch / open PRs: feat/commitment-funnel · PR #24.
+- Files changed: worker/schema.sql:98-112 (receipts.kind, nullable ids, index); worker/src/types.ts:105-106 (ReceiptKind); worker/src/repo.ts:136-141 (D1 insert); worker/src/index.ts:140-163 (captain-list branch); worker/test/generate.test.ts:403-424; web/src/lib/commitments.ts (new); web/src/lib/ics.ts (new); web/src/components/Funnel.tsx (new); web/src/components/YourWeek.tsx (new); web/src/components/ActForm.tsx:1-6,58-75,228-240 (Funnel, share gate, nudge); web/src/components/AddressForm.tsx:4,21-22 (return rule); web/src/pages/index.astro:3-8,16-18; web/src/pages/goals/[slug]/act/[action].astro:21; web/src/pages/privacy.astro:12; web/src/lib/store.ts:24-36 (deviceId); web/vitest.config.ts + web/test/setup.ts; tests web/src/lib/*.test.ts, web/src/components/funnel.test.ts.
+- Tests run: quiet-check prd-lint, doc-lint, tsc, test (worker), test-web (17), build — all PASS; landing 24.0 KB gzip (budget ≤100 KB).
+- Remaining: merge via the integration PR; after merge mark Sections `[x]`, Status SHIPPED, archive the PRD.
+- Next action: review and merge PR; then /handoff to archive.
 ## Open questions
 1. Default commitment deadline. Proposal: next weekday 17:00 local;
    never later than the goal's decision date.
@@ -144,6 +149,15 @@ a boolean).
    the order the evidence supports.
 
 ## Changes
+- 2026-11-04 — §1–3 built on `feat/commitment-funnel`. Decisions: open
+  question 1 adopted as proposed (next weekday 17:00 local, capped at the
+  decision date; a repeat call may pick any day up to the vote); open
+  question 2 adopted (the list only follows a receipt). Schema: instead
+  of a synthetic `action_id`, `receipts.kind` with nullable, CHECK-tied
+  `action_id`/`target_id` (spec `## Data & contracts`). The share image
+  is drawn on the device (canvas) and attached when the browser can
+  share files, so no Worker endpoint was added. The captain record also
+  keeps the target official's surname (`who`) for the share line.
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Replaces the commitment, captains and
   reflection parts of `## Next` row 2; reflection already shipped.

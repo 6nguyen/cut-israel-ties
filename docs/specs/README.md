@@ -21,6 +21,7 @@ Rules:
 | [maintainer-tooling.md](maintainer-tooling.md) | Draft a sourced position row, nightly report digest by email, seed `data/` into D1 | `worker/scripts/draft-position.ts`, `worker/src/digest.ts`, `worker/scripts/seed.ts` |
 | [deployment.md](deployment.md) | Merge → Worker + D1 seed + Pages deploy, PR previews, rollback, variable table | `.github/workflows/deploy.yml`, `worker/scripts/render-deploy-config.ts`, `web/functions/api/[[path]].ts` |
 | [on-device-districts.md](on-device-districts.md) | Browser location → district on the device, per-state TopoJSON built from TIGER/Line | `scripts/build-districts.ts`, `web/src/lib/pip.ts`, `web/public/districts/` |
+| [commitment-funnel.md](commitment-funnel.md) | Private commitment and captain list after a receipt, "Your week" checklist, `.ics` reminder, share after a completed list | `web/src/components/Funnel.tsx`, `web/src/components/YourWeek.tsx`, `web/src/lib/commitments.ts`, `web/src/lib/ics.ts` |
 
 ## Template (copy for a new capability)
 

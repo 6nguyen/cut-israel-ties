@@ -2,13 +2,16 @@
   "name": "cut-the-ties",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["web", "worker"],
+  "workspaces": [
+    "web",
+    "worker"
+  ],
   "scripts": {
     "dev": "npm run dev -w worker & npm run dev -w web",
     "build": "npm run build -w web",
     "test": "npm run test -w worker",
     "seed": "npm run seed -w worker"
   },
-  "devDependencies": { "mapshaper": "^0.6.102" },
+  "devDependencies": { "happy-dom": "^17.6.3", "mapshaper": "^0.6.102" },
   "engines": { "node": ">=22" }
 }
