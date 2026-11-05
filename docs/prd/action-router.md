@@ -353,12 +353,12 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
   - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
-  - [ ] 4. Actions and personalised documents
+  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
 - Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2 (`docs/specs/action-router.md`).
+- Folded: §1, §5, §2, §4 (`docs/specs/action-router.md`).
 - Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
   of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
@@ -436,3 +436,22 @@ page shows the real number from `MONTHLY_COST_USD`.
   successor, §2.3), `goals.sources` and `goals.decider`; the seed now
   enforces summary ≤60 words and `outcome_note` on closed goals. The web
   build reads `data/` through the Worker loader. 10 tests added.
+- 2026-11-04 — §4 built: `POST /api/generate` (guardrails §4.8 in order,
+  Haiku screen, Opus streaming via raw Messages API with JSON schema and
+  cached prefix, deterministic output check, shingle uniqueness, one
+  `generations` row per request), `POST /api/receipt`, `POST
+  /api/report`, D1 tables `generations/screenings/blocks/receipts/
+  reports`, `worker/.dev.vars.example`, the `ActForm` island on the
+  existing `/goals/<slug>/act/<action>` page. Decisions: §4.1's
+  `/act/<action>?target=` becomes `?target=<bioguide_id>` (state code
+  for treasurer actions) on the existing route, with the stored
+  district's targets as the chooser when absent; a failed output check
+  regenerates once then refuses (supersedes §4.3's "show with a
+  warning"); digit runs typed by the user in their own fields are
+  allowed alongside the fact block, since "voted for you in 2024" is
+  the user's material; `doc_format` gains `mentions[]` and `ask` so the
+  section/vote and ask-phrase checks are data, not code; `generations`
+  also stores an IP hash for the per-IP limit; without
+  `ANTHROPIC_API_KEY` the endpoint returns 503 `unconfigured`. 23 tests
+  added (`worker/test/generate.test.ts`, 40 abusive + 22 benign screen
+  fixtures); spec folded.

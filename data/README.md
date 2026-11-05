@@ -8,7 +8,7 @@ number or a name that is not a row here.
 | File | Table | Notes |
 |---|---|---|
 | `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
-| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. |
+| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; empty fields render as "not yet sourced". |
@@ -48,3 +48,19 @@ Score = `priority` × urgency (2 when `decision_date` is ≤14 days away,
 1.5 when ≤45, else 1; a past or empty date scores 1). Ties go to the
 earlier decision date, then the slug. The top two are shown; a single
 eligible goal is paired with the state goal.
+
+## Action form, prompt and document format (PRD §4)
+- `form_schema.fields[]`: `name` (the only keys `/api/generate` accepts),
+  `label`, `max` (characters; the Worker rejects longer values and strips
+  markup, URLs, emails, phones and control characters), `required`,
+  optional `multiline` and `hint`. The schema is the only path into the
+  prompt.
+- `prompt_template`: action-specific guidance appended to the fixed system
+  prompt. It may name what to open with and what to close on; it must not
+  restate numbers (those come from the fact block built by code).
+- `doc_format`: `kind` (`call_script | letter | public_comment`),
+  `min_words`, `max_words`, `mentions` (phrases, one of which the output
+  must contain, e.g. the section number) and `ask` (the exact ask phrase
+  the output must contain). The deterministic output check in
+  `worker/src/generate.ts` enforces all of them; a failed check
+  regenerates once, then refuses.

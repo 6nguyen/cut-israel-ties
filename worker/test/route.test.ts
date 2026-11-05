@@ -145,10 +145,19 @@ describe('privacy: the address never reaches a log or a store (§1.2)', () => {
     expect(text).not.toContain('Kennedy');
     expect(text).not.toContain('19107');
   });
-  it('the repo on the route path is read-only', () => {
+  it('the route path never calls a repo writer', async () => {
+    const f = fakeFetch({});
     const repo = new MemoryRepo(rows);
-    const writers = Object.getOwnPropertyNames(Object.getPrototypeOf(repo)).filter((n) => /insert|write|save|record|put|set/i.test(n));
-    expect(writers).toEqual([]);
+    const writers = Object.getOwnPropertyNames(Object.getPrototypeOf(repo)).filter((n) => /insert|write|save|record|put|set|^block$/i.test(n));
+    expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening']);
+    const spies = writers.map((w) => vi.spyOn(repo, w as keyof MemoryRepo & string));
+    const a = createApp({ repo: () => repo, fetch: f.impl, now: () => TODAY });
+    for (const fx of FIXTURES) {
+      const res = await a.request('/api/route', { method: 'POST', body: JSON.stringify({ address: fx.address }), headers: { 'content-type': 'application/json' } }, ENV);
+      expect(res.status).toBe(200);
+    }
+    for (const s of spies) expect(s).not.toHaveBeenCalled();
+    expect(repo.generations.length + repo.receipts.length + repo.reports.length + repo.screenings.length + repo.blocks.size).toBe(0);
   });
 });
 

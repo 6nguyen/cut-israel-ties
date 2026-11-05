@@ -1,0 +1,7 @@
+# Copy to worker/.dev.vars (gitignored) for `npm run dev`. Placeholders only; never commit real values.
+# Without ANTHROPIC_API_KEY, POST /api/generate answers 503 `unconfigured`.
+ANTHROPIC_API_KEY=sk-ant-replace-me
+# Without TURNSTILE_SECRET the bot check is skipped (local dev only).
+TURNSTILE_SECRET=
+# Global daily generation cap (PRD §4.7); wrangler.jsonc sets the production default.
+MAX_GENERATIONS_PER_DAY=500
