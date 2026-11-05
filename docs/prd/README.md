@@ -41,18 +41,21 @@ never load them.
 ## Index (open changes only)
 | PRD | Status | Owner surfaces |
 |---|---|---|
+| [deploy.md](deploy.md) | APPROVED | Cloudflare provisioning, CI deploy on merge, go-live checklist |
+| [member-pages.md](member-pages.md) | APPROVED | `/m/<id>` member pages, `/goals/<slug>/whip`, roster import |
+| [commitment-funnel.md](commitment-funnel.md) | APPROVED | post-receipt commitment, captain list of three, "Your week" card |
+| [district-counters.md](district-counters.md) | APPROVED | `/api/counts`, counter line on cards, receipt abuse limits |
+| [office-visits.md](office-visits.md) | DRAFT | district-office visit listings and slot requests |
+| [state-holdings-sweep.md](state-holdings-sweep.md) | APPROVED | `draft-holding`, `states.csv` checks, 50-state sweep |
+| [primary-2028.md](primary-2028.md) | DRAFT | `electoral` goal per 2028 target, `data/elections.csv` |
+| [on-device-districts.md](on-device-districts.md) | APPROVED | browser-location district lookup, per-state TopoJSON |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
 in the same commit; dropping an idea deletes its row.
 | # | Idea | Targets | Notes |
 |---|---|---|---|
-| 1 | Per-member public pages and whip-count table | new | From the superseded vote-tracker PRD; SEO via stable `/m/<id>` URLs |
-| 2 | Captains, district counters, reflection, office visits | new | Full follow-through funnel (research: behavioral-science-and-virality) |
-| 3 | State Israel-bond holdings sweep (44 states) | new | Fills `data/states.csv`; research task first |
-| 4 | 2028 primary-target goal with candidate picks | new | Blocked on action-router Open question 7 (express advocacy rules) |
-| 5 | On-device district lookup | new | Removes the Census Geocoder from the address path |
-| 6 | Senate leader candidate scan (IG, TikTok, web) | new | Research first: `docs/research/senate-leader-candidates.md`; feeds `our_picks` on the Senate leader goal |
+| 1 | Senate leader candidate scan (IG, TikTok, web) | new | Research first: `docs/research/senate-leader-candidates.md`; feeds `our_picks` on the Senate leader goal |
 
 ## Template (copy for a new feature)
 
