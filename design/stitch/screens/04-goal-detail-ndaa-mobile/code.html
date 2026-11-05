@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES // DISPATCH #1217</title>
+<!-- Google Fonts: Bebas Neue, Syne, Space Mono, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ef",
+            "surface-bright": "#faf8ff",
+            "primary": "#006d34",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1b21",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed-variant": "#574500",
+            "on-primary-fixed": "#00210b",
+            "surface": "#faf8ff",
+            "inverse-primary": "#00e474",
+            "surface-variant": "#e3e1e9",
+            "on-tertiary-container": "#675300",
+            "primary-container": "#00e876",
+            "tertiary-fixed": "#ffe083",
+            "on-background": "#1a1b21",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3036",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "secondary-container": "#e4164a",
+            "surface-container-highest": "#e3e1e9",
+            "on-surface-variant": "#3b4a3d",
+            "tertiary-container": "#f3c504",
+            "secondary-fixed-dim": "#ffb2b7",
+            "primary-fixed-dim": "#00e474",
+            "error-container": "#ffdad6",
+            "outline-variant": "#bacbb9",
+            "surface-container-low": "#f4f2fa",
+            "surface-container": "#efedf5",
+            "on-primary-container": "#00622e",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#ffdadb",
+            "primary-fixed": "#62ff95",
+            "on-primary-fixed-variant": "#005226",
+            "on-tertiary-fixed": "#231b00",
+            "secondary": "#b90038",
+            "on-secondary-fixed-variant": "#92002a",
+            "surface-tint": "#006d34"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Syne"],
+            "label-code": ["Space Mono"],
+            "headline-md": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-ticker": ["Space Mono"],
+            "display-lg": ["Bebas Neue"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Syne"],
+            "body-lg": ["Inter"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Tactical brutalist offsets */
+    .shadow-hard-sm {
+      box-shadow: 2px 2px 0px #1a1b21;
+    }
+    .shadow-hard {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .shadow-hard-lg {
+      box-shadow: 6px 6px 0px #1a1b21;
+    }
+    .active-press:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #1a1b21;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-background antialiased">
+<!-- Mobile Viewport Shell (Strict 390px centered preview container) -->
+<div class="w-full max-w-[390px] mx-auto bg-background min-h-screen flex flex-col border-x-2 border-on-background shadow-2xl relative pb-28">
+<!-- TOP TICKER BAR: Real-time Dispatch Pulse -->
+<aside aria-label="Urgent Broadcast" class="bg-on-background text-tertiary-container border-b-2 border-on-background px-3 py-1 flex items-center justify-between">
+<div class="flex items-center gap-1.5 overflow-hidden">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span class="font-label-ticker text-label-ticker tracking-widest uppercase truncate">LIVE ALERT // RECONCILIATION DEADLINE T-MINUS 72H</span>
+</div>
+<span class="font-label-code text-label-ticker text-surface-container-lowest font-bold ml-2 shrink-0">NDAA.2025</span>
+</aside>
+<!-- HEADER / NAVIGATION (Task-Focused Detail View: TopBar Anchor) -->
+<header class="w-full border-b-2 border-on-background bg-surface px-margin py-3 flex items-center justify-between sticky top-0 z-40">
+<a class="flex items-center gap-1 font-label-code text-label-code text-on-surface hover:text-secondary active:translate-x-0.5 active:translate-y-0.5 transition-none py-1" href="#back">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+<span class="font-bold">ALL GOALS</span>
+</a>
+<div class="flex flex-col items-center">
+<span class="font-display-lg-mobile text-display-lg-mobile leading-none tracking-tight text-on-background">CUT THE TIES</span>
+</div>
+<div class="bg-surface-container border border-on-background px-2 py-0.5 shadow-hard-sm">
+<span class="font-label-ticker text-label-ticker font-bold text-on-surface">DISPATCH #1217</span>
+</div>
+</header>
+<!-- MAIN EDITORIAL CONTENT -->
+<main class="flex-1 px-margin py-4 space-y-5">
+<!-- STATUS BADGE / URGENCY PLATE -->
+<section aria-label="Priority Status">
+<div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary border-2 border-on-background px-3 py-1.5 shadow-hard-sm w-full">
+<span class="material-symbols-outlined text-surface-bright text-base" data-icon="warning" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-label-code text-label-code uppercase tracking-wider font-bold leading-tight">
+            CRITICAL TIMING // CONFERENCE COMMITTEE MEETS THIS WEEK
+          </span>
+</div>
+</section>
+<!-- HEADLINE TITLE -->
+<section>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background uppercase tracking-tight leading-none border-l-4 border-secondary-container pl-3 py-1">
+          STRIP THE ISRAEL INTEGRATION SECTION FROM THE NDAA
+        </h1>
+<div class="flex items-center gap-2 mt-2 font-label-ticker text-label-ticker text-on-surface-variant">
+<span>CLASSIFICATION: CIVIC INTERVENTION</span>
+<span>//</span>
+<span>TARGET: FY25 NDAA TITLE XII</span>
+</div>
+</section>
+<!-- HERO CONTEXT CARD (House Committee Evidence Visual) -->
+<section class="border-2 border-on-background bg-surface-container-lowest p-2 shadow-hard">
+<div class="relative border-2 border-on-background overflow-hidden bg-on-background">
+<img alt="Congressional Armed Services Committee hearing on the National Defense Authorization Act" class="w-full h-48 object-cover contrast-125" src="https://lh3.googleusercontent.com/aida/AEtjO1UwJk7tI2EoS3a8JQmlYktVdI5rc4saD524ssqrzidx7GpjKAd0yDP65VE-lEMHJEmhx9AEnbl2DgrZOjPON-1Kz8JXXLInbsejm6-urC5WESu4HKW9H1r3xkyQ6P9eOvhofq4x0ggrlNu4KRf6B5_9Ct7CeNBwHUUuy_fpK4IVkNlXTXLNJT3XZgSNhXn6I27INCBJUFW3gaoN5qUOQTHO0tX-FN2gmbDzRZdpb51C"/>
+<div class="absolute bottom-0 inset-x-0 bg-on-background/90 text-surface px-2.5 py-1 flex items-center justify-between border-t-2 border-on-background">
+<span class="font-label-ticker text-label-ticker text-tertiary-fixed font-bold tracking-wider uppercase">HEARING RM 2118 RAYBURN</span>
+<span class="font-label-ticker text-label-ticker text-surface-dim uppercase">EVIDENTIARY CAPTURE</span>
+</div>
+</div>
+<figcaption class="mt-2 px-1 font-label-ticker text-label-ticker text-on-surface-variant uppercase tracking-normal">
+          House Armed Services Committee, NDAA Title XII Conference Report.
+        </figcaption>
+</section>
+<!-- BRIEFING DOSSIER BULLETS -->
+<section class="border-2 border-on-background bg-surface-container-low p-3.5 shadow-hard space-y-3">
+<div class="border-b-2 border-on-background pb-1.5 flex items-center justify-between">
+<span class="font-label-code text-label-code font-bold uppercase tracking-wider text-on-surface">TACTICAL INTELLIGENCE BRIEFING</span>
+<span class="material-symbols-outlined text-primary text-base" data-icon="description">description</span>
+</div>
+<ul class="space-y-3 font-body-sm text-body-sm text-on-surface">
+<!-- Bullet 1 -->
+<li class="flex items-start gap-2.5">
+<span class="bg-secondary-container text-on-secondary font-label-code text-label-ticker px-1 py-0.5 border border-on-background shrink-0 mt-0.5 font-bold">01</span>
+<div>
+<strong class="font-bold text-on-surface">What Section 1217 does:</strong>
+<p class="mt-0.5 text-on-surface-variant leading-snug">Binds US joint command and weapons supply pipelines with zero civilian harm oversight.</p>
+</div>
+</li>
+<!-- Bullet 2 -->
+<li class="flex items-start gap-2.5">
+<span class="bg-tertiary-container text-on-tertiary-container font-label-code text-label-ticker px-1 py-0.5 border border-on-background shrink-0 mt-0.5 font-bold">02</span>
+<div>
+<strong class="font-bold text-on-surface">The Conference Committee:</strong>
+<p class="mt-0.5 text-on-surface-variant leading-snug">14 key members can strip this provision before final floor sign-off.</p>
+</div>
+</li>
+<!-- Bullet 3 -->
+<li class="flex items-start gap-2.5">
+<span class="bg-primary-container text-on-primary-container font-label-code text-label-ticker px-1 py-0.5 border border-on-background shrink-0 mt-0.5 font-bold">03</span>
+<div>
+<strong class="font-bold text-on-surface">The immediate demand:</strong>
+<p class="mt-0.5 text-on-surface-variant leading-snug">Vote NO or require stripping of Section 1217 during reconciliation.</p>
+</div>
+</li>
+</ul>
+</section>
+<!-- TARGET DOSSIER CARD -->
+<section class="border-2 border-on-background bg-surface-container-lowest shadow-hard border-l-8 border-l-secondary-container">
+<!-- Header Tracker -->
+<div class="p-3 border-b-2 border-on-background flex items-center justify-between bg-surface-container-high">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="adjust">adjust</span>
+<span class="font-label-code text-label-code font-bold uppercase text-on-background tracking-wider">TARGET: CONFERENCE COMMITTEE MEMBERS</span>
+</div>
+<span class="font-label-ticker text-label-ticker uppercase bg-surface border border-on-background px-1.5 py-0.5">14 ASSIGNED</span>
+</div>
+<!-- Target details -->
+<div class="p-3 space-y-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 border-2 border-on-background bg-surface-variant flex items-center justify-center font-label-code font-bold text-on-surface">
+                LC
+              </div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-base leading-tight font-bold uppercase">Rep. Lou Correa</span>
+<span class="bg-primary-container text-on-primary-container font-label-ticker text-[10px] font-bold px-1 border border-on-background">CA-46</span>
+</div>
+<p class="font-label-ticker text-label-ticker text-on-surface-variant">House Armed Services // Key Conferee</p>
+</div>
+</div>
+<!-- District status pill -->
+<div class="text-right">
+<span class="inline-block font-label-ticker text-[10px] uppercase font-bold text-secondary">VULNERABLE MARGIN</span>
+</div>
+</div>
+<!-- Quick Selector Bar -->
+<div class="pt-2 border-t border-outline-variant flex items-center justify-between text-on-surface">
+<span class="font-label-ticker text-label-ticker uppercase">Conferee Switchboard:</span>
+<div class="flex items-center gap-1">
+<button class="border border-on-background bg-surface px-1.5 py-0.5 text-xs font-label-code hover:bg-surface-variant active:translate-y-0.5 font-bold">PREV</button>
+<span class="font-label-code text-xs px-1">01 / 14</span>
+<button class="border border-on-background bg-surface px-1.5 py-0.5 text-xs font-label-code hover:bg-surface-variant active:translate-y-0.5 font-bold">NEXT</button>
+</div>
+</div>
+</div>
+</section>
+<!-- PARTNER CAMPAIGN COALITION BOX -->
+<section class="border-2 border-dashed border-on-background bg-surface-bright p-3">
+<a class="flex items-center justify-between group" href="#partner">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="handshake">handshake</span>
+<div>
+<span class="font-label-code text-label-code font-bold uppercase block text-on-background group-hover:text-primary">
+                Partner campaign: Defense Autonomy Project ↗
+              </span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant block">Coordinated direct legislative intervention</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-background group-hover:translate-x-0.5 transition-transform" data-icon="north_east">north_east</span>
+</a>
+</section>
+<!-- ADVOCACY TELEMETRY TICKER (Brutalist Milestone Data) -->
+<section class="grid grid-cols-2 gap-2 pt-1">
+<div class="border-2 border-on-background bg-surface p-2.5 shadow-hard-sm">
+<span class="font-display-lg text-4xl leading-none text-on-background block">4,812</span>
+<span class="font-label-ticker text-label-ticker uppercase text-on-surface-variant mt-1 block">Calls Routed Today</span>
+</div>
+<div class="border-2 border-on-background bg-surface p-2.5 shadow-hard-sm">
+<span class="font-display-lg text-4xl leading-none text-primary-container text-stroke-black block" style="-webkit-text-stroke: 1.5px #1a1b21;">08 / 14</span>
+<span class="font-label-ticker text-label-ticker uppercase text-on-surface-variant mt-1 block">Offices Reporting Pressure</span>
+</div>
+</section>
+</main>
+<!-- STICKY PRIMARY ACTION CTA PANEL (Brutalist Tactical Fixed Anchor) -->
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-surface border-t-2 border-on-background p-3 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
+<a class="w-full flex items-center justify-center gap-2 bg-primary-container text-on-background border-2 border-on-background py-3.5 px-4 font-label-code text-sm font-bold uppercase shadow-hard active-press hover:bg-surface-bright transition-none" href="#take-action">
+<span>GET YOUR 90-SECOND SCRIPT</span>
+<span class="text-base leading-none">⚡</span>
+</a>
+<div class="mt-1.5 flex items-center justify-between px-1">
+<span class="font-label-ticker text-[10px] text-on-surface-variant uppercase tracking-wider">NO ROBOCALLS // DIRECT CITIZEN DISPATCH</span>
+<span class="font-label-ticker text-[10px] font-bold text-primary uppercase">SCRIPT TIME: 1:30</span>
+</div>
+</div>
+<!-- CIVIC PROTOCOL FOOTER -->
+<footer class="w-full bg-on-background text-surface py-6 px-margin border-t-2 border-on-background space-y-4">
+<div class="flex items-center justify-between border-b border-surface/20 pb-3">
+<span class="font-display-lg-mobile text-2xl text-surface tracking-tight">CUT THE TIES</span>
+<span class="font-label-ticker text-label-ticker bg-surface-dim/20 text-tertiary-fixed px-2 py-0.5 border border-surface/30">SECURE DISPATCH</span>
+</div>
+<p class="font-label-ticker text-label-ticker text-surface-dim leading-relaxed uppercase">
+        CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL. OPERATED UNDER AUTONOMOUS VOLUNTEER CHARTER.
+      </p>
+<div class="pt-2 flex flex-wrap gap-x-4 gap-y-2 font-label-ticker text-label-ticker">
+<a class="text-surface hover:text-primary-container uppercase active:underline" href="#security">SECURITY DIRECTIVE</a>
+<a class="text-surface hover:text-primary-container uppercase active:underline" href="#legal">LEGAL DISCLAIMER</a>
+<a class="text-surface hover:text-primary-container uppercase active:underline" href="#protocol">SWITCHBOARD PROTOCOL</a>
+<a class="text-surface hover:text-primary-container uppercase active:underline" href="#direct">DIRECT ACCESS</a>
+</div>
+<div class="text-[10px] font-label-ticker text-surface-dim/60 pt-2 border-t border-surface/10">
+        BROADCAST NODE: DIST-07-WAS // REVISION HASC.1217.2025
+      </div>
+</footer>
+</div>
+</body></html>

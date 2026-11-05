@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES | Why This Site Exists</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ef",
+            "surface-bright": "#faf8ff",
+            "primary": "#006d34",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1b21",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed-variant": "#574500",
+            "on-primary-fixed": "#00210b",
+            "surface": "#faf8ff",
+            "inverse-primary": "#00e474",
+            "surface-variant": "#e3e1e9",
+            "on-tertiary-container": "#675300",
+            "primary-container": "#00e876",
+            "tertiary-fixed": "#ffe083",
+            "on-background": "#1a1b21",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3036",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "secondary-container": "#e4164a",
+            "surface-container-highest": "#e3e1e9",
+            "on-surface-variant": "#3b4a3d",
+            "tertiary-container": "#f3c504",
+            "secondary-fixed-dim": "#ffb2b7",
+            "primary-fixed-dim": "#00e474",
+            "error-container": "#ffdad6",
+            "outline-variant": "#bacbb9",
+            "surface-container-low": "#f4f2fa",
+            "surface-container": "#efedf5",
+            "on-primary-container": "#00622e",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#ffdadb",
+            "primary-fixed": "#62ff95",
+            "on-primary-fixed-variant": "#005226",
+            "on-tertiary-fixed": "#231b00",
+            "secondary": "#b90038",
+            "on-secondary-fixed-variant": "#92002a",
+            "surface-tint": "#006d34"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Syne"],
+            "label-code": ["Space Mono"],
+            "headline-md": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-ticker": ["Space Mono"],
+            "display-lg": ["Bebas Neue"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Syne"],
+            "body-lg": ["Inter"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex justify-center selection:bg-primary-container selection:text-on-background">
+<!-- Mobile Viewport Frame (390px locked simulation container) -->
+<div class="w-full max-w-[390px] bg-background border-x-2 border-on-background min-h-screen flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.06)]">
+<!-- Top Action Ticker / Hazard Status Strip -->
+<div class="bg-on-background text-tertiary-container py-1 px-3 flex justify-between items-center text-[10px] font-label-ticker tracking-widest border-b-2 border-on-background uppercase select-none">
+<span class="flex items-center gap-1.5 font-bold">
+<span class="inline-block w-2 h-2 bg-primary-container animate-pulse"></span>
+        SYSTEM PROTOCOL ACTIVE
+      </span>
+<span>NODE 01-PROV</span>
+</div>
+<!-- Header Navigation -->
+<header class="w-full bg-background border-b-2 border-on-background px-4 py-3 flex justify-between items-center">
+<a class="inline-flex items-center gap-1 text-on-background font-label-code text-label-code font-bold hover:bg-primary-container px-1 transition-none active:translate-x-0.5 active:translate-y-0.5" href="#">
+        ← RETURN
+      </a>
+<span class="font-display-lg-mobile text-[24px] tracking-tight uppercase font-normal text-on-background">
+        CUT THE TIES
+      </span>
+<span class="bg-primary-container text-on-background font-label-ticker text-[10px] px-2 py-0.5 border border-on-background font-bold tracking-wider">
+        CIVIC DIRECTIVE
+      </span>
+</header>
+<!-- Main Content Container -->
+<main class="flex-grow flex flex-col p-4 gap-6">
+<!-- Hero Statement -->
+<section class="border-b-2 border-on-background pb-5">
+<div class="inline-block bg-tertiary-container text-on-background font-label-ticker text-[10px] px-1.5 py-0.5 border border-on-background mb-2 font-bold uppercase tracking-wider">
+          MEMORANDUM #001
+        </div>
+<h1 class="font-display-xl-mobile text-display-xl-mobile tracking-tight uppercase text-on-background leading-none mb-3">
+          WHY THIS SITE EXISTS
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium leading-relaxed border-l-4 border-on-background pl-3">
+          A solo-operated tool to strip corporate lobby control from US foreign policy.
+        </p>
+</section>
+<!-- Key Stat Counter Block -->
+<section class="grid grid-cols-2 gap-2 border-2 border-on-background bg-surface-container-lowest p-3 shadow-[4px_4px_0px_#1a1b21]">
+<div class="border-r border-outline-variant pr-2">
+<div class="font-display-lg-mobile text-display-lg-mobile text-secondary leading-none">0</div>
+<div class="font-label-ticker text-label-ticker text-on-surface-variant uppercase mt-1">TRACKERS INSTALLED</div>
+</div>
+<div class="pl-2">
+<div class="font-display-lg-mobile text-display-lg-mobile text-primary leading-none">100%</div>
+<div class="font-label-ticker text-label-ticker text-on-surface-variant uppercase mt-1">IN-MEMORY SCRIPTS</div>
+</div>
+</section>
+<!-- Manifesto & Operating Principles -->
+<div class="flex flex-col gap-5">
+<!-- Principle 1 -->
+<article class="bg-surface-container-lowest border-2 border-on-background shadow-[4px_4px_0px_#1a1b21] p-4 relative">
+<div class="flex items-center justify-between border-b-2 border-on-background pb-2 mb-3">
+<span class="font-label-ticker text-label-ticker text-secondary font-bold uppercase tracking-wider">01 // CRITICAL FRICTION</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">phone_in_talk</span>
+</div>
+<h2 class="font-headline-md text-[18px] leading-tight font-extrabold uppercase mb-2 text-on-background">
+            THE PROBLEM WITH WASHINGTON SWITCHBOARDS
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface leading-normal mb-3">
+            Traditional petition sites fail deliberately: congressional staffers delete bulk form emails on sight using automated filtering keywords.
+          </p>
+<div class="bg-surface-container-high border border-on-background p-2 text-on-background font-body-sm text-[12px] leading-snug">
+<strong class="font-label-code text-[11px] block uppercase text-secondary">FIELD INTEL:</strong>
+            Live phone calls tallied in real-time on Capitol Hill tally-sheets are the <em class="font-semibold underline">only</em> metric congressional chiefs of staff track and deliver to lawmakers daily.
+          </div>
+</article>
+<!-- Principle 2 -->
+<article class="bg-surface-container-lowest border-2 border-on-background shadow-[4px_4px_0px_#1a1b21] p-4 relative">
+<div class="flex items-center justify-between border-b-2 border-on-background pb-2 mb-3">
+<span class="font-label-ticker text-label-ticker text-primary font-bold uppercase tracking-wider">02 // DATA SOVEREIGNTY</span>
+<span class="material-symbols-outlined text-[18px] text-primary">security</span>
+</div>
+<h2 class="font-headline-md text-[18px] leading-tight font-extrabold uppercase mb-2 text-on-background">
+            ZERO RETENTION ARCHITECTURE
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface leading-normal mb-3">
+            We do not collect names, phone numbers, or party registrations. When you generate a custom script, your address is verified in-memory and immediately purged from runtime.
+          </p>
+<div class="flex items-center gap-2 border border-on-background bg-background p-2">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+<span class="font-label-ticker text-[11px] text-on-surface-variant leading-none uppercase">
+              Cloudflare Turnstile prevents bot attacks with zero tracking cookies.
+            </span>
+</div>
+</article>
+<!-- Principle 3 -->
+<article class="bg-surface-container-lowest border-2 border-on-background shadow-[4px_4px_0px_#1a1b21] p-4 relative">
+<div class="flex items-center justify-between border-b-2 border-on-background pb-2 mb-3">
+<span class="font-label-ticker text-label-ticker text-on-background font-bold uppercase tracking-wider">03 // AUTONOMY</span>
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</div>
+<h2 class="font-headline-md text-[18px] leading-tight font-extrabold uppercase mb-2 text-on-background">
+            INDEPENDENT &amp; UNSKIPPABLE
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface leading-normal">
+            No 501(c)(3) or 501(c)(4) corporate PAC funding. Built, maintained, and operated entirely by one civic developer on open serverless infrastructure. No backroom compromises, no sponsored agendas.
+          </p>
+</article>
+</div>
+<!-- Operating Cost Audit Box -->
+<section class="border-2 border-on-background bg-surface-container-high p-4 shadow-[4px_4px_0px_#1a1b21]">
+<div class="flex justify-between items-center border-b border-on-background pb-2 mb-3">
+<h3 class="font-label-code text-label-code uppercase font-bold text-on-background flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+            COST AUDIT BREAKDOWN
+          </h3>
+<span class="bg-on-background text-primary-container font-label-ticker text-label-ticker px-1.5 py-0.5 font-bold">
+            $65/MO RUN RATE
+          </span>
+</div>
+<ul class="flex flex-col gap-2 font-label-ticker text-[12px] text-on-surface mb-3">
+<li class="flex justify-between items-center border-b border-outline-variant pb-1">
+<span>EDGE SERVERLESS RUNTIME</span>
+<span class="font-bold">$20.00</span>
+</li>
+<li class="flex justify-between items-center border-b border-outline-variant pb-1">
+<span>CIVIC LEGISLATIVE GEO-APIS</span>
+<span class="font-bold">$35.00</span>
+</li>
+<li class="flex justify-between items-center border-b border-outline-variant pb-1">
+<span>DOMAINS &amp; ENCRYPTION</span>
+<span class="font-bold">$10.00</span>
+</li>
+</ul>
+<div class="p-2 bg-surface-container-lowest border border-on-background text-on-surface-variant font-label-ticker text-[10px] leading-tight uppercase">
+          Audit is open-source. Infrastructure runs lean with zero corporate subsidy.
+        </div>
+</section>
+<!-- Operator Link & Support CTA -->
+<section class="flex flex-col gap-3 pt-2">
+<a class="w-full py-3 px-4 bg-primary-container text-on-background border-2 border-on-background font-label-code text-[14px] font-bold uppercase tracking-wider flex items-center justify-between shadow-[4px_4px_0px_#1a1b21] active:translate-x-1 active:translate-y-1 active:shadow-none transition-none" href="#">
+<span>DONATE TO KEEP IT RUNNING</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+<div class="flex items-center justify-between px-2 pt-1 font-label-ticker text-[11px] text-on-surface-variant">
+<span>OPERATOR DISPATCH:</span>
+<a class="underline font-bold text-on-background hover:bg-tertiary-container px-1" href="#">
+            @SOLO_CIVIC_DEV
+          </a>
+</div>
+</section>
+</main>
+<!-- Tactile Movement Footer -->
+<footer class="w-full bg-on-background text-surface py-6 px-4 mt-8 border-t-2 border-on-background">
+<div class="flex flex-col gap-4">
+<div>
+<div class="font-display-lg-mobile text-[22px] text-surface tracking-wide uppercase leading-none">
+            CUT THE TIES
+          </div>
+<p class="font-label-ticker text-[10px] text-surface-dim uppercase leading-tight mt-1">
+            CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+          </p>
+</div>
+<div class="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-inverse-surface font-label-ticker text-label-ticker text-surface-dim">
+<a class="hover:text-primary-container transition-none uppercase" href="#">PRIVACY</a>
+<span class="text-inverse-surface">/</span>
+<a class="hover:text-primary-container transition-none uppercase" href="#">ALL GOALS</a>
+<span class="text-inverse-surface">/</span>
+<a class="hover:text-primary-container transition-none uppercase" href="#">DIRECT ACCESS</a>
+<span class="text-inverse-surface">/</span>
+<a class="hover:text-primary-container transition-none uppercase" href="#">SECURITY DIRECTIVE</a>
+</div>
+<div class="text-[9px] font-label-ticker text-outline uppercase tracking-widest pt-1">
+          LOCAL TERMINAL ID: 390-MOBILE-AUTH // VERIFIED INDEPENDENT
+        </div>
+</div>
+</footer>
+</div>
+</body></html>
