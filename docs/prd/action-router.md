@@ -352,14 +352,14 @@ page shows the real number from `MONTHLY_COST_USD`.
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
-  - [~] 2. Goals overview and detail · feat/action-router-goals-overview
+  - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
   - [ ] 4. Actions and personalised documents
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
 - Completed: §1 (PR #8), §5 (PR #9).
 - Folded: §1, §5, §2 (`docs/specs/action-router.md`).
-- Branch / open PRs: feat/action-router-goals-overview.
+- Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
   of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
   goal), card PNG, 375 px layout. Landing 7 KB gzip, `/goals` 6 KB,
@@ -370,7 +370,7 @@ page shows the real number from `MONTHLY_COST_USD`.
   `sources` columns added so "who decides" and sources are data rows,
   not page copy; share cards are built from an SVG template by `sharp`
   (system font fallback until a licence-safe face is vendored).
-- Next action: open the PR for §2, then /implement-prd-section
+- Next action: merge PR #10, then /implement-prd-section
   docs/prd/action-router.md (next: §4. Actions and personalised documents).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
