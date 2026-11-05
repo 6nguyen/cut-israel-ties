@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440, initial-scale=1.0">
+  <title>Cut the Ties — Goals Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FAF7F0',
+            ink: '#090A0F',
+            'acid-green': '#00E676',
+            'acid-hover': '#00c864',
+            'crimson': '#E11D48',
+            'hazard-yellow': '#FACC15',
+            'slate-border': '#1F242F',
+            'muted-news': '#EFECE4',
+            'subtle-text': '#525866',
+          },
+          fontFamily: {
+            headline: ['Bebas Neue', 'sans-serif'],
+            mono: ['Space Mono', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+            display: ['Syne', 'sans-serif'],
+            editorial: ['Fraunces', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF7F0;
+      color: #090A0F;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .halftone-bg {
+      background-color: #FAF7F0;
+      background-image: radial-gradient(#111418 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
+    }
+    .brutal-shadow {
+      box-shadow: 4px 4px 0px #090A0F;
+    }
+    .brutal-shadow-sm {
+      box-shadow: 2px 2px 0px #090A0F;
+    }
+    .brutal-shadow-lg {
+      box-shadow: 6px 6px 0px #090A0F;
+    }
+  </style>
+</head>
+<body class="halftone-bg min-h-screen text-ink antialiased selection:bg-acid-green selection:text-ink">
+
+  <!-- Top Movement Live Bar -->
+  <header class="bg-ink text-paper text-[12px] font-mono tracking-widest px-8 py-2.5 flex items-center justify-between border-b border-black">
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-acid-green animate-pulse"></span>
+        <span class="text-white font-bold">NATIONAL CAMPAIGN TRACKER</span>
+      </div>
+      <span class="text-gray-400">84,250 constituent calls logged across 435 voting districts</span>
+    </div>
+    <div class="flex items-center space-x-6">
+      <span class="text-hazard-yellow font-bold">⚡ S.J.RES.111 FLOOR MARKUP IMMINENT</span>
+      <span class="text-gray-400">// DISRUPT MILITARY PIPELINE</span>
+    </div>
+  </header>
+
+  <!-- Main Navigation Bar -->
+  <nav class="border-b-2 border-ink bg-paper px-10 py-5 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center space-x-4">
+      <a href="#" class="flex items-center space-x-3 text-decoration-none">
+        <span class="font-headline text-4xl tracking-wider text-ink uppercase leading-none">Cut the Ties</span>
+        <span class="bg-ink text-acid-green text-[11px] font-mono px-2 py-0.5 tracking-wider uppercase font-bold border border-acid-green">STREET ACTION</span>
+      </a>
+      <span class="text-gray-400 font-mono text-xs">/ LEGISLATIVE INTERVENTIONS</span>
+    </div>
+    <div class="flex items-center space-x-6">
+      <a href="#" class="font-mono text-xs uppercase font-bold tracking-wider text-ink border-b-2 border-ink pb-0.5">All Goals</a>
+      <a href="#" class="font-mono text-xs uppercase font-bold tracking-wider text-subtle-text hover:text-ink transition-colors">Call Switchboard</a>
+      <a href="#" class="bg-ink text-paper text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 border-2 border-ink brutal-shadow-sm hover:bg-neutral-800 transition-all">
+        Donate
+      </a>
+    </div>
+  </nav>
+
+  <!-- Page Content Container (1120px standard grid) -->
+  <main class="max-w-[1120px] mx-auto px-6 py-12">
+
+    <!-- Header Section -->
+    <section class="mb-12">
+      <div class="inline-block bg-crimson text-white font-mono text-xs font-bold px-2.5 py-1 tracking-widest uppercase mb-4 border border-ink brutal-shadow-sm">
+        CAMPAIGN TARGETS // STRATEGIC DISRUPTION MATRIX
+      </div>
+      <h1 class="font-headline text-[72px] leading-[0.9] tracking-tight text-ink uppercase mb-5">
+        What we are asking for
+      </h1>
+      <p class="font-sans text-[20px] text-ink font-medium max-w-[880px] leading-relaxed border-l-4 border-ink pl-4 py-1">
+        Three decisions in Washington in the next 45 days, and one in your state. When one is decided, the next takes its place.
+      </p>
+    </section>
+
+    <!-- Goal Cards: Vertical Stack of Full-Width Cards (Image on Left 1/3, Right 2/3 Content) -->
+    <section class="space-y-8 mb-16">
+
+      <!-- Card 1: NDAA Conference -->
+      <article class="bg-paper border-2 border-ink brutal-shadow-lg grid grid-cols-12 overflow-hidden">
+        <!-- Left 1/3 (Col 1-4) Image Container -->
+        <div class="col-span-4 relative min-h-[340px] bg-ink overflow-hidden border-r-2 border-ink">
+          <img src="https://lh3.googleusercontent.com/aida/AEtjO1XO5jYqMutH6kF8cw12p-qyGBJ-URuK_yqXGFuGkn3Fw2n1ggYhBk8QR2QLophv3xp9ZaI7oOlyQ9L-5i5Cw62qxdLA-ElR5Si06qVyRZ99VCzXk3IoVLZe3E5iyhtYUxpsDbhJKJCo7L7aJCkXj_TrUlEzjZvhPktnoxrhP4YBHwEDEVE1RI7ebjL5bbFXrBexTPSx2PSXWUgwdGwKVc4YcSZRjK-jYz2fhkXbRV8" alt="US Capitol dome at dusk" class="absolute inset-0 w-full h-full object-cover opacity-85">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 z-10">
+            <span class="bg-hazard-yellow text-ink font-mono text-[11px] font-bold px-2 py-1 uppercase tracking-wider border border-ink shadow-sm">
+              NDAA CONFERENCE
+            </span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4 z-10">
+            <span class="bg-crimson text-white font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest inline-block mb-1">
+              CONFERENCE COMMITTEE §1217
+            </span>
+            <div class="font-mono text-xs text-paper font-semibold tracking-wide">
+              TARGET: 435 HOUSE & 100 SENATE CONFEREES
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 2/3 (Col 5-12) Content Area -->
+        <div class="col-span-8 p-8 flex flex-col justify-between bg-paper">
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <h2 class="font-headline text-[38px] leading-none text-ink tracking-tight uppercase">
+                Strip Unconditional Weapons Clause §1217
+              </h2>
+            </div>
+
+            <!-- 50-word summary -->
+            <p class="font-sans text-[15px] leading-relaxed text-[#232730] mb-4">
+              House and Senate conferees are currently reconciling §1217 behind closed doors. This controversial section grants automatic waivers for offensive munitions sales, bypassing congressional human rights vetting. Concentrated constituent pressure on committee conferees forces leadership to excise the provision before final authorization floor package printing.
+            </p>
+
+            <!-- Bold "What we want" sentence -->
+            <div class="bg-muted-news border-l-4 border-crimson p-3 mb-5">
+              <span class="font-mono text-xs font-bold text-crimson uppercase tracking-wider block mb-0.5">What we want:</span>
+              <p class="font-sans text-[15px] font-bold text-ink leading-snug">
+                Conferees must excise §1217 entirely from the reconciled National Defense Authorization Act conference report prior to floor enrollment.
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer of Card: Deadline & Buttons -->
+          <div class="pt-4 border-t border-ink/20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 font-mono text-xs font-bold text-amber-800">
+              <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>DEADLINE: MONDAY, NOV 18 · 17:00 EST (CONFERENCE GAVEL)</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button class="bg-paper hover:bg-neutral-100 text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 border-2 border-ink brutal-shadow-sm transition-all">
+                Prepare
+              </button>
+              <button class="bg-acid-green hover:bg-acid-hover text-ink font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 border-2 border-ink brutal-shadow-sm flex items-center space-x-2 transition-all">
+                <span>See the goal</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Senate Democratic Leader Vote -->
+      <article class="bg-paper border-2 border-ink brutal-shadow-lg grid grid-cols-12 overflow-hidden">
+        <!-- Left 1/3 (Col 1-4) Image Container -->
+        <div class="col-span-4 relative min-h-[340px] bg-ink overflow-hidden border-r-2 border-ink">
+          <img src="https://lh3.googleusercontent.com/aida/AEtjO1UatexTHHH3pV-HAoqP0bRQyefI-Qbc6wn_xTF3lseLWL1iFtJrCrwmv8eCmKZjd7Uze2Plsz06732NmALX9z7LfKygpyCdLqDfB6XgxBjpI5tL1gAMUce30AH7eetY7ZSzH3SHHkGf4Tha4E_mxBYQWF9pCMmNS9F_lku20I4f96wipkT37_AJ6OwZAmaN5Z6r9jtfWo9pddTR3LoaAYbG-fK2Ja_NWou68WAWG5sl" alt="US Senate chamber debate hall" class="absolute inset-0 w-full h-full object-cover opacity-85">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 z-10">
+            <span class="bg-hazard-yellow text-ink font-mono text-[11px] font-bold px-2 py-1 uppercase tracking-wider border border-ink shadow-sm">
+              SENATE DEMOCRATIC LEADER VOTE
+            </span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4 z-10">
+            <span class="bg-crimson text-white font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest inline-block mb-1">
+              INTERNAL CAUCUS BALLOT
+            </span>
+            <div class="font-mono text-xs text-paper font-semibold tracking-wide">
+              TARGET: ALL 51 SENATE DEMOCRATS & ALLIES
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 2/3 (Col 5-12) Content Area -->
+        <div class="col-span-8 p-8 flex flex-col justify-between bg-paper">
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <h2 class="font-headline text-[38px] leading-none text-ink tracking-tight uppercase">
+                A Leader Who Will Strip §1217
+              </h2>
+            </div>
+
+            <!-- 50-word summary -->
+            <p class="font-sans text-[15px] leading-relaxed text-[#232730] mb-4">
+              Senate Democrats hold internal leadership balloting behind closed doors in November. Party whips assume uncritical loyalty, yet individual senators can condition their secret ballots on concrete leadership pledges. Demanding your senator endorse only leadership candidates committed to repealing unconditional foreign defense subsidies breaks party inertia immediately.
+            </p>
+
+            <!-- Bold "What we want" sentence -->
+            <div class="bg-muted-news border-l-4 border-crimson p-3 mb-5">
+              <span class="font-mono text-xs font-bold text-crimson uppercase tracking-wider block mb-0.5">What we want:</span>
+              <p class="font-sans text-[15px] font-bold text-ink leading-snug">
+                Senators must condition their internal party leadership votes on a binding commitment to strip weapons export exemptions.
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer of Card: Deadline & Buttons -->
+          <div class="pt-4 border-t border-ink/20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 font-mono text-xs font-bold text-amber-800">
+              <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>DEADLINE: TUESDAY, DEC 03 · 10:00 EST (CAUCUS MEETING)</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button class="bg-paper hover:bg-neutral-100 text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 border-2 border-ink brutal-shadow-sm transition-all">
+                Prepare
+              </button>
+              <button class="bg-acid-green hover:bg-acid-hover text-ink font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 border-2 border-ink brutal-shadow-sm flex items-center space-x-2 transition-all">
+                <span>See the goal</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: House Democratic Caucus Vote -->
+      <article class="bg-paper border-2 border-ink brutal-shadow-lg grid grid-cols-12 overflow-hidden">
+        <!-- Left 1/3 (Col 1-4) Image Container -->
+        <div class="col-span-4 relative min-h-[340px] bg-ink overflow-hidden border-r-2 border-ink">
+          <img src="https://lh3.googleusercontent.com/aida/AEtjO1Ul_HRgOIQVZlCTiZPAMu3cZEt1-vrx8ppd8Xu8El65NTA3MoMbhDOyZWHO6iaKJP5ZUglRoHYFgIjsTo3ZyyKorRA8yTmfbl3vVE3_e1EfnKU8Iab3i4NZH1CqxArCGXY6YhDhmU04vtelTv-OQeNyv7L3CfgNW3YDannccM00mfWUv20JR6pmuPA5BmeCryIHSwLdEPU_UkC046VgQWPSwO8_tQlD5py0htTKuZ0" alt="House of Representatives Chamber" class="absolute inset-0 w-full h-full object-cover opacity-85">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 z-10">
+            <span class="bg-hazard-yellow text-ink font-mono text-[11px] font-bold px-2 py-1 uppercase tracking-wider border border-ink shadow-sm">
+              HOUSE DEMOCRATIC CAUCUS VOTE
+            </span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4 z-10">
+            <span class="bg-crimson text-white font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest inline-block mb-1">
+              FLOOR CAUCUS PRESSURE
+            </span>
+            <div class="font-mono text-xs text-paper font-semibold tracking-wide">
+              TARGET: 212 HOUSE DEMOCRATS IN SESSIONS
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 2/3 (Col 5-12) Content Area -->
+        <div class="col-span-8 p-8 flex flex-col justify-between bg-paper">
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <h2 class="font-headline text-[38px] leading-none text-ink tracking-tight uppercase">
+                Ask Your Member Before Nov 18
+              </h2>
+            </div>
+
+            <!-- 50-word summary -->
+            <p class="font-sans text-[15px] leading-relaxed text-[#232730] mb-4">
+              House members must formally register positions regarding foreign military sales authorization before entering the winter legislative recess. Legislative aides log constituent phone calls categorially: twenty targeted calls in twenty-four hours force district directors to alert their representatives, halting closed-door endorsements of unvetted defense supplementals across regional delegations.
+            </p>
+
+            <!-- Bold "What we want" sentence -->
+            <div class="bg-muted-news border-l-4 border-crimson p-3 mb-5">
+              <span class="font-mono text-xs font-bold text-crimson uppercase tracking-wider block mb-0.5">What we want:</span>
+              <p class="font-sans text-[15px] font-bold text-ink leading-snug">
+                Representatives must declare public opposition to blanket arms packages before the November 18 caucus deadline.
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer of Card: Deadline & Buttons -->
+          <div class="pt-4 border-t border-ink/20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 font-mono text-xs font-bold text-amber-800">
+              <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>DEADLINE: MONDAY, NOV 18 · 17:00 EST (CAUCUS ROLL CALL)</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button class="bg-paper hover:bg-neutral-100 text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 border-2 border-ink brutal-shadow-sm transition-all">
+                Prepare
+              </button>
+              <button class="bg-acid-green hover:bg-acid-hover text-ink font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 border-2 border-ink brutal-shadow-sm flex items-center space-x-2 transition-all">
+                <span>See the goal</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4: State Israel Bonds (State Level Target) -->
+      <article class="bg-paper border-2 border-ink brutal-shadow-lg grid grid-cols-12 overflow-hidden">
+        <!-- Left 1/3 (Col 1-4) Image Container -->
+        <div class="col-span-4 relative min-h-[340px] bg-ink overflow-hidden border-r-2 border-ink">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDirlKYy8Uzwbx8BPDQwoxB-T68Y4Kk1US_lnXwV2WpJiw2CZ9W6s2o98q2CHsqfhfzvsd9vo7AMN1f6in_V2rxotuWNmyHkfHSo82yPkdVcCot29AXLRxdqIYVtDbrMY06n-cCX5K-7u7HyzlJZMIphOKEkbFGVjViygk35DTJ8URmqJhuiCLS7_kBNCpq81PxOcqtereDzvaGQjYeVAu2iwSQoE7BMONDZzVX-FY" alt="State Capitol and Treasury Building" class="absolute inset-0 w-full h-full object-cover opacity-85">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 z-10">
+            <span class="bg-hazard-yellow text-ink font-mono text-[11px] font-bold px-2 py-1 uppercase tracking-wider border border-ink shadow-sm">
+              STATE ISRAEL BONDS
+            </span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4 z-10">
+            <span class="bg-acid-green text-ink font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest inline-block mb-1">
+              STATE TREASURY / LEGISLATURE
+            </span>
+            <div class="font-mono text-xs text-paper font-semibold tracking-wide">
+              TARGET: STATE TREASURERS & PENSION BOARDS
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 2/3 (Col 5-12) Content Area -->
+        <div class="col-span-8 p-8 flex flex-col justify-between bg-paper">
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <h2 class="font-headline text-[38px] leading-none text-ink tracking-tight uppercase">
+                Divest State Treasuries from Sovereign Foreign Bonds
+              </h2>
+            </div>
+
+            <!-- 50-word summary -->
+            <p class="font-sans text-[15px] leading-relaxed text-[#232730] mb-4">
+              State treasurers quietly purchase hundreds of millions in high-risk foreign sovereign debt using municipal reserve funds and public employee pension deposits. When residents challenge these unilateral purchases at state treasury commission hearings, investment committees are required by fiduciary law to re-examine credit ratings and divest taxpayer capital from conflict zones.
+            </p>
+
+            <!-- Bold "What we want" sentence -->
+            <div class="bg-muted-news border-l-4 border-crimson p-3 mb-5">
+              <span class="font-mono text-xs font-bold text-crimson uppercase tracking-wider block mb-0.5">What we want:</span>
+              <p class="font-sans text-[15px] font-bold text-ink leading-snug">
+                State treasurers must immediately halt new purchases of sovereign foreign bonds and divest current holdings at maturity.
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer of Card: Deadline & Buttons -->
+          <div class="pt-4 border-t border-ink/20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 font-mono text-xs font-bold text-amber-800">
+              <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>DEADLINE: THURSDAY, DEC 12 · 14:00 LOCAL (TREASURY BOARD DOCKET)</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button class="bg-paper hover:bg-neutral-100 text-ink font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 border-2 border-ink brutal-shadow-sm transition-all">
+                Prepare
+              </button>
+              <button class="bg-acid-green hover:bg-acid-hover text-ink font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 border-2 border-ink brutal-shadow-sm flex items-center space-x-2 transition-all">
+                <span>See the goal</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Outcomes Muted Strip Section -->
+    <section class="border-2 border-ink bg-[#F1EDE4] p-6 mb-16 brutal-shadow">
+      <div class="flex items-center justify-between mb-4 border-b border-ink/20 pb-3">
+        <div class="flex items-center space-x-3">
+          <span class="font-headline text-2xl tracking-wider uppercase text-ink">Outcomes</span>
+          <span class="text-xs font-mono text-subtle-text">// RECORDED PREVIOUS CAMPAIGN RESULTS</span>
+        </div>
+        <span class="font-mono text-xs text-subtle-text">2 COMPLETED ACTIONS LOGGED</span>
+      </div>
+
+      <!-- Compact Rows -->
+      <div class="space-y-3 font-sans">
+        <!-- Row 1: Green check (Passed/Succeded) -->
+        <div class="bg-paper border border-ink/30 p-3.5 flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <!-- Green Check Icon -->
+            <div class="w-7 h-7 rounded-full bg-acid-green/20 border-2 border-acid-green flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-ink font-bold" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center space-x-3">
+                <span class="font-headline text-lg tracking-wide uppercase text-ink">Senate Resolution S.J.Res.104 Discharge</span>
+                <span class="font-mono text-[10px] bg-neutral-200 text-ink px-1.5 py-0.5 uppercase font-semibold">OCTOBER 14</span>
+              </div>
+              <p class="text-xs text-subtle-text font-medium mt-0.5">
+                Outcome: Forced full committee roll call on munitions export disclosures; 18 co-sponsors recorded on the record.
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="font-mono text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 uppercase">
+              VOTE FORCED
+            </span>
+          </div>
+        </div>
+
+        <!-- Row 2: Grey dash (Stalled/Expired) -->
+        <div class="bg-paper border border-ink/30 p-3.5 flex items-center justify-between opacity-80">
+          <div class="flex items-center space-x-4">
+            <!-- Grey Dash Icon -->
+            <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-gray-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-gray-600 font-bold" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center space-x-3">
+                <span class="font-headline text-lg tracking-wide uppercase text-ink">House Emergency Markup Exemption Waiver Amendment</span>
+                <span class="font-mono text-[10px] bg-neutral-200 text-ink px-1.5 py-0.5 uppercase font-semibold">SEPTEMBER 28</span>
+              </div>
+              <p class="text-xs text-subtle-text font-medium mt-0.5">
+                Outcome: Tabled by Rules Committee behind closed doors; provision folded into broader NDAA conference §1217 fight.
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="font-mono text-xs font-bold text-gray-700 bg-gray-200 border border-gray-300 px-2 py-0.5 uppercase">
+              TABLED
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Band (Ink Background) matching style guide -->
+  <footer class="bg-ink text-paper border-t-2 border-ink px-10 py-10">
+    <div class="max-w-[1120px] mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <span class="font-headline text-2xl tracking-wider uppercase text-paper">Cut the Ties</span>
+        <span class="text-gray-500 font-mono text-xs">|</span>
+        <p class="font-sans text-xs text-gray-400">
+          Built and paid for by one person. Donations keep it up. 
+          <a href="#" class="text-acid-green hover:underline font-bold ml-1">Donate</a>
+        </p>
+      </div>
+
+      <div class="flex items-center space-x-8 font-mono text-xs uppercase tracking-wider">
+        <a href="#" class="text-gray-400 hover:text-white transition-colors">About</a>
+        <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
+        <a href="#" class="text-acid-green hover:underline font-bold">All goals</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

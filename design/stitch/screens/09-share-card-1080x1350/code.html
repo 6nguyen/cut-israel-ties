@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1350, initial-scale=1.0">
+  <title>Cut the Ties — NDAA Social Share (1080x1350 4:5)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,600&family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#00E876',
+              paper: '#FAF8F5',
+              dark: '#0A0A0A',
+              red: '#FF3B30',
+              yellow: '#FFCC00',
+              border: '#111111'
+            }
+          },
+          fontFamily: {
+            display: ['"Bebas Neue"', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 1080x1350 fixed viewport canvas styling */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1350px;
+      overflow: hidden;
+      background-color: #0A0A0A;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+    }
+    .halftone-overlay {
+      background-image: radial-gradient(rgba(255,255,255,0.08) 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+    .ink-shadow {
+      box-shadow: 6px 6px 0px #000000;
+    }
+    .ink-shadow-green {
+      box-shadow: 5px 5px 0px #00E876;
+    }
+  </style>
+</head>
+<body class="relative text-white select-none flex flex-col justify-between">
+
+  <!-- Full-bleed background image with dramatic gradient overlays -->
+  <div class="absolute inset-0 z-0">
+    <img src="https://lh3.googleusercontent.com/aida/AEtjO1XO5jYqMutH6kF8cw12p-qyGBJ-URuK_yqXGFuGkn3Fw2n1ggYhBk8QR2QLophv3xp9ZaI7oOlyQ9L-5i5Cw62qxdLA-ElR5Si06qVyRZ99VCzXk3IoVLZe3E5iyhtYUxpsDbhJKJCo7L7aJCkXj_TrUlEzjZvhPktnoxrhP4YBHwEDEVE1RI7ebjL5bbFXrBexTPSx2PSXWUgwdGwKVc4YcSZRjK-jYz2fhkXbRV8" alt="US Capitol Dome at dusk" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-75 scale-105" />
+    <!-- Dark multi-stage cinematic gradient and movement duotone tint -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/75"></div>
+    <div class="absolute inset-0 bg-[#0a0a0a]/50 mix-blend-multiply"></div>
+    <!-- Subtle riso/movement grid texture -->
+    <div class="absolute inset-0 halftone-overlay opacity-40 mix-blend-overlay pointer-events-none"></div>
+  </div>
+
+  <!-- Outer Framed Border (Movement Broadside Aesthetic) -->
+  <div class="absolute inset-6 border border-white/20 pointer-events-none z-10 flex flex-col justify-between p-4">
+    <div class="flex justify-between items-center text-[13px] font-mono tracking-widest text-white/50 uppercase">
+      <span>DISTRICT 46 // DISPATCH #1217</span>
+      <span>CONFERENCE ALERT // IMMEDIATE ACTION</span>
+    </div>
+    <div class="flex justify-between items-center text-[12px] font-mono tracking-widest text-white/40 uppercase">
+      <span>CIVIC DIRECT ACTION NETWORK</span>
+      <span>ZERO CORPORATE LOBBY DATA</span>
+    </div>
+  </div>
+
+  <!-- Content Container (1080x1350 4:5 optimized layout) -->
+  <div class="relative z-20 w-full h-full flex flex-col justify-between p-16 pt-18 pb-16">
+
+    <!-- TOP SECTION: Wordmark & Urgent Badge -->
+    <header class="flex items-center justify-between w-full pt-4">
+      <div class="flex items-center gap-3">
+        <!-- Wordmark matching Cut the Ties brand -->
+        <span class="font-display text-5xl tracking-wide uppercase text-white drop-shadow-md">
+          CUT THE TIES
+        </span>
+        <div class="h-6 w-[2px] bg-brand-green/80 mx-1"></div>
+        <span class="font-mono text-xs tracking-widest uppercase text-brand-green font-bold bg-brand-green/10 border border-brand-green/40 px-2.5 py-1">
+          NDAA EMERGENCY DISPATCH
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-red animate-pulse"></span>
+        <span class="font-mono text-xs font-bold tracking-widest text-brand-red uppercase">CRITICAL VOTE</span>
+      </div>
+    </header>
+
+    <!-- CENTRE SECTION: Large Serif Headline & Representative Target Row -->
+    <main class="my-auto max-w-[940px] flex flex-col justify-center">
+      
+      <!-- Movement Stamp Pill -->
+      <div class="mb-8">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30] text-black font-mono font-bold text-xs uppercase tracking-wider ink-shadow">
+          <svg class="w-3.5 h-3.5 fill-black" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z"/></svg>
+          ROLL CALL RECORD // § 1217
+        </span>
+      </div>
+
+      <!-- Large serif headline verbatim from user request -->
+      <h1 class="font-serif text-[68px] leading-[1.08] font-bold text-white tracking-tight drop-shadow-xl text-balance">
+        “Your rep voted to keep the Israel integration section. The conference decides next week.”
+      </h1>
+
+      <!-- Divider line with brutalist tick -->
+      <div class="w-24 h-[3px] bg-brand-green my-9"></div>
+
+      <!-- Rep Target Line verbatim with visual badge treatment -->
+      <div class="inline-flex items-center self-start">
+        <div class="bg-black/90 border-2 border-white px-7 py-4 flex items-center gap-4 ink-shadow-green">
+          <span class="w-3 h-3 rounded-full bg-brand-green shrink-0"></span>
+          <p class="font-mono text-2xl font-bold tracking-tight text-white uppercase">
+            Rep. Lou Correa <span class="text-brand-green">·</span> CA-46 <span class="text-brand-green">·</span> <a href="tel:2022252965" class="text-white hover:underline">(202) 225-2965</a>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM SECTION: Website Pill & Instruction Callout -->
+    <footer class="w-full flex flex-col gap-5 pt-4">
+      <div class="flex items-center justify-between gap-6 border-t-2 border-white/20 pt-8">
+        <!-- Site URL in high-contrast brutalist pill -->
+        <div class="flex items-center">
+          <div class="px-8 py-3.5 bg-brand-green text-black font-mono font-black text-2xl tracking-wider uppercase rounded-full ink-shadow flex items-center gap-3">
+            <span>CUTTHETIES.ORG</span>
+            <svg class="w-5 h-5 fill-black stroke-black" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2.5" stroke-linecap="square" fill="none"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Instruction line verbatim -->
+        <div class="text-right">
+          <p class="font-mono text-xl font-bold text-white tracking-tight uppercase">
+            Enter your address to get your script
+          </p>
+          <p class="font-mono text-xs text-white/60 tracking-wider uppercase mt-1">
+            Free · 90-Second Call · No Sign-Up Required
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

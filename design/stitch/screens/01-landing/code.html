@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cut the Ties — Constituent Action Against Military Integration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#090A0F',
+            'ink-deep': '#060709',
+            newsprint: '#FAF7F0',
+            'newsprint-muted': '#EDE8DC',
+            'acid-green': '#00E676',
+            'acid-green-hover': '#00C865',
+            'crimson-stamp': '#E11D48',
+            'hazard-yellow': '#FACC15',
+            'border-ink': '#090A0F'
+          },
+          fontFamily: {
+            condensed: ['Bebas Neue', 'sans-serif'],
+            display: ['Fraunces', 'serif'],
+            syne: ['Syne', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Space Mono', 'monospace']
+          },
+          boxShadow: {
+            'brutal': '4px 4px 0px #090A0F',
+            'brutal-lg': '6px 6px 0px #090A0F',
+            'brutal-sm': '2px 2px 0px #090A0F',
+            'brutal-crimson': '4px 4px 0px #E11D48',
+            'brutal-green': '4px 4px 0px #00E676'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF7F0;
+      color: #090A0F;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .halftone-overlay {
+      background-image: radial-gradient(#090A0F 0.75px, transparent 0.75px);
+      background-size: 8px 8px;
+      opacity: 0.12;
+    }
+    .noise-bg {
+      background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 0);
+      background-size: 16px 16px;
+    }
+    .tape-badge {
+      display: inline-block;
+      position: relative;
+      background: #FACC15;
+      color: #090A0F;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      transform: rotate(-1.5deg);
+      box-shadow: 2px 2px 0px #090A0F;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-acid-green selection:text-ink">
+
+  <!-- TOP MOVEMENT LIVE TICKER -->
+  <aside class="bg-ink text-white border-b-2 border-ink py-2 px-4 sm:px-8 text-xs font-mono tracking-wider flex items-center justify-between overflow-hidden z-30">
+    <div class="flex items-center space-x-3 shrink-0">
+      <span class="inline-flex items-center gap-1.5 bg-acid-green text-ink font-bold px-2 py-0.5 text-[11px] shadow-brutal-sm uppercase">
+        <span class="w-2 h-2 rounded-full bg-ink animate-pulse"></span> Live Ticker
+      </span>
+      <span class="text-neutral-300 hidden md:inline">84,250 constituent calls logged across 435 congressional districts</span>
+    </div>
+    <div class="flex items-center space-x-4 shrink-0 text-[11px]">
+      <span class="text-hazard-yellow font-bold uppercase tracking-widest hidden sm:inline">⚡ S.J.RES.111 FLOOR CLOCK RUNNING</span>
+      <span class="text-neutral-400">DISRUPT MILITARY PIPELINE</span>
+    </div>
+  </aside>
+
+  <!-- MINIMAL HEADER: WORDMARK & DONATE -->
+  <header class="w-full absolute top-10 left-0 z-30 px-6 sm:px-12 md:px-16 py-5 flex items-center justify-between">
+    <a href="#" class="group inline-flex items-center gap-3">
+      <span class="font-syne font-extrabold text-2xl md:text-3xl tracking-tight text-white group-hover:text-acid-green transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+        CUT THE TIES
+      </span>
+      <span class="bg-acid-green text-ink text-[11px] font-mono font-bold px-2 py-0.5 shadow-brutal-sm uppercase tracking-wider transform -rotate-2">
+        STREET ACTION
+      </span>
+    </a>
+
+    <div>
+      <a href="#donate" class="inline-block bg-white hover:bg-neutral-100 text-ink font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-5 py-2.5 border-2 border-ink shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#090A0F] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all">
+        Donate
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT / HERO SECTION: FULL BLEED US CAPITOL DOME AT DUSK -->
+  <section class="relative w-full min-h-[700px] lg:min-h-[780px] flex items-center justify-start overflow-hidden border-b-4 border-ink">
+    <!-- Full-bleed background image -->
+    <div class="absolute inset-0 z-0">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXS86wiCaIJwqnyRebNBQzI7yFBSCOBOcIKnMDMX_QmbaiOqKnJiK6dB3pj65LCMBXj8QIV007tA2tzLywh-0Z7cGuce0byWSiA3_YMFdOr9woxCsOHH399xL_V1h4d3-4FXodSGKH-Ubd6YGBtQah8GkXOgsje8CAfwzk9UBXD4JFWGCbUzWKKR3eH1CfBRRLpU7oje_nIMyRLCbLThjBTLQDFh2uKR7WC7Ien4Q" alt="US Capitol dome at dusk against a moody dramatic twilight sky" class="w-full h-full object-cover object-center filter contrast-125 brightness-95">
+      <!-- Dark gradient overlay per specification -->
+      <div class="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40 z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-black/40 z-10"></div>
+      <div class="absolute inset-0 halftone-overlay pointer-events-none z-10"></div>
+    </div>
+
+    <!-- Hero Content (Left-Aligned, exactly matching prompt specs) -->
+    <div class="relative z-20 w-full max-w-[1440px] mx-auto px-6 sm:px-12 md:px-16 pt-28 pb-20">
+      <div class="max-w-2xl text-white">
+
+        <!-- Small caps line -->
+        <div class="mb-4 inline-flex items-center gap-2">
+          <span class="bg-crimson-stamp text-white text-xs font-mono font-bold px-2.5 py-1 uppercase tracking-widest shadow-brutal-sm">
+            URGENT TIMELINE
+          </span>
+          <p class="font-mono text-xs sm:text-sm font-bold tracking-[0.2em] uppercase text-neutral-300">
+            Three decisions in the next 45 days
+          </p>
+        </div>
+
+        <!-- H1 Headline -->
+        <h1 class="font-condensed text-5xl sm:text-6xl md:text-7xl lg:text-[84px] leading-[0.95] tracking-tight uppercase font-normal text-white mb-6 drop-shadow-md">
+          Find the two things <br class="hidden sm:inline">
+          you can do <span class="bg-acid-green text-ink px-2 py-0.5 shadow-brutal inline-block transform -rotate-1 mt-1">this week</span>
+        </h1>
+
+        <!-- One sentence body text verbatim -->
+        <p class="font-sans text-lg sm:text-xl text-neutral-200 leading-relaxed font-normal mb-8 max-w-xl">
+          Enter your address. We find your members of Congress and give you the words that work.
+        </p>
+
+        <!-- Large Address Input with attached green button -->
+        <div class="w-full max-w-xl">
+          <form class="flex flex-col sm:flex-row items-stretch border-2 sm:border-4 border-ink shadow-brutal-lg bg-white relative">
+            <div class="relative flex-grow flex items-center">
+              <span class="absolute left-4 text-neutral-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </span>
+              <input 
+                type="text" 
+                placeholder="Street address, city, state" 
+                class="w-full pl-12 pr-4 py-4 sm:py-5 text-base sm:text-lg text-ink font-sans placeholder-neutral-400 focus:outline-none focus:ring-0 bg-transparent"
+                required
+              >
+            </div>
+            <button 
+              type="submit" 
+              class="bg-acid-green hover:bg-acid-green-hover text-ink font-mono font-bold text-sm sm:text-base uppercase tracking-wider px-6 sm:px-8 py-4 sm:py-5 border-t-2 sm:border-t-0 sm:border-l-4 border-ink flex items-center justify-center gap-2 hover:bg-emerald-400 active:bg-emerald-500 transition-colors shrink-0 group"
+            >
+              <span>Find my actions</span>
+              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </button>
+          </form>
+
+          <!-- Small disclaimer text verbatim -->
+          <p class="mt-3 text-xs sm:text-sm font-mono text-neutral-300 tracking-wide flex items-center gap-2">
+            <span class="text-acid-green font-bold">✓</span>
+            Full street address needed: cities are split between districts. Nothing is stored.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- BELOW THE FOLD: MOVEMENT ACTION CONTEXT & ROW OF THREE GOAL CARDS -->
+  <section class="w-full bg-newsprint py-16 md:py-24 px-6 sm:px-12 md:px-16 flex-grow noise-bg">
+    <div class="max-w-[1440px] mx-auto">
+      
+      <!-- Section Header with Activist Tactile Styling -->
+      <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
+        <div>
+          <div class="inline-block bg-ink text-white font-mono text-xs font-bold px-3 py-1 uppercase tracking-widest mb-3 shadow-brutal-sm">
+            CAMPAIGN TARGETS // NEXT 45 DAYS
+          </div>
+          <h2 class="font-condensed text-4xl sm:text-5xl md:text-6xl text-ink uppercase tracking-tight">
+            High-Stakes Legislative Interventions
+          </h2>
+        </div>
+        <div class="max-w-md">
+          <p class="font-sans text-sm sm:text-base text-neutral-700 leading-relaxed">
+            Staffers tally constituent phone calls in categorical notebooks before floor roll calls. A ninety-second targeted call bypasses millions in defense contractor lobbying.
+          </p>
+        </div>
+      </div>
+
+      <!-- ROW OF THREE GOAL CARDS (NDAA, SENATE LEADER, HOUSE CAUCUS) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        
+        <!-- CARD 1: NDAA Conference -->
+        <article class="bg-white border-4 border-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all flex flex-col overflow-hidden group">
+          <!-- Card Image 16:9 ratio -->
+          <div class="relative aspect-video w-full overflow-hidden border-b-4 border-ink bg-neutral-900">
+            <img 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXS86wiCaIJwqnyRebNBQzI7yFBSCOBOcIKnMDMX_QmbaiOqKnJiK6dB3pj65LCMBXj8QIV007tA2tzLywh-0Z7cGuce0byWSiA3_YMFdOr9woxCsOHH399xL_V1h4d3-4FXodSGKH-Ubd6YGBtQah8GkXOgsje8CAfwzk9UBXD4JFWGCbUzWKKR3eH1CfBRRLpU7oje_nIMyRLCbLThjBTLQDFh2uKR7WC7Ien4Q" 
+              alt="Capitol Dome at dusk" 
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 filter contrast-110"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"></div>
+            <!-- Category Tag & Status -->
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2">
+              <span class="bg-hazard-yellow text-ink font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 border border-ink shadow-brutal-sm">
+                NDAA Conference
+              </span>
+              <span class="bg-crimson-stamp text-white font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 shadow-brutal-sm">
+                Priority 1
+              </span>
+            </div>
+            <!-- Title Over Image -->
+            <div class="absolute bottom-3 left-3 right-3">
+              <h3 class="font-condensed text-2xl sm:text-3xl text-white uppercase leading-none drop-shadow">
+                Strip the Israel integration section
+              </h3>
+            </div>
+          </div>
+
+          <!-- Card Body & Metadata -->
+          <div class="p-6 flex-grow flex flex-col justify-between bg-white">
+            <div>
+              <p class="font-sans text-sm sm:text-base text-neutral-800 leading-normal mb-4 font-normal">
+                House and Senate conferees are reconciling §1217 in closed chambers. Demand conferees delete the joint offensive munitions pipeline before final floor printing.
+              </p>
+              
+              <!-- Deadline line with calendar icon -->
+              <div class="flex items-center gap-2.5 py-2.5 px-3 bg-newsprint border-2 border-ink text-xs font-mono text-neutral-900 mb-6 font-medium">
+                <svg class="w-4 h-4 text-crimson-stamp shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span><strong>Deadline:</strong> Floor markup Nov 24, 2:00 PM EST</span>
+              </div>
+            </div>
+
+            <!-- "See the goal" Button -->
+            <div>
+              <a 
+                href="#goal-ndaa" 
+                class="w-full block text-center bg-acid-green hover:bg-acid-green-hover text-ink font-mono font-bold text-xs sm:text-sm uppercase tracking-wider py-3 px-4 border-2 border-ink shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#090A0F] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
+              >
+                See the goal →
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 2: Senate Democratic Leader Vote -->
+        <article class="bg-white border-4 border-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all flex flex-col overflow-hidden group">
+          <!-- Card Image 16:9 ratio -->
+          <div class="relative aspect-video w-full overflow-hidden border-b-4 border-ink bg-neutral-900">
+            <img 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6reNY6klSCNdcBS9DHWItu7RKwwwmZk1TmsfhMTm4sN7s7_QETx0FOMUpozqKT-jXnm3iOzKZ_bnm_BcuykRM8CE8RIjA5qE2cbbh_o2vkEYbMCbqpGvPFeRC_2-FUl6JQHoS1HHRuXdDBvDQcG-PezN_3QPjecOsdkbvl_hF3sPN2YLkLJEHgB0VQFwZpYsdp-8axqGZLT4hdagyjQ-YlyPoOwEJEX0sgfVk6Fc" 
+              alt="Senate chamber debate hall" 
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 filter contrast-110"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"></div>
+            <!-- Category Tag & Status -->
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2">
+              <span class="bg-hazard-yellow text-ink font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 border border-ink shadow-brutal-sm">
+                Senate Democratic Leader Vote
+              </span>
+              <span class="bg-ink text-white font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 shadow-brutal-sm">
+                Secret Ballot
+              </span>
+            </div>
+            <!-- Title Over Image -->
+            <div class="absolute bottom-3 left-3 right-3">
+              <h3 class="font-condensed text-2xl sm:text-3xl text-white uppercase leading-none drop-shadow">
+                A leader who will strip §1217
+              </h3>
+            </div>
+          </div>
+
+          <!-- Card Body & Metadata -->
+          <div class="p-6 flex-grow flex flex-col justify-between bg-white">
+            <div>
+              <p class="font-sans text-sm sm:text-base text-neutral-800 leading-normal mb-4 font-normal">
+                Senate Democrats hold internal leadership elections behind closed doors. Press your Senator to condition their leadership ballot on removing unlimited arms transfer exemptions.
+              </p>
+              
+              <!-- Deadline line with calendar icon -->
+              <div class="flex items-center gap-2.5 py-2.5 px-3 bg-newsprint border-2 border-ink text-xs font-mono text-neutral-900 mb-6 font-medium">
+                <svg class="w-4 h-4 text-crimson-stamp shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span><strong>Deadline:</strong> Caucus vote Dec 03, 10:00 AM EST</span>
+              </div>
+            </div>
+
+            <!-- "See the goal" Button -->
+            <div>
+              <a 
+                href="#goal-senate" 
+                class="w-full block text-center bg-acid-green hover:bg-acid-green-hover text-ink font-mono font-bold text-xs sm:text-sm uppercase tracking-wider py-3 px-4 border-2 border-ink shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#090A0F] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
+              >
+                See the goal →
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 3: House Democratic Caucus Vote -->
+        <article class="bg-white border-4 border-ink shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all flex flex-col overflow-hidden group">
+          <!-- Card Image 16:9 ratio -->
+          <div class="relative aspect-video w-full overflow-hidden border-b-4 border-ink bg-neutral-900">
+            <img 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8XQm3-s3Y72lkhk6iesMKzjmaeJFUij4cg1bBhbagY43nfdGslpEsIaMavgqikl6Afy47Dz8zJRZrHhkmNcHZ3qD2X0Tq8oKGQUcdN0fY0U89dNdGl9-lhpXrV65QlbLrawONSUzBfAD5EH8v88NU1KV-jWqhhSkzMv9gH5oeWDpRGAm5ckU082drWQSxiM0A9pvYhtcYfmAjKkVq-loId4ENUsWd-ndYAI6fObY" 
+              alt="House of Representatives chamber floor" 
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 filter contrast-110"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"></div>
+            <!-- Category Tag & Status -->
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2">
+              <span class="bg-hazard-yellow text-ink font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 border border-ink shadow-brutal-sm">
+                House Democratic Caucus Vote
+              </span>
+              <span class="bg-crimson-stamp text-white font-mono font-bold text-[10px] sm:text-xs uppercase px-2 py-0.5 shadow-brutal-sm">
+                Target 435 Reps
+              </span>
+            </div>
+            <!-- Title Over Image -->
+            <div class="absolute bottom-3 left-3 right-3">
+              <h3 class="font-condensed text-2xl sm:text-3xl text-white uppercase leading-none drop-shadow">
+                Ask your member before Nov 18
+              </h3>
+            </div>
+          </div>
+
+          <!-- Card Body & Metadata -->
+          <div class="p-6 flex-grow flex flex-col justify-between bg-white">
+            <div>
+              <p class="font-sans text-sm sm:text-base text-neutral-800 leading-normal mb-4 font-normal">
+                House caucus members must go on the record regarding foreign military sales authorization. Direct phone calls to district staff freeze party leadership whip counts.
+              </p>
+              
+              <!-- Deadline line with calendar icon -->
+              <div class="flex items-center gap-2.5 py-2.5 px-3 bg-newsprint border-2 border-ink text-xs font-mono text-neutral-900 mb-6 font-medium">
+                <svg class="w-4 h-4 text-crimson-stamp shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span><strong>Deadline:</strong> Monday, Nov 18 at 5:00 PM EST</span>
+              </div>
+            </div>
+
+            <!-- "See the goal" Button -->
+            <div>
+              <a 
+                href="#goal-house" 
+                class="w-full block text-center bg-acid-green hover:bg-acid-green-hover text-ink font-mono font-bold text-xs sm:text-sm uppercase tracking-wider py-3 px-4 border-2 border-ink shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#090A0F] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
+              >
+                See the goal →
+              </a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Quick Action Rule Banner -->
+      <div class="mt-16 bg-white border-4 border-ink p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-brutal">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-acid-green border-2 border-ink flex items-center justify-center font-mono font-bold text-xl shrink-0 shadow-brutal-sm">
+            90s
+          </div>
+          <div>
+            <h4 class="font-syne font-bold text-lg text-ink">90 Seconds to Disrupt Congressional Inaction</h4>
+            <p class="font-sans text-sm text-neutral-600">Congressional switchboards log calls into categorical tallies. Every registered constituent counts.</p>
+          </div>
+        </div>
+        <a href="#" class="inline-block bg-ink text-white font-mono font-bold text-xs uppercase tracking-wider px-6 py-3 border-2 border-ink shadow-brutal hover:bg-neutral-800 transition-colors shrink-0">
+          How Switchboard Tallies Work →
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER BAND ON INK BACKGROUND -->
+  <footer id="donate" class="w-full bg-ink text-neutral-300 border-t-4 border-ink py-12 px-6 sm:px-12 md:px-16">
+    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <!-- Creator & Funding statement verbatim -->
+      <div class="text-sm font-sans text-center md:text-left">
+        <p class="text-neutral-200">
+          Built and paid for by one person. Donations keep it up. 
+          <a href="#donate" class="text-acid-green hover:underline font-mono font-bold ml-1">
+            Donate
+          </a>
+        </p>
+      </div>
+
+      <!-- Footer navigation links verbatim -->
+      <nav class="flex items-center space-x-6 sm:space-x-8 text-xs sm:text-sm font-mono tracking-wider uppercase">
+        <a href="#about" class="text-neutral-400 hover:text-white transition-colors">About</a>
+        <a href="#privacy" class="text-neutral-400 hover:text-white transition-colors">Privacy</a>
+        <a href="#all-goals" class="text-neutral-400 hover:text-white transition-colors">All goals</a>
+      </nav>
+
+    </div>
+  </footer>
+
+</body>
+</html>

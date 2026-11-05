@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200, height=630, initial-scale=1.0">
+  <title>Cut the Ties — NDAA Link Preview (1200x630 1.91:1)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,600&family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#00E876',
+              paper: '#FAF8F5',
+              dark: '#0A0A0A',
+              red: '#FF3B30',
+              yellow: '#FFCC00',
+              border: '#111111'
+            }
+          },
+          fontFamily: {
+            display: ['"Bebas Neue"', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 1200x630 fixed OpenGraph link preview canvas */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background-color: #0A0A0A;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+    }
+    .halftone-overlay {
+      background-image: radial-gradient(rgba(255,255,255,0.08) 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+    .ink-shadow {
+      box-shadow: 5px 5px 0px #000000;
+    }
+    .ink-shadow-green {
+      box-shadow: 4px 4px 0px #00E876;
+    }
+  </style>
+</head>
+<body class="relative text-white select-none flex flex-col justify-between">
+
+  <!-- Full-bleed background image with dramatic gradient overlays -->
+  <div class="absolute inset-0 z-0">
+    <img src="https://lh3.googleusercontent.com/aida/AEtjO1XO5jYqMutH6kF8cw12p-qyGBJ-URuK_yqXGFuGkn3Fw2n1ggYhBk8QR2QLophv3xp9ZaI7oOlyQ9L-5i5Cw62qxdLA-ElR5Si06qVyRZ99VCzXk3IoVLZe3E5iyhtYUxpsDbhJKJCo7L7aJCkXj_TrUlEzjZvhPktnoxrhP4YBHwEDEVE1RI7ebjL5bbFXrBexTPSx2PSXWUgwdGwKVc4YcSZRjK-jYz2fhkXbRV8" alt="US Capitol Dome at dusk" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-75 scale-105" />
+    <!-- Dark gradient overlay optimized for horizontal landscape legibility -->
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/70"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
+    <!-- Halftone texture overlay -->
+    <div class="absolute inset-0 halftone-overlay opacity-35 mix-blend-overlay pointer-events-none"></div>
+  </div>
+
+  <!-- Outer Framing Border -->
+  <div class="absolute inset-5 border border-white/20 pointer-events-none z-10 flex flex-col justify-between p-3">
+    <div class="flex justify-between items-center text-[11px] font-mono tracking-widest text-white/50 uppercase">
+      <span>DISTRICT 46 // DISPATCH #1217</span>
+      <span>OPEN GRAPH PROTOCOL // VERIFIED RECORD</span>
+    </div>
+    <div class="flex justify-between items-center text-[10px] font-mono tracking-widest text-white/40 uppercase">
+      <span>CIVIC DIRECT ACTION NETWORK</span>
+      <span>ZERO LOBBY TIES</span>
+    </div>
+  </div>
+
+  <!-- Content Container (1200x630 landscape layout) -->
+  <div class="relative z-20 w-full h-full flex flex-col justify-between px-14 py-10">
+
+    <!-- TOP SECTION: Wordmark and Tag -->
+    <header class="flex items-center justify-between w-full">
+      <div class="flex items-center gap-3">
+        <span class="font-display text-4xl tracking-wide uppercase text-white drop-shadow-md">
+          CUT THE TIES
+        </span>
+        <div class="h-5 w-[2px] bg-brand-green/80 mx-1"></div>
+        <span class="font-mono text-[11px] tracking-widest uppercase text-brand-green font-bold bg-brand-green/10 border border-brand-green/40 px-2 py-0.5">
+          CONFERENCE MARKUP § 1217
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#FF3B30] text-black font-mono font-bold text-[10px] uppercase tracking-wider ink-shadow">
+          FEDERAL VOTE ALERT
+        </span>
+      </div>
+    </header>
+
+    <!-- CENTRE SECTION: Headline & Rep Details -->
+    <main class="my-auto max-w-[1020px] flex flex-col justify-center">
+      <!-- Large serif headline verbatim from user request -->
+      <h1 class="font-serif text-[46px] leading-[1.12] font-bold text-white tracking-tight drop-shadow-xl text-balance">
+        “Your rep voted to keep the Israel integration section. The conference decides next week.”
+      </h1>
+
+      <div class="flex items-center gap-5 mt-5">
+        <div class="w-12 h-[2.5px] bg-brand-green shrink-0"></div>
+        <!-- Rep Target Line verbatim -->
+        <div class="bg-black/90 border border-white px-5 py-2.5 flex items-center gap-3.5 ink-shadow-green">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-green shrink-0"></span>
+          <p class="font-mono text-lg font-bold tracking-tight text-white uppercase">
+            Rep. Lou Correa <span class="text-brand-green">·</span> CA-46 <span class="text-brand-green">·</span> <span class="text-white">(202) 225-2965</span>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM SECTION: Website Pill & CTA instruction -->
+    <footer class="w-full flex items-center justify-between border-t border-white/20 pt-4">
+      <!-- Site URL in pill -->
+      <div class="flex items-center">
+        <div class="px-6 py-2.5 bg-brand-green text-black font-mono font-black text-lg tracking-wider uppercase rounded-full ink-shadow flex items-center gap-2.5">
+          <span>CUTTHETIES.ORG</span>
+          <svg class="w-4 h-4 fill-black stroke-black" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2.5" stroke-linecap="square" fill="none"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Instruction line verbatim -->
+      <div class="text-right">
+        <p class="font-mono text-base font-bold text-white tracking-tight uppercase">
+          Enter your address to get your script
+        </p>
+        <p class="font-mono text-[11px] text-white/60 tracking-wider uppercase">
+          Free · 90-Second Call · No Sign-Up Required
+        </p>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

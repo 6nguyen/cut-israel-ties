@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES — YOUR CALL SCRIPT</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary": "#b90038",
+            "on-primary-container": "#00622e",
+            "error": "#ba1a1a",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed": "#ffdadb",
+            "inverse-primary": "#00e474",
+            "secondary-fixed-dim": "#ffb2b7",
+            "surface-tint": "#006d34",
+            "on-background": "#090A0F",
+            "surface-container-high": "#e9e7ef",
+            "primary-container": "#00e876",
+            "primary": "#006d34",
+            "on-surface-variant": "#3b4a3d",
+            "secondary-container": "#e4164a",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "on-primary-fixed-variant": "#005226",
+            "surface-bright": "#faf8ff",
+            "on-surface": "#090A0F",
+            "surface": "#FAF7F0",
+            "on-primary": "#ffffff",
+            "inverse-surface": "#2f3036",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f1f0f7",
+            "tertiary-container": "#f3c504",
+            "on-tertiary-fixed-variant": "#574500",
+            "surface-dim": "#dad9e1",
+            "on-secondary-container": "#fffbff",
+            "on-secondary-fixed-variant": "#92002a",
+            "primary-fixed": "#62ff95",
+            "tertiary-fixed": "#ffe083",
+            "tertiary": "#735c00",
+            "on-error-container": "#93000a",
+            "surface-variant": "#e3e1e9",
+            "on-error": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-highest": "#e3e1e9",
+            "outline-variant": "#bacbb9",
+            "background": "#FAF7F0",
+            "surface-container": "#efedf5",
+            "on-secondary-fixed": "#40000d",
+            "on-primary-fixed": "#00210b",
+            "surface-container-low": "#f4f2fa",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed": "#231b00",
+            "primary-fixed-dim": "#00e474",
+            "on-tertiary-container": "#675300"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin": "1rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xl": "2.5rem",
+            "margin-desktop": "2.5rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "headline-lg-mobile": ["Syne"],
+            "body-lg": ["Inter"],
+            "label-ticker": ["Space Mono"],
+            "headline-lg": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-code": ["Space Mono"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "headline-md": ["Syne"],
+            "display-lg": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Subtle dot grid pattern on raw unbleached newsprint */
+    .newsprint-dots {
+      background-color: #FAF7F0;
+      background-image: radial-gradient(#090A0F 0.85px, transparent 0.85px);
+      background-size: 20px 20px;
+    }
+
+    /* Architectural tactile box-shadows */
+    .tactile-card {
+      border: 2.5px solid #090A0F;
+      box-shadow: 4px 4px 0px #090A0F;
+    }
+
+    .tactile-btn {
+      border: 2.5px solid #090A0F;
+      box-shadow: 4px 4px 0px #090A0F;
+      transition: none;
+    }
+    .tactile-btn:hover {
+      background-color: #FAF7F0;
+      color: #090A0F;
+    }
+    .tactile-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #090A0F;
+    }
+
+    .tactile-input {
+      border: 2px solid #090A0F;
+      background-color: #FAF7F0;
+      box-shadow: 2px 2px 0px #090A0F;
+      transition: none;
+    }
+    .tactile-input:focus {
+      outline: none;
+      background-color: #FFFFFF;
+      box-shadow: 4px 4px 0px #00E876;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="newsprint-dots bg-background text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-background">
+<!-- TOP MINIMAL HEADER -->
+<header class="w-full border-b-[2.5px] border-on-background bg-background px-margin-desktop py-space-sm sticky top-0 z-50">
+<div class="max-w-[1360px] mx-auto flex items-center justify-between">
+<!-- Back Link & Brand Lockup -->
+<div class="flex items-center gap-space-lg">
+<a class="group flex items-center gap-space-xs font-label-code text-label-code text-on-surface hover:text-secondary underline decoration-2 underline-offset-4 decoration-on-surface hover:decoration-secondary transition-none" href="#targets">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>Back to targets</span>
+</a>
+<div class="h-5 w-[2px] bg-on-background"></div>
+<a class="font-display-lg text-display-lg text-[26px] leading-none uppercase tracking-tight text-on-background hover:text-primary transition-none" href="#">
+          CUT THE TIES
+        </a>
+</div>
+<!-- Live District Anchor Verification Tag -->
+<div class="flex items-center gap-space-sm border-2 border-on-background bg-surface px-3 py-1 shadow-[2px_2px_0px_#090A0F]">
+<span class="w-2 h-2 rounded-full bg-primary-container border border-on-background animate-pulse"></span>
+<span class="font-label-code text-label-code tracking-wider text-on-background">DISTRICT VERIFIED // CA-46</span>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS: FOCUSED NARROW COLUMN -->
+<main class="w-full flex-1 flex flex-col justify-center py-space-xl px-margin">
+<div class="w-full max-w-[640px] mx-auto">
+<!-- Context Target Dossier Chip -->
+<div class="mb-space-md flex items-center justify-between">
+<div class="inline-flex items-center gap-space-sm border-2 border-on-background bg-surface-container-lowest px-3 py-1.5 shadow-[3px_3px_0px_#090A0F]">
+<span class="material-symbols-outlined text-[16px] text-on-surface">call</span>
+<div class="flex items-center gap-1.5">
+<span class="font-label-code text-label-code font-bold text-on-surface">Rep. Lou Correa</span>
+<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#185adb] text-white text-[9px] font-label-code font-bold leading-none">D</span>
+<span class="font-label-code text-label-code text-on-surface-variant">CA-46</span>
+</div>
+<span class="border-l border-on-background pl-2 ml-1 font-label-ticker text-label-ticker text-on-surface-variant font-bold">HOUSE TARGET #04</span>
+</div>
+<div class="font-label-ticker text-label-ticker text-on-surface-variant tracking-widest hidden sm:block">
+          DISPATCH PROTOCOL: CONSTITUENT SCRIPT
+        </div>
+</div>
+<!-- Display Title -->
+<h1 class="font-display-lg text-display-lg text-[60px] leading-[0.95] tracking-tight text-on-background uppercase mb-space-lg">
+        YOUR CALL SCRIPT
+      </h1>
+<!-- The Tactical Form Card -->
+<div class="tactile-card bg-surface-container-lowest p-6 sm:p-8 relative">
+<!-- Top Stamp Plate -->
+<div class="flex items-center justify-between border-b-2 border-on-background pb-3 mb-6 bg-surface px-3 py-2 -mx-6 sm:-mx-8 -mt-6 sm:-mt-8">
+<span class="font-label-code text-label-code text-on-background uppercase flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">terminal</span>
+            CONSTITUENT FIELD TRANSMISSION
+          </span>
+<span class="font-label-ticker text-label-ticker bg-on-background text-surface px-1.5 py-0.5 uppercase">
+            SECURE DIRECTIVE
+          </span>
+</div>
+<form action="#submit-script" class="space-y-5" method="POST" onsubmit="event.preventDefault();">
+<!-- Row 1: First Name & City -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- First Name Field -->
+<div>
+<label class="block font-label-code text-label-code text-on-surface uppercase mb-1.5" for="first-name">
+                FIRST NAME <span class="text-secondary">*</span>
+</label>
+<input class="tactile-input w-full px-3.5 py-2.5 font-body-md text-body-md text-on-background focus:ring-0 placeholder:text-outline" id="first-name" name="first_name" placeholder="e.g. Maya" required="" type="text" value="Maya"/>
+</div>
+<!-- City / Community Field -->
+<div>
+<label class="block font-label-code text-label-code text-on-surface uppercase mb-1.5" for="city">
+                CITY / COMMUNITY <span class="text-secondary">*</span>
+</label>
+<input class="tactile-input w-full px-3.5 py-2.5 font-body-md text-body-md text-on-background focus:ring-0 placeholder:text-outline" id="city" name="city" placeholder="e.g. Santa Ana" required="" type="text" value="Santa Ana"/>
+</div>
+</div>
+<!-- Textarea: Why this matters -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="block font-label-code text-label-code text-on-surface uppercase" for="matter-concern">
+                Why this matters to you (one or two sentences) <span class="text-secondary">*</span>
+</label>
+<span class="font-label-ticker text-label-ticker font-bold text-on-surface-variant bg-surface px-2 py-0.5 border border-on-background" id="char-counter">
+                142 / 280 MAX
+              </span>
+</div>
+<textarea class="tactile-input w-full px-3.5 py-2.5 font-body-md text-body-md text-on-background focus:ring-0 resize-none leading-relaxed placeholder:text-outline" id="matter-concern" maxlength="280" name="matter_concern" oninput="document.getElementById('char-counter').innerText = this.value.length + ' / 280 MAX';" placeholder="Explain directly why you want the Representative to reject lobbyist PAC funding and co-sponsor civic transparency." required="" rows="3">My clinic sees families rationing prescriptions every week while corporate defense PAC donations flood our local congressional office. Enough is enough.</textarea>
+</div>
+<!-- Optional: Occupation or affiliation -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="block font-label-code text-label-code text-on-surface uppercase" for="affiliation">
+                Occupation or affiliation (optional)
+              </label>
+<span class="font-label-ticker text-label-ticker text-outline uppercase">OPTIONAL</span>
+</div>
+<input class="tactile-input w-full px-3.5 py-2.5 font-body-md text-body-md text-on-background focus:ring-0 placeholder:text-outline" id="affiliation" name="affiliation" placeholder="e.g. Pediatric nurse / Healthcare Workers for Peace" type="text" value="Pediatric nurse / Healthcare Workers for Peace"/>
+</div>
+<!-- Security Box: Cloudflare Turnstile Simulated Component -->
+<div class="border-2 border-on-background bg-surface p-3 flex items-center justify-between shadow-[2px_2px_0px_#090A0F]">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 border-2 border-on-background bg-primary-container flex items-center justify-center text-on-background">
+<span class="material-symbols-outlined text-[18px] font-bold">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-code text-label-code font-bold text-on-surface leading-tight">
+                  Success / Verified constituent human
+                </span>
+<span class="font-label-ticker text-[10px] text-on-surface-variant leading-none mt-0.5">
+                  District IP &amp; CA geofence matched
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 border-l-2 border-on-background pl-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface">shield</span>
+<div class="text-right">
+<div class="font-label-ticker text-[10px] uppercase font-bold text-on-surface leading-none">Cloudflare</div>
+<div class="font-label-ticker text-[9px] uppercase text-on-surface-variant leading-none">Turnstile</div>
+</div>
+</div>
+</div>
+<!-- Primary Submit Action Button -->
+<button class="tactile-btn w-full bg-primary-container text-on-background py-3.5 px-6 font-label-code text-label-code font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer mt-2" type="submit">
+<span>WRITE MY SCRIPT</span>
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</button>
+<!-- Verbatim Security Disclaimer -->
+<p class="font-label-ticker text-label-ticker text-center text-on-surface-variant pt-1">
+            Takes about ten seconds. Your words are used once and not stored.
+          </p>
+</form>
+<!-- Mechanical Cut Corners (Agitprop Graphic Flourish) -->
+<div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-on-background"></div>
+<div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-on-background"></div>
+</div>
+<!-- Quick Guidance Notes -->
+<div class="mt-space-lg grid grid-cols-1 sm:grid-cols-2 gap-space-md border-t-2 border-on-background pt-space-md">
+<div class="flex items-start gap-2">
+<span class="font-label-code text-label-code font-bold text-secondary">01.</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+            Staffers log call tallies in real-time. Identifying yourself as a district resident guarantees your comment is officially entered into the congressional ledger.
+          </p>
+</div>
+<div class="flex items-start gap-2">
+<span class="font-label-code text-label-code font-bold text-primary">02.</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+            A generated two-sentence personalized script keeps the phone call under 45 seconds while maintaining maximum legislative impact.
+          </p>
+</div>
+</div>
+</div>
+</main>
+<!-- QUIET MINIMALIST FOOTER -->
+<footer class="w-full bg-on-background text-surface border-t-2 border-on-background py-space-md px-margin-desktop mt-space-xl">
+<div class="max-w-[1360px] mx-auto flex flex-col md:flex-row items-center justify-between gap-space-sm text-center md:text-left">
+<!-- Creator & Funding Statement -->
+<div class="font-label-ticker text-label-ticker text-surface-dim">
+        Built and paid for by one person. Donations keep it up. 
+        <a class="text-primary-container font-bold hover:underline ml-1" href="#donate">Donate</a>
+</div>
+<!-- Direct Minimal Navigation Links -->
+<div class="flex items-center gap-space-md font-label-ticker text-label-ticker text-surface-dim uppercase">
+<a class="hover:text-primary-container transition-none" href="#about">About</a>
+<span class="text-outline">/</span>
+<a class="hover:text-primary-container transition-none" href="#privacy">Privacy</a>
+<span class="text-outline">/</span>
+<a class="hover:text-primary-container transition-none" href="#all-goals">All goals</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES — DIRECT ACTION DISPATCH INFRASTRUCTURE</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#efedf5",
+            "surface-tint": "#006d34",
+            "tertiary-fixed-dim": "#eec200",
+            "inverse-on-surface": "#f1f0f7",
+            "surface-container-highest": "#e3e1e9",
+            "inverse-primary": "#00e474",
+            "on-surface": "#1a1b21",
+            "on-error-container": "#93000a",
+            "on-background": "#1a1b21",
+            "on-error": "#ffffff",
+            "on-tertiary-fixed-variant": "#574500",
+            "surface": "#faf8ff",
+            "secondary-fixed-dim": "#ffb2b7",
+            "error-container": "#ffdad6",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#00210b",
+            "on-tertiary": "#ffffff",
+            "on-surface-variant": "#3b4a3d",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed": "#ffdadb",
+            "secondary-container": "#e4164a",
+            "surface-dim": "#dad9e1",
+            "inverse-surface": "#2f3036",
+            "outline": "#6b7b6c",
+            "tertiary": "#735c00",
+            "background": "#faf8ff",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#92002a",
+            "on-secondary-container": "#fffbff",
+            "surface-container-high": "#e9e7ef",
+            "on-primary": "#ffffff",
+            "on-tertiary-container": "#675300",
+            "primary": "#006d34",
+            "on-primary-fixed-variant": "#005226",
+            "surface-variant": "#e3e1e9",
+            "surface-container-low": "#f4f2fa",
+            "tertiary-container": "#f3c504",
+            "outline-variant": "#bacbb9",
+            "surface-bright": "#faf8ff",
+            "primary-fixed-dim": "#00e474",
+            "on-tertiary-fixed": "#231b00",
+            "on-primary-container": "#00622e",
+            "tertiary-fixed": "#ffe083",
+            "primary-container": "#00e876",
+            "primary-fixed": "#62ff95",
+            "secondary": "#b90038"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-desktop": "1.5rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "margin": "1rem",
+            "margin-desktop": "2.5rem",
+            "space-xl": "2.5rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "display-lg": ["Bebas Neue"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "headline-lg-mobile": ["Syne"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Syne"],
+            "headline-lg": ["Syne"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "label-ticker": ["Space Mono"],
+            "label-code": ["Space Mono"],
+            "body-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "display-xl": ["Bebas Neue"]
+          },
+          "fontSize": {
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .tactile-grid-bg {
+      background-color: #faf8ff;
+      background-image: radial-gradient(#1a1b21 0.75px, transparent 0.75px);
+      background-size: 24px 24px;
+    }
+    .shadow-hard-base {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .shadow-hard-interactive {
+      box-shadow: 4px 4px 0px #1a1b21;
+      transition: transform 0.05s ease, box-shadow 0.05s ease;
+    }
+    .shadow-hard-interactive:hover {
+      box-shadow: 6px 6px 0px #1a1b21;
+      transform: translate(-2px, -2px);
+    }
+    .shadow-hard-interactive:active {
+      box-shadow: 0px 0px 0px #1a1b21;
+      transform: translate(4px, 4px);
+    }
+    .shadow-hard-banner {
+      box-shadow: 8px 8px 0px #1a1b21;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background tactile-grid-bg min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-background">
+<!-- TOP APP BAR / BRAND HEADER -->
+<header class="w-full bg-background border-b-2 border-on-background relative z-20">
+<div class="max-w-[1360px] mx-auto px-margin-desktop py-space-sm flex justify-between items-center">
+<!-- Left cluster: Brand & Navigation link -->
+<div class="flex items-center gap-space-lg">
+<a class="font-display-lg text-display-lg text-on-background uppercase tracking-tight flex items-center gap-space-xs hover:text-primary transition-none" href="#home">
+          CUT THE TIES
+        </a>
+<div class="h-6 w-0.5 bg-on-background hidden sm:block"></div>
+<a class="inline-flex items-center gap-1 font-label-code text-label-code text-on-background uppercase hover:bg-primary-container px-2 py-1 border border-transparent hover:border-on-background transition-none" href="#targets">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>← BACK TO TARGETS</span>
+</a>
+</div>
+<!-- Right cluster: Nav link & Status verification -->
+<div class="flex items-center gap-space-md">
+<a class="font-label-code text-label-code text-on-surface-variant uppercase tracking-wider hover:text-on-background hover:underline decoration-2 underline-offset-4 hidden md:inline-block" href="#goals">
+          ALL GOALS
+        </a>
+<div class="hidden lg:flex items-center gap-2 border-2 border-on-background px-3 py-1 bg-surface shadow-[2px_2px_0px_#1a1b21]">
+<span class="w-2 h-2 rounded-full bg-primary-container inline-block border border-on-background"></span>
+<span class="font-label-code text-label-code text-on-background tracking-wider uppercase">DISTRICT 07 VERIFIED</span>
+</div>
+</div>
+</div>
+</header>
+<!-- LIVE PROTOCOL MARQUEE STRIP -->
+<div class="w-full bg-on-background border-b-2 border-on-background py-1.5 px-4 overflow-hidden">
+<div class="max-w-[1360px] mx-auto flex items-center justify-between text-tertiary-container font-label-ticker text-label-ticker tracking-widest uppercase">
+<div class="flex items-center gap-4">
+<span class="bg-secondary text-on-secondary px-1.5 py-0.5 font-bold">DISPATCH 402</span>
+<span>CIVIC AUTONOMY FUND // ZERO CORPORATE LOBBY CAPITAL // OPEN DISPATCH PROTOCOL</span>
+</div>
+<div class="hidden md:flex items-center gap-3 text-surface">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>END-TO-END VERIFIED TLS // DIRECT PEER RELAY</span>
+</div>
+</div>
+</div>
+<!-- MAIN CANVAS: CENTERED COLUMN (600px - 640px) -->
+<main class="flex-grow flex items-center justify-center px-4 py-space-xl">
+<div class="w-full max-w-[640px] mx-auto flex flex-col gap-space-lg">
+<!-- TOP STATUS CLUSTER -->
+<div class="flex items-center justify-between border-b-2 border-on-background pb-3">
+<div class="flex items-center gap-2">
+<span class="bg-primary-container text-on-background font-label-code text-label-code px-2 py-0.5 border border-on-background uppercase">
+            SOLO OPERATOR
+          </span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant uppercase tracking-wider">
+            INFRASTRUCTURE STATEMENT #01
+          </span>
+</div>
+<div class="font-label-code text-label-code text-on-surface-variant uppercase">
+          REV. 2025.4
+        </div>
+</div>
+<!-- MAIN HEADLINE & EDITORIAL INTENT -->
+<div class="flex flex-col gap-space-sm">
+<h1 class="font-display-xl text-display-xl text-on-background tracking-tight uppercase leading-none">
+          THIS SITE IS RUN BY ONE PERSON
+        </h1>
+<div class="bg-surface border-l-4 border-on-background p-4 shadow-[2px_2px_0px_#1a1b21]">
+<p class="font-body-lg text-body-lg text-on-background leading-relaxed">
+            I built and pay for Cut the Ties myself. It is not a PAC, a campaign or an organisation. Donations are not tax-deductible and go only to hosting, the AI that writes your scripts, and the domain.
+          </p>
+</div>
+</div>
+<!-- MONTHLY COST BREAKDOWN (NEWSLETTER / DOSSIER SPEC SHEET) -->
+<div class="bg-surface-container-lowest border-2 border-on-background shadow-hard-base">
+<!-- Card Header -->
+<div class="bg-surface-container-high border-b-2 border-on-background px-4 py-2.5 flex justify-between items-center">
+<span class="font-label-code text-label-code uppercase tracking-wider text-on-background flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-on-background"></span>
+            What it costs each month
+          </span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant uppercase">
+            AUDITED MONTHLY
+          </span>
+</div>
+<!-- Ledger Table Rows -->
+<div class="divide-y-2 divide-on-background">
+<!-- Row 1 -->
+<div class="px-4 py-3 flex justify-between items-center bg-surface hover:bg-surface-container-low transition-none">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">terminal</span>
+<span class="font-body-md text-body-md text-on-background">AI script generation (Claude API tokens)</span>
+</div>
+<span class="font-label-code text-label-code text-on-background whitespace-nowrap">$42 / mo</span>
+</div>
+<!-- Row 2 -->
+<div class="px-4 py-3 flex justify-between items-center bg-surface hover:bg-surface-container-low transition-none">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">dns</span>
+<span class="font-body-md text-body-md text-on-background">Cloudflare hosting &amp; edge workers</span>
+</div>
+<span class="font-label-code text-label-code text-on-background whitespace-nowrap">$20 / mo</span>
+</div>
+<!-- Row 3 -->
+<div class="px-4 py-3 flex justify-between items-center bg-surface hover:bg-surface-container-low transition-none">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">language</span>
+<span class="font-body-md text-body-md text-on-background">Domain registration &amp; DNS infrastructure</span>
+</div>
+<span class="font-label-code text-label-code text-on-background whitespace-nowrap">$3 / mo</span>
+</div>
+<!-- Total Highlight Row -->
+<div class="px-4 py-3.5 flex justify-between items-center bg-tertiary-container border-t-2 border-on-background font-bold">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-background text-[20px]">calculate</span>
+<span class="font-label-code text-label-code text-on-background tracking-wider uppercase">TOTAL OPERATING RUN RATE</span>
+</div>
+<span class="font-label-code text-label-code text-on-background text-[15px]">$65 / mo</span>
+</div>
+</div>
+</div>
+<!-- DONATION ACTION MANIFEST: 2X2 BRUTALIST GRID -->
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex justify-between items-end border-b border-on-background pb-1">
+<span class="font-label-code text-label-code uppercase tracking-wider text-on-background">
+            DIRECT INFRASTRUCTURE REPLENISHMENT
+          </span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant uppercase">
+            ONE-CLICK DISPATCH
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<!-- Button 1: $5 -->
+<a class="group relative bg-surface-container-lowest border-2 border-on-background p-4 flex flex-col justify-between shadow-hard-interactive active:translate-x-1 active:translate-y-1 hover:bg-primary-container cursor-pointer select-none" href="https://stripe.com" rel="noopener noreferrer" target="_blank">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-ticker text-label-ticker text-on-surface-variant group-hover:text-on-background uppercase tracking-widest">TIER 01</span>
+<div class="flex items-center gap-1 border border-on-background px-1.5 py-0.5 bg-surface text-[10px] font-label-code">
+<span class="material-symbols-outlined text-[12px] text-on-background">lock</span>
+<span>STRIPE</span>
+</div>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-display-lg text-display-lg text-on-background leading-none">$5</span>
+<span class="font-label-code text-label-code text-on-background uppercase font-bold group-hover:underline">ONE-OFF →</span>
+</div>
+</a>
+<!-- Button 2: $20 -->
+<a class="group relative bg-surface-container-lowest border-2 border-on-background p-4 flex flex-col justify-between shadow-hard-interactive active:translate-x-1 active:translate-y-1 hover:bg-primary-container cursor-pointer select-none" href="https://stripe.com" rel="noopener noreferrer" target="_blank">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-ticker text-label-ticker text-on-surface-variant group-hover:text-on-background uppercase tracking-widest">TIER 02</span>
+<div class="flex items-center gap-1 border border-on-background px-1.5 py-0.5 bg-surface text-[10px] font-label-code">
+<span class="material-symbols-outlined text-[12px] text-on-background">lock</span>
+<span>STRIPE</span>
+</div>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-display-lg text-display-lg text-on-background leading-none">$20</span>
+<span class="font-label-code text-label-code text-on-background uppercase font-bold group-hover:underline">ONE-OFF →</span>
+</div>
+</a>
+<!-- Button 3: $50 -->
+<a class="group relative bg-surface-container-lowest border-2 border-on-background p-4 flex flex-col justify-between shadow-hard-interactive active:translate-x-1 active:translate-y-1 hover:bg-primary-container cursor-pointer select-none" href="https://stripe.com" rel="noopener noreferrer" target="_blank">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-ticker text-label-ticker text-on-surface-variant group-hover:text-on-background uppercase tracking-widest">TIER 03</span>
+<div class="flex items-center gap-1 border border-on-background px-1.5 py-0.5 bg-surface text-[10px] font-label-code">
+<span class="material-symbols-outlined text-[12px] text-on-background">lock</span>
+<span>STRIPE</span>
+</div>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-display-lg text-display-lg text-on-background leading-none">$50</span>
+<span class="font-label-code text-label-code text-on-background uppercase font-bold group-hover:underline">ONE-OFF →</span>
+</div>
+</a>
+<!-- Button 4: $5 a month (Recurring Highlight) -->
+<a class="group relative bg-primary-container border-2 border-on-background p-4 flex flex-col justify-between shadow-hard-interactive active:translate-x-1 active:translate-y-1 hover:bg-surface-container-lowest cursor-pointer select-none" href="https://stripe.com" rel="noopener noreferrer" target="_blank">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-ticker text-label-ticker text-on-background font-bold uppercase tracking-widest">SUSTAINER</span>
+<div class="flex items-center gap-1 border border-on-background px-1.5 py-0.5 bg-surface text-[10px] font-label-code">
+<span class="material-symbols-outlined text-[12px] text-on-background">lock</span>
+<span>STRIPE</span>
+</div>
+</div>
+<div>
+<span class="font-display-lg text-display-lg text-on-background leading-none block">$5</span>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-label-code text-label-code text-on-background uppercase tracking-tight">A MONTH</span>
+<span class="font-label-code text-label-code text-on-background uppercase font-bold group-hover:underline">RECURRING →</span>
+</div>
+</div>
+</a>
+</div>
+<!-- Stripe Security & Redirect Footnote -->
+<div class="flex items-center justify-center gap-2 pt-2 text-on-surface-variant font-label-code text-label-code">
+<span class="material-symbols-outlined text-[15px] text-primary">lock</span>
+<span>Opens Stripe in a new tab</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-ticker text-label-ticker text-outline uppercase tracking-wider">256-BIT ENCRYPTION</span>
+</div>
+</div>
+<!-- AUDIT / PRIVACY LINK OUT -->
+<div class="text-center pt-2 pb-2">
+<a class="inline-flex items-center gap-1.5 font-label-code text-label-code uppercase tracking-wider text-on-background underline decoration-2 underline-offset-4 hover:bg-primary-container px-2 py-1 border border-transparent hover:border-on-background transition-none" href="#privacy">
+<span class="material-symbols-outlined text-[16px]">policy</span>
+<span>What is stored and what is not</span>
+</a>
+</div>
+<!-- DISPATCH NOTICE CARD -->
+<div class="border border-on-background bg-surface-container-low p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">verified_user</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+<span class="font-bold text-on-background uppercase font-label-code">ZERO RETENTION GUARANTEE:</span> 
+          Payment handling is isolated externally through Stripe Checkout. No billing credentials, IP archives, or financial identifiers enter this server or our worker clusters.
+        </div>
+</div>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-on-background text-surface border-t-2 border-on-background mt-auto py-space-xl px-margin-desktop">
+<div class="max-w-[1360px] mx-auto flex flex-col md:flex-row justify-between items-center gap-space-md">
+<!-- Left: Mandatory Network Copyright & Statement -->
+<div class="flex flex-col gap-1 text-center md:text-left">
+<div class="font-display-lg text-display-lg text-surface tracking-normal leading-none">
+          CUT THE TIES
+        </div>
+<p class="font-label-ticker text-label-ticker text-surface-dim uppercase tracking-wider max-w-xl">
+          CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+        </p>
+</div>
+<!-- Right: Movement Policy Links -->
+<div class="flex flex-wrap justify-center md:justify-end items-center gap-x-6 gap-y-2">
+<a class="font-label-ticker text-label-ticker uppercase tracking-wider text-surface-dim hover:text-primary-container hover:underline transition-none" href="#about">
+          About
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase tracking-wider text-surface-dim hover:text-primary-container hover:underline transition-none" href="#privacy">
+          Privacy
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase tracking-wider text-surface-dim hover:text-primary-container hover:underline transition-none" href="#goals">
+          All goals
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase tracking-wider text-surface-dim hover:text-primary-container hover:underline transition-none" href="#direct-access">
+          Direct Access
+        </a>
+</div>
+</div>
+</footer>
+</body></html>

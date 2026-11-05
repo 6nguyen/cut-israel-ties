@@ -18,6 +18,8 @@ says what it is.
   (rules in `docs/research/README.md`). Builds never read it.
   `civic-action-levers/` is the study behind the first product idea.
 - `docs/FEATURES.md` — generated feature list and lifecycle state; read it before proposing a PRD or answering what exists.
+- `design/stitch/` — Google Stitch export (design system, one HTML+PNG per
+  screen, placeholder photos); reference for the frontend build, never built.
 - `scripts/` — `quiet-check.sh` (the only build/test entry point for agents)
   plus the CI linters `prd-lint.sh`, `doc-lint.sh` and `features.sh`.
 

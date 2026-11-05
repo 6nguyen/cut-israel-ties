@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES // YOUR CALL SCRIPT</title>
+<!-- Google Fonts: Bebas Neue, Space Mono, Syne, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary": "#b90038",
+            "on-primary-container": "#00622e",
+            "error": "#ba1a1a",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed": "#ffdadb",
+            "inverse-primary": "#00e474",
+            "secondary-fixed-dim": "#ffb2b7",
+            "surface-tint": "#006d34",
+            "on-background": "#1a1b21",
+            "surface-container-high": "#e9e7ef",
+            "primary-container": "#00e876",
+            "primary": "#006d34",
+            "on-surface-variant": "#3b4a3d",
+            "secondary-container": "#e4164a",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "on-primary-fixed-variant": "#005226",
+            "surface-bright": "#faf8ff",
+            "on-surface": "#1a1b21",
+            "surface": "#faf8ff",
+            "on-primary": "#ffffff",
+            "inverse-surface": "#2f3036",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f1f0f7",
+            "tertiary-container": "#f3c504",
+            "on-tertiary-fixed-variant": "#574500",
+            "surface-dim": "#dad9e1",
+            "on-secondary-container": "#fffbff",
+            "on-secondary-fixed-variant": "#92002a",
+            "primary-fixed": "#62ff95",
+            "tertiary-fixed": "#ffe083",
+            "tertiary": "#735c00",
+            "on-error-container": "#93000a",
+            "surface-variant": "#e3e1e9",
+            "on-error": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-highest": "#e3e1e9",
+            "outline-variant": "#bacbb9",
+            "background": "#faf8ff",
+            "surface-container": "#efedf5",
+            "on-secondary-fixed": "#40000d",
+            "on-primary-fixed": "#00210b",
+            "surface-container-low": "#f4f2fa",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed": "#231b00",
+            "primary-fixed-dim": "#00e474",
+            "on-tertiary-container": "#675300"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin": "1rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xl": "2.5rem",
+            "margin-desktop": "2.5rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "headline-lg-mobile": ["Syne"],
+            "body-lg": ["Inter"],
+            "label-ticker": ["Space Mono"],
+            "headline-lg": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-code": ["Space Mono"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "headline-md": ["Syne"],
+            "display-lg": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Subtle tactile newsprint technical grid overlay */
+    .tactile-newsprint-grid {
+      background-color: #FAF7F0;
+      background-image: 
+        linear-gradient(to right, rgba(9, 10, 15, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(9, 10, 15, 0.035) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Rigid mechanical borders and drop shadows */
+    .ink-border {
+      border: 2.5px solid #090A0F;
+    }
+    .hard-shadow-sm {
+      box-shadow: 2px 2px 0px #090A0F;
+    }
+    .hard-shadow-md {
+      box-shadow: 4px 4px 0px #090A0F;
+    }
+    .press-action:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #090A0F;
+    }
+    .press-action-lg:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #090A0F;
+    }
+  </style>
+</head>
+<body class="tactile-newsprint-grid text-on-background min-h-screen flex flex-col justify-between antialiased selection:bg-primary-container selection:text-on-background">
+<!-- TOP APP BAR -->
+<header class="w-full border-b-[2.5px] border-on-background bg-[#FAF7F0] relative z-20">
+<div class="max-w-[1360px] mx-auto px-margin-desktop py-space-sm flex justify-between items-center">
+<!-- Left: Back Navigation Link & Brand Wordmark Anchor -->
+<div class="flex items-center gap-space-lg">
+<a class="inline-flex items-center gap-1.5 font-label-code text-label-code text-on-background hover:text-secondary transition-none uppercase tracking-wider group" href="#targets">
+<span class="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform" data-icon="arrow_back">arrow_back</span>
+<span>Back to targets</span>
+</a>
+<div class="h-4 w-[2px] bg-on-background hidden sm:block"></div>
+<div class="font-display-lg text-[28px] tracking-tight uppercase text-on-background font-normal select-none">
+          CUT THE TIES
+        </div>
+</div>
+<!-- Right: District Terminal Verification Marker -->
+<div class="flex items-center gap-space-md">
+<div class="hidden sm:flex items-center gap-2 border-[1.5px] border-on-background px-3 py-1 bg-surface-container-lowest hard-shadow-sm font-label-ticker text-label-ticker font-bold tracking-widest text-on-background uppercase">
+<span class="w-2 h-2 rounded-full bg-primary-container inline-block animate-pulse"></span>
+<span>DISTRICT VERIFIED // CA-46</span>
+</div>
+<div class="sm:hidden flex items-center gap-1.5 border border-on-background px-2 py-0.5 bg-surface-container-lowest font-label-ticker text-[10px]">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container inline-block"></span>
+<span>CA-46</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS: FOCUSED 640px DOCUMENT COLUMN (QUIET ACTION MODE) -->
+<main class="w-full flex-grow flex items-center justify-center py-space-xl px-margin">
+<div class="w-full max-w-[640px] mx-auto flex flex-col gap-space-md">
+<!-- SECTION HEADER & TARGET CHIP -->
+<div class="flex flex-col gap-space-xs">
+<!-- Target Identification Line -->
+<div class="flex items-center justify-between pb-1 border-b border-[#090A0F]/20">
+<div class="inline-flex items-center gap-2">
+<span class="font-label-ticker text-[11px] uppercase tracking-wider text-on-surface-variant font-bold">TARGET:</span>
+<span class="inline-flex items-center gap-1.5 bg-surface-container-lowest border-[1.5px] border-on-background px-2.5 py-0.5 font-label-code text-[12px] font-bold text-on-background uppercase hard-shadow-sm">
+<span class="w-1.5 h-1.5 bg-secondary inline-block"></span>
+              Rep. Lou Correa · D · CA-46
+            </span>
+</div>
+<span class="font-label-ticker text-[11px] text-on-surface-variant hidden sm:inline-block tracking-widest uppercase">DISPATCH #1217-A</span>
+</div>
+<!-- Document H1 Title in Bebas Neue display -->
+<h1 class="font-display-lg text-display-lg text-on-background tracking-normal uppercase leading-none mt-2 select-none">
+          YOUR CALL SCRIPT
+        </h1>
+</div>
+<!-- SCRIPT PAPER CARD -->
+<article class="relative bg-surface-container-lowest ink-border hard-shadow-md p-space-lg transition-transform" id="script-container">
+<!-- Card Header Tag Bar -->
+<div class="flex items-center justify-between pb-3 mb-4 border-b-2 border-on-background">
+<div class="flex items-center gap-2">
+<span class="font-label-ticker text-[10px] bg-on-background text-surface px-1.5 py-0.5 tracking-wider uppercase font-bold">VERIFIED CONSTITUENT SCRIPT</span>
+<span class="font-label-ticker text-[10px] text-on-surface-variant tracking-wider">NDAA CONF. AMEND.</span>
+</div>
+<span class="font-label-ticker text-[10px] font-bold text-on-background">TIME: ~45 SEC</span>
+</div>
+<!-- The Call Script (Humanist Sans / Readable High Contrast) -->
+<div class="text-[17px] leading-[28px] font-body-lg text-on-background space-y-3 font-normal select-text selection:bg-primary-container selection:text-on-background" id="call-script-text">
+<p>
+            “Hello, my name is Maya and I am a constituent living in Santa Ana. I am calling to urge Representative Correa to publicly oppose Section 1217 in the NDAA conference report. As a pediatric nurse, I see working families in Orange County struggling to afford basic care every day. Congress should not be rubber-stamping unconditional weapons pipelines with zero oversight. Please record my opposition to Section 1217 today.”
+          </p>
+</div>
+<!-- Visual Document Stamp Footer -->
+<div class="mt-4 pt-3 border-t border-dashed border-[#090A0F]/30 flex items-center justify-between text-on-surface-variant font-label-ticker text-[10px]">
+<span>RECORD TYPE: VERBAL OPPOSITION</span>
+<span class="uppercase">SEC. 1217 REPEAL INITIATIVE</span>
+</div>
+</article>
+<!-- CITATION & REGENERATE TRIGGER -->
+<div class="flex items-center justify-between px-1 py-1">
+<div class="flex items-center gap-1.5 font-label-ticker text-label-ticker text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="check_circle">check_circle</span>
+<span>Facts checked against the record</span>
+</div>
+<button class="inline-flex items-center gap-1 font-label-ticker text-label-ticker font-bold uppercase tracking-wider text-on-background hover:text-secondary cursor-pointer transition-colors group" id="regenerate-btn" type="button">
+<span>Regenerate</span>
+<span class="material-symbols-outlined text-[15px] group-hover:rotate-180 transition-transform duration-300" data-icon="sync">sync</span>
+</button>
+</div>
+<!-- TACTICAL ACTIONS ROW (3-COLUMN INTERACTIVE BUTTONS) -->
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-sm pt-1">
+<!-- 1. Prominent Phone Action (takes 7 columns) -->
+<a class="sm:col-span-7 flex items-center justify-center gap-2 bg-surface-container-lowest text-on-background ink-border hard-shadow-sm press-action py-3 px-space-md hover:bg-surface-variant transition-none cursor-pointer" href="tel:2022252965">
+<span class="material-symbols-outlined text-[20px] text-secondary" data-icon="call">call</span>
+<span class="font-label-code text-[14px] font-bold tracking-tight uppercase">Call (202) 225-2965</span>
+</a>
+<!-- 2. Tactile Copy Action (takes 2.5/3 cols) -->
+<button class="sm:col-span-3 flex items-center justify-center gap-1.5 bg-surface-container-lowest text-on-background ink-border hard-shadow-sm press-action py-3 px-space-sm hover:bg-surface-variant transition-none cursor-pointer font-label-code text-[13px] font-bold uppercase" id="copy-btn" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="content_copy">content_copy</span>
+<span id="copy-label">Copy</span>
+</button>
+<!-- 3. Tactile Download Action (takes 2/2 cols) -->
+<button class="sm:col-span-2 flex items-center justify-center gap-1.5 bg-surface-container-lowest text-on-background ink-border hard-shadow-sm press-action py-3 px-space-sm hover:bg-surface-variant transition-none cursor-pointer font-label-code text-[13px] font-bold uppercase" id="download-btn" title="Download text transcript" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="download">download</span>
+<span>Save</span>
+</button>
+</div>
+<!-- PRIMARY ACTION BUTTON: I MADE THE CALL -->
+<div class="pt-2 flex flex-col items-center gap-2">
+<button class="w-full bg-[#00E876] text-on-background ink-border hard-shadow-md press-action-lg py-4 px-space-md font-label-code text-[17px] font-bold tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-white transition-none cursor-pointer" id="acted-btn" type="button">
+<span class="material-symbols-outlined text-[24px]" data-icon="check">check</span>
+<span>I MADE THE CALL</span>
+</button>
+<!-- Dynamic Post-Action Status Line -->
+<div class="font-label-ticker text-label-ticker text-on-surface-variant text-center tracking-widest uppercase" id="action-status-label">
+          Share appears after you've acted
+        </div>
+<!-- Hidden Action Disclosure Card (Expands on Action Confirmation) -->
+<div class="hidden w-full bg-surface-container-lowest border-2 border-on-background p-4 mt-2 hard-shadow-sm" id="post-action-panel">
+<div class="flex items-center justify-between pb-2 border-b border-on-background/20 mb-2">
+<span class="font-label-ticker text-[10px] font-bold text-primary uppercase">ACTION RECORDED ON LOCAL TERMINAL</span>
+<span class="font-label-ticker text-[10px] text-on-surface-variant font-mono">HASH #891F4</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-background mb-3">
+            Your call adds to <strong>1,428 verified calls</strong> logged into the CA-46 tally this week. Now rally neighboring constituents:
+          </p>
+<div class="flex gap-2">
+<button class="flex-1 bg-on-background text-surface py-2 px-3 font-label-code text-[12px] uppercase font-bold hover:bg-secondary flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="share">share</span>
+<span>Share Target Dossier</span>
+</button>
+<button class="border border-on-background bg-surface-container py-2 px-3 font-label-code text-[12px] uppercase font-bold hover:bg-surface-bright">
+              Copy Link
+            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- MINIMALIST FOOTER BAND ON INK BLACK BACKGROUND -->
+<footer class="w-full bg-on-background text-surface py-6 px-margin border-t-2 border-on-background mt-space-xl">
+<div class="max-w-[1360px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<!-- Left: Independent Sponsor Statement & Direct Contribution Trigger -->
+<div class="font-label-ticker text-[11px] tracking-wider text-surface-variant">
+<span>Built and paid for by one person. Donations keep it up.</span>
+<a class="text-primary-container hover:underline ml-1 font-bold underline-offset-2" href="#donate">Donate</a>
+</div>
+<!-- Right: Utility Manifest Links -->
+<nav aria-label="Footer Navigation" class="flex items-center gap-6 font-label-ticker text-[11px] tracking-widest text-surface-dim uppercase">
+<a class="hover:text-primary-container transition-none" href="#about">About</a>
+<a class="hover:text-primary-container transition-none" href="#privacy">Privacy</a>
+<a class="hover:text-primary-container transition-none" href="#goals">All goals</a>
+</nav>
+</div>
+</footer>
+<!-- TACTICAL CLIENT MICRO-INTERACTIONS -->
+<script>
+    // Copy Script Action
+    const copyBtn = document.getElementById('copy-btn');
+    const copyLabel = document.getElementById('copy-label');
+    const scriptText = document.getElementById('call-script-text').innerText.trim();
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(scriptText);
+        copyLabel.textContent = 'Copied!';
+        copyBtn.classList.add('bg-primary-container');
+        setTimeout(() => {
+          copyLabel.textContent = 'Copy';
+          copyBtn.classList.remove('bg-primary-container');
+        }, 2000);
+      } catch (err) {
+        copyLabel.textContent = 'Saved!';
+        setTimeout(() => { copyLabel.textContent = 'Copy'; }, 1500);
+      }
+    });
+
+    // Save/Download Text Script
+    const downloadBtn = document.getElementById('download-btn');
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([scriptText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'cut-the-ties-ca46-script.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+
+    // Regenerate Variant Variation
+    const regenerateBtn = document.getElementById('regenerate-btn');
+    const scriptParagraph = document.querySelector('#call-script-text p');
+    const scriptVariants = [
+      "“Hello, my name is Maya and I am a constituent living in Santa Ana. I am calling to urge Representative Correa to publicly oppose Section 1217 in the NDAA conference report. As a pediatric nurse, I see working families in Orange County struggling to afford basic care every day. Congress should not be rubber-stamping unconditional weapons pipelines with zero oversight. Please record my opposition to Section 1217 today.”",
+      "“Good morning. I’m a registered voter in Representative Correa's district residing in Anaheim. I’m contacting the office today to register my firm objection to Section 1217 of the NDAA. At a time when federal funding for our public infrastructure is constrained, funneling unchecked capital to foreign defense contracts without congressional audits is unconscionable. I request that the Representative cast a NO vote.”",
+      "“Hello, my name is Maya, calling from District 46 in Orange County. Please record my direct message for Representative Correa: I expect my representative to reject Section 1217 in the upcoming NDAA vote. Our tax dollars belong in healthcare, schools, and civic aid, not unconditional arms transfers shielded from public review. Thank you for logging my vote.”"
+    ];
+    let variantIndex = 0;
+
+    regenerateBtn.addEventListener('click', () => {
+      variantIndex = (variantIndex + 1) % scriptVariants.length;
+      scriptParagraph.style.opacity = '0.3';
+      setTimeout(() => {
+        scriptParagraph.textContent = scriptVariants[variantIndex];
+        scriptParagraph.style.opacity = '1';
+      }, 150);
+    });
+
+    // Acted Button State Transition
+    const actedBtn = document.getElementById('acted-btn');
+    const statusLabel = document.getElementById('action-status-label');
+    const postActionPanel = document.getElementById('post-action-panel');
+
+    actedBtn.addEventListener('click', () => {
+      actedBtn.classList.remove('bg-[#00E876]');
+      actedBtn.classList.add('bg-on-background', 'text-surface');
+      actedBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[24px] text-primary-container" data-icon="task_alt">task_alt</span>
+        <span>CALL LOGGED IN CA-46 TALLY</span>
+      `;
+      actedBtn.disabled = true;
+      actedBtn.style.cursor = 'default';
+      statusLabel.classList.add('hidden');
+      postActionPanel.classList.remove('hidden');
+    });
+  </script>
+</body></html>
