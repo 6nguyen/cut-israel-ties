@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import { fmtDate } from '../../lib/goals';
+import { goalsFor, members, PARTY, positionLine, role, seat, tel, type Member } from '../../lib/members';
+// One static page per sitting member; unknown ids fall through to the 404 page.
+export function getStaticPaths() {
+  return members().map((m) => ({ params: { id: m.bioguide_id }, props: { member: m } }));
+}
+const { member: m } = Astro.props as { member: Member };
+const goals = goalsFor(m);
+const first = goals[0];
+const title = first ? `${m.name} on ${first.goal.title}` : `${role(m)} ${m.name}`;
+const POS: Record<string, string> = { for: 'bg-acid text-ink', uncommitted: 'bg-hazard text-ink', against: 'bg-crimson text-paper', unknown: 'bg-newsprint-muted text-ink' };
+---
+<Base title={`${title} — Cut the Ties`} description={positionLine(m, first)} image={`/m/${m.bioguide_id}/card.png`}>
+  <section class="relative hero-gradient text-newsprint overflow-hidden" data-member data-state={m.state} data-district={m.chamber === 'house' ? m.district : ''} data-chamber={m.chamber}>
+    <div class="absolute inset-0 halftone pointer-events-none"></div>
+    <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-12 lg:py-16">
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="chip bg-hazard text-ink border-ink">{PARTY[m.party]} · {seat(m)}</span>
+        <span class="chip bg-newsprint text-ink border-ink">{m.chamber === 'house' ? 'House' : 'Senate'}</span>
+        <span class="chip bg-acid text-ink border-ink hidden" data-yours>Your representative</span>
+      </div>
+      <h1 class="display-lg max-w-4xl">{role(m)} {m.name}</h1>
+      <p class="mt-5 text-lg max-w-2xl">{m.state}{m.chamber === 'house' ? ` · District ${m.district === 0 ? 'at large' : m.district}` : ' · Senator'} · {PARTY[m.party]}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        {m.dc_phone && <a href={tel(m.dc_phone)} class="btn btn-primary">Call DC office · {m.dc_phone}</a>}
+        {m.district_phone && <a href={tel(m.district_phone)} class="btn btn-ghost">District office · {m.district_phone}</a>}
+        {m.contact_form_url && <a href={m.contact_form_url} rel="noopener" class="btn btn-ghost">Contact form ↗</a>}
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-8 lg:gap-12">
+    <div class="flex flex-col gap-10">
+      {goals.length === 0 && (
+        <section class="card p-5">
+          <p class="label-code">Open decisions</p>
+          <h2 class="headline-md mt-1">No open decision</h2>
+          <p class="mt-2 max-w-2xl">No active goal targets this office right now. The contact details above stay current; check <a href="/goals" class="underline">all goals</a> for what is moving.</p>
+        </section>
+      )}
+      {goals.map(({ goal, action, position, flags }) => (
+        <section class="card p-5 lg:p-6" aria-labelledby={`g-${goal.slug}`}>
+          <p class="label-code">Where they stand</p>
+          <h2 id={`g-${goal.slug}`} class="headline-lg mt-1"><a href={`/goals/${goal.slug}`} class="hover:underline">{goal.title}</a></h2>
+          <p class="mt-4 flex flex-wrap items-center gap-2">
+            <span class={`chip border-ink ${POS[position?.position ?? 'unknown']}`}>{position?.position ?? 'unknown'}</span>
+            {position
+              ? <span class="text-sm"><a href={position.source_url} rel="noopener" class="underline">Source</a> · {fmtDate(position.source_date)}</span>
+              : <span class="text-sm text-ink/70">No sourced statement yet.</span>}
+          </p>
+          <ul class="mt-3 text-sm flex flex-col gap-1">
+            {flags.length === 0 ? <li class="text-ink/70">No recorded vote yet</li> : flags.map((f) => <li>{f}</li>)}
+          </ul>
+          <p class="mt-4 text-sm text-ink/70" data-report={goal.slug} hidden></p>
+          {action && (
+            <div class="mt-5 flex flex-col sm:flex-row sm:items-center gap-3">
+              <p class="flex-1 font-semibold">{action.ask_text}</p>
+              <a href={`/goals/${goal.slug}/act/${action.slug}?target=${m.bioguide_id}`} class="btn btn-primary shrink-0" data-cta>Call →</a>
+            </div>
+          )}
+        </section>
+      ))}
+    </div>
+    <aside class="flex flex-col gap-6">
+      {goals.map(({ goal }) => <p><a href={`/goals/${goal.slug}/whip`} class="btn btn-ghost">Where everyone stands on this →</a></p>)}
+      <p class="text-sm text-ink/70">Positions come from sourced statements and votes in the public record; a constituent report never changes them.</p>
+      <p><a href="/goals" class="label-code underline underline-offset-4">All goals →</a></p>
+    </aside>
+  </div>
+  <script is:inline>
+    (function () {
+      var root = document.querySelector('[data-member]');
+      if (!root) return;
+      try {
+        var p = JSON.parse(localStorage.getItem('cut-ties:place') || 'null');
+        if (p && p.state === root.dataset.state && (root.dataset.chamber === 'senate' || String(p.district) === root.dataset.district)) {
+          document.querySelectorAll('[data-yours]').forEach(function (e) { e.classList.remove('hidden'); });
+          document.querySelectorAll('[data-cta]').forEach(function (e) { e.textContent = 'Call now →'; });
+        }
+      } catch (e) {}
+      var id = location.pathname.split('/').filter(Boolean).pop();
+      document.querySelectorAll('[data-report]').forEach(function (el) {
+        fetch('/api/members/' + encodeURIComponent(id) + '/reports?goal=' + encodeURIComponent(el.dataset.report))
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (b) {
+            var l = b && b.latest;
+            if (!l) return;
+            var words = { will_support: 'office said they will support', undecided: 'office said they are undecided', opposed: 'office said they are opposed', no_answer: 'no answer from the office', other: 'office response' };
+            el.textContent = 'Latest call: ' + (words[l.outcome] || l.outcome) + (l.note ? ' — "' + l.note + '"' : '') + ' (' + l.created_at.slice(0, 10) + '; reported by a constituent, unverified)';
+            el.hidden = false;
+          })
+          .catch(function () {});
+      });
+    })();
+  </script>
+</Base>

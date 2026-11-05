@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import GoalTargets from '../../components/GoalTargets';
 import { fillAsk } from '@worker/state-copy';
 import { actionsFor, CATEGORY, fmtDate, markdown, picks, publishedGoals, sources, type Goal } from '../../lib/goals';
+import { whipGoals } from '../../lib/members';
 export function getStaticPaths() {
   return publishedGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
 }
@@ -86,6 +87,7 @@ const open = goal.status === 'active';
         </section>
       )}
       {goal.prep_md && <p><a href={`/goals/${goal.slug}/prep`} class="btn btn-ghost">Prep: what to say →</a></p>}
+      {whipGoals().some((g) => g.slug === goal.slug) && <p><a href={`/goals/${goal.slug}/whip`} class="btn btn-ghost">Where everyone stands →</a></p>}
       {goal.partner_url && (
         <section aria-labelledby="partner">
           <p class="label-code">Partner campaign</p>
