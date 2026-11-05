@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import { districtLabel } from '../lib/api';
 import { clearPlace, deviceId, loadPlace, type Place } from '../lib/store';
-import { clearFunnel, fmtDay, fmtDue, isOverdue, loadCaptain, loadCommitments, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment } from '../lib/commitments';
+import { clearFunnel, fmtDay, fmtDue, isOverdue, loadCaptain, loadCommitments, loadVisits, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment, type JoinedVisit } from '../lib/commitments';
+import { fmtWhen, withdrawVisit } from '../lib/visits';
 
 /** The build-time slice of every published goal the card needs (index.astro passes it). */
 export interface WeekGoal { slug: string; title: string; status: 'upcoming' | 'active' | 'completed' | 'expired'; decision_date: string | null; outcome_note: string | null }
@@ -40,11 +41,13 @@ export default function YourWeek({ goals }: Props) {
   const [date, setDate] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [visits, setVisits] = useState<JoinedVisit[]>([]);
   const goalOf = (slug: string) => goals.find((g) => g.slug === slug);
 
   useEffect(() => {
     const p = loadPlace();
     setPlace(p);
+    setVisits(loadVisits().filter((j) => j.ends_at >= new Date().toISOString().slice(0, 16)));
     if (!p) return;
     // §2.2 closed goals: drop the item, say the outcome once.
     const gone: string[] = [];
@@ -57,10 +60,11 @@ export default function YourWeek({ goals }: Props) {
     setDropped([...new Set(gone)]);
   }, []);
 
-  if (!place) return null;
-  const where = districtLabel(place.state, place.district);
+  // office-visits: a joined visit shows even without a stored address (one can be joined from a member page).
+  if (!place && visits.length === 0) return null;
+  const where = place ? districtLabel(place.state, place.district) : '';
   const open = items.filter((c) => !hidden.includes(c.goal));
-  if (open.length === 0 && !captain && dropped.length === 0) return null;
+  if (open.length === 0 && !captain && dropped.length === 0 && visits.length === 0) return null;
 
   function update(list: Commitment[]) { saveCommitments(list); setItems(list); }
   function setCap(c: Captain | null) { saveCaptain(c); setCaptain(c); }
@@ -93,7 +97,8 @@ export default function YourWeek({ goals }: Props) {
       try { await nav.share(data); } catch { /* dismissed */ }
     } else { await navigator.clipboard?.writeText(`${text} ${url}`); setCopied(true); }
   }
-  function startOver() { clearFunnel(); clearPlace(); setItems([]); setCaptain(null); setDropped([]); setPlace(null); }
+  function startOver() { clearFunnel(); clearPlace(); setItems([]); setCaptain(null); setDropped([]); setVisits([]); setPlace(null); }
+  async function leave(id: number) { await withdrawVisit(id); setVisits(visits.filter((j) => j.id !== id)); }
 
   const dateInput = (key: string, apply: (iso: string) => void) => (
     <span class="flex flex-wrap gap-2 items-center">
@@ -106,7 +111,7 @@ export default function YourWeek({ goals }: Props) {
     <section class="card bg-newsprint text-ink p-4 mb-6 flex flex-col gap-3" aria-labelledby="your-week" data-your-week>
       <div class="flex flex-wrap justify-between gap-2 items-baseline">
         <h2 id="your-week" class="headline-md">Your week</h2>
-        <span class="label-code">{where}</span>
+        {where && <span class="label-code">{where}</span>}
       </div>
       {dropped.map((line) => <p class="text-sm" data-outcome>{line}</p>)}
       {open.map((c) => {
@@ -159,6 +164,15 @@ export default function YourWeek({ goals }: Props) {
           </div>
         );
       })()}
+      {visits.map((j) => (
+        <div class="border-t-2 border-ink pt-3 flex flex-col gap-2" data-joined-visit={j.id}>
+          <p class="font-semibold">You're visiting <a href={`/m/${j.member}#visits`} class="underline">{j.name}</a>'s office in {j.city}, {fmtWhen(j.starts_at, j.ends_at)}.</p>
+          <div class="flex flex-wrap gap-2 items-center">
+            <a href={j.contact_url} rel="noopener noreferrer" class="btn btn-primary" data-contact>Contact the organiser ↗</a>
+            <button type="button" class="btn btn-ghost" onClick={() => void leave(j.id)}>Withdraw</button>
+          </div>
+        </div>
+      ))}
       <div class="border-t-2 border-ink pt-3 flex flex-wrap gap-3 items-center text-sm">
         <a href="/results" class="underline font-semibold">Your two actions →</a>
         <button type="button" class="underline" onClick={() => { clearPlace(); setPlace(null); }}>Change address</button>

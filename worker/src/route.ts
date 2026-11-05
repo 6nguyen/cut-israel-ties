@@ -29,6 +29,7 @@ export interface GoalCard {
   ask_text: string;
   action_href: string;
   targets: TargetCard[];
+  partner_url: string | null; // office-visits: the "Organise one" line offers the partner when there is one
 }
 
 export interface RouteResponse {
@@ -126,6 +127,7 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
         ask_text: fillAsk(action?.ask_text ?? g.what_we_want, g.category === 'state' ? d.state_row : null),
         action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,
         targets: targetsFor(g, action, d, positions),
+        partner_url: g.partner_url || null,
       };
     }),
   };

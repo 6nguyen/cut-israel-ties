@@ -20,7 +20,7 @@ function Card({ g, n }: { g: GoalCard; n: number }) {
         <p class="text-base">{g.summary}</p>
         <div class="border-2 border-ink">
           <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets ({g.targets.length})</p>
-          <ul class="px-3">{g.targets.map((t) => <Target t={t} />)}</ul>
+          <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
         </div>
         <p class="font-semibold">{g.ask_text}</p>
         <a href={g.action_href} class="btn btn-primary mt-auto self-start">Get my script →</a>

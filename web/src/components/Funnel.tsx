@@ -99,6 +99,7 @@ export default function Funnel({ goal, action, target, who, title, type, decisio
         <button type="button" class="btn btn-ghost" onClick={reminder}>Add reminder (.ics)</button>
         <button type="button" class="btn btn-ghost" onClick={() => void copy()}>{copied ? 'Copied' : 'Copy a message'}</button>
       </div>
+      {/^[A-Z]\d{6}$/.test(target) && <p class="text-sm"><a href={`/m/${target}#organise`} class="underline" data-organise>Organise a district-office visit →</a></p>}
     </div>
   ) : null;
 }
