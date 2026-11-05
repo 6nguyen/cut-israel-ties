@@ -1,5 +1,5 @@
 # Action router — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #16) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 Three decisions on the US–Israel military partnership land in the next 45
@@ -354,29 +354,20 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
   - [x] 2. Goals overview and detail · PR #10 merged
-  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13 · bundled in PR #15
-  - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12 · bundled in PR #15
-  - [~] 6. Donations and about · feat/action-router-donate-about · PR #11 · bundled in PR #15
-  - [~] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · feat/action-router-maintainer-tooling · PR #14 · bundled in PR #15
-- Completed: §1 (PR #8), §5 (PR #9), §2 (PR #10).
+  - [x] 4. Actions and personalised documents · PR #15 merged
+  - [x] 3. Prep and briefing pages · PR #15 merged
+  - [x] 6. Donations and about · PR #15 merged
+  - [x] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · PR #15 merged
+- Completed: §1 (PR #8), §5 (PR #9), §2 (PR #10), §3/§4/§6/§7 (PR #15).
 - Folded: §1, §5, §2, §4, §3, §6, §7 (`docs/specs/action-router.md`; §4 in
   `docs/specs/personalised-documents.md`; §7 in `docs/specs/maintainer-tooling.md`).
-- Branch / open PRs: integ/action-router-remaining (PR #15, bundles §3, §4,
-  §6, §7; section PRs #11–#14 closed in its favour).
+- Branch / open PRs: none.
 - Tests run: tsc PASS, test PASS (99 vitest, 8 files), build PASS, prd-lint
-  PASS, doc-lint PASS (28 files); browser on the integ branch: senate-leader
-  prep, ndaa-1217 act form (503 `unconfigured` without ANTHROPIC_API_KEY),
-  `/donate`, `/privacy`. Live generation, digest delivery and
-  `draft-position` against a live page are unverified.
-- Remaining: §4, §3, §6, §7 (all in PR #15).
-- Decisions since last update: sections §3/§4/§6 built in parallel from
-  `main` and §7 after §4 (needs `reports`), merged on one integration
-  branch so the PRD ships in a single PR; spec split by capability to stay
-  under the 16 KB doc-lint cap; `digest_runs` table persists "since last
-  run"; `parseCsv` handles RFC 4180 quoted cells.
-- Next action: merge PR #15, then /implement-prd-section
-  docs/prd/action-router.md (next: none — reconcile flips §3/§4/§6/§7 to
-  `[x]` and archives the PRD).
+  PASS, doc-lint PASS (28 files) on PR #15. Live generation, digest delivery
+  and `draft-position` against a live page are unverified.
+- Remaining: none.
+- Decisions since last update: none.
+- Next action: none — archived.
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
    the goal ships with up to three picks (`our_picks`), chosen by a
@@ -499,3 +490,6 @@ page shows the real number from `MONTHLY_COST_USD`.
   restarts; `parseCsv` now reads RFC 4180 quoted cells; new vars
   `MAINTAINER_EMAIL`, `DIGEST_FROM` and binding `DIGEST_MAIL`. Spec:
   `docs/specs/maintainer-tooling.md`.
+- 2026-11-04 — SHIPPED: PR #15 merged §3/§4/§6/§7; State reconciled to
+  all `[x]`, Remaining: none; PRD archived to
+  `docs/prd/archive/2026-11-action-router.md` and removed from the index.
