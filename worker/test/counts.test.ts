@@ -7,7 +7,11 @@ import { createApp } from '../src/index';
 import { loadRows } from '../src/load';
 import { MemoryRepo, foldBuckets } from '../src/repo';
 import { applyThreshold, bucketOf, receiptIpHash, thresholdFrom } from '../src/counts';
-import type { ReceiptRow } from '../src/types';
+import type { Env, ReceiptRow } from '../src/types';
+
+type Buckets = { calls: number; letters: number; comments: number; captain_lists: number };
+type CountsBody = { district: Buckets; state: Buckets; since: string; error?: string };
+const json = async (res: Response) => (await res.json()) as CountsBody;
 import { ENV } from './fixtures';
 
 const rows = loadRows(join(__dirname, '..', '..', 'data'), '2026-11-04T00:00:00Z');
@@ -23,8 +27,8 @@ function app(extraActions: typeof rows.actions = []) {
   const repo = new MemoryRepo({ ...rows, actions: [...rows.actions, ...extraActions] });
   let now = T0;
   const a = createApp({ repo: () => repo, fetch: fetch, now: () => now });
-  const get = (qs: string, env: Record<string, unknown> = ENV) => a.request(`/api/counts?${qs}`, {}, env);
-  const post = (body: unknown, ip = '203.0.113.9', env: Record<string, unknown> = ENV) =>
+  const get = (qs: string, env: Env = ENV) => a.request(`/api/counts?${qs}`, {}, env);
+  const post = (body: unknown, ip = '203.0.113.9', env: Env = ENV) =>
     a.request('/api/receipt', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json', 'CF-Connecting-IP': ip } }, env);
   const tick = (minutes: number) => { now = new Date(now.getTime() + minutes * 60_000); };
   return { a, repo, get, post, tick, now: () => now };
@@ -35,7 +39,7 @@ function receipt(over: Partial<ReceiptRow>): ReceiptRow {
 /** The independent count: receipts for the goal in the window, by place, kind and type. */
 function expected(repo: MemoryRepo, state: string, district: number | null, now: Date, threshold = 5) {
   const since = new Date(now.getTime() - 7 * 86_400_000).toISOString();
-  const type = (id: number | null) => repo['rows' as never]?.actions?.find?.((a: { id: number }) => a.id === id)?.type ?? rows.actions.find((a) => a.id === id)?.type ?? null;
+  const type = (id: number | null) => rows.actions.find((a) => a.id === id)?.type ?? null;
   const count = (rs: ReceiptRow[]) => {
     const b = { calls: 0, letters: 0, comments: 0, captain_lists: 0 };
     for (const r of rs) { const k = bucketOf(r.kind, type(r.action_id)); if (k) b[k]++; }
@@ -55,13 +59,13 @@ describe('GET /api/counts (§1)', () => {
     for (let i = 0; i < 4; i++) repo.receipts.push(receipt({ device_hash: `d${i}` }));
     let res = await get('goal=ndaa-1217&state=CA&district=46');
     expect(res.status).toBe(200);
-    let body = await res.json();
+    let body = await json(res);
     expect(body.district).toEqual({ calls: 0, letters: 0, comments: 0, captain_lists: 0 });
     expect(body.state).toEqual({ calls: 0, letters: 0, comments: 0, captain_lists: 0 });
     expect(repo.receipts.filter((r) => r.district === 46).length).toBe(4);
     repo.receipts.push(receipt({ device_hash: 'd4' }));
     res = await get('goal=ndaa-1217&state=CA&district=46');
-    body = await res.json();
+    body = await json(res);
     expect(body.district.calls).toBe(5);
     expect(body.district.calls).toBe(repo.receipts.filter((r) => r.goal_id === NDAA.id && r.state === 'CA' && r.district === 46).length);
     expect(body.state.calls).toBe(repo.receipts.filter((r) => r.goal_id === NDAA.id && r.state === 'CA').length);
@@ -71,12 +75,12 @@ describe('GET /api/counts (§1)', () => {
   it('falls back to the state: 2 in the district and 3 elsewhere in CA give district 0, state 5', async () => {
     const { repo, get } = app();
     repo.receipts.push(receipt({}), receipt({}), receipt({ district: 12 }), receipt({ district: 12 }), receipt({ district: 1 }));
-    const body = await (await get('goal=ndaa-1217&state=CA&district=46')).json();
+    const body = await json(await get('goal=ndaa-1217&state=CA&district=46'));
     expect(body.district.calls).toBe(0);
     expect(body.state.calls).toBe(5);
     expect(body).toMatchObject(expected(repo, 'CA', 46, T0));
     // A senator's page sends no district: district buckets stay 0.
-    const noDistrict = await (await get('goal=ndaa-1217&state=CA')).json();
+    const noDistrict = await json(await get('goal=ndaa-1217&state=CA'));
     expect(noDistrict.district.calls).toBe(0);
     expect(noDistrict.state.calls).toBe(5);
   });
@@ -86,10 +90,10 @@ describe('GET /api/counts (§1)', () => {
     for (let i = 0; i < 6; i++) repo.receipts.push(receipt({ device_hash: `c${i}` }));
     for (let i = 0; i < 4; i++) repo.receipts.push(receipt({ action_id: 901, device_hash: `l${i}` }));
     for (let i = 0; i < 5; i++) repo.receipts.push(receipt({ kind: 'captain-list', action_id: null, target_id: null, device_hash: `k${i}` }));
-    const body = await (await get('goal=ndaa-1217&state=CA&district=46')).json();
+    const body = await json(await get('goal=ndaa-1217&state=CA&district=46'));
     expect(body.district).toEqual({ calls: 6, letters: 0, comments: 0, captain_lists: 5 });
     expect(body.district.captain_lists).toBe(repo.receipts.filter((r) => r.kind === 'captain-list' && r.district === 46).length);
-    const low = await (await get('goal=ndaa-1217&state=CA&district=46', { ...ENV, COUNT_THRESHOLD: '2' })).json();
+    const low = await json(await get('goal=ndaa-1217&state=CA&district=46', { ...ENV, COUNT_THRESHOLD: '2' }));
     expect(low.district).toEqual({ calls: 6, letters: 4, comments: 0, captain_lists: 5 });
     expect(low.district.letters).toBe(repo.receipts.filter((r) => r.action_id === 901).length);
     expect(thresholdFrom({ COUNT_THRESHOLD: 'nope' })).toBe(5);
@@ -101,7 +105,7 @@ describe('GET /api/counts (§1)', () => {
     for (let i = 0; i < 5; i++) repo.receipts.push(receipt({ created_at: old, device_hash: `o${i}` }));
     for (let i = 0; i < 5; i++) repo.receipts.push(receipt({ goal_id: 99, device_hash: `g${i}` }));
     for (let i = 0; i < 5; i++) repo.receipts.push(receipt({ device_hash: `n${i}` }));
-    const body = await (await get('goal=ndaa-1217&state=CA&district=46')).json();
+    const body = await json(await get('goal=ndaa-1217&state=CA&district=46'));
     expect(body.district.calls).toBe(5);
     expect(body.district.calls).toBe(repo.receipts.filter((r) => r.goal_id === NDAA.id && r.created_at >= body.since && r.district === 46).length);
   });
@@ -112,10 +116,10 @@ describe('GET /api/counts (§1)', () => {
     const again = await get('goal=ndaa-1217&state=TX&district=35');
     expect(again.headers.get('cache-control')).toBe('public, max-age=300');
     expect((await get('goal=nope&state=TX&district=35')).status).toBe(404);
-    expect((await (await get('goal=nope&state=TX')).json()).error).toBe('no_goal');
-    expect((await (await get('state=TX')).json()).error).toBe('no_goal');
+    expect((await json(await get('goal=nope&state=TX'))).error).toBe('no_goal');
+    expect((await json(await get('state=TX'))).error).toBe('no_goal');
     expect((await get('goal=ndaa-1217&district=35')).status).toBe(400);
-    expect((await (await get('goal=ndaa-1217&state=Texas')).json()).error).toBe('missing');
+    expect((await json(await get('goal=ndaa-1217&state=Texas'))).error).toBe('missing');
   });
   it('foldBuckets mirrors the D1 GROUP BY rows', () => {
     const out = foldBuckets([
@@ -144,7 +148,7 @@ describe('POST /api/receipt limits (§3)', () => {
     expect((await post(body())).status).toBe(200);
     const res = await post(body());
     expect(res.status).toBe(429);
-    expect((await res.json()).error).toBe('limit_repeat');
+    expect((await json(res)).error).toBe('limit_repeat');
     expect(repo.receipts).toHaveLength(1);
     // Another action, or a captain list, is a different key.
     expect((await post(body({ goal: 'state-bonds', action: 'state-bonds-call', target: 'TX' }))).status).toBe(200);
@@ -160,13 +164,13 @@ describe('POST /api/receipt limits (§3)', () => {
     const { repo, post, tick, get } = app();
     for (let i = 0; i < 10; i++) { expect((await post(body())).status).toBe(200); tick(11); }
     expect(repo.receipts).toHaveLength(10);
-    const before = (await (await get('goal=ndaa-1217&state=CA&district=46')).json()).district.calls;
+    const before = (await json(await get('goal=ndaa-1217&state=CA&district=46'))).district.calls;
     expect(before).toBe(10);
     const res = await post(body());
     expect(res.status).toBe(429);
-    expect((await res.json()).error).toBe('limit_day');
+    expect((await json(res)).error).toBe('limit_day');
     expect(repo.receipts).toHaveLength(10);
-    expect((await (await get('goal=ndaa-1217&state=CA&district=46')).json()).district.calls).toBe(before);
+    expect((await json(await get('goal=ndaa-1217&state=CA&district=46'))).district.calls).toBe(before);
     expect(repo.receipts.filter((r) => r.device_hash === repo.receipts[0].device_hash).length).toBe(10);
     tick(24 * 60 - 10 * 11 + 1);
     expect((await post(body())).status).toBe(200);
@@ -177,7 +181,7 @@ describe('POST /api/receipt limits (§3)', () => {
     expect(repo.receipts).toHaveLength(50);
     const res = await post(body({ device: 'device-fresh-000000000' }));
     expect(res.status).toBe(429);
-    expect((await res.json()).error).toBe('limit_ip');
+    expect((await json(res)).error).toBe('limit_ip');
     expect(repo.receipts).toHaveLength(50);
     expect(new Set(repo.receipts.map((r) => r.ip_hash)).size).toBe(1);
     // A different network is not affected.
