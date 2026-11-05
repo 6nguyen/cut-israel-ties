@@ -34,7 +34,7 @@ export function evaluate(rule: Rule, d: Delegation): boolean {
 /** §5.1 inputs: the only member/state fields a rule may test, with the value type each accepts. */
 const HOUSE_FIELDS: Record<string, 'party' | 'flag' | 'text'> = { party: 'party', hasc: 'flag', conferee: 'flag', rc243: 'text', btb_cosponsor: 'flag' };
 const SENATOR_FIELDS: Record<string, 'party' | 'flag' | 'text'> = { party: 'party', jrd_april_2026: 'text' };
-const STATE_FIELDS = new Set<keyof StateRow>(['treasurer_name', 'treasurer_phone', 'decider', 'israel_bonds_usd', 'holdings_date', 'holdings_source', 'campaign_name', 'campaign_url', 'next_comment_date']);
+const STATE_FIELDS = new Set<keyof StateRow>(['treasurer_name', 'treasurer_phone', 'decider', 'israel_bonds_usd', 'holdings_date', 'holdings_source', 'campaign_name', 'campaign_url', 'next_comment_date', 'holdings_status']);
 const PARTIES = new Set(['D', 'R', 'I']);
 
 function checkWhere(kind: 'house' | 'senator', where: unknown): void {

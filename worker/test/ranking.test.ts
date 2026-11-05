@@ -52,7 +52,7 @@ describe('eligibility rules (§5.3)', () => {
   it('State bonds: holdings or a campaign', () => {
     const d = delegation('R', ['R', 'R']);
     expect(evaluate(bySlug['state-bonds'], d)).toBe(false);
-    d.state_row = { state: 'XX', treasurer_name: null, treasurer_phone: null, decider: null, israel_bonds_usd: 1_000_000, holdings_date: null, holdings_source: null, campaign_name: null, campaign_url: null, next_comment_date: null };
+    d.state_row = { state: 'XX', treasurer_name: null, treasurer_phone: null, decider: null, israel_bonds_usd: 1_000_000, holdings_date: null, holdings_source: null, campaign_name: null, campaign_url: null, next_comment_date: null, holdings_status: 'held' };
     expect(evaluate(bySlug['state-bonds'], d)).toBe(true);
     d.state_row.israel_bonds_usd = null;
     d.state_row.campaign_name = 'Divest';

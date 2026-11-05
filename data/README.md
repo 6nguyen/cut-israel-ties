@@ -11,7 +11,7 @@ number or a name that is not a row here.
 | `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
-| `states.csv` | `states` | One row per state; empty fields render as "not yet sourced". |
+| `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
 
 ## Seeding (PRD §7.3)
 Every `npm run seed` deletes and re-inserts the five data tables above
@@ -30,6 +30,18 @@ PR; the script never writes here. No row is printed when the quote is not
 verbatim on the page or the page shows no date — find a better source
 rather than hand-filling those columns. The loader rejects any row without
 `source_url` and `source_date`.
+
+## Adding a state holding (state-holdings-sweep §1)
+Run `npm run draft-holding -w worker -- <STATE> <url>` with
+`ANTHROPIC_API_KEY` set, on the treasurer's investment report or the
+pension system's holdings disclosure (HTML or plain text; no PDF). It
+prints one `states.csv` row for that state with `holdings_status` `held`
+(amount verified as a figure inside the verbatim quote) or `none`, the
+as-of date and `holdings_source` = the URL, keeping the row's treasurer,
+campaign and comment-date cells. Replace the state's row in a PR and add
+the URLs to `docs/research/state-israel-bonds.md`. The loader rejects an
+amount without a source and date, a past `next_comment_date`, and a
+`campaign_url` without a `campaign_name`.
 
 ## Provenance (2026-11-04)
 `members.csv` holds only the six fixture delegations the §1 tests need

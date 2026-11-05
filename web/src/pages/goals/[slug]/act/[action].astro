@@ -3,6 +3,7 @@ import Base from '../../../../layouts/Base.astro';
 import ActForm from '../../../../components/ActForm';
 import { actionsFor, publishedGoals, type Action, type Goal } from '../../../../lib/goals';
 import { parseFormat, parseSchema } from '@worker/generate';
+import { fillAsk } from '@worker/state-copy';
 export function getStaticPaths() {
   return publishedGoals().filter((g) => g.status === 'active').flatMap((g) =>
     actionsFor(g).map((a) => ({ params: { slug: g.slug, action: a.slug }, props: { action: a, goal: g } })),
@@ -13,10 +14,10 @@ const fields = parseSchema(action);
 const fmt = parseFormat(action);
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 ---
-<Base title={`Your action — ${goal.title} — Cut the Ties`} description={action.ask_text}>
+<Base title={`Your action — ${goal.title} — Cut the Ties`} description={fillAsk(action.ask_text, null)}>
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
     <p class="label-code"><a href={`/goals/${goal.slug}`} class="underline">{goal.title}</a> · the ask</p>
-    <h1 class="headline-lg mt-2 max-w-3xl">{action.ask_text}</h1>
+    <h1 class="headline-lg mt-2 max-w-3xl">{fillAsk(action.ask_text, null)}</h1>
     <div class="mt-8 max-w-2xl">
       <ActForm client:load goal={goal.slug} action={action.slug} type={action.type} scope={action.target_scope} fields={fields} fmt={fmt} siteKey={siteKey} />
     </div>
