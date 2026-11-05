@@ -1,0 +1,81 @@
+name: deploy
+
+# Production: after `ci` passes on main, deploy the Worker, seed D1 from data/, then publish the
+# site. Each step runs only if the one before it succeeded, so a failure leaves the previous
+# deployment live (docs/specs/deployment.md). Pull requests from this repo get a Pages preview.
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  PAGES_PROJECT: ${{ vars.PAGES_PROJECT || 'cut-ties' }}
+  MONTHLY_COST_USD: ${{ vars.MONTHLY_COST_USD }}
+  STRIPE_LINKS: ${{ vars.STRIPE_LINKS }}
+  PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+
+jobs:
+  production:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    concurrency: { group: deploy-production, cancel-in-progress: false }
+    env:
+      D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+      SITE_DOMAIN: ${{ vars.SITE_DOMAIN }}
+      SITE_URL: ${{ vars.SITE_DOMAIN && format('https://{0}', vars.SITE_DOMAIN) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ github.event.workflow_run.head_sha }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+      - name: build web
+        run: scripts/quiet-check.sh build
+      - name: deploy worker
+        run: scripts/quiet-check.sh deploy-worker
+      - name: seed remote D1 from data/
+        run: scripts/quiet-check.sh seed-remote
+      - name: deploy web
+        run: scripts/quiet-check.sh deploy-web --branch main
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: deploy-logs, path: ops/logs/ }
+
+  preview:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    concurrency: { group: "deploy-preview-${{ github.event.pull_request.number }}", cancel-in-progress: true }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+      - name: build web
+        run: scripts/quiet-check.sh build
+      - name: deploy preview
+        run: scripts/quiet-check.sh deploy-web --branch "$HEAD_REF"
+        env: { HEAD_REF: "${{ github.event.pull_request.head.ref }}" }
+      - name: post the preview URL on the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          url=$(grep -ohE 'https://[a-z0-9.-]+\.pages\.dev' ops/logs/quiet-deploy-web-*.log | tail -1)
+          [ -n "$url" ] || { echo "no preview URL in the deploy log"; exit 1; }
+          body="<!-- pages-preview -->Pages preview: $url (commit $SHA). /api/* proxies to the production Worker."
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --jq '[.[] | select(.body | startswith("<!-- pages-preview -->"))][0].id // empty')
+          if [ -n "$id" ]; then gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -f body="$body" >/dev/null
+          else gh pr comment "$PR" --body "$body"; fi
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: preview-logs, path: ops/logs/ }

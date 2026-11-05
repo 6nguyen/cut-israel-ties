@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "npm run deploy:config && wrangler deploy --config wrangler.deploy.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "draft-position": "tsx scripts/draft-position.ts",
     "seed": "tsx scripts/seed.ts && wrangler d1 execute cut_ties --local --file=schema.sql && wrangler d1 execute cut_ties --local --file=seed.sql",
-    "seed:remote": "tsx scripts/seed.ts && wrangler d1 execute cut_ties --remote --file=schema.sql && wrangler d1 execute cut_ties --remote --file=seed.sql"
+    "seed:remote": "npm run deploy:config && tsx scripts/seed.ts && wrangler d1 execute cut_ties --remote --config wrangler.deploy.json --file=seed.sql",
+    "deploy:config": "tsx scripts/render-deploy-config.ts",
+    "schema:remote": "npm run deploy:config && wrangler d1 execute cut_ties --remote --config wrangler.deploy.json --file=schema.sql"
   },
   "dependencies": {
     "hono": "^4.10.0"

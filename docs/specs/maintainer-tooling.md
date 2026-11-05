@@ -45,6 +45,9 @@ and nothing here writes to `data/` or to `positions`.
    is the whole publishing flow. User tables (`receipts`, `reports`,
    `screenings`, `blocks`, `generations`, `digest_runs`) are never touched
    by the seed.
+   `seed:remote` applies `seed.sql` only (FK checks deferred to the end
+   of the batch); `schema:remote` applies `schema.sql`, which drops every
+   table, once at provisioning (`docs/specs/deployment.md`).
 
 ## Data & contracts
 - `worker/scripts/draft-position.ts` (CLI) → `worker/src/draft-position.ts`
