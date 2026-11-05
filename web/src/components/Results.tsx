@@ -14,7 +14,12 @@ function Card({ g, n }: { g: GoalCard; n: number }) {
           <span class="chip bg-ink text-newsprint border-newsprint">Action {n}</span>
         </div>
         <h2 class="relative headline-lg">{g.title}</h2>
-        {date && <p class="relative label-code mt-2 text-hazard">Decision: {date}</p>}
+        {date && <p class="relative label-code mt-2 text-hazard">{g.election ? 'Primary' : 'Decision'}: {date}</p>}
+        {g.election && (
+          <p class="relative label-code mt-1 text-hazard">Filing deadline: {fmtDate(g.election.filing_deadline) ?? 'not yet sourced'}
+            {g.election.source_url && <> · <a href={g.election.source_url} class="underline" rel="noopener noreferrer">source</a></>}
+          </p>
+        )}
       </div>
       <div class="p-5 flex flex-col gap-4 flex-1">
         <p class="text-base">{g.summary}</p>

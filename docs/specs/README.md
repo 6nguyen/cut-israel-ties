@@ -23,6 +23,7 @@ Rules:
 | [on-device-districts.md](on-device-districts.md) | Browser location → district on the device, per-state TopoJSON built from TIGER/Line | `scripts/build-districts.ts`, `web/src/lib/pip.ts`, `web/public/districts/` |
 | [commitment-funnel.md](commitment-funnel.md) | Private commitment and captain list after a receipt, "Your week" checklist, `.ics` reminder, share after a completed list | `web/src/components/Funnel.tsx`, `web/src/components/YourWeek.tsx`, `web/src/lib/commitments.ts`, `web/src/lib/ics.ts` |
 | [member-pages.md](member-pages.md) | Roster import, member page with contact and position, whip count table, sitemap | `worker/scripts/import-members.ts`, `worker/src/whip.ts`, `web/src/pages/m/`, `web/src/pages/goals/[slug]/whip.astro` |
+| [electoral-record.md](electoral-record.md) | One-seat sourced record before a 2028 primary: member's positions and votes, primary date and filing deadline, one ask | `worker/src/electoral.ts`, `worker/scripts/make-primary-goal.ts`, `data/elections.csv` |
 
 ## Template (copy for a new capability)
 

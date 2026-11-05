@@ -1,4 +1,5 @@
 import type { GoalCard, TargetCard } from '../lib/api';
+import type { RecordLine } from '@worker/electoral';
 import { RESEARCH_URL } from '@worker/state-copy';
 
 export const CATEGORY: Record<GoalCard['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
@@ -35,6 +36,29 @@ export function Target({ t }: { t: TargetCard }) {
             : t.holdings_source_url && <a href={t.holdings_source_url} class="underline" rel="noopener noreferrer">source</a>}
         </p>
       )}
+      {t.record && (
+        <div class="mt-3 border-t border-rule pt-2">
+          <p class="label-code text-xs">On the record</p>
+          {t.record.length === 0
+            ? <p class="text-sm text-ink/70 mt-1">No goal this site tracked has named this member yet.</p>
+            : <ul class="mt-1 text-sm flex flex-col gap-2">{t.record.map((r) => <RecordRow r={r} />)}</ul>}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** primary-2028 §1.2: one tracked goal, the member's newest sourced position (with source and date) and recorded vote. Rows only; no verdict. */
+export function RecordRow({ r }: { r: RecordLine }) {
+  return (
+    <li>
+      <p class="font-semibold leading-tight">{r.goal_title}{r.decision_date ? <span class="label-ticker text-ink/70 font-normal"> · {fmtDate(r.decision_date)}</span> : null}</p>
+      <p class="mt-1"><span class={`chip mr-2 ${POSITION_CLASS[r.position]}`}>{POSITION[r.position]}</span>
+        {r.source_url
+          ? <a href={r.source_url} class="underline label-ticker" rel="noopener">source{r.source_date ? ` · ${fmtDate(r.source_date)}` : ''}</a>
+          : <span class="label-ticker text-ink/70">no sourced statement</span>}
+        <span class="label-ticker text-ink/70"> · {r.vote}</span>
+      </p>
     </li>
   );
 }

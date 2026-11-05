@@ -1,5 +1,5 @@
 # 2028 primary-target goal — PRD
-Status: APPROVED 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 The ranking engine and goal model support an `electoral` category, and
@@ -68,6 +68,10 @@ next and when.
 ## Spec delta
 - MODIFIED `docs/specs/action-router.md` §Behavior goals: the
   `electoral` category rendering and the disclosure line.
+- ADDED `docs/specs/electoral-record.md` (§1, 2026-11-04): action-router.md
+  hit the 16 KB spec limit, so the electoral behavior, contracts and
+  invariants live in their own file and action-router.md keeps a one-line
+  pointer. The disclosure line waits for §2.
 
 ## Acceptance criteria
 - [ ] The electoral goal ranks below any active federal or state goal
@@ -88,16 +92,17 @@ electoral goal per targeted district.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Record goal per targeted member
+  - [~] 1. Record goal per targeted member · feat/primary-2028 · PR #n
   - [!] 2. Picks (blocked until counsel answers) · blocked: no written
     campaign-finance answer recorded in Open question 1
 - Completed: none.
 - Folded: none.
-- Branch / open PRs: none.
-- Remaining: §1; §2 blocked.
-- Next action: /implement-prd-section docs/prd/primary-2028.md (§1),
-  after member-pages merges.
-
+- Branch / open PRs: feat/primary-2028 (PR #n, base integ/next-prds).
+- Remaining: §1 review/merge; §2 blocked. No member has `target_2028 = 1`,
+  so `elections.csv` is header-only and no goal file exists; the first
+  target is a data/ PR (`data/README.md` §Adding a 2028 primary target).
+- Next action: merge PR #n into integ/next-prds; record counsel's answer
+  in Open question 1 before touching §2.
 ## Open questions
 1. Decided 2026-11-04 (owner): split. §1 ships as a sourced record with
    no candidate advocacy language (§1.2) and is not express advocacy.
@@ -117,3 +122,8 @@ electoral goal per targeted district.
 - 2026-11-04 — APPROVED for §1 only: owner split the legal question;
   §1 is a record with no advocacy language, §2 blocked in State until
   counsel's answer is recorded; targets limited to recorded votes.
+- 2026-11-04 — §1 built on `feat/primary-2028`: no member carries
+  `target_2028 = 1` yet, so the PR ships the loader, ranking, card and
+  seed checks plus `make-primary-goal` and a header-only `elections.csv`
+  (no primary date verifiable offline); the first target lands in a
+  data/ PR citing its roll call (`data/README.md`).

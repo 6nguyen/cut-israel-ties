@@ -148,6 +148,8 @@ export interface Repo {
   recordDigestRun(at: Date, reportCount: number): Promise<void>;
   // member-pages §2.2: the newest visible office response for one member and goal (GET /api/members/:id/reports).
   latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null>;
+  // primary-2028 §1.2: every goal the site tracked (active or closed, never upcoming) for the electoral record.
+  trackedGoals(): Promise<Goal[]>;
 }
 
 /** What a member page shows of a constituent report: no device hash, no id. */

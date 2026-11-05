@@ -179,6 +179,10 @@ export class D1Repo implements Repo {
       .bind(bioguideId, goalId)
       .first<LatestReport>()) ?? null;
   }
+  async trackedGoals(): Promise<Goal[]> {
+    const { results } = await this.db.prepare(`SELECT * FROM goals WHERE status != 'upcoming' ORDER BY priority DESC, slug`).all<Goal>();
+    return results;
+  }
 }
 
 export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
@@ -270,5 +274,8 @@ export class MemoryRepo implements Repo {
   async latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null> {
     const r = this.reports.filter((x) => x.bioguide_id === bioguideId && x.goal_id === goalId).at(-1);
     return r ? { outcome: r.outcome, note: r.note, created_at: r.created_at } : null;
+  }
+  async trackedGoals(): Promise<Goal[]> {
+    return this.rows.goals.filter((g) => g.status !== 'upcoming').sort((a, b) => b.priority - a.priority || a.slug.localeCompare(b.slug));
   }
 }
