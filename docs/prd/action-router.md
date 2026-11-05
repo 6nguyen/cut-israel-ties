@@ -353,7 +353,7 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
   - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
-  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs
+  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
