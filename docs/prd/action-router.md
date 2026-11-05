@@ -357,7 +357,7 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13
   - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12
   - [~] 6. Donations and about · feat/action-router-donate-about · PR #11
-  - [~] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · feat/action-router-maintainer-tooling
+  - [~] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · feat/action-router-maintainer-tooling · PR #14
 - Completed: §1 (PR #8), §5 (PR #9).
 - Folded: §1, §5, §2, §4, §3, §6, §7 (`docs/specs/action-router.md`; §4 in
   `docs/specs/personalised-documents.md`).
