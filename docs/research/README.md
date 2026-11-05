@@ -30,3 +30,4 @@ Rules:
 |---|---|---|---|
 | [civic-action-levers](civic-action-levers/) | Which citizen actions actually move US aid, ties and military partnership with Israel at each level of government; which channels and behavioral mechanics make a civic-action tool work | 2026-11-04 | [action-router](../prd/action-router.md) |
 | [social-platform-trends](social-platform-trends.md) | What is topical on TikTok, Instagram and search about the election and actions against the US–Israel partnership as of 2026-11-04; which asks have live tools; what a nationwide product must route to | 2026-11-04 | [action-router](../prd/action-router.md) |
+| [ui-design-brief](ui-design-brief.md) | Which free design tool to use for the site's UI and the Google Stitch prompts for its style guide and every page, with image-sourcing rules | 2026-11-04 | [action-router](../prd/action-router.md) |

@@ -114,8 +114,15 @@ Relies on: `docs/research/social-platform-trends.md`,
    likely pushback and answers, our pick and why, what counts as a win,
    sources. Maintainer-written; the LLM does not write it.
 2. For a goal whose ask is a choice (a leadership vote), the prep page
-   leads with the pick and the unified ask wording; the action's prompt
-   uses the same wording so every generated doc asks for the same thing.
+   leads with our picks: up to three candidates in order, each with a
+   one-paragraph rationale, a source link and the dated signal that put
+   them there (declared or reported interest; stated position on the
+   section; attention on Instagram, TikTok and the web as counted by the
+   maintainer from sourced rows, never by an LLM). The unified ask names
+   the condition ("vote only for a leader who will strip §1217 and oppose
+   a new MOU") and the first pick; the action's prompt uses the same
+   wording so every generated doc asks for the same thing. Picks are
+   maintainer-set in YAML and dated; the page shows the date.
 3. The prep page links to the action with the user's targets carried
    over.
 
@@ -151,8 +158,38 @@ Relies on: `docs/research/social-platform-trends.md`,
    undecided · opposed · no answer · other ≤140 chars) and one optional
    reflection line (not stored). Reports show on the maintainer digest,
    never change a position.
-7. Limits: 5 generations per device per hour, 20 per day; Turnstile token
-   required; prompt never includes user-supplied URLs; max_tokens 1500.
+7. Limits: 5 generations per device per hour, 20 per day, 3 per device
+   per action per day; per-IP 30 per day; a global daily cap
+   (`MAX_GENERATIONS_PER_DAY`) past which the endpoint returns 503 with a
+   "come back tomorrow" message; Turnstile token required; max_tokens
+   1500.
+8. Misuse guardrails, in order, all before any Opus call:
+   1. Input shape: each user field has a max length (first name 40, city
+      60, personal lines 280); fields are plain text (markup, URLs, email
+      addresses, phone numbers and control characters are stripped);
+      the target id and action slug must exist in D1; the form schema is
+      the only path to the prompt.
+   2. Screen: a `claude-haiku-5-5` call with a fixed system prompt
+      classifies the user fields as `ok`, `off_topic` (not about this
+      goal or the user's reason to care), `injection` (instructions to
+      the model, role play, requests to ignore rules, requests for a
+      different document), or `harmful` (threats, slurs, doxxing, content
+      targeting a person's protected traits). Anything but `ok` returns a
+      one-line reason and no generation; the attempt is logged by device
+      hash and class, never by content.
+   3. Prompt structure: the system prompt states the only task (write
+      this `doc_format` for this goal to this target), the fact block and
+      user fields are passed as data inside delimited blocks and labelled
+      as untrusted, and the model is told to use the user's lines as
+      material, not as instructions.
+   4. Output check (deterministic, after generation): names the target
+      and section; word count in `doc_format` range; no digits outside
+      the fact block; no URLs, phone numbers or email addresses; a
+      blocklist of threat and slur terms; the ask wording present. A
+      failed check regenerates once, then shows a refusal.
+   5. Abuse response: three screened-out attempts from one device in a
+      day block generation for that device for 24 hours; the digest
+      lists blocked devices and classes.
 
 ### 5. Goal ranking (deterministic)
 1. Inputs: house member (party, hasc, conferee, rc243, btb_cosponsor),
@@ -199,7 +236,8 @@ Relies on: `docs/research/social-platform-trends.md`,
   - `goals(id, slug, category federal_vote|leadership|state|electoral,
     title, summary, what_we_want, status active|completed|expired,
     outcome_note, window_start, window_end, decision_date, priority,
-    eligibility json, our_pick json{name, rationale, source_url},
+    eligibility json, our_picks json[{name, rationale, source_url,
+    signal, signal_date}] (≤3, ordered),
     successor_slug, this_week text, this_week_date, detail_md, prep_md,
     partner_url, updated_at)`
   - `actions(id, goal_id, slug, type call|letter|public_comment,
@@ -229,8 +267,10 @@ Relies on: `docs/research/social-platform-trends.md`,
   template (stable prefix), fact block and user fields last, server-side
   fallback `"default"` enabled, `max_tokens` 1500. Structured output
   `{subject?, body, facts_used[]}` via `output_config.format`.
+- `screenings(id, device_hash, action_id, class, created_at)` — no
+  content; `blocks(device_hash, until)`.
 - Config: `MONTHLY_COST_USD`, `STRIPE_LINKS` json, `ANTHROPIC_API_KEY`,
-  `TURNSTILE_SECRET` as Worker secrets/vars.
+  `TURNSTILE_SECRET`, `MAX_GENERATIONS_PER_DAY` as Worker secrets/vars.
 
 ## Infrastructure and frontend
 | Layer | Choice | Cost |
@@ -263,14 +303,25 @@ page shows the real number from `MONTHLY_COST_USD`.
       completed/expired goal with an outcome note; flipping a goal's
       status in YAML and reseeding moves its successor to active.
 - [ ] Every goal with `prep_md` renders `/goals/<slug>/prep`; a goal
-      with `our_pick` shows the pick and the same ask wording appears in
-      its generated docs (string test on 20 generations).
+      with `our_picks` shows up to three picks in order with rationale,
+      source, signal and date, and the same ask wording naming the first
+      pick appears in its generated docs (string test on 20 generations).
 - [ ] 20 generations for the same action and target with different user
       inputs: no two share >0.3 shingle overlap; every doc names the
       target and section; no digits outside the fact block; "end aid"
       absent; call scripts ≤120 words; letters 180–260 words.
-- [ ] Generate without a valid Turnstile token, or past 5/hour, returns
-      429/403 and no Anthropic call is made (mock asserts zero calls).
+- [ ] Generate without a valid Turnstile token, past 5/hour, past the
+      per-action or per-IP limit, past the global cap, or from a blocked
+      device returns 429/403/503 and no Anthropic call is made (mock
+      asserts zero calls).
+- [ ] A fixture of 40 abusive inputs (prompt injection, requests for a
+      different document, off-topic, threats, slurs, doxxing, URLs and
+      phone numbers in fields) produces zero generated documents and
+      zero Opus calls; 20 benign inputs with unusual phrasing all pass
+      the screen. The third screened-out attempt blocks the device.
+- [ ] A generated doc that fails the output check (seeded by a mocked
+      model reply with a URL and an out-of-block number) is regenerated
+      once and then refused; nothing failing is shown as a document.
 - [ ] "Share" is absent before a receipt and present after; the share
       payload is the goal deep link; a report cannot change a position.
 - [ ] `/donate` shows the self-funding statement, the computed monthly
@@ -314,29 +365,36 @@ page shows the real number from `MONTHLY_COST_USD`.
 - Next action: scaffold repo (Astro + Worker + D1 + `data/`) as §1.
 
 ## Open questions
-1. Senate leader vote: date and challenger unknown. Proposal: goal ships
-   with `our_pick` empty and the unified ask "commit publicly to vote
-   only for a leader who will strip §1217 and oppose a new MOU"; the
-   maintainer sets the pick when a challenger declares. decision_date
-   = 2026-12-15 placeholder, flagged VERIFY in prep_md.
-2. Model for personalisation. Proposal: `claude-opus-5-5` at effort
-   `medium` (quality is what keeps docs credible; ~$0.01/doc). Digest and
-   position drafts on `claude-haiku-5-5`. Revisit from measured cost per
-   receipt.
+1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
+   the goal ships with up to three picks (`our_picks`), chosen by a
+   maintainer scan of Instagram, TikTok and the web (declared interest,
+   stated position on §1217, attention), each with source and signal
+   date; the unified ask names the condition and the first pick. The
+   scan is a research task (`docs/research/senate-leader-candidates.md`,
+   queued in `## Next`). decision_date = 2026-12-15 placeholder, flagged
+   VERIFY in prep_md.
+2. Model for personalisation. Decided 2026-11-04: `claude-opus-5-5` at
+   effort `medium` for documents; `claude-haiku-5-5` for the input
+   screen, digest and position drafts; misuse guardrails and per-device,
+   per-action, per-IP and global limits as in §4.7–4.8. Revisit the
+   model from measured cost per receipt.
 3. Uniqueness threshold 0.3 Jaccard on 8-gram shingles over the last 200
-   docs per action. Proposal: ship it, tune from the 20-generation test.
-4. Address privacy: the Census Geocoder sees the address. Proposal:
+   docs per action. Decided 2026-11-04 as proposed: ship it, tune from
+   the 20-generation test.
+4. Address privacy: the Census Geocoder sees the address. Decided 2026-11-04 as proposed:
    proxy via the Worker with no logging, state it on `/privacy`; evaluate
    an on-device district lookup (shapefile in the browser) in `## Next`.
-5. House caucus goal is secondary per research. Proposal: keep it,
+5. House caucus goal is secondary per research. Decided 2026-11-04 as proposed: keep it,
    priority 1 (NDAA 3, Senate leader 2, state 1), so a Democratic
    district with two Republican senators still gets two federal goals.
 6. Section numbers (§219/§1217, formerly §224) unverified against
-   enrolled text. Proposal: store all three; the seed PR verifies.
+   enrolled text. Decided 2026-11-04 as proposed: store all three; the
+   seed PR verifies.
 7. Candidate endorsement. "Our pick" for elected office (2028 primaries)
    may make the site's spending express advocacy with FEC reporting
-   consequences for an individual. Proposal: v1 picks are limited to
-   leadership votes and policy positions; the 2028 goal stays in
+   consequences for an individual. Decided 2026-11-04 as proposed: v1
+   picks are limited to leadership votes and policy positions; the 2028
+   goal stays in
    `## Next` until the owner has checked the rules. Not blocking: no
    v1 goal needs a candidate pick.
 8. Prep page for the NDAA goal needs the Khanna letter signer list, which
@@ -347,3 +405,8 @@ page shows the real number from `MONTHLY_COST_USD`.
   proposal, none blocking). Supersedes `archive/2026-11-vote-tracker.md`.
   Owner decisions: Cloudflare + Astro + Worker + D1; Stripe Payment
   Link; v1 funnel is receipt + share only.
+- 2026-11-04 — owner answered questions 1–7: Senate leader goal carries
+  up to three maintainer-ranked picks from a social/web scan (§3.2,
+  `our_picks`); misuse guardrails and tighter generation limits added
+  (§4.7–4.8, `screenings`/`blocks`, three acceptance tests); 3–7
+  decided as proposed. UI design brief: `docs/research/ui-design-brief.md`.
