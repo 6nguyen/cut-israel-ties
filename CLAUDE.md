@@ -6,9 +6,17 @@ PRD-first, verification cadence and the quality bar are global
 here; every line in this file is re-read on every request.
 
 ## Repo map
-Docs only so far: a civic-action tool to end US aid, ties and military
-partnership with Israel. No app code, no stack chosen yet; `README.md`
-says what it is.
+A civic-action tool to end US aid, ties and military partnership with
+Israel (`README.md`). Monorepo, npm workspaces, Node ≥22.
+- `web/` — Astro 5 static site, Tailwind v4 tokens in
+  `src/styles/global.css`, Preact islands in `src/components/`. Dev proxies
+  `/api` to the Worker (`API_ORIGIN`, default `http://localhost:8787`).
+- `worker/` — Cloudflare Worker (Hono) + D1. `src/index.ts` builds the app
+  with injected repo/fetch/clock so `test/` runs in plain vitest with
+  `MemoryRepo` over the real `data/` rows. `schema.sql`, `scripts/seed.ts`.
+- `data/` — the only source of goals, actions, members, positions and
+  states (YAML/CSV, provenance in `data/README.md`). Seeded into D1; never
+  hand-edit D1.
 - `docs/README.md` — where each kind of doc goes; doc-lint enforces it in CI.
 - `docs/prd/` — one PRD per feature (template in `docs/prd/README.md`);
   its `## Next` table queues ideas that have no PRD yet.
@@ -28,13 +36,19 @@ Before editing code under a mapped area, read its map.
 ## Commands
 - Agents and long loops: `scripts/quiet-check.sh <target>` (`list` shows
   targets). Raw commands below are for humans and one-off runs.
-- Targets: `prd-lint`, `doc-lint`; both run in CI (`CI_TARGETS`). No build
-  or test suite exists yet; add targets when the first code lands.
+- Targets: `prd-lint`, `doc-lint`, `tsc` (worker typecheck), `test`
+  (worker vitest), `build` (web); all run in CI (`CI_TARGETS`).
+- Local run: `npm run seed -w worker` (YAML/CSV → D1 local), then
+  `npm run dev` (Worker on 8787 + Astro on 4321).
 - `scripts/features.sh .` regenerates `docs/FEATURES.md` after any PRD or
   spec change; `prd-lint` fails on a stale one.
 
 ## Performance budgets
-None yet. The first product PRD sets them.
+From `docs/prd/action-router.md` acceptance criteria:
+- Landing ≤100 KB transferred; LCP ≤1.5 s on a mid-range phone over 4G.
+- `/api/route` ≤2 s p95.
+- Generation: first streamed token ≤3 s p95, complete ≤10 s p95.
+- Infra cost excluding LLM and domain = $0/month.
 
 ## Hard gotchas
 - Research files are dated snapshots (vote tallies, member positions,

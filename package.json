@@ -1,0 +1,13 @@
+{
+  "name": "cut-israel-ties",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["web", "worker"],
+  "scripts": {
+    "dev": "npm run dev -w worker & npm run dev -w web",
+    "build": "npm run build -w web",
+    "test": "npm run test -w worker",
+    "seed": "npm run seed -w worker"
+  },
+  "engines": { "node": ">=22" }
+}

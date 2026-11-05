@@ -1,0 +1,66 @@
+/* Tokens from design/stitch/DESIGN.md ("Agitation Newsprint & Action Press"). */
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #090A0F;
+  --color-newsprint: #FAF7F0;
+  --color-newsprint-muted: #EDE8DC;
+  --color-rule: #D8D2C4;
+  --color-acid: #00E876;
+  --color-acid-hover: #00C865;
+  --color-crimson: #E11148;
+  --color-hazard: #FACC15;
+  --color-slate: #1E2028;
+  --color-paper: #FFFFFF;
+
+  --font-condensed: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-syne: "Syne", "Helvetica Neue", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --shadow-brutal-sm: 2px 2px 0 #090A0F;
+  --shadow-brutal: 4px 4px 0 #090A0F;
+  --shadow-brutal-lg: 6px 6px 0 #090A0F;
+  --shadow-brutal-xl: 8px 8px 0 #090A0F;
+  --shadow-focus: 4px 4px 0 #00E876;
+
+  --breakpoint-xs: 390px;
+}
+
+@layer base {
+  html { background: var(--color-newsprint); color: var(--color-ink); }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  * { border-radius: 0 !important; }
+  :focus-visible { outline: 3px solid var(--color-acid); outline-offset: 2px; }
+}
+
+@utility display-xl { font-family: var(--font-condensed); text-transform: uppercase; letter-spacing: 0.02em; font-size: 56px; line-height: 52px; @media (width >= 64rem) { font-size: 96px; line-height: 88px; } }
+@utility display-lg { font-family: var(--font-condensed); text-transform: uppercase; letter-spacing: 0.02em; font-size: 40px; line-height: 38px; @media (width >= 64rem) { font-size: 64px; line-height: 60px; } }
+@utility headline-lg { font-family: var(--font-syne); font-weight: 800; font-size: 26px; line-height: 32px; letter-spacing: -0.01em; @media (width >= 64rem) { font-size: 32px; line-height: 38px; letter-spacing: -0.02em; } }
+@utility headline-md { font-family: var(--font-syne); font-weight: 700; font-size: 22px; line-height: 28px; }
+@utility label-code { font-family: var(--font-mono); font-weight: 700; font-size: 13px; line-height: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
+@utility label-ticker { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+@utility card { background: var(--color-paper); border: 2px solid var(--color-ink); box-shadow: var(--shadow-brutal); }
+@utility card-lg { background: var(--color-paper); border: 3px solid var(--color-ink); box-shadow: var(--shadow-brutal-lg); }
+@utility btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 14px;
+  padding: 0.875rem 1.25rem; border: 2px solid var(--color-ink); box-shadow: var(--shadow-brutal);
+  transition: transform 0.1s ease, box-shadow 0.1s ease; cursor: pointer;
+  &:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--color-ink); }
+}
+@utility btn-primary { background: var(--color-acid); color: var(--color-ink); &:hover { background: var(--color-paper); } }
+@utility btn-ghost { background: transparent; color: var(--color-ink); box-shadow: var(--shadow-brutal-sm); &:hover { background: var(--color-paper); } }
+@utility chip { display: inline-block; border: 1px solid var(--color-ink); padding: 0.25rem 0.5rem; font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+@utility input-field {
+  width: 100%; background: var(--color-paper); color: var(--color-ink); border: 2px solid var(--color-ink); padding: 0.875rem 1rem; font-family: var(--font-sans); font-size: 16px;
+  &:focus { outline: none; box-shadow: var(--shadow-focus); }
+}
+@utility hero-gradient { background: linear-gradient(160deg, #1E2028 0%, #090A0F 55%, #2a1a1f 100%); }
+@utility halftone { background-image: radial-gradient(#FAF7F0 0.75px, transparent 0.75px); background-size: 8px 8px; opacity: 0.12; }

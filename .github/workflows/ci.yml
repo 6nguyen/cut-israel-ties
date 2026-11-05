@@ -14,17 +14,16 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     env:
-      CI_TARGETS: "prd-lint doc-lint"   # add yours, e.g. "pytest tsc build"
+      CI_TARGETS: "prd-lint doc-lint tsc test build"
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }  # features.sh dates specs from git history
       # - uses: actions/setup-python@v5
       #   with: { python-version: '3.12', cache: pip }
       # - run: python -m venv backend/.venv && backend/.venv/bin/pip install -e "backend[dev]"
-      # - uses: actions/setup-node@v4
-      #   with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
-      # - run: npm ci
-      #   working-directory: web
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
       - name: quiet-check
         run: |
           if [ -z "$CI_TARGETS" ]; then echo "no CI_TARGETS configured yet"; exit 0; fi

@@ -1,0 +1,17 @@
+slug: senate-leader
+category: leadership
+title: A Senate Democratic leader who will strip the integration section
+summary: Senate Democrats choose their leader by secret ballot in caucus. Your Democratic senator's ballot is a lever on every later vote.
+what_we_want: Your senator conditions their leadership ballot on a public commitment to strip the integration section and end the 2028 MOU replacement.
+status: active
+window_start: 2026-11-01
+window_end: 2027-01-31
+decision_date: 2027-01-05   # placeholder: caucus leadership election date
+priority: 2
+eligibility: {"senator": {"party": "D"}}
+our_picks: []
+this_week: ""
+this_week_date: ""
+detail_md: ""
+prep_md: ""
+partner_url: ""

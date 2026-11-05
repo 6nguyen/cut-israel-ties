@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadGoals } from '../../lib/goals';
+const goals = loadGoals();
+---
+<Base title="All goals — Cut the Ties">
+  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
+    <p class="label-code">All goals</p>
+    <h1 class="display-lg mt-2">Every open decision</h1>
+    <p class="mt-3 max-w-2xl">Stub: the full overview with status, outcome notes and successors lands with §2.</p>
+    <ul class="mt-8 grid gap-4 max-w-3xl">
+      {goals.map((g) => (
+        <li class="card p-4">
+          <span class="chip bg-hazard">{g.category.replace('_', ' ')}</span>
+          <span class="chip ml-2">{g.status}</span>
+          <h2 class="headline-md mt-2"><a href={`/goals/${g.slug}`} class="hover:underline">{g.title}</a></h2>
+          <p class="text-sm mt-1">{g.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>

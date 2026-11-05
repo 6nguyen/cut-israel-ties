@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import AddressForm from '../components/AddressForm';
+import { loadGoals } from '../lib/goals';
+const goals = loadGoals().filter((g) => g.status === 'active');
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+---
+<Base title="Cut the Ties — find the two things you can do this week">
+  <section class="relative hero-gradient text-newsprint overflow-hidden">
+    <div class="absolute inset-0 halftone pointer-events-none"></div>
+    <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-14 lg:py-24">
+      <p class="label-code text-hazard mb-4">Constituent action · US military ties with Israel</p>
+      <h1 class="display-xl max-w-4xl">Find the two things you can do <span class="text-acid">this week</span></h1>
+      <p class="mt-5 text-lg max-w-2xl">One site to end US aid, military partnership and integration with Israel. Enter your address. We find your members of Congress and give you the words that work.</p>
+      <div class="mt-8 max-w-2xl">
+        <AddressForm client:load siteKey={siteKey} />
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-12">
+    <p class="label-code">Open goals</p>
+    <h2 class="headline-lg mt-2">Where the decisions are being made</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+      {goals.map((g) => (
+        <article class="card flex flex-col">
+          <div class="relative hero-gradient text-newsprint p-4 min-h-[140px] flex flex-col justify-end">
+            <div class="absolute inset-0 halftone pointer-events-none"></div>
+            <span class="relative chip bg-hazard text-ink self-start mb-2">{g.category.replace('_', ' ')}</span>
+            <h3 class="relative headline-md">{g.title}</h3>
+          </div>
+          <div class="p-4 flex flex-col gap-3 flex-1">
+            <p class="text-sm">{g.summary}</p>
+            <a href={`/goals/${g.slug}`} class="btn btn-ghost self-start mt-auto text-xs">See the goal →</a>
+          </div>
+        </article>
+      ))}
+    </div>
+    <p class="mt-6"><a href="/goals" class="label-code underline underline-offset-4">All goals →</a></p>
+  </section>
+</Base>

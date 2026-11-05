@@ -1,0 +1,17 @@
+slug: house-caucus
+category: leadership
+title: Put your House Democrat on the record before the caucus vote
+summary: The House Democratic caucus votes on leadership and on whether to whip against the integration section. Your member's position is set in private calls before the vote.
+what_we_want: Your representative states, on the record, that they will vote against any NDAA report that keeps the integration section.
+status: active
+window_start: 2026-11-01
+window_end: 2027-01-31
+decision_date: 2026-11-18   # placeholder: caucus meeting date
+priority: 2
+eligibility: {"house": {"party": "D"}}
+our_picks: []
+this_week: ""
+this_week_date: ""
+detail_md: ""
+prep_md: ""
+partner_url: ""
