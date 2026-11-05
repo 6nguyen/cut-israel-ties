@@ -181,6 +181,8 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     btb_cosponsor: int(r.btb_cosponsor),
     target_2028: int(r.target_2028),
     money_url: str(r.money_url),
+    district_office_address: str(r.district_office_address),
+    district_office_city: str(r.district_office_city),
   }));
   checkMembers(parseCsv(readFileSync(join(dataDir, 'members.csv'), 'utf8')));
 

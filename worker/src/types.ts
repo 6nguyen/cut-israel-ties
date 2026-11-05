@@ -19,6 +19,8 @@ export interface Member {
   btb_cosponsor: number;
   target_2028: number;
   money_url: string | null;
+  district_office_address: string | null; // office-visits: empty until a data/ PR fills it
+  district_office_city: string | null;
 }
 
 export const HOLDINGS_STATUSES = ['held', 'none', 'unknown'] as const;
@@ -148,10 +150,32 @@ export interface Repo {
   recordDigestRun(at: Date, reportCount: number): Promise<void>;
   // member-pages §2.2: the newest visible office response for one member and goal (GET /api/members/:id/reports).
   latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null>;
+  // office-visits (worker/src/index.ts and digest.ts are the only callers). Requests are counted by code.
+  insertVisit(row: VisitRow): Promise<number>;
+  visit(id: number): Promise<Visit | null>;
+  /** Approved listings for one member with their stored request count; the caller drops expired ones. */
+  approvedVisits(bioguideId: string): Promise<{ visit: Visit; requests: number }[]>;
+  pendingVisits(): Promise<Visit[]>;
+  pendingVisitCount(deviceHash: string): Promise<number>;
+  setVisitStatus(id: number, status: VisitStatus, at: Date): Promise<void>;
+  /** Deletes the listing and every request on it. */
+  deleteVisit(id: number): Promise<void>;
+  hasVisitRequest(visitId: number, deviceHash: string): Promise<boolean>;
+  visitRequestsSince(deviceHash: string, since: Date): Promise<number>;
+  insertVisitRequest(visitId: number, deviceHash: string, at: Date): Promise<void>;
+  deleteVisitRequest(visitId: number, deviceHash: string): Promise<void>;
 }
 
 /** What a member page shows of a constituent report: no device hash, no id. */
 export interface LatestReport { outcome: ReportOutcome; note: string | null; created_at: string }
+
+/** office-visits rows. `starts_at`/`ends_at` are office local time `YYYY-MM-DDTHH:MM`; `contact_url` never leaves the Worker except to a device whose request is stored. */
+export type VisitStatus = 'pending' | 'approved' | 'rejected' | 'hidden';
+export interface VisitRow { bioguide_id: string; office_city: string; starts_at: string; ends_at: string; contact_url: string; note: string | null; status: VisitStatus; device_hash: string; created_at: string; reviewed_at: string | null }
+export interface Visit extends VisitRow { id: number }
+export interface VisitRequestRow { visit_id: number; device_hash: string; created_at: string }
+/** What GET /api/visits returns per listing: no contact, no device hash. */
+export interface VisitPublic { id: number; bioguide_id: string; office_city: string; starts_at: string; ends_at: string; note: string | null; requests: number }
 
 export interface Env {
   DB: D1Database;
@@ -163,4 +187,7 @@ export interface Env {
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;
   DIGEST_FROM?: string;
+  // office-visits: "0" pauses listings (POST routes 503, GET empty); the secret signs the digest's review links.
+  VISITS_ENABLED?: string;
+  VISITS_REVIEW_SECRET?: string;
 }

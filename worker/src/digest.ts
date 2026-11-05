@@ -3,6 +3,7 @@
 // Nothing in this file reads or writes `positions` (a report never changes a position).
 import { SCREEN_MODEL, callMessage } from './anthropic';
 import { digitRuns } from './generate';
+import { reviewSection } from './visits';
 import type { BlockRow, Env, Goal, Member, Repo, ReportOutcome, ReportRow, ScreeningRow } from './types';
 
 export const DIGEST_MODEL = SCREEN_MODEL; // claude-haiku-5-5
@@ -170,11 +171,17 @@ export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResul
   const to = env.MAINTAINER_EMAIL?.trim();
   if (!to) { log('digest: MAINTAINER_EMAIL unset, skipped'); return { sent: false, reason: 'no_recipient', since: since.toISOString() }; }
   const reports = await deps.repo.reportsSince(since);
-  if (reports.length === 0) {
+  // office-visits §1.3: pending listings ride along, and alone are enough to send the mail.
+  const pending = await deps.repo.pendingVisits();
+  if (reports.length === 0 && pending.length === 0) {
     await deps.repo.recordDigestRun(now, 0);
     log(`digest: no reports since ${since.toISOString()}`);
     return { sent: false, reason: 'no_reports', since: since.toISOString() };
   }
+  const from = env.DIGEST_FROM?.trim() || 'digest@localhost';
+  const origin = from.includes('@') && !from.endsWith('@localhost') ? `https://${from.split('@')[1]}` : null;
+  const visitNames = new Map((await Promise.all(pending.map((v) => deps.repo.member(v.bioguide_id)))).filter((m): m is Member => m !== null).map((m) => [m.bioguide_id, m.name]));
+  const visitsText = await reviewSection(pending, (id) => visitNames.get(id) ?? id, origin, env.VISITS_REVIEW_SECRET?.trim() || undefined, now);
   const [goals, screenings, blocks] = await Promise.all([deps.repo.activeGoals(), deps.repo.screeningsSince(since), deps.repo.activeBlocks(now)]);
   const members = (await Promise.all([...new Set(reports.map((r) => r.bioguide_id))].map((id) => deps.repo.member(id)))).filter((m): m is Member => m !== null);
   const digest = buildDigest(reports, members, goals, since, now);
@@ -182,11 +189,12 @@ export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResul
   const prose = await digestProse(deps.fetch, env.ANTHROPIC_API_KEY, digest, abuse);
   const day = now.toISOString().slice(0, 10);
   const text = prose.model ? `${prose.text}\n\n---\n${digestTable(digest, abuse)}` : prose.text;
+  const subjectVisits = pending.length ? ` · ${pending.length} visit listing${pending.length === 1 ? '' : 's'} to review` : '';
   await deps.send(env, {
-    from: env.DIGEST_FROM?.trim() || 'digest@localhost',
+    from,
     to,
-    subject: `[cut-ties] ${digest.total} report${digest.total === 1 ? '' : 's'} · ${day}`,
-    text: `${text}\n\nRaw rows attached (reports-${day}.csv). Reports never change a position; paste sourced rows into data/positions/<goal>.csv.\n`,
+    subject: `[cut-ties] ${digest.total} report${digest.total === 1 ? '' : 's'}${subjectVisits} · ${day}`,
+    text: `${text}${visitsText ? `\n\n---\n${visitsText}` : ''}\n\nRaw rows attached (reports-${day}.csv). Reports never change a position; paste sourced rows into data/positions/<goal>.csv.\n`,
     attachment: { filename: `reports-${day}.csv`, content: digest.csv },
   }, now);
   await deps.repo.recordDigestRun(now, digest.total); // after the send, so a failed send is retried by the next run

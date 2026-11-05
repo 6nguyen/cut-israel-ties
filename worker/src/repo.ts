@@ -1,6 +1,6 @@
 import type {
   Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
-  LatestReport,
+  LatestReport, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
 
 const HOUR = 3_600_000;
@@ -179,6 +179,54 @@ export class D1Repo implements Repo {
       .bind(bioguideId, goalId)
       .first<LatestReport>()) ?? null;
   }
+
+  // ---- office-visits ----
+  async insertVisit(row: VisitRow): Promise<number> {
+    const r = await this.db
+      .prepare(`INSERT INTO visits (bioguide_id, office_city, starts_at, ends_at, contact_url, note, status, device_hash, created_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`)
+      .bind(row.bioguide_id, row.office_city, row.starts_at, row.ends_at, row.contact_url, row.note, row.status, row.device_hash, row.created_at, row.reviewed_at)
+      .first<{ id: number }>();
+    return r!.id;
+  }
+  async visit(id: number): Promise<Visit | null> {
+    return (await this.db.prepare(`SELECT * FROM visits WHERE id = ?`).bind(id).first<Visit>()) ?? null;
+  }
+  async approvedVisits(bioguideId: string): Promise<{ visit: Visit; requests: number }[]> {
+    const { results } = await this.db
+      .prepare(`SELECT v.*, (SELECT COUNT(*) FROM visit_requests r WHERE r.visit_id = v.id) AS requests FROM visits v WHERE v.bioguide_id = ? AND v.status = 'approved' ORDER BY v.starts_at, v.id`)
+      .bind(bioguideId)
+      .all<Visit & { requests: number }>();
+    return results.map(({ requests, ...visit }) => ({ visit, requests }));
+  }
+  async pendingVisits(): Promise<Visit[]> {
+    return (await this.db.prepare(`SELECT * FROM visits WHERE status = 'pending' ORDER BY created_at, id`).all<Visit>()).results;
+  }
+  async pendingVisitCount(deviceHash: string): Promise<number> {
+    const r = await this.db.prepare(`SELECT COUNT(*) AS n FROM visits WHERE device_hash = ? AND status = 'pending'`).bind(deviceHash).first<{ n: number }>();
+    return r?.n ?? 0;
+  }
+  async setVisitStatus(id: number, status: VisitStatus, at: Date): Promise<void> {
+    await this.db.prepare(`UPDATE visits SET status = ?, reviewed_at = ? WHERE id = ?`).bind(status, iso(at), id).run();
+  }
+  async deleteVisit(id: number): Promise<void> {
+    await this.db.batch([
+      this.db.prepare(`DELETE FROM visit_requests WHERE visit_id = ?`).bind(id),
+      this.db.prepare(`DELETE FROM visits WHERE id = ?`).bind(id),
+    ]);
+  }
+  async hasVisitRequest(visitId: number, deviceHash: string): Promise<boolean> {
+    return !!(await this.db.prepare(`SELECT 1 AS x FROM visit_requests WHERE visit_id = ? AND device_hash = ?`).bind(visitId, deviceHash).first());
+  }
+  async visitRequestsSince(deviceHash: string, since: Date): Promise<number> {
+    const r = await this.db.prepare(`SELECT COUNT(*) AS n FROM visit_requests WHERE device_hash = ? AND created_at >= ?`).bind(deviceHash, iso(since)).first<{ n: number }>();
+    return r?.n ?? 0;
+  }
+  async insertVisitRequest(visitId: number, deviceHash: string, at: Date): Promise<void> {
+    await this.db.prepare(`INSERT OR IGNORE INTO visit_requests (visit_id, device_hash, created_at) VALUES (?, ?, ?)`).bind(visitId, deviceHash, iso(at)).run();
+  }
+  async deleteVisitRequest(visitId: number, deviceHash: string): Promise<void> {
+    await this.db.prepare(`DELETE FROM visit_requests WHERE visit_id = ? AND device_hash = ?`).bind(visitId, deviceHash).run();
+  }
 }
 
 export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
@@ -195,6 +243,9 @@ export class MemoryRepo implements Repo {
   receipts: ReceiptRow[] = [];
   reports: ReportRow[] = [];
   digestRuns: { ran_at: string; report_count: number }[] = [];
+  visits: Visit[] = [];
+  visitRequests: VisitRequestRow[] = [];
+  private visitsDeleted = 0; // keeps ids unique after a delete, like AUTOINCREMENT would
 
   constructor(
     private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[] },
@@ -270,5 +321,41 @@ export class MemoryRepo implements Repo {
   async latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null> {
     const r = this.reports.filter((x) => x.bioguide_id === bioguideId && x.goal_id === goalId).at(-1);
     return r ? { outcome: r.outcome, note: r.note, created_at: r.created_at } : null;
+  }
+
+  // ---- office-visits ----
+  async insertVisit(row: VisitRow): Promise<number> {
+    const id = this.visits.length + 1 + this.visitsDeleted;
+    this.visits.push({ ...row, id });
+    return id;
+  }
+  async visit(id: number): Promise<Visit | null> { return this.visits.find((v) => v.id === id) ?? null; }
+  async approvedVisits(bioguideId: string): Promise<{ visit: Visit; requests: number }[]> {
+    return this.visits
+      .filter((v) => v.bioguide_id === bioguideId && v.status === 'approved')
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at) || a.id - b.id)
+      .map((visit) => ({ visit, requests: this.visitRequests.filter((r) => r.visit_id === visit.id).length }));
+  }
+  async pendingVisits(): Promise<Visit[]> { return this.visits.filter((v) => v.status === 'pending'); }
+  async pendingVisitCount(deviceHash: string): Promise<number> { return this.visits.filter((v) => v.device_hash === deviceHash && v.status === 'pending').length; }
+  async setVisitStatus(id: number, status: VisitStatus, at: Date): Promise<void> {
+    const v = this.visits.find((x) => x.id === id);
+    if (v) { v.status = status; v.reviewed_at = iso(at); }
+  }
+  async deleteVisit(id: number): Promise<void> {
+    if (this.visits.some((v) => v.id === id)) this.visitsDeleted++;
+    this.visits = this.visits.filter((v) => v.id !== id);
+    this.visitRequests = this.visitRequests.filter((r) => r.visit_id !== id);
+  }
+  async hasVisitRequest(visitId: number, deviceHash: string): Promise<boolean> { return this.visitRequests.some((r) => r.visit_id === visitId && r.device_hash === deviceHash); }
+  async visitRequestsSince(deviceHash: string, since: Date): Promise<number> {
+    const s = iso(since);
+    return this.visitRequests.filter((r) => r.device_hash === deviceHash && r.created_at >= s).length;
+  }
+  async insertVisitRequest(visitId: number, deviceHash: string, at: Date): Promise<void> {
+    if (!(await this.hasVisitRequest(visitId, deviceHash))) this.visitRequests.push({ visit_id: visitId, device_hash: deviceHash, created_at: iso(at) });
+  }
+  async deleteVisitRequest(visitId: number, deviceHash: string): Promise<void> {
+    this.visitRequests = this.visitRequests.filter((r) => !(r.visit_id === visitId && r.device_hash === deviceHash));
   }
 }

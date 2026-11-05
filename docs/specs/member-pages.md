@@ -112,8 +112,9 @@ never by this capability, and nothing here calls an LLM.
 - `data/members.csv`: one row per sitting member, columns unchanged
   (`bioguide_id,name,party,chamber,state,district,dc_phone,district_phone,
   contact_form_url,hasc,conferee,rc243,jrd_april_2026,btb_cosponsor,
-  target_2028,money_url`). Provenance and the merge rules in
-  `data/README.md`.
+  target_2028,money_url,district_office_address,district_office_city`;
+  the last two are empty until sourced, see office-visits). Provenance
+  and the merge rules in `data/README.md`.
 - `worker/scripts/import-members.ts` — `rosterRows(yaml)`, `merge(existing,
   roster) → {rows, stale, added}`, `toCsv(rows)`; the CLI prints the row
   counts and the `stale:` list.
