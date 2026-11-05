@@ -33,6 +33,19 @@ so retiring a goal is one YAML edit. `summary` is at most 60 words;
 signal_date}` rows; `sources` holds `{title, url}` rows; `decider` is the
 one-line "who decides" shown on the detail page.
 
+## Prep pages (PRD §3)
+`prep_md` is maintainer-written markdown rendered at `/goals/<slug>/prep`;
+leave it empty for no page. The seed rejects it unless it has exactly these
+`##` headings, in this order, each with text: **Where things stand** (must
+contain an ISO date, e.g. `*As of 2026-11-04.*`), **Timeline**, **What to
+say in 30 seconds**, **Likely pushback and answers**, **What counts as a
+win**, **Sources**. "Our pick and why" is not a heading: it comes from
+`our_picks` and leads the page for a goal that has them. Every date, vote
+count or name in `prep_md` must be a row in this directory or be followed by
+`[VERIFY: what to confirm and where]`; markers render as yellow chips and
+are removed when the primary source is read. The `sources` rows are listed
+under the Sources section.
+
 ## Eligibility rule grammar (PRD §5.1)
 One key per object. `{"always": true}` · `{"all": [rule, …]}` ·
 `{"any": [rule, …]}` · `{"house": {field: value, …}}` (every field must

@@ -1,0 +1,96 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PrepAction from '../../../components/PrepAction';
+import { actionsFor, CATEGORY, fmtDate, picks, prepGoals, prepHtml, prepSections, sources, unifiedAsk, type Goal } from '../../../lib/goals';
+export function getStaticPaths() {
+  return prepGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
+}
+const { goal } = Astro.props as { goal: Goal };
+const open = goal.status === 'active';
+const sections = prepSections(goal.prep_md);
+const ranked = picks(goal).slice(0, 3);
+const leadership = goal.category === 'leadership';
+const pickDate = ranked.map((p) => p.signal_date ?? '').sort().pop() || null;
+const ask = unifiedAsk(goal.what_we_want, ranked[0]?.name);
+const srcs = sources(goal);
+const verbs: Record<string, string> = { call: 'Get my call script', letter: 'Write my letter' };
+const actions = open ? actionsFor(goal).map((a) => ({ slug: a.slug, label: verbs[a.type] ?? 'Comment' })) : [];
+---
+<Base title={`Prep: ${goal.title} — Cut the Ties`} description={`What to know and what to say: ${goal.summary}`} image={`/goals/${goal.slug}/card.png`}>
+  <section class="relative hero-gradient text-newsprint overflow-hidden">
+    <div class="absolute inset-0 halftone pointer-events-none"></div>
+    <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-12 lg:py-16">
+      <div class="flex gap-2 mb-4">
+        <span class="chip bg-hazard text-ink border-ink">{CATEGORY[goal.category]}</span>
+        <span class="chip bg-newsprint text-ink border-ink">Prep</span>
+      </div>
+      <h1 class="display-lg max-w-4xl">{goal.title}</h1>
+      <p class="mt-5 text-lg max-w-2xl">{goal.summary}</p>
+      <p class="mt-4 label-code text-hazard">Decision: {fmtDate(goal.decision_date) ?? 'not yet scheduled'}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        {actions.length > 0 && <a href="#take-action" class="btn btn-primary">Take action →</a>}
+        <a href={`/goals/${goal.slug}`} class="btn btn-ghost">About this goal</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-8 lg:gap-12">
+    <div class="flex flex-col gap-10">
+      {leadership && (
+        <section aria-labelledby="picks">
+          <p class="label-code">Our picks</p>
+          <h2 id="picks" class="headline-lg mt-1">{ranked.length > 0 ? 'Who to put the condition to' : 'Our picks are not set yet'}</h2>
+          {ranked.length > 0 ? (
+            <>
+              <ol class="mt-4 flex flex-col gap-3 max-w-2xl">
+                {ranked.map((p, i) => (
+                  <li class="card p-5">
+                    <p class="label-code">Pick {i + 1}</p>
+                    <h3 class="headline-md mt-1">{p.name}</h3>
+                    <p class="mt-3">{p.rationale}</p>
+                    <p class="mt-3 label-ticker">
+                      <a href={p.source_url} rel="noopener" class="underline">Source</a>
+                      {p.signal ? ` · ${p.signal}` : ''}{p.signal_date ? ` · ${fmtDate(p.signal_date)}` : ''}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+              <p class="mt-3 label-ticker text-ink/70">Picks set by the maintainer from sourced rows{pickDate ? `, as of ${fmtDate(pickDate)}` : ''}. Nothing here is counted by a model.</p>
+            </>
+          ) : (
+            <p class="mt-3 max-w-2xl">The maintainer scan of declared interest, stated position and attention has not been published, so no name is put forward. The ask below stands without one.</p>
+          )}
+        </section>
+      )}
+      {leadership && (
+        <section class="card-lg p-5 lg:p-6 bg-acid" aria-labelledby="ask">
+          <p class="label-code">The ask, same for every caller</p>
+          <h2 id="ask" class="headline-lg mt-1">{ask}</h2>
+        </section>
+      )}
+
+      {sections.map((s, i) => (
+        <section id={s.id} aria-labelledby={`${s.id}-h`}>
+          <p class="label-code">{String(i + 1).padStart(2, '0')}</p>
+          <h2 id={`${s.id}-h`} class="headline-lg mt-1">{s.title}</h2>
+          <div class="prose-cut mt-4 max-w-2xl" set:html={prepHtml(s.body)} />
+          {s.id === 'sources' && srcs.length > 0 && (
+            <ul class="mt-4 flex flex-col gap-1 text-sm">{srcs.map((x) => <li><a href={x.url} rel="noopener" class="underline">{x.title}</a></li>)}</ul>
+          )}
+        </section>
+      ))}
+    </div>
+
+    <aside class="flex flex-col gap-8">
+      {actions.length > 0 && (
+        <section id="take-action" aria-labelledby="take-action-h">
+          <p class="label-code">Take action</p>
+          <h2 id="take-action-h" class="headline-md mt-1 mb-3">Use your script</h2>
+          <PrepAction client:load slug={goal.slug} actions={actions} />
+        </section>
+      )}
+      <p><a href={`/goals/${goal.slug}`} class="label-code underline underline-offset-4">About this goal →</a></p>
+      <p><a href="/goals" class="label-code underline underline-offset-4">All goals →</a></p>
+    </aside>
+  </div>
+</Base>

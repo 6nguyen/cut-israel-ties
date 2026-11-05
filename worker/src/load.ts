@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import type { Action, Goal, Member, Position, StateRow } from './types';
 import { parseRule } from './ranking';
+import { checkPrep } from './prep';
 
 export interface Rows {
   goals: Goal[];
@@ -98,6 +99,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
       if ((g.status === 'completed' || g.status === 'expired') && !g.outcome_note) throw new Error(`goal ${g.slug}: a ${g.status} goal needs outcome_note (§2.1)`);
       checkJsonList(g.slug, 'our_picks', g.our_picks, ['name', 'rationale', 'source_url'], 3);
       checkJsonList(g.slug, 'sources', g.sources, ['title', 'url']);
+      checkPrep(g.slug, g.prep_md);
       return g;
     });
   activateSuccessors(goals);
