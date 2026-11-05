@@ -5,13 +5,13 @@
 
 | Feature | State | What it does | Spec | Change | Updated |
 |---|---|---|---|---|---|
-| action-router | PINNED | Address → delegation → ranked goals, goal pages, prep, dona… | [spec](specs/action-router.md) | [commitment-funnel](prd/commitment-funnel.md) 0/3 +6 | 2026-11-04 |
-| maintainer-tooling | PINNED | Draft a sourced position row, nightly report digest by emai… | [spec](specs/maintainer-tooling.md) | [office-visits](prd/office-visits.md) DRAFT +1 | 2026-11-04 |
+| action-router | PINNED | Address → delegation → ranked goals, goal pages, prep, dona… | [spec](specs/action-router.md) | [commitment-funnel](prd/commitment-funnel.md) 0/3 +7 | 2026-11-04 |
+| maintainer-tooling | PINNED | Draft a sourced position row, nightly report digest by emai… | [spec](specs/maintainer-tooling.md) | [office-visits](prd/office-visits.md) 0/3 +1 | 2026-11-04 |
 | personalised-documents | PINNED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | [commitment-funnel](prd/commitment-funnel.md) 0/3 +1 | 2026-11-04 |
 | senate-leader-candidate-scan-ig-tiktok-w | PLANNED | Senate leader candidate scan (IG, TikTok, web) | - | Next #1 | - |
 | commitment-funnel | PLANNED | Commitment funnel and captains | - | [commitment-funnel](prd/commitment-funnel.md) 0/3 | 2026-11-04 |
 | deploy | PLANNED | Production deployment | - | [deploy](prd/deploy.md) 0/3 | 2026-11-04 |
 | district-counters | PLANNED | District counters | - | [district-counters](prd/district-counters.md) 0/3 | 2026-11-04 |
 | member-pages | PLANNED | Member pages and whip count | - | [member-pages](prd/member-pages.md) 0/4 | 2026-11-04 |
-| office-visits | PLANNED | District-office visits | - | [office-visits](prd/office-visits.md) DRAFT | 2026-11-04 |
+| office-visits | PLANNED | District-office visits | - | [office-visits](prd/office-visits.md) 0/3 | 2026-11-04 |
 | on-device-districts | PLANNED | On-device district lookup | - | [on-device-districts](prd/on-device-districts.md) 0/3 | 2026-11-04 |

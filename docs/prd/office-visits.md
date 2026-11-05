@@ -1,5 +1,5 @@
 # District-office visits — PRD
-Status: DRAFT · Owner: George Nguyen · Last updated: 2026-11-04
+Status: APPROVED 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 In-person constituent visits are the most influential contact a member's
@@ -67,6 +67,10 @@ already called and will go if someone else is organising it.
 2. Per device: one pending listing at a time, five requests per day.
 3. The maintainer can hide any listing after approval; hidden listings
    drop their requests' visibility immediately.
+4. The organiser's contact link is personal data: `/privacy` names it,
+   the device that created a listing can delete it (`DELETE
+   /api/visits/:id`, device hash must match), and the maintainer deletes
+   on request from the digest. Deleting a listing deletes its requests.
 
 ## Data & contracts
 - `visits(id, bioguide_id, office_city, starts_at, ends_at,
@@ -75,7 +79,8 @@ already called and will go if someone else is organising it.
   device_hash, created_at)`.
 - `members.district_office_address`, `members.district_office_city`
   (from the roster import or a `data/` PR).
-- Endpoints: `POST /api/visits`, `GET /api/visits?member=<id>`, `POST
+- Endpoints: `POST /api/visits`, `GET /api/visits?member=<id>`, `DELETE
+  /api/visits/:id` (creating device only), `POST
   /api/visits/:id/request`, `DELETE /api/visits/:id/request`, `GET
   /api/visits/review?token=` (maintainer, signed).
 
@@ -83,6 +88,8 @@ already called and will go if someone else is organising it.
 - ADDED `docs/specs/office-visits.md`.
 - MODIFIED `docs/specs/maintainer-tooling.md` §Behavior digest: adds
   pending listings and approve/reject links.
+- MODIFIED `docs/specs/action-router.md` §Behavior privacy page: the
+  organiser contact link as declared, deletable personal data.
 
 ## Acceptance criteria
 - [ ] A submitted listing is invisible until approved; an approve link
@@ -94,6 +101,9 @@ already called and will go if someone else is organising it.
       stored; the count shows from 2 requests; withdrawing removes it.
 - [ ] The organiser's contact link is never in a page that is not
       behind a request (crawl test of every static page).
+- [ ] The creating device can delete its listing and its requests
+      vanish with it; another device gets 403; `/privacy` names the
+      contact link.
 - [ ] Performance budget: pages unchanged (≤100 KB); visits requests
       ≤300 ms p95; infra cost unchanged at $0/month.
 
@@ -102,20 +112,30 @@ Behind a `VISITS_ENABLED` var so the maintainer can pause listings.
 Metrics: listings submitted, approved, requested; requests per approved
 listing; share of districts with any listing.
 
+## State (updated 2026-11-04)
+- Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
+  - [ ] 1. Listing a visit
+  - [ ] 2. Finding and joining a visit
+  - [ ] 3. Safety
+- Completed: none.
+- Folded: none.
+- Branch / open PRs: none.
+- Remaining: all.
+- Next action: /implement-prd-section docs/prd/office-visits.md (§1),
+  after member-pages and commitment-funnel merge.
+
 ## Open questions
-1. [blocking] Host listings at all, or only link to partners' events?
-   Hosting makes the maintainer responsible for reviewing meeting
-   details submitted by strangers and for the safety of people who
-   show up. Proposal: host, with the review-by-digest gate above and
-   the organiser's own channel for coordination; revisit after the
-   first ten listings.
-2. [blocking] Is the organiser's contact link personal data the site
-   must declare and be able to delete? Proposal: yes; `/privacy` lists
-   it, and a listing can be deleted by its organiser through the device
-   that created it or by the maintainer on request.
+1. Decided 2026-11-04: host listings, gated by maintainer approval from
+   the digest, with coordination in the organiser's own channel. Revisit
+   after the first ten listings (owner).
+2. Decided 2026-11-04: the organiser's contact link is personal data;
+   `/privacy` names it and §3.4 makes it deletable (owner).
 3. Review latency. Proposal: the nightly digest is enough for v1; an
    immediate email per listing can follow.
 
 ## Changes
-- 2026-11-04 — created (DRAFT: questions 1 and 2 are blocking; no code
-  until answered). Replaces the office-visits part of `## Next` row 2.
+- 2026-11-04 — created (DRAFT: questions 1 and 2 were blocking).
+  Replaces the office-visits part of `## Next` row 2.
+- 2026-11-04 — APPROVED: owner decided to host listings behind the
+  digest gate and to treat the contact link as deletable personal data
+  (§3.4, privacy spec delta, new acceptance criterion).
