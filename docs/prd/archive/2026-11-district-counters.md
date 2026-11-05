@@ -1,5 +1,5 @@
 # District counters — PRD
-Status: BUILDING 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #29) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 Receipts are stored (`receipts` table) but never shown. A visitor cannot
@@ -98,18 +98,18 @@ per district per week; share of results views where a line was shown;
 call receipts per 100 results views with and without a line shown.
 
 ## State (updated 2026-11-04)
-- Status: BUILDING
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Counts endpoint · feat/district-counters · PR #26
-  - [~] 2. Counters on the pages · feat/district-counters · PR #26
-  - [~] 3. Abuse limits on receipts · feat/district-counters · PR #26
-- Completed: §1–3 implemented and tested on the branch; awaiting merge into integ/next-prds.
-- Folded: spec delta applied in the same PR (docs/specs/district-counters.md added; action-router.md items 5 and 9; personalised-documents.md Data & contracts; deployment.md variable table; specs/README.md index).
-- Branch / open PRs: feat/district-counters → integ/next-prds, PR #26.
+  - [x] 1. Counts endpoint · PR #29
+  - [x] 2. Counters on the pages · PR #29
+  - [x] 3. Abuse limits on receipts · PR #29
+- Completed: §1–3 merged to main via PR #29 (integration of the feature branch, PR #26).
+- Folded: §1–3: `docs/specs/district-counters.md` added; `action-router.md` items 5 and 9, `personalised-documents.md` §Data & contracts, `deployment.md` variable table, specs README row.
+- Branch / open PRs: none (PR #26 superseded by PR #29).
 - Files changed: worker/src/counts.ts (new); worker/src/types.ts:143-150 (ReceiptRow.ip_hash, ReceiptBuckets, ReceiptLimitCounts), :183-186 (Repo methods), :210-213 (Env); worker/src/repo.ts:184-230 (D1 countReceipts/receiptLimitCounts, foldBuckets), :297-315 (MemoryRepo); worker/src/index.ts:11, 148-180 (limits), 209-221 (/api/counts); worker/schema.sql:111-119; worker/test/counts.test.ts (new); worker/test/generate.test.ts:409,419; worker/wrangler.jsonc:30-31; .env.example; web/src/components/Counts.tsx (new), counts.test.ts (new), Results.tsx, GoalTargets.tsx; web/src/pages/m/[id].astro:5,60; docs/specs/* as listed under Folded.
 - Tests run + result: quiet-check tsc PASS (0 errors); test PASS (worker vitest, counts.test.ts +11); test-web PASS (+3); build PASS; results page 21.9 KB gzip (budget 100 KB).
-- Remaining: merge; set `IP_SALT` secret in production (deployment.md); `/api/counts` p95 on 10k receipts not measured against live D1.
-- Next action: merge PR into integ/next-prds, then the integration PR to main; on merge flip Sections to `[x]`, Status to SHIPPED and archive the PRD.
+- Remaining: none.
+- Next action: none; archived.
 ## Open questions
 1. Window length. Proposal: 7 days rolling; a decision-date window
    ("since the conference began") can replace it later per goal.
@@ -128,3 +128,4 @@ call receipts per 100 results views with and without a line shown.
   and 9 (goal detail) carry the delta (the PRD's "§Behavior 3" numbering
   was stale); limit windows are rolling 24 h / 10 min, closed on the
   older edge.
+- 2026-11-04 — SHIPPED via PR #29 (the integration PR that merged PR #26 with the other seven PRD branches); archived. Follow-ups outside this PRD: set the `IP_SALT` Worker secret before go-live; `/api/counts` p95 on 10k live receipts not yet measured.

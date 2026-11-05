@@ -1,5 +1,5 @@
 # District-office visits — PRD
-Status: BUILDING 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #29) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 In-person constituent visits are the most influential contact a member's
@@ -114,13 +114,12 @@ listing; share of districts with any listing.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Listing a visit · feat/office-visits · PR #28
-  - [~] 2. Finding and joining a visit · feat/office-visits · PR #28
-  - [~] 3. Safety · feat/office-visits · PR #28
-- Completed: §1–3 implemented and tested on the branch; not merged.
-- Folded: docs/specs/office-visits.md added; maintainer-tooling.md §3 digest
-  and action-router.md item 13 updated (same PR).
-- Branch / open PRs: feat/office-visits → integ/next-prds (PR #28, https://github.com/6nguyen/cut-the-ties/pull/28).
+  - [x] 1. Listing a visit · PR #29
+  - [x] 2. Finding and joining a visit · PR #29
+  - [x] 3. Safety · PR #29
+- Completed: §1–3 merged to main via PR #29 (integration of the feature branch, PR #28).
+- Folded: §1–3: `docs/specs/office-visits.md` added; `maintainer-tooling.md` §3 digest and `action-router.md` item 13 updated.
+- Branch / open PRs: none (PR #28 superseded by PR #29).
 - Files changed: worker/schema.sql (members +2 cols, visits, visit_requests);
   worker/src/visits.ts (new); worker/src/types.ts, repo.ts (visit methods),
   index.ts (6 routes, CORS DELETE), digest.ts (pending block), load.ts,
@@ -132,9 +131,8 @@ listing; share of districts with any listing.
   privacy.astro; tests worker/test/visits.test.ts, web/src/lib/visits.test.ts,
   web/src/components/visits.test.ts, web/test/dist-crawl.test.ts.
 - Tests run: quiet-check prd-lint, doc-lint, tsc, test, test-web, build — PASS.
-- Remaining: merge via integ/next-prds; fill district_office_* in data/;
-  set VISITS_REVIEW_SECRET on the Worker; measure /api/visits p95 live.
-- Next action: review and merge PR #28 into integ/next-prds; then /handoff.
+- Remaining: none.
+- Next action: none; archived.
 ## Open questions
 1. Decided 2026-11-04: host listings, gated by maintainer approval from
    the digest, with coordination in the organiser's own channel. Revisit
@@ -155,3 +153,4 @@ listing; share of districts with any listing.
   PR fills it the organiser types the office city (letters only); the
   column wins once set. Note screening runs on the raw note before
   `sanitize`, which would otherwise strip a phone silently.
+- 2026-11-04 — SHIPPED via PR #29 (the integration PR that merged PR #28 with the other seven PRD branches); archived. Follow-ups outside this PRD: fill `district_office_address/city` in `data/members.csv`; set the `VISITS_REVIEW_SECRET` Worker secret; measure `/api/visits` p95 live.

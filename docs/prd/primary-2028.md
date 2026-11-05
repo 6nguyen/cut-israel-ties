@@ -92,17 +92,14 @@ electoral goal per targeted district.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Record goal per targeted member · feat/primary-2028 · PR #27
+  - [x] 1. Record goal per targeted member · PR #29
   - [!] 2. Picks (blocked until counsel answers) · blocked: no written
     campaign-finance answer recorded in Open question 1
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: feat/primary-2028 (PR #27, base integ/next-prds).
-- Remaining: §1 review/merge; §2 blocked. No member has `target_2028 = 1`,
-  so `elections.csv` is header-only and no goal file exists; the first
-  target is a data/ PR (`data/README.md` §Adding a 2028 primary target).
-- Next action: merge PR #27 into integ/next-prds; record counsel's answer
-  in Open question 1 before touching §2.
+- Completed: §1 merged to main via PR #29 (integration of feat/primary-2028, PR #27): `electoral` goal support, `data/elections.csv` (header-only), `make-primary-goal`; no member carries `target_2028 = 1` yet, so no goal file exists.
+- Folded: §1: `docs/specs/electoral-record.md` added (action-router.md was at doc-lint's size cap; it carries a one-line pointer).
+- Branch / open PRs: none (PR #27 superseded by PR #29).
+- Remaining: §2 blocked; the first target is a `data/` PR (`data/README.md` §Adding a 2028 primary target).
+- Next action: record counsel's answer in Open question 1 before touching §2.
 ## Open questions
 1. Decided 2026-11-04 (owner): split. §1 ships as a sourced record with
    no candidate advocacy language (§1.2) and is not express advocacy.
@@ -127,3 +124,4 @@ electoral goal per targeted district.
   seed checks plus `make-primary-goal` and a header-only `elections.csv`
   (no primary date verifiable offline); the first target lands in a
   data/ PR citing its roll call (`data/README.md`).
+- 2026-11-04 — §1 merged via PR #29; §2 unchanged, blocked on counsel.

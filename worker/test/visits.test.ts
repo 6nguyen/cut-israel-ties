@@ -1,4 +1,4 @@
-// office-visits acceptance (docs/prd/office-visits.md): review flow, personal-data screen, contact
+// office-visits acceptance (docs/prd/archive/2026-11-office-visits.md): review flow, personal-data screen, contact
 // revealed only to a stored request, counts, withdraw, creator delete, the pause flag, digest links.
 import { describe, expect, it } from 'vitest';
 import { join } from 'node:path';

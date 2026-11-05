@@ -124,14 +124,13 @@ measured budget numbers above.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Provisioning runbook and config · feat/deploy · PR #21
-  - [~] 2. CI deploy on merge · feat/deploy · PR #21
+  - [x] 1. Provisioning runbook and config · PR #29
+  - [x] 2. CI deploy on merge · PR #29
   - [!] 3. Go-live checklist · blocked: owner must provision Cloudflare, register the domain and run the checklist (text written, unticked)
-- Completed: §1, §2 code and docs on feat/deploy (not merged).
+- Completed: §1–2 merged to main via PR #29 (integration of feat/deploy, PR #21); deploy steps skip until the Cloudflare secrets exist.
 - Folded: docs/specs/deployment.md (ADDED), docs/specs/README.md index row,
   docs/specs/maintainer-tooling.md §Behavior 4 (seed:remote / schema:remote).
-- Branch / open PRs: feat/deploy · PR #21 (merged through the
-  next-PRDs integration PR).
+- Branch / open PRs: none (PR #21 superseded by PR #29).
 - Files changed: .github/workflows/deploy.yml (new); .env.example (new);
   docs/guides/deploy.md (new); docs/specs/deployment.md (new);
   worker/scripts/render-deploy-config.ts (new);
@@ -171,3 +170,4 @@ measured budget numbers above.
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Added to `## Next` and written in the same
   PR because no queued feature can reach users without it.
+- 2026-11-04 — §1–2 merged via PR #29; §3 stays blocked on provisioning (docs/guides/deploy.md §1, then §5).

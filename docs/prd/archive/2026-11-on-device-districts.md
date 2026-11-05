@@ -1,5 +1,5 @@
 # On-device district lookup — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #29) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 Routing sends the visitor's street address to the Census Geocoder
@@ -107,16 +107,14 @@ location versus address (a boolean on the route request, no
 coordinates); null-resolution rate.
 
 ## State (updated 2026-11-04)
-- Status: BUILDING
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. District geometry build · feat/on-device-districts · PR #23
-  - [~] 2. "Use my location" path · feat/on-device-districts · PR #23
-  - [~] 3. Privacy page and copy · feat/on-device-districts · PR #23
-- Completed: none merged; §1–§3 built on the branch.
-- Folded: none merged; the delta is applied on the branch
-  (`action-router.md` §Behavior 1 and 3, §Data & contracts, §Invariants;
-  `on-device-districts.md` added, README index row).
-- Branch / open PRs: `feat/on-device-districts` · PR #23.
+  - [x] 1. District geometry build · PR #29
+  - [x] 2. "Use my location" path · PR #29
+  - [x] 3. Privacy page and copy · PR #29
+- Completed: §1–3 merged to main via PR #29 (integration of the feature branch, PR #23).
+- Folded: §1–3: `docs/specs/on-device-districts.md` added; `action-router.md` §Behavior 1 and 3, §Data & contracts, §Invariants.
+- Branch / open PRs: none (PR #23 superseded by PR #29).
 - Files changed: `scripts/build-districts.ts` (new); `web/public/districts/`
   (51 state files, `states.json`, `manifest.json`, TIGER2025 CD119);
   `web/src/lib/pip.ts`, `pip.test.ts`, `districts.fixture.json` (new);
@@ -129,9 +127,8 @@ coordinates); null-resolution rate.
   Landing gzip: HTML 3.9 KB + CSS 4.7 KB + island chunks ≈18.5 KB
   (baseline ≈18.0 KB; +0.5 KB from the handler and Vite's preload helper);
   `pip` chunk 1.0 KB and geometry load only after the tap.
-- Remaining: review and merge; follow-up PRD on the geocoder vintage (Changes).
-- Next action: merge the PR; then rerun the build with
-  `--vintage 2026 --congress 120` when `data/` moves to the 120th Congress.
+- Remaining: none.
+- Next action: none; archived.
 ## Open questions
 1. Should the location path become the default on phones? Proposal: no
    for v1; the address field stays first, the control second, until
@@ -158,3 +155,4 @@ coordinates); null-resolution rate.
   Worker to a vintage, or move `data/` to the 120th Congress and rebuild
   with `--vintage 2026 --congress 120`. `by_location` is sent (the Worker
   ignores unknown fields); nothing records it yet.
+- 2026-11-04 — SHIPPED via PR #29 (the integration PR that merged PR #23 with the other seven PRD branches); archived. Follow-ups outside this PRD: rerun `scripts/build-districts.ts --vintage 2026 --congress 120` when `data/` moves to the 120th Congress.

@@ -105,15 +105,15 @@ versus `unknown`; state-goal receipts per state after each batch.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Draft tool and lint · feat/state-holdings-sweep · PR #22
+  - [x] 1. Draft tool and lint · PR #29
   - [ ] 2. The sweep · maintainer research, not a build; batches of ten
     from `docs/research/state-israel-bonds.md` (50 rows, all "not checked")
-  - [~] 3. State page copy · feat/state-holdings-sweep · PR #22
-- Completed: none merged.
+  - [x] 3. State page copy · PR #29
+- Completed: §1 and §3 merged to main via PR #29 (integration of feat/state-holdings-sweep, PR #22).
 - Folded: §1 and §3 spec deltas applied on the branch
   (`docs/specs/maintainer-tooling.md` §Behavior 2, 5, contracts,
   invariants; `docs/specs/action-router.md` §Behavior 14, invariant).
-- Branch / open PRs: feat/state-holdings-sweep · PR #22.
+- Branch / open PRs: none (PR #22 superseded by PR #29).
 - Files changed: worker/src/{draft-shared,draft-holding,state-copy}.ts
   (new), worker/src/{draft-position,load,types,ranking,route,generate}.ts,
   worker/scripts/draft-holding.ts (new), worker/schema.sql,
@@ -125,7 +125,7 @@ versus `unknown`; state-goal receipts per state after each batch.
   web/vitest.config.ts, docs/research/state-israel-bonds.md (new) + index.
 - Tests run + result: tsc PASS; worker vitest 112 passed (10 files);
   web vitest 5 passed; web build PASS; prd-lint, doc-lint PASS.
-- Remaining: §2 sweep (research, five data PRs); merge §1 + §3.
+- Remaining: §2 sweep (maintainer research, five `data/` PRs of ten states).
 - Next action: maintainer runs batch 1 (MD, CA, WA, NY, IL, MN, MA, NJ,
   PA, TX) with `draft-holding`, one data PR per batch.
 ## Open questions
@@ -150,3 +150,4 @@ versus `unknown`; state-goal receipts per state after each batch.
   `ask_text` carries a `{decider}` placeholder filled by code
   (`fillAsk`). §2 stays maintainer research: the research file lists all
   50 states as "not checked" in the PRD's batch order.
+- 2026-11-04 — §1 and §3 merged via PR #29; §2 is the maintainer's research sweep, batch 1 next.
