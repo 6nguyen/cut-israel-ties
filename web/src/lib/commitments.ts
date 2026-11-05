@@ -3,6 +3,8 @@
 // completed list and never a name.
 export const COMMIT_KEY = 'cut-ties:commitments';
 export const CAPTAIN_KEY = 'cut-ties:captain';
+/** office-visits §2.3: the visits this device said it would come to (and the organiser's contact, received once). */
+export const VISITS_KEY = 'cut-ties:visits';
 
 export type Channel = 'text' | 'in_person' | 'call';
 export const CHANNELS: [Channel, string][] = [['text', 'text'], ['in_person', 'in person'], ['call', 'call']];
@@ -10,6 +12,7 @@ export interface Commitment { v: 1; goal: string; action: string; target: string
 export interface Person { name: string; channel: Channel; done: boolean }
 /** `who` is the official's surname for the receipt line ("…calling Casar…"); `receipted` is set once the list posted its receipt. */
 export interface Captain { v: 1; goal: string; due: string; people: Person[]; who?: string; receipted?: boolean }
+export interface JoinedVisit { v: 1; id: number; member: string; name: string; city: string; starts_at: string; ends_at: string; contact_url: string }
 
 const read = <T>(key: string): T | null => { try { const raw = localStorage.getItem(key); return raw ? (JSON.parse(raw) as T) : null; } catch { return null; } };
 const write = (key: string, v: unknown): void => { try { if (v === null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(v)); } catch { /* private mode */ } };
@@ -29,13 +32,22 @@ export function loadCaptain(): Captain | null {
 }
 export function saveCaptain(c: Captain | null): void { write(CAPTAIN_KEY, c); }
 /** "Start over": every funnel item goes. */
-export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); }
+export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); write(VISITS_KEY, null); }
 
 /** §2.1 return visit: anything still to do? A list that already posted its receipt is finished. */
 export function hasOpenItems(): boolean {
   const cap = loadCaptain();
-  return loadCommitments().length > 0 || (!!cap && !cap.receipted);
+  return loadCommitments().length > 0 || (!!cap && !cap.receipted) || loadVisits().length > 0;
 }
+
+export function loadVisits(): JoinedVisit[] {
+  const list = read<JoinedVisit[]>(VISITS_KEY);
+  return Array.isArray(list) ? list.filter((j) => j && j.v === 1 && typeof j.id === 'number' && typeof j.starts_at === 'string') : [];
+}
+export function saveVisits(list: JoinedVisit[]): void { write(VISITS_KEY, list.length ? list : null); }
+export function addVisit(j: Omit<JoinedVisit, 'v'>): void { saveVisits([...loadVisits().filter((x) => x.id !== j.id), { v: 1, ...j }]); }
+export function removeVisit(id: number): void { saveVisits(loadVisits().filter((x) => x.id !== id)); }
+export const joinedVisit = (id: number): JoinedVisit | null => loadVisits().find((x) => x.id === id) ?? null;
 
 /** First names only: letters (any script), spaces, hyphens and apostrophes, 1–20 chars. Digits and `@` are refused so no phone or email is ever stored. */
 export const NAME_MAX = 20;

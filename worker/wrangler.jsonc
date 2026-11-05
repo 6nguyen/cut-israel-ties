@@ -28,8 +28,9 @@
     "STRIPE_LINKS": "{}",
     "MAINTAINER_EMAIL": "",
     "DIGEST_FROM": "digest@example.org",
-    "COUNT_THRESHOLD": "5"
-    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY, IP_SALT.
+    "COUNT_THRESHOLD": "5",
+    "VISITS_ENABLED": "1"
+    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY, IP_SALT, VISITS_REVIEW_SECRET.
     // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
   }
 }

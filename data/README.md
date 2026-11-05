@@ -52,7 +52,8 @@ imported on 2026-11-04 from `unitedstates/congress-legislators`
 `npm run import-members -w worker [path-to-yaml]` (downloads the file when
 no path is given). The dataset supplies
 `party`, `chamber`, `state`, `district`, `dc_phone` (the office number)
-and `contact_form_url`; `district_phone`, `money_url` and every flag
+and `contact_form_url`; `district_phone`, `money_url`,
+`district_office_address`, `district_office_city` and every flag
 column stay as they are in the file and are empty until sourced. The
 `name` column keeps the file's value for rows that already exist (common
 name, e.g. "Lou Correa"); new rows take the dataset's `official_full`.

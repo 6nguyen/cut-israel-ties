@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS actions;
 DROP TABLE IF EXISTS goals;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS states;
+DROP TABLE IF EXISTS visit_requests;
+DROP TABLE IF EXISTS visits;
 
 CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
@@ -65,7 +67,9 @@ CREATE TABLE members (
   jrd_april_2026 TEXT,
   btb_cosponsor INTEGER NOT NULL DEFAULT 0,
   target_2028 INTEGER NOT NULL DEFAULT 0,
-  money_url TEXT
+  money_url TEXT,
+  district_office_address TEXT,
+  district_office_city TEXT
 );
 CREATE INDEX members_state_district ON members(state, chamber, district);
 
@@ -165,3 +169,31 @@ CREATE TABLE digest_runs (
   ran_at TEXT PRIMARY KEY,
   report_count INTEGER NOT NULL DEFAULT 0
 );
+
+-- office-visits: organiser-listed district-office visits, visible only once the maintainer approves.
+-- contact_url is the organiser's own channel (personal data, docs/specs/office-visits.md §3): it is
+-- returned only to a device whose request is stored, and goes with the row when the creator deletes it.
+CREATE TABLE visits (
+  id INTEGER PRIMARY KEY,
+  bioguide_id TEXT NOT NULL,
+  office_city TEXT NOT NULL,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  contact_url TEXT NOT NULL,
+  note TEXT,
+  status TEXT NOT NULL CHECK (status IN ('pending','approved','rejected','hidden')),
+  device_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  reviewed_at TEXT
+);
+CREATE INDEX visits_member ON visits(bioguide_id, status, ends_at);
+CREATE INDEX visits_device ON visits(device_hash, status);
+
+CREATE TABLE visit_requests (
+  id INTEGER PRIMARY KEY,
+  visit_id INTEGER NOT NULL REFERENCES visits(id) ON DELETE CASCADE,
+  device_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  UNIQUE (visit_id, device_hash)
+);
+CREATE INDEX visit_requests_device ON visit_requests(device_hash, created_at);

@@ -32,6 +32,7 @@ export interface GoalCard {
   ask_text: string;
   action_href: string;
   targets: TargetCard[];
+  partner_url: string | null; // office-visits: the "Organise one" line offers the partner when there is one
   // Electoral goals only (primary-2028 §1.2): the elections.csv row the loader folded into the goal.
   election?: ElectionDates;
 }
@@ -156,6 +157,7 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
         action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,
         targets: targetsFor(g, action, d, positions).map((t) => (g.category === 'electoral' && record ? { ...t, record } : t)),
         election: electionDates(g),
+        partner_url: g.partner_url || null,
       };
     }),
   };

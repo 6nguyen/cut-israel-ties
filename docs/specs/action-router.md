@@ -124,7 +124,10 @@ receipts and reports are in `personalised-documents.md`.
     identity; shingle hashes, not document text) and what is sent where
     (address → Census Geocoder through the Worker, not logged; form fields
     → Anthropic, not retained by the site; Turnstile; Stripe handles
-    payments in its own tab).
+    payments in its own tab). A "District-office visits" bullet names the
+    organiser's contact link as personal data they chose to share, handed
+    only to people who say they will come, deletable with the listing
+    (docs/specs/office-visits.md).
 14. **State goal copy.** The treasurer target (results card and the goal
     page's "Your targets") carries one holdings line built by code from
     the `states.csv` row's `holdings_status`: `held` → "Israel Bonds:

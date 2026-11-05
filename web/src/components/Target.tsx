@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'preact/hooks';
 import type { GoalCard, TargetCard } from '../lib/api';
 import type { RecordLine } from '@worker/electoral';
 import { RESEARCH_URL } from '@worker/state-copy';
+import { BIOGUIDE, visitLine, visitsFor, type VisitPublic } from '../lib/visits';
 
 export const CATEGORY: Record<GoalCard['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
 const POSITION: Record<TargetCard['position'], string> = { for: 'With us', uncommitted: 'Uncommitted', against: 'Against', unknown: 'No stated position' };
@@ -13,7 +15,7 @@ export function fmtDate(d: string | null): string | null {
 }
 
 /** One target row: party block, role + name, prior vote, call button, position chip. Every value is a data/ row. */
-export function Target({ t }: { t: TargetCard }) {
+export function Target({ t, partner }: { t: TargetCard; partner?: string | null }) {
   return (
     <li class="border-t border-rule first:border-t-0 py-3">
       <div class="flex items-center gap-3">
@@ -36,6 +38,7 @@ export function Target({ t }: { t: TargetCard }) {
             : t.holdings_source_url && <a href={t.holdings_source_url} class="underline" rel="noopener noreferrer">source</a>}
         </p>
       )}
+      {BIOGUIDE.test(t.bioguide_id) && <VisitLine member={t.bioguide_id} partner={partner} />}
       {t.record && (
         <div class="mt-3 border-t border-rule pt-2">
           <p class="label-code text-xs">On the record</p>
@@ -60,5 +63,20 @@ export function RecordRow({ r }: { r: RecordLine }) {
         <span class="label-ticker text-ink/70"> · {r.vote}</span>
       </p>
     </li>
+  );
+}
+
+/** office-visits §2.1: the next approved visit to this member's district office, or the invitation to list one. Nothing until the fetch answers. */
+export function VisitLine({ member, partner }: { member: string; partner?: string | null }) {
+  const [visits, setVisits] = useState<VisitPublic[] | null>(null);
+  useEffect(() => { void visitsFor(member).then(setVisits); }, [member]);
+  if (visits === null) return null;
+  const v = visits[0];
+  return (
+    <p class="mt-1 text-sm" data-visit-line>
+      {v
+        ? <a href={`/m/${member}#visits`} class="underline font-semibold">{visitLine(v)} →</a>
+        : <>No visit listed yet. <a href={`/m/${member}#organise`} class="underline">Organise one</a>{partner && <> · <a href={partner} rel="noopener" class="underline">partner campaign ↗</a></>}</>}
+    </p>
   );
 }

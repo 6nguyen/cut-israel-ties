@@ -13,7 +13,7 @@ import { parseCsv } from '../src/load';
 
 const URL_ = 'https://unitedstates.github.io/congress-legislators/legislators-current.yaml';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'data', 'members.csv');
-const HEADER = ['bioguide_id', 'name', 'party', 'chamber', 'state', 'district', 'dc_phone', 'district_phone', 'contact_form_url', 'hasc', 'conferee', 'rc243', 'jrd_april_2026', 'btb_cosponsor', 'target_2028', 'money_url'];
+const HEADER = ['bioguide_id', 'name', 'party', 'chamber', 'state', 'district', 'dc_phone', 'district_phone', 'contact_form_url', 'hasc', 'conferee', 'rc243', 'jrd_april_2026', 'btb_cosponsor', 'target_2028', 'money_url', 'district_office_address', 'district_office_city'];
 const FROM_DATASET = new Set(['party', 'chamber', 'state', 'district', 'dc_phone', 'contact_form_url']);
 const PARTY: Record<string, string> = { Democrat: 'D', Republican: 'R', Independent: 'I' };
 

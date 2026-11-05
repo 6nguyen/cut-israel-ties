@@ -35,14 +35,19 @@ and nothing here writes to `data/` or to `positions`.
    cell reads as `unknown`.
 3. **Nightly digest** — a Worker cron (`0 9 * * *` UTC) runs `runDigest`:
    reports created after the last recorded run (first run: the past 24 h),
-   screenings in the same window and devices blocked at run time. With no
-   new reports nothing is sent (the run is still recorded). Otherwise one
-   email goes to `MAINTAINER_EMAIL` via Cloudflare Email Routing:
-   subject `[cut-ties] N report(s) · YYYY-MM-DD`; body = Haiku prose
-   (3–6 sentences from the counts table) followed by `---` and the
-   code-rendered table (member, goal × outcome counts, screened-out
-   classes, blocked devices); attachment `reports-YYYY-MM-DD.csv` with
-   the raw rows. The prose is dropped for the table alone when the model
+   screenings in the same window, devices blocked at run time and every
+   `pending` visit listing (office-visits). With no new reports and no
+   pending listing nothing is sent (the run is still recorded). Otherwise
+   one email goes to `MAINTAINER_EMAIL` via Cloudflare Email Routing:
+   subject `[cut-ties] N report(s)[ · M visit listing(s) to review] ·
+   YYYY-MM-DD`; body = Haiku prose (3–6 sentences from the counts table)
+   followed by `---` and the code-rendered table (member, goal × outcome
+   counts, screened-out classes, blocked devices), then `---` and the
+   pending listings, each with signed approve / reject / hide / delete
+   links to `https://<DIGEST_FROM domain>/api/visits/review?token=…`
+   (7-day HMAC tokens from `VISITS_REVIEW_SECRET`; unset → the block
+   names the listings and says to set it); attachment
+   `reports-YYYY-MM-DD.csv` with the raw rows. The prose is dropped for the table alone when the model
    reply contains any digit run not present in the counts, on any API
    error, or when `ANTHROPIC_API_KEY` is unset. `MAINTAINER_EMAIL` unset
    → the job logs and exits without reading or recording anything.
@@ -108,6 +113,9 @@ and nothing here writes to `data/` or to `positions`.
   imported lazily inside the sender so tests never load it.
 - `parseCsv` (`worker/src/load.ts`) reads RFC 4180 quoted cells, so the
   digest attachment and any quoted data cell round-trip.
+- Visit review: `reviewSection`, `signReview`, `verifyReview` in
+  `worker/src/visits.ts`; Repo `pendingVisits()`; the link handler is
+  `GET /api/visits/review` (docs/specs/office-visits.md §Behavior 2).
 
 ## Invariants (regression checklist)
 - [ ] `draft-position` never writes a file; its only outputs are stdout,

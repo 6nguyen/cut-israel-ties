@@ -62,6 +62,8 @@ monitoring, no schema migrations (the schema is created once by hand).
 | `API_ORIGIN` | dev shell; Pages Preview variable | dev proxy; `web/functions/api/[[path]].ts` | dev → `localhost:8787`; previews answer 503 on `/api/*` |
 | `MAX_GENERATIONS_PER_DAY`, `MAINTAINER_EMAIL`, `DIGEST_FROM`, `GEOCODER_URL` | `worker/wrangler.jsonc` `vars` | Worker | code defaults; digest logs and exits |
 | `TURNSTILE_SECRET`, `ANTHROPIC_API_KEY` | `wrangler secret put` | Worker | Turnstile skipped (dev only); generation 503 |
+| `VISITS_ENABLED` | `worker/wrangler.jsonc` `vars` | Worker (`/api/visits*`) | on; `"0"` pauses listings (POST 503, lists empty) |
+| `VISITS_REVIEW_SECRET` | `wrangler secret put` | Worker (digest review links) | digest lists pending visits without links; `/api/visits/review` 503 |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `D1_DATABASE_ID` | GitHub Actions secrets | `deploy.yml` → wrangler, renderer | every deploy step fails / renderer refuses |
 | `SITE_DOMAIN`, `PAGES_PROJECT` | GitHub Actions variables | renderer (route), `deploy-web` | workers.dev only; project `cut-ties` |
 | `COUNT_THRESHOLD` | `worker/wrangler.jsonc` `vars` | Worker (`/api/counts`) | code default 5 |
