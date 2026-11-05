@@ -31,7 +31,7 @@ export function goalsFor(m: Member): MemberGoal[] {
 }
 
 /** Goals that get a whip table: published federal goals whose first action targets a chamber. */
-export function whipGoals(): Goal[] { return publishedGoals().filter((g) => whipTargets(g, firstAction(g), members()).length > 0); }
+export function whipGoals(): Goal[] { return publishedGoals().filter((g) => g.category !== 'electoral' && whipTargets(g, firstAction(g), members()).length > 0); }
 
 /** Prior-vote and role flags a goal uses, as sentences. Empty flags are "no recorded vote yet", never inferred. */
 export function flagLines(m: Member, goal: Goal): string[] {

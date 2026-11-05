@@ -12,6 +12,7 @@ number or a name that is not a row here.
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
+| `elections.csv` | (folded into `goals`) | `state,district,primary_date,filing_deadline,source_url`: one row per 2028 primary target, ISO dates, `source_url` the state election office page. The seed copies them into the electoral goal's `decision_date`, `window_end` and `sources` (primary-2028 §1). Header-only until a target exists. |
 
 ## Seeding (PRD §7.3)
 Every `npm run seed` deletes and re-inserts the five data tables above
@@ -92,7 +93,9 @@ match the House member; `{}` means "a House member exists") ·
 `{"state": {"nonempty": [field, …]}}` (any listed state field is set).
 Fields a rule may test, with the value each accepts:
 - house: `party` (`D`/`R`/`I`), `hasc`, `conferee`, `btb_cosponsor`
-  (`0`/`1`), `rc243` (string).
+  (`0`/`1`), `rc243` (string), `target_2028` (`0`/`1`), `state` (two
+  letters), `district` (integer; `0` = at large). An `electoral` goal's rule
+  is exactly `{"house": {"target_2028": 1, "state": "XX", "district": N}}`.
 - senator: `party` (`D`/`R`/`I`), `jrd_april_2026` (string).
 - state: any `states.csv` column except `state`.
 Score = `priority` × urgency (2 when `decision_date` is ≤14 days away,
@@ -115,3 +118,28 @@ eligible goal is paired with the state goal.
   the output must contain). The deterministic output check in
   `worker/src/generate.ts` enforces all of them; a failed check
   regenerates once, then refuses.
+
+## Adding a 2028 primary target (primary-2028 §1)
+A target is a House member whose seat gets an `electoral` goal: a sourced
+record of their positions and votes on every goal this site tracked, the
+primary date and filing deadline, and one ask (who is running against them).
+No candidate name, no pick and no advocacy word appears anywhere; the seed
+rejects `vote for`, `vote against`, `support`, `oppose`, `elect`, `defeat`
+and `re-elect` in electoral copy (Open question 1 is unanswered).
+`target_2028 = 1` is set only in a data/ PR that cites a recorded roll call:
+the member's `rc243` cell must be filled in the same PR, and the PR body
+links the clerk's roll-call page. Steps, all in one data/ PR:
+1. `members.csv`: set `rc243` (if empty) and `target_2028` to `1`.
+2. `elections.csv`: add `state,district,primary_date,filing_deadline,source_url`
+   from the state election office; both dates ISO, deadline on or before
+   the primary.
+3. `npm run make-primary-goal -w worker -- <STATE> <district> [roll-call-url]`
+   writes `goals/primary-<st>-<d>.yaml` (category `electoral`, status
+   `upcoming`, priority 1, eligibility above) and
+   `actions/primary-<st>-<d>-call.yaml` from the templates in
+   `worker/src/electoral.ts`. It refuses without steps 1 and 2.
+4. `npm test -w worker` (loader, ranking and forbidden-phrase checks), then
+   flip `status` to `active` in a later data/ PR when the federal goal it
+   follows closes; priority 1 keeps it below every active federal and state
+   goal until then.
+

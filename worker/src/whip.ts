@@ -2,6 +2,7 @@
 // the four tiles. Pure functions over data/ rows; the web build and the tests
 // share them. Nothing here is estimated: every count is a row.
 import { isDelegate } from './districts';
+import { electoralSeat } from './ranking';
 import type { Action, Goal, Member, Position } from './types';
 
 export const POSITIONS = ['for', 'uncommitted', 'against', 'unknown'] as const;
@@ -11,9 +12,11 @@ export type Counts = Record<Position['position'], number>;
 export function whipTargets(goal: Goal, action: Action | undefined, members: Member[]): Member[] {
   const scope = action?.target_scope ?? (goal.category === 'state' ? 'state' : 'both');
   if (scope === 'state') return [];
+  const seat = goal.category === 'electoral' ? electoralSeat(goal.eligibility) : null; // primary-2028 §1.1: one seat, never the chamber
   return members.filter((m) => {
     if (scope === 'house' && m.chamber !== 'house') return false;
     if (scope === 'senate' && m.chamber !== 'senate') return false;
+    if (goal.category === 'electoral' && (!seat || m.chamber !== 'house' || m.state !== seat.state || m.district !== seat.district)) return false;
     return goal.category !== 'leadership' || m.party === 'D';
   });
 }

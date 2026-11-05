@@ -14,6 +14,7 @@ const srcs = sources(goal);
 const situation = markdown(goal.detail_md);
 const date = fmtDate(goal.decision_date);
 const open = goal.status === 'active';
+const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision_date is the primary, window_end the filing deadline
 ---
 <Base title={`${goal.title} — Cut the Ties`} description={goal.summary} image={`/goals/${goal.slug}/card.png`}>
   <section class="relative hero-gradient text-newsprint overflow-hidden">
@@ -25,7 +26,7 @@ const open = goal.status === 'active';
       </div>
       <h1 class="display-lg max-w-4xl">{goal.title}</h1>
       <p class="mt-5 text-lg max-w-2xl">{goal.summary}</p>
-      {open && <p class="mt-4 label-code text-hazard">Decision: {date ?? 'not yet scheduled'}</p>}
+      {open && <p class="mt-4 label-code text-hazard">{electoral ? 'Primary' : 'Decision'}: {date ?? 'not yet scheduled'}</p>}
     </div>
   </section>
 
@@ -52,7 +53,7 @@ const open = goal.status === 'active';
       <section aria-labelledby="decides">
         <p class="label-code">Who decides and when</p>
         <h2 id="decides" class="headline-md mt-1">{goal.decider ?? 'Not yet sourced'}</h2>
-        <p class="mt-2 label-code text-ink/70">{date ? `Decision ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · window closes ${fmtDate(goal.window_end)}` : ''}</p>
+        <p class="mt-2 label-code text-ink/70">{date ? `${electoral ? 'Primary' : 'Decision'} ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · ${electoral ? 'filing deadline' : 'window closes'} ${fmtDate(goal.window_end)}` : ''}</p>
       </section>
       {pick && (
         <section class="card p-5" aria-labelledby="pick">

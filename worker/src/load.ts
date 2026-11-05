@@ -6,6 +6,7 @@ import { HOLDINGS_STATUSES, type Action, type Goal, type Member, type Position, 
 import { parseRule } from './ranking';
 import { checkPrep } from './prep';
 import { districtError } from './districts';
+import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
 
 export interface Rows {
   goals: Goal[];
@@ -13,6 +14,7 @@ export interface Rows {
   members: Member[];
   positions: Position[];
   states: StateRow[];
+  elections: ElectionRow[]; // primary-2028 §1: folded into the electoral goals' dates and sources, not a D1 table
 }
 
 /** One CSV line → cells. RFC 4180: a cell wrapped in double quotes may hold commas and doubled quotes. */
@@ -208,7 +210,13 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   }));
   checkStates(states, updatedAt.slice(0, 10));
 
-  return { goals, actions, members, positions, states };
+  // primary-2028 §1: elections.csv (header-only until a seat is targeted) dates the electoral goals; the seed checks follow.
+  const elections = parseElections(parseCsv(readFileSync(join(dataDir, 'elections.csv'), 'utf8')));
+  checkElections(elections);
+  applyElections(goals, elections);
+  checkElectoral(goals, actions, members);
+
+  return { goals, actions, members, positions, states, elections };
 }
 
 /** states.csv seed checks (state-holdings-sweep §1.2): no number without a source, no stale comment date. */

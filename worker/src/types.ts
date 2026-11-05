@@ -155,6 +155,8 @@ export interface Repo {
   // district-counters §1/§3 (worker/src/counts.ts and POST /api/receipt are the only callers).
   countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }>;
   receiptLimitCounts(deviceHash: string, ipHash: string, goalId: number, actionId: number | null, kind: ReceiptKind, now: Date): Promise<ReceiptLimitCounts>;
+  // primary-2028 §1.2: every goal the site tracked (active or closed, never upcoming) for the electoral record.
+  trackedGoals(): Promise<Goal[]>;
 }
 
 /** What a member page shows of a constituent report: no device hash, no id. */

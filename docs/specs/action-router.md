@@ -137,6 +137,9 @@ receipts and reports are in `personalised-documents.md`.
     treasurer" (static pages, which have no state, always show the
     fallback). `worker/src/state-copy.ts`: `holdingsLine`, `fillAsk`,
     `moneyUsd`.
+15. **Electoral goal.** A `category: electoral` goal is a one-seat sourced
+    record ranked at priority 1 with an "On the record" block and
+    primary/filing-deadline dates; see `electoral-record.md`.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,

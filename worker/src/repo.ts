@@ -179,6 +179,10 @@ export class D1Repo implements Repo {
       .bind(bioguideId, goalId)
       .first<LatestReport>()) ?? null;
   }
+  async trackedGoals(): Promise<Goal[]> {
+    const { results } = await this.db.prepare(`SELECT * FROM goals WHERE status != 'upcoming' ORDER BY priority DESC, slug`).all<Goal>();
+    return results;
+  }
 
   // district-counters §1: one query, grouped by in-district flag, kind and action type; code sums the buckets.
   async countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }> {
@@ -331,5 +335,8 @@ export class MemoryRepo implements Repo {
       repeat: day.filter((r) => r.device_hash === deviceHash && r.goal_id === goalId && r.kind === kind && r.action_id === actionId && r.created_at >= tenAgo).length,
       ip_day: day.filter((r) => r.ip_hash === ipHash).length,
     };
+  }
+  async trackedGoals(): Promise<Goal[]> {
+    return this.rows.goals.filter((g) => g.status !== 'upcoming').sort((a, b) => b.priority - a.priority || a.slug.localeCompare(b.slug));
   }
 }
