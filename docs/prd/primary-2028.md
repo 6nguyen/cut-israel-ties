@@ -92,16 +92,16 @@ electoral goal per targeted district.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Record goal per targeted member · feat/primary-2028 · PR #n
+  - [~] 1. Record goal per targeted member · feat/primary-2028 · PR #27
   - [!] 2. Picks (blocked until counsel answers) · blocked: no written
     campaign-finance answer recorded in Open question 1
 - Completed: none.
 - Folded: none.
-- Branch / open PRs: feat/primary-2028 (PR #n, base integ/next-prds).
+- Branch / open PRs: feat/primary-2028 (PR #27, base integ/next-prds).
 - Remaining: §1 review/merge; §2 blocked. No member has `target_2028 = 1`,
   so `elections.csv` is header-only and no goal file exists; the first
   target is a data/ PR (`data/README.md` §Adding a 2028 primary target).
-- Next action: merge PR #n into integ/next-prds; record counsel's answer
+- Next action: merge PR #27 into integ/next-prds; record counsel's answer
   in Open question 1 before touching §2.
 ## Open questions
 1. Decided 2026-11-04 (owner): split. §1 ships as a sourced record with
