@@ -38,17 +38,19 @@ the fix PR and gives the reason in the commit body (a PRD only if the owner
 asks). `archive/` is history only: archived PRDs are never edited and agents
 never load them.
 
-## Index (open changes only)
-| PRD | Status | Owner surfaces |
-|---|---|---|
-| [deploy.md](deploy.md) | APPROVED | Cloudflare provisioning, CI deploy on merge, go-live checklist |
-| [member-pages.md](member-pages.md) | APPROVED | `/m/<id>` member pages, `/goals/<slug>/whip`, roster import |
-| [commitment-funnel.md](commitment-funnel.md) | APPROVED | post-receipt commitment, captain list of three, "Your week" card |
-| [district-counters.md](district-counters.md) | APPROVED | `/api/counts`, counter line on cards, receipt abuse limits |
-| [office-visits.md](office-visits.md) | DRAFT | district-office visit listings and slot requests |
-| [state-holdings-sweep.md](state-holdings-sweep.md) | APPROVED | `draft-holding`, `states.csv` checks, 50-state sweep |
-| [primary-2028.md](primary-2028.md) | DRAFT | `electoral` goal per 2028 target, `data/elections.csv` |
-| [on-device-districts.md](on-device-districts.md) | APPROVED | browser-location district lookup, per-state TopoJSON |
+## Index (open changes only, in build order)
+Rows are the build order; `Needs` names the PRDs that must merge first.
+A PRD with no `Needs` entry can run in parallel with the row above it.
+| # | PRD | Status | Needs | Owner surfaces |
+|---|---|---|---|---|
+| 1 | [deploy.md](deploy.md) | APPROVED | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
+| 2 | [member-pages.md](member-pages.md) | APPROVED | — | `/m/<id>` member pages, `/goals/<slug>/whip`, roster import; the roster unlocks the other 47 states |
+| 3 | [commitment-funnel.md](commitment-funnel.md) | APPROVED | — | post-receipt commitment, captain list of three, "Your week" card; the research's largest effect |
+| 4 | [district-counters.md](district-counters.md) | APPROVED | 1, 3 | `/api/counts`, counter line on cards, receipt abuse limits; counts the `captain-list` receipt from 3 and needs live receipts to show anything |
+| 5 | [state-holdings-sweep.md](state-holdings-sweep.md) | APPROVED | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alongside 2–4 |
+| 6 | [on-device-districts.md](on-device-districts.md) | APPROVED | — | browser-location district lookup, per-state TopoJSON; privacy improvement, no feature depends on it |
+| 7 | [office-visits.md](office-visits.md) | APPROVED | 2, 3 | district-office visit listings and slot requests; lives on the captain screen and member pages |
+| 8 | [primary-2028.md](primary-2028.md) | APPROVED (§2 blocked) | 2 | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
