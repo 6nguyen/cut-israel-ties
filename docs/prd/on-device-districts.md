@@ -109,14 +109,14 @@ coordinates); null-resolution rate.
 ## State (updated 2026-11-04)
 - Status: BUILDING
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. District geometry build · feat/on-device-districts · PR pending
-  - [~] 2. "Use my location" path · feat/on-device-districts · PR pending
-  - [~] 3. Privacy page and copy · feat/on-device-districts · PR pending
+  - [~] 1. District geometry build · feat/on-device-districts · PR #23
+  - [~] 2. "Use my location" path · feat/on-device-districts · PR #23
+  - [~] 3. Privacy page and copy · feat/on-device-districts · PR #23
 - Completed: none merged; §1–§3 built on the branch.
 - Folded: none merged; the delta is applied on the branch
   (`action-router.md` §Behavior 1 and 3, §Data & contracts, §Invariants;
   `on-device-districts.md` added, README index row).
-- Branch / open PRs: `feat/on-device-districts` · PR pending.
+- Branch / open PRs: `feat/on-device-districts` · PR #23.
 - Files changed: `scripts/build-districts.ts` (new); `web/public/districts/`
   (51 state files, `states.json`, `manifest.json`, TIGER2025 CD119);
   `web/src/lib/pip.ts`, `pip.test.ts`, `districts.fixture.json` (new);
@@ -143,7 +143,7 @@ coordinates); null-resolution rate.
 ## Changes
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Replaces `## Next` row 5.
-- 2026-11-04 — §1–§3 built on `feat/on-device-districts` (one PR).
+- 2026-11-04 — §1–§3 built on `feat/on-device-districts` (PR #23).
   Geometry: TIGER2025 per-state `tl_2025_<fips>_cd119.zip` (the national
   `tl_2025_us_cd119.zip` named in §1 does not exist; TIGER ships CD files
   per state), mapshaper Visvalingam interval 30 m for districts and
