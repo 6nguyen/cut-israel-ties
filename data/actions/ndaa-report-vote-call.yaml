@@ -4,6 +4,14 @@ type: call
 target_scope: both
 order: 1
 ask_text: Ask your member to vote no on the NDAA conference report because it keeps the integration section.
-form_schema: {"fields": []}
-prompt_template: ""
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}
+form_schema:
+  fields:
+    - {name: first_name, label: First name, max: 40, required: true}
+    - {name: city, label: City, max: 60, required: true}
+    - {name: why, label: Why this matters to you, max: 280, required: true, multiline: true, hint: One or two sentences in your own words.}
+    - {name: affiliation, label: Occupation or affiliation (optional), max: 80, required: false}
+prompt_template: |
+  Open with the caller's first name and city. The conference report is filed and cannot be amended: ask the member to
+  vote no on the NDAA conference report because it keeps the integration section. Name the prior vote if the facts list
+  one. Use the caller's reason as their own words and close by asking how the member will vote.
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["conference report", "integration section"], "ask": "vote no"}

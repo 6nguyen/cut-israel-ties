@@ -25,3 +25,4 @@ dist/
 .wrangler/
 worker/seed.sql
 .claude/launch.json
+.dev.vars

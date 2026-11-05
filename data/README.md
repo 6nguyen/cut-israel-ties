@@ -8,10 +8,28 @@ number or a name that is not a row here.
 | File | Table | Notes |
 |---|---|---|
 | `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
-| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. |
+| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; empty fields render as "not yet sourced". |
+
+## Seeding (PRD §7.3)
+Every `npm run seed` deletes and re-inserts the five data tables above
+from these files; user tables (`receipts`, `reports`, `screenings`,
+`blocks`, `generations`, `digest_runs`) are untouched. Publishing a data
+change is a merged PR plus a deploy; there is no admin UI.
+
+## Adding a position (PRD §7.1)
+Run `npm run draft-position -w worker -- <bioguide_id> <url> [goal-slug]`
+with `ANTHROPIC_API_KEY` set. It fetches the page, asks a Haiku-class
+model for the member's stated position with a verbatim quote and date,
+verifies the quote against the page by code, and prints one row in the
+`positions/<goal>.csv` column order (`changed_by` = `draft-position`).
+Read the quote it prints, then paste the row at the end of the file in a
+PR; the script never writes here. No row is printed when the quote is not
+verbatim on the page or the page shows no date — find a better source
+rather than hand-filling those columns. The loader rejects any row without
+`source_url` and `source_date`.
 
 ## Provenance (2026-11-04)
 `members.csv` holds only the six fixture delegations the §1 tests need
@@ -33,6 +51,19 @@ so retiring a goal is one YAML edit. `summary` is at most 60 words;
 signal_date}` rows; `sources` holds `{title, url}` rows; `decider` is the
 one-line "who decides" shown on the detail page.
 
+## Prep pages (PRD §3)
+`prep_md` is maintainer-written markdown rendered at `/goals/<slug>/prep`;
+leave it empty for no page. The seed rejects it unless it has exactly these
+`##` headings, in this order, each with text: **Where things stand** (must
+contain an ISO date, e.g. `*As of 2026-11-04.*`), **Timeline**, **What to
+say in 30 seconds**, **Likely pushback and answers**, **What counts as a
+win**, **Sources**. "Our pick and why" is not a heading: it comes from
+`our_picks` and leads the page for a goal that has them. Every date, vote
+count or name in `prep_md` must be a row in this directory or be followed by
+`[VERIFY: what to confirm and where]`; markers render as yellow chips and
+are removed when the primary source is read. The `sources` rows are listed
+under the Sources section.
+
 ## Eligibility rule grammar (PRD §5.1)
 One key per object. `{"always": true}` · `{"all": [rule, …]}` ·
 `{"any": [rule, …]}` · `{"house": {field: value, …}}` (every field must
@@ -48,3 +79,19 @@ Score = `priority` × urgency (2 when `decision_date` is ≤14 days away,
 1.5 when ≤45, else 1; a past or empty date scores 1). Ties go to the
 earlier decision date, then the slug. The top two are shown; a single
 eligible goal is paired with the state goal.
+
+## Action form, prompt and document format (PRD §4)
+- `form_schema.fields[]`: `name` (the only keys `/api/generate` accepts),
+  `label`, `max` (characters; the Worker rejects longer values and strips
+  markup, URLs, emails, phones and control characters), `required`,
+  optional `multiline` and `hint`. The schema is the only path into the
+  prompt.
+- `prompt_template`: action-specific guidance appended to the fixed system
+  prompt. It may name what to open with and what to close on; it must not
+  restate numbers (those come from the fact block built by code).
+- `doc_format`: `kind` (`call_script | letter | public_comment`),
+  `min_words`, `max_words`, `mentions` (phrases, one of which the output
+  must contain, e.g. the section number) and `ask` (the exact ask phrase
+  the output must contain). The deterministic output check in
+  `worker/src/generate.ts` enforces all of them; a failed check
+  regenerates once, then refuses.

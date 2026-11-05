@@ -4,6 +4,14 @@ type: call
 target_scope: state
 order: 1
 ask_text: Ask the treasurer's office whether the state holds Israel Bonds and when they will stop rolling them over.
-form_schema: {"fields": []}
-prompt_template: ""
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}
+form_schema:
+  fields:
+    - {name: first_name, label: First name, max: 40, required: true}
+    - {name: city, label: City, max: 60, required: true}
+    - {name: why, label: Why this matters to you, max: 280, required: true, multiline: true, hint: One or two sentences in your own words.}
+    - {name: affiliation, label: Occupation or affiliation (optional), max: 80, required: false}
+prompt_template: |
+  Open with the caller's first name and city as a resident of the state. Ask the treasurer's office whether the state
+  holds Israel Bonds, how much, and when it will stop rolling them over. Quote the holdings figure only if the facts list
+  one. Close by asking for a written answer and the date of the next public comment opportunity.
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["Israel Bonds"], "ask": "rolling them over"}

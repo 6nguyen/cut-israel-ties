@@ -1,9 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="About — Cut the Ties">
+<Base title="About — Cut the Ties" description="Who runs Cut the Ties and how it is paid for.">
   <section class="mx-auto px-4 lg:px-10 py-10 max-w-2xl">
     <h1 class="display-lg">About</h1>
-    <p class="mt-4">Built and paid for by one person; donations keep it up. This page lands with §6.</p>
+    <div class="prose-cut mt-6">
+      <p>Cut the Ties is built and run by George Nguyen, one person. It is not a PAC, a campaign or an organisation, and it is not affiliated with any candidate or party.</p>
+      <h2>What it does</h2>
+      <p>You enter your address. The site finds your House district and senators and shows the two open decisions where a call from you matters most this week, then helps you write the call script or letter. Every vote count, position and date comes from a sourced row in the project's public data files, not from a language model.</p>
+      <h2>Who pays</h2>
+      <p>The site is paid for out of pocket and by <a href="/donate">donations</a>. Donations are not tax-deductible and are not political contributions to any candidate.</p>
+      <h2>Your data</h2>
+      <p>What is stored, and what is sent where, is on the <a href="/privacy">privacy page</a>.</p>
+    </div>
   </section>
 </Base>

@@ -291,7 +291,8 @@ page shows the real number from `MONTHLY_COST_USD`.
 
 ## Spec delta
 - ADDED `docs/specs/action-router.md`: the whole spec (Purpose; Behavior
-  from §1–§7; Data & contracts; Invariants; Performance budget).
+  from §1–§7; Data & contracts; Invariants; Performance budget). §4 is
+  folded into `docs/specs/personalised-documents.md` (spec size limit).
 
 ## Acceptance criteria
 - [ ] Six fixture addresses (D/DD, D/RR, R/DD, R/RR, R/DR, D/DR
@@ -352,26 +353,30 @@ page shows the real number from `MONTHLY_COST_USD`.
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
-  - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
-  - [ ] 4. Actions and personalised documents
-  - [ ] 3. Prep and briefing pages
-  - [ ] 6. Donations and about
-  - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
-- Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2 (`docs/specs/action-router.md`).
-- Branch / open PRs: feat/action-router-goals-overview (PR #10).
-- Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
-  of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
-  goal), card PNG, 375 px layout. Landing 7 KB gzip, `/goals` 6 KB,
-  detail 7 KB.
-- Remaining: §4, §3, §6, §7.
-- Decisions since last update: `upcoming` status + loader promotion
-  implements §2.3 (one YAML edit retires a goal); `decider` and
-  `sources` columns added so "who decides" and sources are data rows,
-  not page copy; share cards are built from an SVG template by `sharp`
-  (system font fallback until a licence-safe face is vendored).
-- Next action: merge PR #10, then /implement-prd-section
-  docs/prd/action-router.md (next: §4. Actions and personalised documents).
+  - [x] 2. Goals overview and detail · PR #10 merged
+  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13 · bundled in PR #15
+  - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12 · bundled in PR #15
+  - [~] 6. Donations and about · feat/action-router-donate-about · PR #11 · bundled in PR #15
+  - [~] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · feat/action-router-maintainer-tooling · PR #14 · bundled in PR #15
+- Completed: §1 (PR #8), §5 (PR #9), §2 (PR #10).
+- Folded: §1, §5, §2, §4, §3, §6, §7 (`docs/specs/action-router.md`; §4 in
+  `docs/specs/personalised-documents.md`; §7 in `docs/specs/maintainer-tooling.md`).
+- Branch / open PRs: integ/action-router-remaining (PR #15, bundles §3, §4,
+  §6, §7; section PRs #11–#14 closed in its favour).
+- Tests run: tsc PASS, test PASS (99 vitest, 8 files), build PASS, prd-lint
+  PASS, doc-lint PASS (28 files); browser on the integ branch: senate-leader
+  prep, ndaa-1217 act form (503 `unconfigured` without ANTHROPIC_API_KEY),
+  `/donate`, `/privacy`. Live generation, digest delivery and
+  `draft-position` against a live page are unverified.
+- Remaining: §4, §3, §6, §7 (all in PR #15).
+- Decisions since last update: sections §3/§4/§6 built in parallel from
+  `main` and §7 after §4 (needs `reports`), merged on one integration
+  branch so the PRD ships in a single PR; spec split by capability to stay
+  under the 16 KB doc-lint cap; `digest_runs` table persists "since last
+  run"; `parseCsv` handles RFC 4180 quoted cells.
+- Next action: merge PR #15, then /implement-prd-section
+  docs/prd/action-router.md (next: none — reconcile flips §3/§4/§6/§7 to
+  `[x]` and archives the PRD).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
    the goal ships with up to three picks (`our_picks`), chosen by a
@@ -436,3 +441,61 @@ page shows the real number from `MONTHLY_COST_USD`.
   successor, §2.3), `goals.sources` and `goals.decider`; the seed now
   enforces summary ≤60 words and `outcome_note` on closed goals. The web
   build reads `data/` through the Worker loader. 10 tests added.
+- 2026-11-04 — §4 built: `POST /api/generate` (guardrails §4.8 in order,
+  Haiku screen, Opus streaming via raw Messages API with JSON schema and
+  cached prefix, deterministic output check, shingle uniqueness, one
+  `generations` row per request), `POST /api/receipt`, `POST
+  /api/report`, D1 tables `generations/screenings/blocks/receipts/
+  reports`, `worker/.dev.vars.example`, the `ActForm` island on the
+  existing `/goals/<slug>/act/<action>` page. Decisions: §4.1's
+  `/act/<action>?target=` becomes `?target=<bioguide_id>` (state code
+  for treasurer actions) on the existing route, with the stored
+  district's targets as the chooser when absent; a failed output check
+  regenerates once then refuses (supersedes §4.3's "show with a
+  warning"); digit runs typed by the user in their own fields are
+  allowed alongside the fact block, since "voted for you in 2024" is
+  the user's material; `doc_format` gains `mentions[]` and `ask` so the
+  section/vote and ask-phrase checks are data, not code; `generations`
+  also stores an IP hash for the per-IP limit; without
+  `ANTHROPIC_API_KEY` the endpoint returns 503 `unconfigured`. 23 tests
+  added (`worker/test/generate.test.ts`, 40 abusive + 22 benign screen
+  fixtures); spec folded.
+- 2026-11-04 — §3 built: `/goals/<slug>/prep` for every published goal
+  with `prep_md` (ndaa-1217, senate-leader, house-caucus, state-bonds;
+  none for `upcoming`). `prep_md` must carry six `##` sections in order
+  (where things stand, dated; timeline; what to say in 30 seconds; likely
+  pushback and answers; what counts as a win; sources), enforced at load
+  (`worker/src/prep.ts`); "our pick" is rendered from `our_picks`, which
+  leads the page for leadership goals with the unified ask
+  (`unifiedAsk`: `what_we_want` + first pick) and a "picks not set yet"
+  state while `our_picks` is empty. `[VERIFY: …]` markers in `prep_md`
+  render as visible chips. "Take action" island carries each stored-district
+  target to `/goals/<slug>/act/<action>?target=<bioguide_id>`; "Prep" link
+  added to the goal page. Open: `our_picks` still empty pending the
+  maintainer's paste from `docs/research/senate-leader-candidates.md`
+  (Open question 1); the act-page "Prep" link is left to §4; Open question
+  8 handled in the NDAA pushback answers (ask for a position, record via
+  reports). 6 tests added.
+- 2026-11-04 — §6 built: `/donate` (self-funding statement, deterministic
+  monthly cost line, four Stripe Payment Link buttons opening in a new
+  tab), `/about` and `/privacy` (stored vs sent-where, incl. the Census
+  proxy wording from Open question 4); the Donate button in the header and
+  the footer line already existed. Deviation: `MONTHLY_COST_USD` and
+  `STRIPE_LINKS` are build-time env read by Astro
+  (`web/src/lib/donate.ts`), not Worker vars, because the pages are
+  static; defaults are $15 and disabled buttons ("link not configured").
+  The "after every receipt" link belongs to the §4 receipt screen.
+- 2026-11-04 — §7 built: `worker/scripts/draft-position.ts <bioguide>
+  <url> [goal]` (Haiku proposes position + verbatim quote + date, code
+  verifies the quote on the page, prints one `positions/<goal>.csv` row,
+  never writes); nightly digest (`worker/src/digest.ts`, cron `0 9 * * *`,
+  `scheduled` export) counts new reports by member × goal × outcome in
+  code, Haiku writes prose only (dropped if it adds a number), one email
+  via Email Routing with the raw rows as CSV; seed documented as a full
+  delete+insert of the five data tables. Deviations: the row follows the
+  real positions header (`bioguide_id,position,source_url,source_date,
+  changed_by`; the goal picks the file) rather than a goal column; a
+  `digest_runs` table records each run so "since last run" survives
+  restarts; `parseCsv` now reads RFC 4180 quoted cells; new vars
+  `MAINTAINER_EMAIL`, `DIGEST_FROM` and binding `DIGEST_MAIL`. Spec:
+  `docs/specs/maintainer-tooling.md`.

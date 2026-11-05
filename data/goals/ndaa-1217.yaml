@@ -26,5 +26,59 @@ detail_md: |
   report is being written. A member who hears from their district before the
   report is filed can ask the conferees to strike the section; after filing,
   the only lever left is a no vote on the whole report.
-prep_md: ""
+prep_md: |
+  ## Where things stand
+  *As of 2026-11-04.* The House and Senate passed different FY27 NDAA texts
+  and a conference committee is writing the single report both chambers will
+  vote on. The integration section is House §219 and Senate §1217 [VERIFY:
+  section numbers against the enrolled text]. Conferees are meeting now and
+  staff are counting constituent calls before the report is filed. Once it is
+  filed it is voted on without amendment, so the useful moment for a call is
+  before filing. Floor cloture on the Senate motion to proceed failed 50-46
+  on 2026-07-14 [VERIFY: senate.gov roll call; the amendments to strike §1217
+  were never voted on].
+
+  ## Timeline
+  - 2026-10-01: our window opens.
+  - 2026-11-04: conferees meeting; calls are being tallied.
+  - 2026-12-10: conference report expected [VERIFY: placeholder date, set it
+    when the report is scheduled].
+  - After filing: one up-or-down vote in each chamber, no amendments. The
+    next goal ("Vote no on an NDAA report that keeps the integration
+    section") opens when this one closes.
+  - 2026-12-31: our window closes.
+
+  ## What to say in 30 seconds
+  "Hello, I'm a constituent from [your town]. The NDAA conferees are deciding
+  whether to keep the Israel integration section, House §219 and Senate
+  §1217. Please ask them to drop it. If it is still in the report, I'm asking
+  [Rep./Sen. name] to vote no on the report. Can you tell me where the
+  member stands, or take my name and number so the member can answer?"
+
+  ## Likely pushback and answers
+  - **"The member supports Israel's security."** This is not a call about the
+    level of aid. It is about one section that ties US forces to joint
+    operations and munitions pipelines with Israel. Ask for a position on
+    that section.
+  - **"It's too late; the bill already passed."** Both chambers passed
+    different texts; conferees can still drop the section. After the report
+    is filed the only lever left is a no vote on the whole report.
+  - **"The member can't commit before the report exists."** Ask them to tell
+    the conferees now, and to say whether a report that keeps the section
+    loses their vote. A stated "undecided" is still a position we record.
+  - **"Call a conferee instead."** Conferees hear most from their own
+    constituents. Ask your member to relay the request to them
+    [VERIFY: the conferee list; it is not in data/ yet].
+
+  ## What counts as a win
+  The conference report is filed without the integration section. A rewrite
+  that keeps the joint-operations or munitions provisions is not a win until
+  the text is read [VERIFY: compare against §219 and §1217]. Short of that,
+  a member who states publicly that they will vote no on a report that keeps
+  the section is a win for your call. Report the answer you got; positions
+  are recorded from reports, with a source.
+
+  ## Sources
+  The conference record is added to this goal's source rows as it is read.
+  [VERIFY: the conference report and the roll call linked from this page.]
 partner_url: ""

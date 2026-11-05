@@ -1,4 +1,9 @@
 -- D1 schema (docs/prd/action-router.md "Data & contracts"). Re-runnable.
+DROP TABLE IF EXISTS receipts;
+DROP TABLE IF EXISTS reports;
+DROP TABLE IF EXISTS generations;
+DROP TABLE IF EXISTS screenings;
+DROP TABLE IF EXISTS blocks;
 DROP TABLE IF EXISTS positions;
 DROP TABLE IF EXISTS actions;
 DROP TABLE IF EXISTS goals;
@@ -87,4 +92,64 @@ CREATE TABLE states (
   campaign_url TEXT,
   next_comment_date TEXT
 );
--- receipts, reports, generations, screenings, blocks: added by §4.
+
+-- §4 write tables. No document text, no address, no user field is ever stored:
+-- generations keeps hashed 8-gram shingles only; screenings keeps the class only.
+CREATE TABLE receipts (
+  id INTEGER PRIMARY KEY,
+  goal_id INTEGER NOT NULL REFERENCES goals(id),
+  action_id INTEGER NOT NULL REFERENCES actions(id),
+  target_id TEXT NOT NULL,
+  state TEXT,
+  district INTEGER,
+  created_at TEXT NOT NULL,
+  device_hash TEXT NOT NULL
+);
+CREATE INDEX receipts_created ON receipts(created_at);
+
+CREATE TABLE reports (
+  id INTEGER PRIMARY KEY,
+  bioguide_id TEXT NOT NULL,
+  goal_id INTEGER NOT NULL REFERENCES goals(id),
+  outcome TEXT NOT NULL CHECK (outcome IN ('will_support','undecided','opposed','no_answer','other')),
+  note TEXT,
+  created_at TEXT NOT NULL,
+  device_hash TEXT NOT NULL,
+  hidden INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE generations (
+  id INTEGER PRIMARY KEY,
+  action_id INTEGER NOT NULL REFERENCES actions(id),
+  target_id TEXT NOT NULL,
+  shingles BLOB NOT NULL,
+  created_at TEXT NOT NULL,
+  device_hash TEXT NOT NULL,
+  ip_hash TEXT NOT NULL,
+  input_tokens INTEGER NOT NULL DEFAULT 0,
+  output_tokens INTEGER NOT NULL DEFAULT 0,
+  model TEXT NOT NULL
+);
+CREATE INDEX generations_device ON generations(device_hash, created_at);
+CREATE INDEX generations_ip ON generations(ip_hash, created_at);
+CREATE INDEX generations_action ON generations(action_id, created_at);
+
+CREATE TABLE screenings (
+  id INTEGER PRIMARY KEY,
+  device_hash TEXT NOT NULL,
+  action_id INTEGER NOT NULL REFERENCES actions(id),
+  class TEXT NOT NULL CHECK (class IN ('off_topic','injection','harmful')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX screenings_device ON screenings(device_hash, created_at);
+
+CREATE TABLE blocks (
+  device_hash TEXT PRIMARY KEY,
+  until TEXT NOT NULL
+);
+
+-- §7.2: one row per nightly digest run; the next run reads reports newer than MAX(ran_at).
+CREATE TABLE digest_runs (
+  ran_at TEXT PRIMARY KEY,
+  report_count INTEGER NOT NULL DEFAULT 0
+);
