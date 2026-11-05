@@ -4,6 +4,14 @@ type: call
 target_scope: senate
 order: 1
 ask_text: Ask your senator to vote only for a leader who commits, in public, to stripping the integration section.
-form_schema: {"fields": []}
-prompt_template: ""
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}
+form_schema:
+  fields:
+    - {name: first_name, label: First name, max: 40, required: true}
+    - {name: city, label: City, max: 60, required: true}
+    - {name: why, label: Why this matters to you, max: 280, required: true, multiline: true, hint: One or two sentences in your own words.}
+    - {name: affiliation, label: Occupation or affiliation (optional), max: 80, required: false}
+prompt_template: |
+  Open with the caller's first name and city. The senator will vote for a caucus leader: ask them to vote only for a
+  leader who commits in public to stripping the integration section from the NDAA. If the facts name our pick, name
+  that senator as the leader to back. Close by asking who the senator will support.
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "leader"], "ask": "vote only for a leader"}

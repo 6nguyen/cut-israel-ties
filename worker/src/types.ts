@@ -90,6 +90,26 @@ export interface Delegation {
   state_row: StateRow | null;
 }
 
+/** §4 write-side rows. None holds document text, an address or a user field. */
+export interface GenerationRow {
+  action_id: number;
+  target_id: string;
+  shingles: Uint32Array; // hashed 8-gram shingles of the shown document (§4.4)
+  created_at: string;
+  device_hash: string;
+  ip_hash: string;
+  input_tokens: number;
+  output_tokens: number;
+  model: string;
+}
+export interface ReceiptRow { goal_id: number; action_id: number; target_id: string; state: string | null; district: number | null; created_at: string; device_hash: string }
+export type ReportOutcome = 'will_support' | 'undecided' | 'opposed' | 'no_answer' | 'other';
+export interface ReportRow { bioguide_id: string; goal_id: number; outcome: ReportOutcome; note: string | null; created_at: string; device_hash: string }
+export type ScreenClass = 'off_topic' | 'injection' | 'harmful';
+
+/** Counts the §4.7 limits read; every window is [since, now]. */
+export interface GenerationCounts { device_hour: number; device_day: number; device_action_day: number; ip_day: number; global_day: number }
+
 /** Read-only data access; D1 in production, in-memory in tests and seed. */
 export interface Repo {
   activeGoals(): Promise<Goal[]>;
@@ -97,10 +117,27 @@ export interface Repo {
   actionsFor(goalIds: number[]): Promise<Action[]>;
   positionsFor(bioguideIds: string[], goalIds: number[]): Promise<Position[]>;
   delegation(state: string, district: number): Promise<Delegation>;
+  // §4 lookups
+  actionBySlug(slug: string): Promise<Action | null>;
+  goalById(id: number): Promise<Goal | null>;
+  member(bioguideId: string): Promise<Member | null>;
+  stateRow(state: string): Promise<StateRow | null>;
+  // §4 writes and counters (worker/src/generate.ts is the only caller)
+  generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts>;
+  recentShingles(actionId: number, limit: number): Promise<Uint32Array[]>;
+  insertGeneration(row: GenerationRow): Promise<void>;
+  screenedOutCount(deviceHash: string, since: Date): Promise<number>;
+  insertScreening(deviceHash: string, actionId: number, cls: ScreenClass, at: Date): Promise<void>;
+  blockedUntil(deviceHash: string): Promise<Date | null>;
+  block(deviceHash: string, until: Date): Promise<void>;
+  insertReceipt(row: ReceiptRow): Promise<number>;
+  insertReport(row: ReportRow): Promise<number>;
 }
 
 export interface Env {
   DB: D1Database;
   TURNSTILE_SECRET?: string;
   GEOCODER_URL?: string;
+  ANTHROPIC_API_KEY?: string;
+  MAX_GENERATIONS_PER_DAY?: string;
 }

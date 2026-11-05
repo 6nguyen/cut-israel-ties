@@ -4,8 +4,8 @@
 Turns a street address into the visitor's House district and senators and
 the two open goals where their call matters most this week. It stops at the
 two goal cards, then the goal overview, goal detail and prep pages,
-`/donate`, `/about` and `/privacy`; generated documents and receipts
-are later capabilities and are still stubs.
+`/donate`, `/about` and `/privacy`. The act page, generated documents,
+receipts and reports are in `personalised-documents.md`.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
@@ -157,8 +157,9 @@ are later capabilities and are still stubs.
   parsing is `web/src/lib/donate.ts`. Invalid values fall back to the
   defaults.
 - Browser storage: `localStorage` `cut-ties:place` = `{state, district}`;
-  `sessionStorage` `cut-ties:route` = last route response.
-
+  `sessionStorage` `cut-ties:route` = last route response;
+  `localStorage` `cut-ties:device` = random per-browser id (the Worker
+  stores only its SHA-256).
 ## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
       request carrying it is the geocoder call, and the response body

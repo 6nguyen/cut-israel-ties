@@ -291,7 +291,8 @@ page shows the real number from `MONTHLY_COST_USD`.
 
 ## Spec delta
 - ADDED `docs/specs/action-router.md`: the whole spec (Purpose; Behavior
-  from §1–§7; Data & contracts; Invariants; Performance budget).
+  from §1–§7; Data & contracts; Invariants; Performance budget). §4 is
+  folded into `docs/specs/personalised-documents.md` (spec size limit).
 
 ## Acceptance criteria
 - [ ] Six fixture addresses (D/DD, D/RR, R/DD, R/RR, R/DR, D/DR
@@ -353,12 +354,13 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [x] 1. Landing and address routing · PR #8 merged
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
   - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
-  - [ ] 4. Actions and personalised documents
+  - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13
   - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12
   - [~] 6. Donations and about · feat/action-router-donate-about · PR #11
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
 - Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2, §3, §6 (`docs/specs/action-router.md`).
+- Folded: §1, §5, §2, §4, §3, §6 (`docs/specs/action-router.md`; §4 in
+  `docs/specs/personalised-documents.md`).
 - Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
   of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
@@ -436,6 +438,25 @@ page shows the real number from `MONTHLY_COST_USD`.
   successor, §2.3), `goals.sources` and `goals.decider`; the seed now
   enforces summary ≤60 words and `outcome_note` on closed goals. The web
   build reads `data/` through the Worker loader. 10 tests added.
+- 2026-11-04 — §4 built: `POST /api/generate` (guardrails §4.8 in order,
+  Haiku screen, Opus streaming via raw Messages API with JSON schema and
+  cached prefix, deterministic output check, shingle uniqueness, one
+  `generations` row per request), `POST /api/receipt`, `POST
+  /api/report`, D1 tables `generations/screenings/blocks/receipts/
+  reports`, `worker/.dev.vars.example`, the `ActForm` island on the
+  existing `/goals/<slug>/act/<action>` page. Decisions: §4.1's
+  `/act/<action>?target=` becomes `?target=<bioguide_id>` (state code
+  for treasurer actions) on the existing route, with the stored
+  district's targets as the chooser when absent; a failed output check
+  regenerates once then refuses (supersedes §4.3's "show with a
+  warning"); digit runs typed by the user in their own fields are
+  allowed alongside the fact block, since "voted for you in 2024" is
+  the user's material; `doc_format` gains `mentions[]` and `ask` so the
+  section/vote and ask-phrase checks are data, not code; `generations`
+  also stores an IP hash for the per-IP limit; without
+  `ANTHROPIC_API_KEY` the endpoint returns 503 `unconfigured`. 23 tests
+  added (`worker/test/generate.test.ts`, 40 abusive + 22 benign screen
+  fixtures); spec folded.
 - 2026-11-04 — §3 built: `/goals/<slug>/prep` for every published goal
   with `prep_md` (ndaa-1217, senate-leader, house-caucus, state-bonds;
   none for `upcoming`). `prep_md` must carry six `##` sections in order
