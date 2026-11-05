@@ -1,5 +1,5 @@
 # Action router — PRD
-Status: SHIPPED 2026-11-04 · Owner: George Nguyen · Last updated: 2026-11-04
+Status: SHIPPED 2026-11-04 (PR #16) · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 Three decisions on the US–Israel military partnership land in the next 45
