@@ -106,7 +106,7 @@ describe('POST /api/route — refusals (§1.2, §1.4)', () => {
   });
   it('a district with no members on file → 404 no_delegation', async () => {
     const { post } = app();
-    expect((await post({ state: 'WY', district: 0 })).status).toBe(404);
+    expect((await post({ state: 'ZZ', district: 0 })).status).toBe(404);
   });
 });
 
@@ -149,7 +149,7 @@ describe('privacy: the address never reaches a log or a store (§1.2)', () => {
     const f = fakeFetch({});
     const repo = new MemoryRepo(rows);
     const writers = Object.getOwnPropertyNames(Object.getPrototypeOf(repo)).filter((n) => /insert|write|save|record|put|set|^block$/i.test(n));
-    expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening', 'recordDigestRun']);
+    expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening', 'insertVisit', 'insertVisitRequest', 'recordDigestRun', 'setVisitStatus']);
     const spies = writers.map((w) => vi.spyOn(repo as unknown as Record<string, (...a: unknown[]) => unknown>, w));
     const a = createApp({ repo: () => repo, fetch: f.impl, now: () => TODAY });
     for (const fx of FIXTURES) {

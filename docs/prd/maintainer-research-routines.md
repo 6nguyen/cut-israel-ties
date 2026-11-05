@@ -123,9 +123,7 @@ Relies on: `docs/research/data-ingestion.md`,
    and the `states.csv` rows `draft-holding` printed.
 2. Cadence: two runs, 2026-11-12 and 2026-12-03, 14:00 UTC. Further
    batches are scheduled by PR to `.claude/routines/state-holdings.md`
-   after 2026-12-19. Until `draft-holding` ships (sweep §1), the run
-   records findings in the research file only and lists every holding
-   under `## VERIFY`.
+   after 2026-12-19.
 
 ### 5. Roll-call import
 1. `npm run import-rollcall -w worker -- <clerk-xml-url> <goal>
@@ -172,9 +170,9 @@ Relies on: `docs/research/data-ingestion.md`,
   `changed_by` gains the value `import-rollcall`.
 
 ## Spec delta
-- MODIFIED `docs/specs/maintainer-tooling.md` §Behavior: adds item 5
+- MODIFIED `docs/specs/maintainer-tooling.md` §Behavior: adds item 6
   "Research routines" (the three routines, their output contract and
-  cadences from §1–§4) and item 6 "Roll-call import" (§5).
+  cadences from §1–§4) and item 7 "Roll-call import" (§5).
 - MODIFIED `docs/specs/maintainer-tooling.md` §Data & contracts: adds
   the `.claude/routines/` files, `import-rollcall` module signatures,
   the scheduled-task names and the branch/PR naming.
@@ -232,10 +230,10 @@ run). After 2026-12-19 the shipping PR records the counts and the spend.
 - Remaining: all. §1 and §5 are builds; §2–§4 are the schedules plus
   their first runs.
 - Decisions since last update: none.
-- Known failures / blockers: §4's `draft-holding` ships in
-  `state-holdings-sweep` §1; until then §4 runs record research only.
+- Known failures / blockers: none (`draft-holding` shipped with
+  `state-holdings-sweep` §1).
 - Next action: /implement-prd-section
-  docs/prd/maintainer-research-routines.md (§1), after PR #20 merges.
+  docs/prd/maintainer-research-routines.md (§1).
 
 ## Open questions
 1. Where the routine runs. Proposal: the account's Claude Code scheduled

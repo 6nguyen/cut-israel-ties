@@ -2,9 +2,11 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import type { Action, Goal, Member, Position, StateRow } from './types';
+import { HOLDINGS_STATUSES, type Action, type Goal, type Member, type Position, type StateRow } from './types';
 import { parseRule } from './ranking';
 import { checkPrep } from './prep';
+import { districtError } from './districts';
+import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
 
 export interface Rows {
   goals: Goal[];
@@ -12,6 +14,7 @@ export interface Rows {
   members: Member[];
   positions: Position[];
   states: StateRow[];
+  elections: ElectionRow[]; // primary-2028 §1: folded into the electoral goals' dates and sources, not a D1 table
 }
 
 /** One CSV line → cells. RFC 4180: a cell wrapped in double quotes may hold commas and doubled quotes. */
@@ -74,6 +77,20 @@ export function activateSuccessors(goals: Goal[]): void {
     if (!next) throw new Error(`goal ${g.slug}: successor_slug ${g.successor_slug} names no goal`);
     if (next.slug === g.slug) throw new Error(`goal ${g.slug}: successor_slug points at itself`);
     if ((g.status === 'completed' || g.status === 'expired') && next.status === 'upcoming') next.status = 'active';
+  }
+}
+
+/** Member-pages §1.3 seed checks on the raw CSV rows: one row per bioguide id, districts inside the state's count, senators without one. */
+export function checkMembers(rows: Record<string, string>[]): void {
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (seen.has(r.bioguide_id)) throw new Error(`members.csv: duplicate bioguide_id ${r.bioguide_id}`);
+    seen.add(r.bioguide_id);
+    if (r.chamber === 'senate' && r.district !== '') throw new Error(`members.csv: senator ${r.bioguide_id} has a district (${r.district})`);
+    if (r.chamber === 'house') {
+      const err = districtError(r.state, int(r.district));
+      if (err) throw new Error(`members.csv: ${r.bioguide_id}: ${err}`);
+    }
   }
 }
 
@@ -166,7 +183,10 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     btb_cosponsor: int(r.btb_cosponsor),
     target_2028: int(r.target_2028),
     money_url: str(r.money_url),
+    district_office_address: str(r.district_office_address),
+    district_office_city: str(r.district_office_city),
   }));
+  checkMembers(parseCsv(readFileSync(join(dataDir, 'members.csv'), 'utf8')));
 
   const positions: Position[] = [];
   for (const f of readdirSync(join(dataDir, 'positions')).filter((x) => x.endsWith('.csv')).sort()) {
@@ -188,7 +208,32 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     campaign_name: str(r.campaign_name),
     campaign_url: str(r.campaign_url),
     next_comment_date: str(r.next_comment_date),
+    holdings_status: (r.holdings_status || 'unknown') as StateRow['holdings_status'],
   }));
+  checkStates(states, updatedAt.slice(0, 10));
 
-  return { goals, actions, members, positions, states };
+  // primary-2028 §1: elections.csv (header-only until a seat is targeted) dates the electoral goals; the seed checks follow.
+  const elections = parseElections(parseCsv(readFileSync(join(dataDir, 'elections.csv'), 'utf8')));
+  checkElections(elections);
+  applyElections(goals, elections);
+  checkElectoral(goals, actions, members);
+
+  return { goals, actions, members, positions, states, elections };
+}
+
+/** states.csv seed checks (state-holdings-sweep §1.2): no number without a source, no stale comment date. */
+export function checkStates(states: StateRow[], today: string): void {
+  for (const s of states) {
+    const where = `states.csv: ${s.state}`;
+    if (!HOLDINGS_STATUSES.includes(s.holdings_status)) throw new Error(`${where} holdings_status must be one of ${HOLDINGS_STATUSES.join(' | ')}`);
+    if (s.israel_bonds_usd !== null && (!Number.isInteger(s.israel_bonds_usd) || s.israel_bonds_usd <= 0)) throw new Error(`${where} israel_bonds_usd must be a positive whole number of dollars`);
+    if (s.israel_bonds_usd !== null && (!s.holdings_source || !s.holdings_date)) throw new Error(`${where} has israel_bonds_usd without holdings_source and holdings_date`);
+    if (s.israel_bonds_usd !== null && s.holdings_status !== 'held') throw new Error(`${where} has israel_bonds_usd but holdings_status is ${s.holdings_status}`);
+    if (s.holdings_status === 'held' && s.israel_bonds_usd === null) throw new Error(`${where} is held without israel_bonds_usd`);
+    if (s.holdings_status === 'none' && (!s.holdings_source || !s.holdings_date)) throw new Error(`${where} is none without holdings_source and holdings_date`);
+    if (s.holdings_date && !/^\d{4}-\d{2}-\d{2}$/.test(s.holdings_date)) throw new Error(`${where} holdings_date must be YYYY-MM-DD`);
+    if (s.next_comment_date && !/^\d{4}-\d{2}-\d{2}$/.test(s.next_comment_date)) throw new Error(`${where} next_comment_date must be YYYY-MM-DD`);
+    if (s.next_comment_date && s.next_comment_date < today) throw new Error(`${where} next_comment_date ${s.next_comment_date} is in the past`);
+    if (s.campaign_url && !s.campaign_name) throw new Error(`${where} has campaign_url without campaign_name`);
+  }
 }

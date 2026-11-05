@@ -19,7 +19,12 @@ export interface Member {
   btb_cosponsor: number;
   target_2028: number;
   money_url: string | null;
+  district_office_address: string | null; // office-visits: empty until a data/ PR fills it
+  district_office_city: string | null;
 }
+
+export const HOLDINGS_STATUSES = ['held', 'none', 'unknown'] as const;
+export type HoldingsStatus = (typeof HOLDINGS_STATUSES)[number];
 
 export interface StateRow {
   state: string;
@@ -32,6 +37,7 @@ export interface StateRow {
   campaign_name: string | null;
   campaign_url: string | null;
   next_comment_date: string | null;
+  holdings_status: HoldingsStatus; // held | none | unknown; `held` rows carry amount, date and source
 }
 
 export interface Goal {
@@ -102,7 +108,12 @@ export interface GenerationRow {
   output_tokens: number;
   model: string;
 }
-export interface ReceiptRow { goal_id: number; action_id: number; target_id: string; state: string | null; district: number | null; created_at: string; device_hash: string }
+export type ReceiptKind = 'action' | 'captain-list'; // commitment-funnel §2.1: 'captain-list' rows have no action and no target
+export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind; ip_hash: string | null }
+/** district-counters §1: one COUNT per bucket; `calls|letters|comments` follow the action `type`, `captain_lists` the receipt kind. */
+export interface ReceiptBuckets { calls: number; letters: number; comments: number; captain_lists: number }
+/** district-counters §3: the receipt limits read; windows are [now − 24 h, now] and [now − 10 min, now]. */
+export interface ReceiptLimitCounts { device_day: number; repeat: number; ip_day: number }
 export type ReportOutcome = 'will_support' | 'undecided' | 'opposed' | 'no_answer' | 'other';
 export interface ReportRow { bioguide_id: string; goal_id: number; outcome: ReportOutcome; note: string | null; created_at: string; device_hash: string }
 export type ScreenClass = 'off_topic' | 'injection' | 'harmful';
@@ -141,7 +152,39 @@ export interface Repo {
   activeBlocks(now: Date): Promise<BlockRow[]>;
   lastDigestRun(): Promise<Date | null>;
   recordDigestRun(at: Date, reportCount: number): Promise<void>;
+  // member-pages §2.2: the newest visible office response for one member and goal (GET /api/members/:id/reports).
+  latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null>;
+  // district-counters §1/§3 (worker/src/counts.ts and POST /api/receipt are the only callers).
+  countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }>;
+  receiptLimitCounts(deviceHash: string, ipHash: string, goalId: number, actionId: number | null, kind: ReceiptKind, now: Date): Promise<ReceiptLimitCounts>;
+  // primary-2028 §1.2: every goal the site tracked (active or closed, never upcoming) for the electoral record.
+  trackedGoals(): Promise<Goal[]>;
+  // office-visits (worker/src/index.ts and digest.ts are the only callers). Requests are counted by code.
+  insertVisit(row: VisitRow): Promise<number>;
+  visit(id: number): Promise<Visit | null>;
+  /** Approved listings for one member with their stored request count; the caller drops expired ones. */
+  approvedVisits(bioguideId: string): Promise<{ visit: Visit; requests: number }[]>;
+  pendingVisits(): Promise<Visit[]>;
+  pendingVisitCount(deviceHash: string): Promise<number>;
+  setVisitStatus(id: number, status: VisitStatus, at: Date): Promise<void>;
+  /** Deletes the listing and every request on it. */
+  deleteVisit(id: number): Promise<void>;
+  hasVisitRequest(visitId: number, deviceHash: string): Promise<boolean>;
+  visitRequestsSince(deviceHash: string, since: Date): Promise<number>;
+  insertVisitRequest(visitId: number, deviceHash: string, at: Date): Promise<void>;
+  deleteVisitRequest(visitId: number, deviceHash: string): Promise<void>;
 }
+
+/** What a member page shows of a constituent report: no device hash, no id. */
+export interface LatestReport { outcome: ReportOutcome; note: string | null; created_at: string }
+
+/** office-visits rows. `starts_at`/`ends_at` are office local time `YYYY-MM-DDTHH:MM`; `contact_url` never leaves the Worker except to a device whose request is stored. */
+export type VisitStatus = 'pending' | 'approved' | 'rejected' | 'hidden';
+export interface VisitRow { bioguide_id: string; office_city: string; starts_at: string; ends_at: string; contact_url: string; note: string | null; status: VisitStatus; device_hash: string; created_at: string; reviewed_at: string | null }
+export interface Visit extends VisitRow { id: number }
+export interface VisitRequestRow { visit_id: number; device_hash: string; created_at: string }
+/** What GET /api/visits returns per listing: no contact, no device hash. */
+export interface VisitPublic { id: number; bioguide_id: string; office_city: string; starts_at: string; ends_at: string; note: string | null; requests: number }
 
 export interface Env {
   DB: D1Database;
@@ -153,4 +196,10 @@ export interface Env {
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;
   DIGEST_FROM?: string;
+  // district-counters: hide buckets below this (default 5); daily salt for receipts.ip_hash (secret).
+  COUNT_THRESHOLD?: string;
+  IP_SALT?: string;
+  // office-visits: "0" pauses listings (POST routes 503, GET empty); the secret signs the digest's review links.
+  VISITS_ENABLED?: string;
+  VISITS_REVIEW_SECRET?: string;
 }

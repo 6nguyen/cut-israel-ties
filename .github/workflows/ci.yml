@@ -14,7 +14,7 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     env:
-      CI_TARGETS: "prd-lint doc-lint tsc test build"
+      CI_TARGETS: "prd-lint doc-lint tsc test test-web build"
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }  # features.sh dates specs from git history

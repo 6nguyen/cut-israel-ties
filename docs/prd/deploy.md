@@ -1,5 +1,5 @@
 # Production deployment — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 The action-router shipped (archive/2026-11-action-router.md) as code that
@@ -42,9 +42,11 @@ exists and that donate links work.
    `MONTHLY_COST_USD`, `STRIPE_LINKS`), add the custom domain, enable
    Email Routing with `MAINTAINER_EMAIL` as a verified destination, create
    a Turnstile widget for the domain and put its site key in the web env.
-2. `worker/wrangler.jsonc` gains the production `routes` entry for
-   `<domain>/api/*` and keeps the placeholder D1 id out of git: the id
-   is read from `D1_DATABASE_ID` via a `wrangler.jsonc` env block, so the
+2. `worker/wrangler.jsonc` keeps the placeholder D1 id and no route;
+   `worker/scripts/render-deploy-config.ts` renders the gitignored
+   `wrangler.deploy.json` at deploy time with the id from
+   `D1_DATABASE_ID` and the `<domain>/api/*` route from `SITE_DOMAIN`
+   (wrangler does not interpolate env vars in its config), so the
    checked-in file works for local dev and CI alike.
 3. A `.env.example` at the repo root lists every variable and secret with
    one line each: where it is set (Pages build env, Worker var, Worker
@@ -57,9 +59,11 @@ exists and that donate links work.
    seed:remote -w worker`), then `scripts/quiet-check.sh deploy-web`
    (`wrangler pages deploy web/dist`). Secrets `CLOUDFLARE_API_TOKEN` and
    `CLOUDFLARE_ACCOUNT_ID` come from GitHub Actions.
-2. Pull requests get a Pages preview URL posted by the Cloudflare GitHub
-   integration; the preview's `/api/*` points at the production Worker
-   (read-only endpoints are safe; `generate` is rate-limited per device).
+2. Pull requests get a Pages preview URL posted by `deploy.yml`'s
+   `preview` job (the Pages project is Direct Upload, which has no Git
+   integration); the preview's `/api/*` is proxied to the production
+   Worker by a Pages Function (read-only endpoints are safe; `generate`
+   is rate-limited per device).
 3. A failed deploy step fails the workflow and leaves the previous
    deployment live; nothing is half-deployed because the Worker deploys
    before the seed and the seed before the pages.
@@ -80,10 +84,13 @@ exists and that donate links work.
   `docs/guides/deploy.md`.
 - `scripts/quiet-check.sh` targets `deploy-worker`, `seed-remote`,
   `deploy-web` (not in `CI_TARGETS`; only the deploy workflow calls them).
-- `worker/wrangler.jsonc`: `routes`, `env.production.d1_databases[0]
-  .database_id` from `D1_DATABASE_ID`.
+- `worker/wrangler.jsonc` unchanged in git; `worker/wrangler.deploy.json`
+  (generated, gitignored) carries `routes` and the real `database_id`.
+  `web/functions/api/[[path]].ts` proxies preview `/api/*` to `API_ORIGIN`.
 - GitHub Actions secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
-  `D1_DATABASE_ID`. No new Worker endpoints or tables.
+  `D1_DATABASE_ID`; variables `SITE_DOMAIN`, `PAGES_PROJECT`,
+  `MONTHLY_COST_USD`, `STRIPE_LINKS`, `PUBLIC_TURNSTILE_SITE_KEY`. No new
+  Worker endpoints or tables.
 
 ## Spec delta
 - ADDED `docs/specs/deployment.md`: how a merge reaches production,
@@ -117,16 +124,29 @@ measured budget numbers above.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Provisioning runbook and config
-  - [ ] 2. CI deploy on merge
-  - [ ] 3. Go-live checklist
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all.
-- Next action: /implement-prd-section docs/prd/deploy.md (§1). §1 and
-  §2 are code; §3 needs the owner's Cloudflare login and Stripe account.
-
+  - [x] 1. Provisioning runbook and config · PR #29
+  - [x] 2. CI deploy on merge · PR #29
+  - [!] 3. Go-live checklist · blocked: owner must provision Cloudflare, register the domain and run the checklist (text written, unticked)
+- Completed: §1–2 merged to main via PR #29 (integration of feat/deploy, PR #21); deploy steps skip until the Cloudflare secrets exist.
+- Folded: docs/specs/deployment.md (ADDED), docs/specs/README.md index row,
+  docs/specs/maintainer-tooling.md §Behavior 4 (seed:remote / schema:remote).
+- Branch / open PRs: none (PR #21 superseded by PR #29).
+- Files changed: .github/workflows/deploy.yml (new); .env.example (new);
+  docs/guides/deploy.md (new); docs/specs/deployment.md (new);
+  worker/scripts/render-deploy-config.ts (new);
+  web/functions/api/[[path]].ts (new); worker/test/env-example.test.ts
+  (new); worker/package.json:8-14 (deploy, deploy:config, seed:remote,
+  schema:remote); worker/scripts/seed.ts:16-19 (defer FKs);
+  worker/wrangler.jsonc:13-22 (comments only); scripts/quiet-check.sh:19-22
+  (deploy targets); .gitignore:33; README.md:3-7.
+- Tests run: quiet-check prd-lint, doc-lint, tsc, test (107 passed, 8 new),
+  test-web, build — all PASS; `wrangler deploy --dry-run` on the rendered
+  config passes. Not run: anything against Cloudflare (no account).
+- Remaining: §3 (owner); docs/specs/action-router.md §Performance budget
+  production numbers; goal/action ids are positional in load.ts, so a
+  reordered data file would re-key rows that receipts reference (own fix).
+- Next action: owner runs docs/guides/deploy.md §1, then ticks §5 and
+  records the numbers in action-router.md; a PR flips §1–§2 to `[x]`.
 ## Open questions
 1. Domain name. Proposal: the owner registers one `.org` before §3; the
    runbook uses `<domain>` until then. Not blocking: nothing in §1–§2
@@ -135,6 +155,19 @@ measured budget numbers above.
    changes are the most frequent deploys and should not wait for a tag.
 
 ## Changes
+- 2026-11-04 — §1–§2 built (feat/deploy). Mechanism change: wrangler
+  does not interpolate env vars inside `wrangler.jsonc`, so instead of an
+  env block the deploy renders `wrangler.deploy.json` from it
+  (`render-deploy-config.ts`, `--config`), injecting `D1_DATABASE_ID` and
+  the `SITE_DOMAIN` route; git keeps the placeholder. `seed:remote` now
+  applies `seed.sql` only, with `PRAGMA defer_foreign_keys` (the old
+  schema+seed would drop every user table on each merge and the data
+  deletes would hit D1's enforced FKs); `schema:remote` runs once at
+  provisioning. Previews come from a `preview` job plus a Pages Function
+  proxy, because a Direct Upload Pages project (required for
+  `wrangler pages deploy`) has no Git integration. §3 text written,
+  unticked; needs the owner's accounts.
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Added to `## Next` and written in the same
   PR because no queued feature can reach users without it.
+- 2026-11-04 — §1–2 merged via PR #29; §3 stays blocked on provisioning (docs/guides/deploy.md §1, then §5).

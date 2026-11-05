@@ -13,7 +13,7 @@ const TODAY = new Date('2026-11-04T12:00:00Z');
 const member = (o: Partial<Member>): Member => ({
   bioguide_id: 'X', name: 'X', party: 'D', chamber: 'house', state: 'XX', district: 1,
   dc_phone: null, district_phone: null, contact_form_url: null, hasc: 0, conferee: 0,
-  rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null, ...o,
+  rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null, district_office_address: null, district_office_city: null, ...o,
 });
 const delegation = (house: 'D' | 'R' | null, sens: ('D' | 'R')[]): Delegation => ({
   state: 'XX', district: 1,
@@ -52,7 +52,7 @@ describe('eligibility rules (§5.3)', () => {
   it('State bonds: holdings or a campaign', () => {
     const d = delegation('R', ['R', 'R']);
     expect(evaluate(bySlug['state-bonds'], d)).toBe(false);
-    d.state_row = { state: 'XX', treasurer_name: null, treasurer_phone: null, decider: null, israel_bonds_usd: 1_000_000, holdings_date: null, holdings_source: null, campaign_name: null, campaign_url: null, next_comment_date: null };
+    d.state_row = { state: 'XX', treasurer_name: null, treasurer_phone: null, decider: null, israel_bonds_usd: 1_000_000, holdings_date: null, holdings_source: null, campaign_name: null, campaign_url: null, next_comment_date: null, holdings_status: 'held' };
     expect(evaluate(bySlug['state-bonds'], d)).toBe(true);
     d.state_row.israel_bonds_usd = null;
     d.state_row.campaign_name = 'Divest';

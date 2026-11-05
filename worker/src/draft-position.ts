@@ -1,44 +1,14 @@
 // §7.1 draft-position: fetch a page, ask Haiku for the member's stated position on a goal with a
 // verbatim quote and a date, then verify the quote against the fetched text by code. Prints one
 // positions CSV row for the maintainer to paste; never writes data/.
-import { SCREEN_MODEL, callMessage } from './anthropic';
+import { callMessage } from './anthropic';
+import { DATE_RE, DRAFT_MODEL, MAX_CHARS, csvCell, fetchPageText, quoteAppears } from './draft-shared';
 
-export const DRAFT_MODEL = SCREEN_MODEL; // claude-haiku-5-5
+export { DRAFT_MODEL, normalise, quoteAppears, stripTags } from './draft-shared';
 export const POSITIONS = ['for', 'uncommitted', 'against', 'unknown'] as const;
 export type PositionValue = (typeof POSITIONS)[number];
 export const POSITIONS_HEADER = 'bioguide_id,position,source_url,source_date,changed_by';
 export const CHANGED_BY = 'draft-position';
-const MAX_CHARS = 60_000;
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', mdash: '—', ndash: '–', hellip: '…' };
-
-/** HTML → readable text: drops script/style/nav noise, tags and comments, decodes entities, collapses whitespace. */
-export function stripTags(html: string): string {
-  return html
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1>/gi, ' ')
-    .replace(/<\/(p|div|li|tr|h[1-6]|br|section|article|blockquote)>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, e: string) => {
-      if (e[0] === '#') { const code = e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); return Number.isFinite(code) ? String.fromCodePoint(code) : m; }
-      return ENTITIES[e.toLowerCase()] ?? m;
-    })
-    .replace(/[ \t ]+/g, ' ')
-    .replace(/\s*\n\s*/g, '\n')
-    .trim();
-}
-
-/** Whitespace- and quote-insensitive form used for the verbatim check on both sides. */
-export const normalise = (s: string): string =>
-  s.replace(/[‘’‚]/g, "'").replace(/[“”„]/g, '"').replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
-
-/** True when `quote` appears verbatim (modulo whitespace and quote glyphs) in `text`. */
-export function quoteAppears(quote: string, text: string): boolean {
-  const q = normalise(quote);
-  return q.length >= 12 && normalise(text).includes(q);
-}
 
 export interface ModelVerdict { position: PositionValue; quote: string; date: string; reason: string }
 export const VERDICT_SCHEMA = {
@@ -65,9 +35,9 @@ export type Draft =
 
 /** Ask the model, then verify by code: a row only when the quote is verbatim on the page and the date is well-formed. */
 export async function draftPosition(fetchImpl: typeof fetch, apiKey: string, input: DraftInput): Promise<Draft> {
-  const res = await fetchImpl(input.url, { headers: { accept: 'text/html,text/plain;q=0.9', 'user-agent': 'cut-ties draft-position (maintainer tool)' } });
-  if (!res.ok) throw new Error(`fetch ${input.url}: ${res.status}`);
-  const text = stripTags(await res.text()).slice(0, MAX_CHARS);
+  const page = await fetchPageText(fetchImpl, input.url, 'draft-position');
+  if (page.kind === 'unsupported') return { kind: 'none', reason: page.reason };
+  const text = page.text.slice(0, MAX_CHARS);
   if (text.length < 40) return { kind: 'none', reason: 'page has no readable text' };
   const who = input.memberName ? `${input.memberName} (${input.bioguide})` : input.bioguide;
   const goal = input.goalAsk ? `${input.goal}: ${input.goalAsk}` : input.goal;
@@ -87,6 +57,5 @@ export async function draftPosition(fetchImpl: typeof fetch, apiKey: string, inp
   const date = String(v.date ?? '').trim();
   if (!quoteAppears(quote, text)) return { kind: 'none', reason: `quote not found verbatim on the page (${reason})` };
   if (!DATE_RE.test(date)) return { kind: 'none', reason: `quote found but the page shows no usable date (${reason})` };
-  const cell = (v: string): string => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  return { kind: 'row', row: [input.bioguide, position, input.url, date, CHANGED_BY].map(cell).join(','), quote, date, reason };
+  return { kind: 'row', row: [input.bioguide, position, input.url, date, CHANGED_BY].map(csvCell).join(','), quote, date, reason };
 }

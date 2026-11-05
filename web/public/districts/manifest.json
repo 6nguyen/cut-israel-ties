@@ -1,0 +1,277 @@
+{
+ "source": "TIGER2025 CD119 (https://www2.census.gov/geo/tiger/TIGER2025/CD/)",
+ "congress": 119,
+ "built": "2026-11-05",
+ "simplify": {
+  "method": "visvalingam",
+  "interval_m": 30,
+  "state_interval_m": 1000,
+  "keep_shapes": true
+ },
+ "limits": {
+  "state_gzip": 307200,
+  "states_gzip": 153600
+ },
+ "files": {
+  "DE": {
+   "bytes": 3736,
+   "gzip": 1425,
+   "sha256": "52afa90102224c6e84277369403c375e5edbb658ff191d82a11b8be62457437e"
+  },
+  "DC": {
+   "bytes": 1463,
+   "gzip": 691,
+   "sha256": "5e161b727d81cd5c992e1f5197cc654e0b812245ef8fb9c3de3a449d8c4185a4"
+  },
+  "FL": {
+   "bytes": 107028,
+   "gzip": 34470,
+   "sha256": "2fd601cbb6f762b7c7887d9c6b8129b203bb4d616a243c94fb706fb8f5f141fc"
+  },
+  "GA": {
+   "bytes": 144118,
+   "gzip": 46912,
+   "sha256": "c7aedb7bbcce4664bb6b038afcc1f2055a7b9a152b5ff6205eea75dd530dfbaf"
+  },
+  "HI": {
+   "bytes": 25418,
+   "gzip": 8924,
+   "sha256": "a83a10edb01b423df7a7d5bb59391888c48a1006d5aca46cc3d4fd8c00121815"
+  },
+  "ID": {
+   "bytes": 94523,
+   "gzip": 30325,
+   "sha256": "b027dcd491a2d9bad65abb0f3ac74705e2edfda79f2975f1bb5de79608076821"
+  },
+  "IL": {
+   "bytes": 98573,
+   "gzip": 31930,
+   "sha256": "b878aacbde1729ff0e89d39358c683781b2ba29bb6aa0f9c3d23b8876ac95d0d"
+  },
+  "IN": {
+   "bytes": 46739,
+   "gzip": 15067,
+   "sha256": "ce552a728ffaec9cdc4e6cd4a8d3f77df548c56a26edbadf59d941646949d8d1"
+  },
+  "IA": {
+   "bytes": 45115,
+   "gzip": 14768,
+   "sha256": "7435cc0af259373d108f41e2adf884fe50c81eb2f7ca4c50d8af3188c4cb28d6"
+  },
+  "KS": {
+   "bytes": 33233,
+   "gzip": 10217,
+   "sha256": "50e4c3f820336582c9a7f0b5db1524ffe441d7ce8f3768c43a2018c09feb91df"
+  },
+  "KY": {
+   "bytes": 105488,
+   "gzip": 34540,
+   "sha256": "6819907781b364c93e99a1fece9f4d0c39a02a31fc703195f7a9a71cccc86b3f"
+  },
+  "LA": {
+   "bytes": 137312,
+   "gzip": 44983,
+   "sha256": "3f9ced63cbd09de95f0db914aa2d44f6e99cbf91fb2457b5656f467a67635f69"
+  },
+  "ME": {
+   "bytes": 47571,
+   "gzip": 16064,
+   "sha256": "bbda54dc5c1580a9004f4c48a89a14099d3710cd36ff4d2f0d96815d8a34c4ee"
+  },
+  "MD": {
+   "bytes": 51730,
+   "gzip": 16995,
+   "sha256": "d851f5dd4ca55c30b8c40e89e26892cd7e3e4e98f7db4be58faeadfc33194d01"
+  },
+  "MA": {
+   "bytes": 27961,
+   "gzip": 9488,
+   "sha256": "1e6cc2babad425401d76a3e791f4edb4f8b4b9e3e211a025dce2225739a7b55d"
+  },
+  "MI": {
+   "bytes": 42411,
+   "gzip": 13448,
+   "sha256": "5b0d22a80ecfffc8f01e32627050f619c6f46c4ccb0569022f9d2bd6e06759df"
+  },
+  "MN": {
+   "bytes": 91232,
+   "gzip": 29568,
+   "sha256": "1e9aa7d1e453051d0631633a583d89b3a3eac99c6a5fbae2c34ee20c55cbc82d"
+  },
+  "MS": {
+   "bytes": 62022,
+   "gzip": 20609,
+   "sha256": "ef379a8fe8e99446932d6eeee79ff5387b7caf52d80c63e940d331ed69f99dc5"
+  },
+  "MO": {
+   "bytes": 70479,
+   "gzip": 23486,
+   "sha256": "6c38525a8d3ab4b4c6c4c7a4211ab962a959c7444b447bc4b8400ab428b13779"
+  },
+  "MT": {
+   "bytes": 76658,
+   "gzip": 23704,
+   "sha256": "9897e24062c6cf8d1cb093e624a1bf89dc4e450686ec9430e1b97ca0e5b8797e"
+  },
+  "NE": {
+   "bytes": 32519,
+   "gzip": 10427,
+   "sha256": "c87c870f211b9d09ab8eeccdf534c49cd7476c6582232235a1bf8834f7648b4d"
+  },
+  "NV": {
+   "bytes": 27841,
+   "gzip": 9036,
+   "sha256": "5748aab61d7f6edd23a40274be1400395626d2e8bc6ae252f83e0b65e5e24ff2"
+  },
+  "NH": {
+   "bytes": 32066,
+   "gzip": 10932,
+   "sha256": "328824f0248b68e90f022374eec36f4d28eb59dc2d01299be69794471f24c6fd"
+  },
+  "NJ": {
+   "bytes": 45253,
+   "gzip": 15379,
+   "sha256": "8b520b3514bf6dd50496adf0c3b6de091fa0640a9b74d362d7da95e77ecca3bd"
+  },
+  "NM": {
+   "bytes": 28050,
+   "gzip": 8807,
+   "sha256": "8564b9a1a7f096f315af6259f12e016117fc9a8cf3e3413cd2ecff92d0731a54"
+  },
+  "NY": {
+   "bytes": 74598,
+   "gzip": 24613,
+   "sha256": "0e46d3b075239efbc9c3e0e3cf1528b1ffe66baf46d557c9fdfaf97db1ef0b4f"
+  },
+  "NC": {
+   "bytes": 120322,
+   "gzip": 38699,
+   "sha256": "ae2d60a661610a53f5dca1927ea2325a46e532a8849b982183fb941d3415c2c9"
+  },
+  "ND": {
+   "bytes": 40168,
+   "gzip": 12441,
+   "sha256": "5c137c3b588a152555f25bb2882705e349d1c7aba320aeb65cbef6fc06f6ecd9"
+  },
+  "OH": {
+   "bytes": 62826,
+   "gzip": 20351,
+   "sha256": "df045d4ded7a1bb1aa03d9cd2f8f7a4f307444655896afbff7c6245d5f538a22"
+  },
+  "OK": {
+   "bytes": 67241,
+   "gzip": 21345,
+   "sha256": "7042ea9f796e6cbb4ea4dab483de280a75ac250fe99954702a2b8bc7b2263113"
+  },
+  "OR": {
+   "bytes": 70619,
+   "gzip": 23361,
+   "sha256": "2ec791e2679a246fd889589111f381229d1450bf826459d67816a85a5a2bbaa3"
+  },
+  "PA": {
+   "bytes": 75649,
+   "gzip": 25043,
+   "sha256": "0b3a2c3092419206cda32973b314f04d48771d39db83f42adb4b5b0d747aee2b"
+  },
+  "RI": {
+   "bytes": 5107,
+   "gzip": 2014,
+   "sha256": "d054f63a0897cfe8a659cb212b602de0094ae89ee9eb61e374f66b67b4af5ff6"
+  },
+  "SC": {
+   "bytes": 109237,
+   "gzip": 35985,
+   "sha256": "5c2191004efcfe3c8081eb068661201aa829e962c0fb5ebb33059bc35cf6faab"
+  },
+  "SD": {
+   "bytes": 27550,
+   "gzip": 8664,
+   "sha256": "c9aa9f2f74909730fda6b565e0de7beb6fdb18666a68ea7702528cb56ee50610"
+  },
+  "TN": {
+   "bytes": 103981,
+   "gzip": 34112,
+   "sha256": "cb2825846d8feb3180d6aec3467931c480b3b89129180fedb9ed0c69ce5fbbb6"
+  },
+  "TX": {
+   "bytes": 376347,
+   "gzip": 119398,
+   "sha256": "6ed8786fba858f8fa9eab891cc5fa08993fe42adefc43f4073913068342ae080"
+  },
+  "UT": {
+   "bytes": 42578,
+   "gzip": 13128,
+   "sha256": "e183efb68a81ee41f060730e2fe9fc82f23bba88a093949d3e7521b428ef8a04"
+  },
+  "VT": {
+   "bytes": 24616,
+   "gzip": 8350,
+   "sha256": "beeaec20524466fa8ea05c645485358feadaebeaad182af619aabdbb6065e9ea"
+  },
+  "VA": {
+   "bytes": 124388,
+   "gzip": 40867,
+   "sha256": "37906a2bc81ffd927c87e16676a08dfcbd5778b937ccbb0c6a2115eed5c2b6f8"
+  },
+  "WA": {
+   "bytes": 67395,
+   "gzip": 21810,
+   "sha256": "c449d3c2373f0cbb3dc4dcee05fdc9560c74e08e62abfa6845a56007610c673f"
+  },
+  "WV": {
+   "bytes": 74654,
+   "gzip": 24667,
+   "sha256": "031bf2e791dfc60d42ddb7d92c2c50f50d42af1b958bbfb0f0d61719d1e9c078"
+  },
+  "WI": {
+   "bytes": 59162,
+   "gzip": 19287,
+   "sha256": "bd08bf1fbe517d2ce6d83c081e72552d22812861020873bbb5a1c6451b7450a3"
+  },
+  "WY": {
+   "bytes": 8912,
+   "gzip": 2678,
+   "sha256": "05c0336916634c2a5669db4df949b4d3ffc14adae6ec3efcd2c1a4e68b8bc93e"
+  },
+  "AL": {
+   "bytes": 87202,
+   "gzip": 28653,
+   "sha256": "8d152d93af2408fa1623a15a89d427e6737da9be8382e01f016747d202ae0443"
+  },
+  "AK": {
+   "bytes": 93662,
+   "gzip": 31181,
+   "sha256": "b92c5b84e50a40d31f4bec2a8aad49837cad48fa176832433bf4b5568bfa9afe"
+  },
+  "AZ": {
+   "bytes": 68712,
+   "gzip": 22119,
+   "sha256": "e67148e6d4d38db4c287474e3e67f2514a6e936584574ab5472c72e6eba0e9b1"
+  },
+  "AR": {
+   "bytes": 58806,
+   "gzip": 19031,
+   "sha256": "2757b2ccde9d42443b600e3d3ad4559f99d2f0b9ccd29e239252cfffeda3ff36"
+  },
+  "CA": {
+   "bytes": 323882,
+   "gzip": 104290,
+   "sha256": "d74659b3405c1914effdf2f17a28e2e0d128e4c950d352ddd3a90fcb4c63c438"
+  },
+  "CO": {
+   "bytes": 59180,
+   "gzip": 18629,
+   "sha256": "028e626238822380b715473c4d11d51e8a2e12d7b8bb64d79c423d07644673f1"
+  },
+  "CT": {
+   "bytes": 17447,
+   "gzip": 6117,
+   "sha256": "17dd8abae7ae8c5da210b3aac00b1c822578a34cd202295bfd5e707bf846ac2f"
+  },
+  "states": {
+   "bytes": 105987,
+   "gzip": 36344,
+   "sha256": "bd051f0187dc5c0ef405ffe9ff2b4887f45c638e78ec04450ab7440c680531bd"
+  }
+ }
+}

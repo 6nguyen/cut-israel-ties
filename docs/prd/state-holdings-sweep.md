@@ -1,5 +1,5 @@
 # State Israel-bond holdings sweep — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 The state goal (`data/goals/state-bonds.yaml`) renders for every visitor
@@ -105,16 +105,29 @@ versus `unknown`; state-goal receipts per state after each batch.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Draft tool and lint
-  - [ ] 2. The sweep
-  - [ ] 3. State page copy
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all.
-- Next action: /implement-prd-section docs/prd/state-holdings-sweep.md
-  (§1); §2 is maintainer research, not a build.
-
+  - [x] 1. Draft tool and lint · PR #29
+  - [ ] 2. The sweep · maintainer research, not a build; batches of ten
+    from `docs/research/state-israel-bonds.md` (50 rows, all "not checked")
+  - [x] 3. State page copy · PR #29
+- Completed: §1 and §3 merged to main via PR #29 (integration of feat/state-holdings-sweep, PR #22).
+- Folded: §1 and §3 spec deltas applied on the branch
+  (`docs/specs/maintainer-tooling.md` §Behavior 2, 5, contracts,
+  invariants; `docs/specs/action-router.md` §Behavior 14, invariant).
+- Branch / open PRs: none (PR #22 superseded by PR #29).
+- Files changed: worker/src/{draft-shared,draft-holding,state-copy}.ts
+  (new), worker/src/{draft-position,load,types,ranking,route,generate}.ts,
+  worker/scripts/draft-holding.ts (new), worker/schema.sql,
+  worker/package.json, worker/test/{draft-holding,states}.test.ts (new),
+  worker/test/ranking.test.ts, data/states.csv (`holdings_status`),
+  data/actions/state-bonds-call.yaml (`{decider}`), data/README.md,
+  web/src/components/Target.tsx, web/src/components/Target.test.ts (new),
+  web/src/pages/goals/[slug].astro, web/src/pages/goals/[slug]/act/[action].astro,
+  web/vitest.config.ts, docs/research/state-israel-bonds.md (new) + index.
+- Tests run + result: tsc PASS; worker vitest 112 passed (10 files);
+  web vitest 5 passed; web build PASS; prd-lint, doc-lint PASS.
+- Remaining: §2 sweep (maintainer research, five `data/` PRs of ten states).
+- Next action: maintainer runs batch 1 (MD, CA, WA, NY, IL, MN, MA, NJ,
+  PA, TX) with `draft-holding`, one data PR per batch.
 ## Open questions
 1. Scope of "holdings": treasurer-held bonds only, or pension systems
    too? Proposal: both, in one row per state, with the deciding body of
@@ -126,3 +139,15 @@ versus `unknown`; state-goal receipts per state after each batch.
 ## Changes
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Replaces `## Next` row 3.
+- 2026-11-04 — §1 and §3 built on `feat/state-holdings-sweep`. Open
+  question 1 decided per proposal: one row per state covering treasury
+  and pension holdings, `decider` = the body behind the larger holding.
+  `draft-holding` reads HTML and plain text only: a PDF body is refused
+  with a reason (no PDF parser ships in the Worker package; save the
+  report's text to a `.txt` URL). The tool also verifies the amount by
+  code (it must be a dollar figure inside the verbatim quote) and prints
+  a `decider` only when that text is on the page. The state action's
+  `ask_text` carries a `{decider}` placeholder filled by code
+  (`fillAsk`). §2 stays maintainer research: the research file lists all
+  50 states as "not checked" in the PRD's batch order.
+- 2026-11-04 — §1 and §3 merged via PR #29; §2 is the maintainer's research sweep, batch 1 next.

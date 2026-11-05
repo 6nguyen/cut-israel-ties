@@ -9,10 +9,15 @@ receipts and reports are in `personalised-documents.md`.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
-   the button "Find my actions", the line "Full street address needed:
-   cities are split between districts. Nothing is stored." and a link to
+   the button "Find my actions", the line "Full street address, or use
+   your location: nothing is stored." and a link to
    all goals. Below it, every active goal as a card linking to
-   `/goals/<slug>`.
+   `/goals/<slug>`. Under the field, only when the browser offers
+   `navigator.geolocation`, the control "Use my location instead"
+   (`on-device-districts.md`).
+   A return visitor with a stored district and an open
+   commitment or captain list sees the "Your week" card above the field
+   (`commitment-funnel.md` §5) instead of the redirect in §6.
 2. **ZIP or partial input.** A bare ZIP (`\d{5}(-\d{4})?`) is refused
    before any lookup with "A ZIP code is not enough: many cities are split
    between districts. Enter your street address." Input shorter than eight
@@ -21,7 +26,13 @@ receipts and reports are in `personalised-documents.md`.
 3. **Lookup.** The Worker sends the address to the Census Geocoder
    (`geographies/onelineaddress`, benchmark `Public_AR_Current`, vintage
    `Current_Current`) and reads the 119th Congressional District and state.
-   At-large districts (`00`, `98`) are district 0.
+   At-large districts (`00`, `98`) are district 0. The location path
+   never reaches the geocoder: the browser resolves a one-time position
+   against `/districts/*.json` and posts `{state, district, by_location:
+   true}`. A denied or failed position shows "No location shared. Enter
+   an address instead."; a point in no polygon shows "We couldn't place
+   that point. Enter an address."; both focus the address field and open
+   the state + district picker.
 4. **Unresolved.** No match returns 404 `unresolved` with "retry, or pick
    your state and district"; the page shows the message, keeps the field
    and opens a state + district picker that posts `{state, district}` and
@@ -35,10 +46,14 @@ receipts and reports are in `personalised-documents.md`.
    ask text and a CTA to `/goals/<goal>/act/<action>`. Zero eligible goals
    shows a message and a link to `/goals`. One column at 390 px, two at
    ≥1024 px. "Change address" clears the stored district and returns to
-   `/`.
+   `/`. Under each card's targets box the `Counts` island adds one line
+   ("12 constituents in TX-35 called this week", else the state line,
+   else nothing) from `GET /api/counts`; buckets below the threshold
+   arrive as 0 and the line waits for the response (`district-counters.md`).
 6. **Return visit.** The browser keeps only `{state, district}` in
    `localStorage` (`cut-ties:place`); `/` redirects straight to `/results`,
-   which re-posts the stored pair. The last route response is cached in
+   which re-posts the stored pair, unless an open commitment or captain
+   list keeps the visitor on `/` (§1). The last route response is cached in
    `sessionStorage` (`cut-ties:route`) for the immediate navigation only.
 7. **Targets per goal.** Federal goals target the representative and both
    senators; leadership goals target only Democratic members of the
@@ -59,10 +74,13 @@ receipts and reports are in `personalised-documents.md`.
    pick" block when `our_picks` is non-empty (first pick: name, rationale,
    source link, signal date); the goal's actions as buttons to
    `/goals/<slug>/act/<action>`; partner campaign link when `partner_url`
-   is set; sources list (`sources` rows) or a "not yet sourced" line. The
+   is set; sources list (`sources` rows) or a "not yet sourced" line.
+   A "Where everyone stands →" link opens `/goals/<slug>/whip` for goals
+   that have a whip table (`member-pages.md`). The
    sidebar's "Your targets" island reads the stored `{state, district}`
    and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
-   "Enter your address" linking to `/`. A closed goal shows its outcome
+   "Enter your address" linking to `/`. A non-empty target list carries
+   the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
    block instead of targets and actions. Every page carries Open Graph
    and Twitter share metadata with a 1200×630 card at
    `/goals/<slug>/card.png` (other pages use `/card.png`).
@@ -106,7 +124,25 @@ receipts and reports are in `personalised-documents.md`.
     identity; shingle hashes, not document text) and what is sent where
     (address → Census Geocoder through the Worker, not logged; form fields
     → Anthropic, not retained by the site; Turnstile; Stripe handles
-    payments in its own tab).
+    payments in its own tab). A "District-office visits" bullet names the
+    organiser's contact link as personal data they chose to share, handed
+    only to people who say they will come, deletable with the listing
+    (docs/specs/office-visits.md).
+14. **State goal copy.** The treasurer target (results card and the goal
+    page's "Your targets") carries one holdings line built by code from
+    the `states.csv` row's `holdings_status`: `held` → "Israel Bonds:
+    holds $<israel_bonds_usd> (as of <holdings_date>)" with a "source"
+    link to `holdings_source`; `none` → "Israel Bonds: holds none (as of
+    <holdings_date>)" with the same source link; `unknown` → "Israel
+    Bonds: not yet sourced" with a "help us find it" link to the research
+    file on GitHub (`RESEARCH_URL`). The state action's ask replaces
+    `{decider}` with the row's `decider` when set, else "your state
+    treasurer" (static pages, which have no state, always show the
+    fallback). `worker/src/state-copy.ts`: `holdingsLine`, `fillAsk`,
+    `moneyUsd`.
+15. **Electoral goal.** A `category: electoral` goal is a one-seat sourced
+    record ranked at priority 1 with an "On the record" block and
+    primary/filing-deadline dates; see `electoral-record.md`.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
@@ -160,6 +196,10 @@ receipts and reports are in `personalised-documents.md`.
   `sessionStorage` `cut-ties:route` = last route response;
   `localStorage` `cut-ties:device` = random per-browser id (the Worker
   stores only its SHA-256).
+- `by_location: true` on the route body marks a location-path route; the
+  Worker ignores unknown fields, so it is a metric placeholder until one
+  reads it. No new storage key: the location path saves only the resolved
+  `{state, district}`.
 ## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
       request carrying it is the geocoder call, and the response body
@@ -169,7 +209,10 @@ receipts and reports are in `personalised-documents.md`.
       an all-Republican delegation gets the NDAA goal plus the state goal.
 - [ ] Leadership-goal targets are Democrats only.
 - [ ] Every number and name on a card traces to a `data/` row; nothing is
-      computed by an LLM.
+      computed by an LLM. Every dollar amount a state target shows equals
+      the `states.csv` cell (`web/src/components/Target.test.ts`); a
+      `none` state shows "holds none" with a source link and an `unknown`
+      state links the research file.
 - [ ] `/api/route` never writes to D1.
 - [ ] Fixture delegations D/DD, D/RR, R/DD, R/RR, R/DR, D/DR (one in a
       split city) resolve to the goals in `worker/test/fixtures.ts`.
@@ -189,6 +232,10 @@ receipts and reports are in `personalised-documents.md`.
       leadership goal with `our_picks` shows them in order before any
       section, and the ask names the first pick; every date, count or name
       in `prep_md` is a `data/` row or carries a `[VERIFY: …]` marker.
+- [ ] No coordinate is ever sent or logged: during the location path the
+      only requests are `GET /districts/<name>.json` (no query string) and
+      `POST /api/route {state, district, by_location}`
+      (`web/src/lib/pip.test.ts` asserts the loader names).
 
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,

@@ -1,6 +1,8 @@
 // POST /api/route — §1.2–§1.4 + §5. Builds the response the results page renders.
 import type { Action, Delegation, Goal, Member, Position, Repo } from './types';
-import { topTwo } from './ranking';
+import { electoralSeat, topTwo } from './ranking';
+import { fillAsk, holdingsLine } from './state-copy';
+import { ELECTION_SOURCE_TITLE, recordFor, type RecordLine } from './electoral';
 
 export interface TargetCard {
   bioguide_id: string | null;
@@ -11,6 +13,13 @@ export interface TargetCard {
   position_source_url: string | null;
   prior_vote: string;
   phone: string | null;
+  // State targets only (state-holdings-sweep §3): the states.csv cells behind the holdings line.
+  holdings_status?: 'held' | 'none' | 'unknown';
+  holdings_usd?: number | null;
+  holdings_date?: string | null;
+  holdings_source_url?: string | null;
+  // Electoral targets only (primary-2028 §1.2): the member's position and vote on every goal this site tracked.
+  record?: RecordLine[];
 }
 
 export interface GoalCard {
@@ -23,6 +32,27 @@ export interface GoalCard {
   ask_text: string;
   action_href: string;
   targets: TargetCard[];
+  partner_url: string | null; // office-visits: the "Organise one" line offers the partner when there is one
+  // Electoral goals only (primary-2028 §1.2): the elections.csv row the loader folded into the goal.
+  election?: ElectionDates;
+}
+
+export interface ElectionDates { primary_date: string | null; filing_deadline: string | null; source_url: string | null }
+
+/** The dates an electoral goal carries (`decision_date` = primary, `window_end` = filing deadline) and the office page the loader added to `sources`. */
+export function electionDates(goal: Goal): ElectionDates | undefined {
+  if (goal.category !== 'electoral') return undefined;
+  const src = (JSON.parse(goal.sources) as { title: string; url: string }[]).find((s) => s.title.startsWith(ELECTION_SOURCE_TITLE));
+  return { primary_date: goal.decision_date, filing_deadline: goal.window_end, source_url: src?.url ?? null };
+}
+
+/** primary-2028 §1.2: the House member's record across every tracked goal; empty when the visitor has no representative. */
+async function memberRecord(repo: Repo, m: Member | null): Promise<RecordLine[]> {
+  if (!m) return [];
+  const tracked = await repo.trackedGoals();
+  const ids = tracked.map((g) => g.id);
+  const [actions, positions] = await Promise.all([repo.actionsFor(ids), repo.positionsFor([m.bioguide_id], ids)]);
+  return recordFor(m, tracked, actions, positions, priorVote);
 }
 
 export interface RouteResponse {
@@ -72,8 +102,12 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
         party: null,
         position: 'unknown',
         position_source_url: null,
-        prior_vote: s?.israel_bonds_usd ? `Holds Israel Bonds (${s.holdings_date ?? 'date not sourced'})` : 'Holdings not yet sourced',
+        prior_vote: holdingsLine(s),
         phone: s?.treasurer_phone ?? null,
+        holdings_status: s?.holdings_status ?? 'unknown',
+        holdings_usd: s?.holdings_status === 'held' ? s.israel_bonds_usd : null,
+        holdings_date: s?.holdings_status === 'unknown' ? null : s?.holdings_date ?? null,
+        holdings_source_url: s?.holdings_status === 'unknown' ? null : s?.holdings_source ?? null,
       },
     ];
   }
@@ -81,7 +115,12 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
   if ((scope === 'house' || scope === 'both') && d.house) out.push(d.house);
   if (scope === 'senate' || scope === 'both') out.push(...d.senators);
   // Leadership goals only make sense for the party holding the vote.
-  const filtered = goal.category === 'leadership' ? out.filter((m) => m.party === 'D') : out;
+  let filtered = goal.category === 'leadership' ? out.filter((m) => m.party === 'D') : out;
+  // An electoral goal names one seat (primary-2028 §1.1); any other district gets no target, whatever its member's flags.
+  if (goal.category === 'electoral') {
+    const seat = electoralSeat(goal.eligibility);
+    filtered = filtered.filter((m) => seat !== null && m.chamber === 'house' && m.state === seat.state && m.district === seat.district);
+  }
   return filtered.map((m) => memberCard(m, goal, positions));
 }
 
@@ -98,6 +137,7 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
       ids,
     ),
   ]);
+  const record = chosen.some((g) => g.category === 'electoral') ? await memberRecord(repo, d.house) : null;
   return {
     state: d.state,
     district: d.district,
@@ -113,9 +153,11 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
         summary: g.summary,
         decision_date: g.decision_date,
         this_week: g.this_week,
-        ask_text: action?.ask_text ?? g.what_we_want,
+        ask_text: fillAsk(action?.ask_text ?? g.what_we_want, g.category === 'state' ? d.state_row : null),
         action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,
-        targets: targetsFor(g, action, d, positions),
+        targets: targetsFor(g, action, d, positions).map((t) => (g.category === 'electoral' && record ? { ...t, record } : t)),
+        election: electionDates(g),
+        partner_url: g.partner_url || null,
       };
     }),
   };
@@ -129,5 +171,8 @@ export async function goalTargets(repo: Repo, slug: string, state: string, distr
   if (!d.house && d.senators.length === 0) return 'no_delegation';
   const members = [d.house, ...d.senators].filter((m): m is Member => m !== null);
   const [actions, positions] = await Promise.all([repo.actionsFor([goal.id]), repo.positionsFor(members.map((m) => m.bioguide_id), [goal.id])]);
-  return { targets: targetsFor(goal, actions[0], d, positions) };
+  const targets = targetsFor(goal, actions[0], d, positions);
+  if (goal.category !== 'electoral' || targets.length === 0) return { targets };
+  const record = await memberRecord(repo, d.house);
+  return { targets: targets.map((t) => ({ ...t, record })) };
 }

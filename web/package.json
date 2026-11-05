@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.1",
@@ -17,5 +18,8 @@
     "sharp": "^0.33.5",
     "tailwindcss": "^4.1.0",
     "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.7"
   }
 }
