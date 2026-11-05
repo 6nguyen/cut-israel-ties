@@ -196,7 +196,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             const common = { id: f.name, name: f.name, required: f.required, maxLength: f.max, class: 'input-field w-full text-base', value: v, onInput: (e: Event) => setValues({ ...values, [f.name]: (e.target as HTMLInputElement).value }) };
             return (
               <div>
-                <label class="label-code block mb-1" for={f.name}>{f.label}{f.required ? '' : ' (optional)'}</label>
+                <label class="label-code block mb-1" for={f.name}>{f.label}{f.required || /optional/i.test(f.label) ? '' : ' (optional)'}</label>
                 {f.multiline ? <textarea rows={3} {...common} /> : <input type="text" {...common} />}
                 <p class={`label-ticker mt-1 ${over ? 'text-crimson' : 'text-ink/60'}`}>{f.hint ? `${f.hint} ` : ''}{v.length}/{f.max}</p>
               </div>
