@@ -19,6 +19,7 @@ Rules:
 | [action-router.md](action-router.md) | Address → delegation → ranked goals, goal pages, prep, donate/about | `web/src/pages/`, `worker/src/route.ts`, `worker/src/ranking.ts`, `worker/src/prep.ts` |
 | [personalised-documents.md](personalised-documents.md) | Act page → screened, generated document → receipt and report | `web/src/components/ActForm.tsx`, `worker/src/generate.ts`, `worker/src/anthropic.ts` |
 | [maintainer-tooling.md](maintainer-tooling.md) | Draft a sourced position row, nightly report digest by email, seed `data/` into D1 | `worker/scripts/draft-position.ts`, `worker/src/digest.ts`, `worker/scripts/seed.ts` |
+| [member-pages.md](member-pages.md) | Roster import, member page with contact and position, whip count table, sitemap | `worker/scripts/import-members.ts`, `worker/src/whip.ts`, `web/src/pages/m/`, `web/src/pages/goals/[slug]/whip.astro` |
 
 ## Template (copy for a new capability)
 

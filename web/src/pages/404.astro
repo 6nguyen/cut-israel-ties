@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+// Cloudflare Pages serves 404.html for any path without a page: unknown member ids and goals land here.
+---
+<Base title="Not found — Cut the Ties" description="That page is not on file.">
+  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-16 flex flex-col gap-5">
+    <p class="label-code">404</p>
+    <h1 class="display-lg">Nothing on file at this address</h1>
+    <p class="text-lg max-w-2xl">The page may have moved, or the id is not a sitting member of Congress. Every goal and member page is linked from the goals list.</p>
+    <p><a href="/goals" class="btn btn-primary self-start">All goals →</a></p>
+  </section>
+</Base>

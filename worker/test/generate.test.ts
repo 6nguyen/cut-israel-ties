@@ -116,7 +116,7 @@ describe('POST /api/generate — happy path', () => {
     expect(done.body).toContain('Correa');
     expect(done.words).toBe(wordCount(done.body));
     expect(done.target.name).toBe('Lou Correa');
-    expect(done.target.phones).toEqual(['202-224-3121']);
+    expect(done.target.phones).toEqual(['202-225-2965']);
     expect(calls.haiku).toBe(1);
     expect(calls.opus).toBe(1);
     expect(repo.generations).toHaveLength(1);

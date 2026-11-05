@@ -1,0 +1,13 @@
+---
+import Base from '../../../layouts/Base.astro';
+import WhipTable from '../../../components/WhipTable.astro';
+import { whipGoals, type Goal } from '../../../lib/members';
+// Default view: the goal's movable set. Filtered views live under whip/[...filter].
+export function getStaticPaths() {
+  return whipGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
+}
+const { goal } = Astro.props as { goal: Goal };
+---
+<Base title={`Where everyone stands: ${goal.title} — Cut the Ties`} description={`Every member's sourced position on: ${goal.summary}`} image={`/goals/${goal.slug}/card.png`}>
+  <WhipTable goal={goal} />
+</Base>

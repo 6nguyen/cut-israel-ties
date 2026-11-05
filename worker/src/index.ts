@@ -175,6 +175,16 @@ export function createApp(deps: Deps) {
     return c.json({ id });
   });
 
+  // member-pages §2.2: the newest visible constituent report for one member and goal. Never touches `positions`.
+  app.get('/api/members/:bioguide_id/reports', async (c) => {
+    const repo = deps.repo(c.env);
+    const slug = c.req.query('goal') ?? '';
+    const [member, goal] = await Promise.all([repo.member(c.req.param('bioguide_id')), slug ? repo.goalBySlug(slug) : null]);
+    if (!member) return c.json({ error: 'no_member', message: 'No member by that id.' }, 404);
+    if (!goal) return c.json({ error: 'no_goal', message: 'Send a goal slug.' }, slug ? 404 : 400);
+    return c.json({ latest: await repo.latestReport(member.bioguide_id, goal.id) });
+  });
+
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
   return app;
 }

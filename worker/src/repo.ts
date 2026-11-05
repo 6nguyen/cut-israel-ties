@@ -1,5 +1,6 @@
 import type {
   Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
+  LatestReport,
 } from './types';
 
 const HOUR = 3_600_000;
@@ -172,6 +173,12 @@ export class D1Repo implements Repo {
     await this.db.prepare(`INSERT INTO digest_runs (ran_at, report_count) VALUES (?, ?)`).bind(iso(at), reportCount).run();
   }
 
+  async latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null> {
+    return (await this.db
+      .prepare(`SELECT outcome, note, created_at FROM reports WHERE bioguide_id = ? AND goal_id = ? AND hidden = 0 ORDER BY created_at DESC, id DESC LIMIT 1`)
+      .bind(bioguideId, goalId)
+      .first<LatestReport>()) ?? null;
+  }
 }
 
 export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
@@ -260,4 +267,8 @@ export class MemoryRepo implements Repo {
     return last ? new Date(last) : null;
   }
   async recordDigestRun(at: Date, reportCount: number): Promise<void> { this.digestRuns.push({ ran_at: iso(at), report_count: reportCount }); }
+  async latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null> {
+    const r = this.reports.filter((x) => x.bioguide_id === bioguideId && x.goal_id === goalId).at(-1);
+    return r ? { outcome: r.outcome, note: r.note, created_at: r.created_at } : null;
+  }
 }

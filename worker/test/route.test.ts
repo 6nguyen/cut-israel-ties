@@ -106,7 +106,7 @@ describe('POST /api/route — refusals (§1.2, §1.4)', () => {
   });
   it('a district with no members on file → 404 no_delegation', async () => {
     const { post } = app();
-    expect((await post({ state: 'WY', district: 0 })).status).toBe(404);
+    expect((await post({ state: 'ZZ', district: 0 })).status).toBe(404);
   });
 });
 

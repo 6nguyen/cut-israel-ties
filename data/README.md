@@ -32,13 +32,21 @@ rather than hand-filling those columns. The loader rejects any row without
 `source_url` and `source_date`.
 
 ## Provenance (2026-11-04)
-`members.csv` holds only the six fixture delegations the §1 tests need
-(CA-46, CA-23, TX-35, TX-21, PA-1, PA-2). Name, party, chamber, state and
-district are from the 119th Congress roster; `dc_phone` is the Capitol
-switchboard until each office number is sourced; every position flag is
-empty. Goal `decision_date` values are maintainer placeholders to be
-replaced with sourced dates before launch. Filling the full roster is a
-maintainer task (§7 tooling).
+`members.csv` holds every sitting member of the 119th Congress (539 rows:
+433 representatives, 6 delegates, 100 senators; vacant seats have no row),
+imported on 2026-11-04 from `unitedstates/congress-legislators`
+`legislators-current.yaml` (public domain) by
+`npm run import-members -w worker [path-to-yaml]` (downloads the file when
+no path is given). The dataset supplies
+`party`, `chamber`, `state`, `district`, `dc_phone` (the office number)
+and `contact_form_url`; `district_phone`, `money_url` and every flag
+column stay as they are in the file and are empty until sourced. The
+`name` column keeps the file's value for rows that already exist (common
+name, e.g. "Lou Correa"); new rows take the dataset's `official_full`.
+Re-running the import refreshes the dataset columns, adds new members and
+prints members no longer in the roster as `stale:`; it never deletes a
+row. Goal `decision_date` values are maintainer placeholders to be
+replaced with sourced dates before launch.
 
 ## Goal status lifecycle (PRD §2)
 `upcoming` → `active` → `completed` | `expired`. The overview and the

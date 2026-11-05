@@ -5,6 +5,7 @@ import { parse as parseYaml } from 'yaml';
 import type { Action, Goal, Member, Position, StateRow } from './types';
 import { parseRule } from './ranking';
 import { checkPrep } from './prep';
+import { districtError } from './districts';
 
 export interface Rows {
   goals: Goal[];
@@ -74,6 +75,20 @@ export function activateSuccessors(goals: Goal[]): void {
     if (!next) throw new Error(`goal ${g.slug}: successor_slug ${g.successor_slug} names no goal`);
     if (next.slug === g.slug) throw new Error(`goal ${g.slug}: successor_slug points at itself`);
     if ((g.status === 'completed' || g.status === 'expired') && next.status === 'upcoming') next.status = 'active';
+  }
+}
+
+/** Member-pages §1.3 seed checks on the raw CSV rows: one row per bioguide id, districts inside the state's count, senators without one. */
+export function checkMembers(rows: Record<string, string>[]): void {
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (seen.has(r.bioguide_id)) throw new Error(`members.csv: duplicate bioguide_id ${r.bioguide_id}`);
+    seen.add(r.bioguide_id);
+    if (r.chamber === 'senate' && r.district !== '') throw new Error(`members.csv: senator ${r.bioguide_id} has a district (${r.district})`);
+    if (r.chamber === 'house') {
+      const err = districtError(r.state, int(r.district));
+      if (err) throw new Error(`members.csv: ${r.bioguide_id}: ${err}`);
+    }
   }
 }
 
@@ -167,6 +182,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     target_2028: int(r.target_2028),
     money_url: str(r.money_url),
   }));
+  checkMembers(parseCsv(readFileSync(join(dataDir, 'members.csv'), 'utf8')));
 
   const positions: Position[] = [];
   for (const f of readdirSync(join(dataDir, 'positions')).filter((x) => x.endsWith('.csv')).sort()) {

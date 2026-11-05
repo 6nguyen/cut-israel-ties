@@ -59,7 +59,9 @@ receipts and reports are in `personalised-documents.md`.
    pick" block when `our_picks` is non-empty (first pick: name, rationale,
    source link, signal date); the goal's actions as buttons to
    `/goals/<slug>/act/<action>`; partner campaign link when `partner_url`
-   is set; sources list (`sources` rows) or a "not yet sourced" line. The
+   is set; sources list (`sources` rows) or a "not yet sourced" line.
+   A "Where everyone stands →" link opens `/goals/<slug>/whip` for goals
+   that have a whip table (`member-pages.md`). The
    sidebar's "Your targets" island reads the stored `{state, district}`
    and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
    "Enter your address" linking to `/`. A closed goal shows its outcome

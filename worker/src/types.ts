@@ -141,7 +141,12 @@ export interface Repo {
   activeBlocks(now: Date): Promise<BlockRow[]>;
   lastDigestRun(): Promise<Date | null>;
   recordDigestRun(at: Date, reportCount: number): Promise<void>;
+  // member-pages §2.2: the newest visible office response for one member and goal (GET /api/members/:id/reports).
+  latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null>;
 }
+
+/** What a member page shows of a constituent report: no device hash, no id. */
+export interface LatestReport { outcome: ReportOutcome; note: string | null; created_at: string }
 
 export interface Env {
   DB: D1Database;

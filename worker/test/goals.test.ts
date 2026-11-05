@@ -112,6 +112,6 @@ describe('GET /api/goals and /api/goals/:slug/targets (§2)', () => {
     expect(((await (await get('/api/goals/ndaa-report-vote/targets?state=CA&district=46')).json()) as { error: string }).error).toBe('no_goal');
     expect((await get('/api/goals/ndaa-1217/targets?state=California&district=46')).status).toBe(400);
     expect((await get('/api/goals/ndaa-1217/targets?state=CA')).status).toBe(400);
-    expect(((await (await get('/api/goals/ndaa-1217/targets?state=WY&district=0')).json()) as { error: string }).error).toBe('no_delegation');
+    expect(((await (await get('/api/goals/ndaa-1217/targets?state=ZZ&district=0')).json()) as { error: string }).error).toBe('no_delegation');
   });
 });
