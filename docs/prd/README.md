@@ -51,13 +51,13 @@ A PRD with no `Needs` entry can run in parallel with the row above it.
 | 6 | [on-device-districts.md](on-device-districts.md) | APPROVED | — | browser-location district lookup, per-state TopoJSON; privacy improvement, no feature depends on it |
 | 7 | [office-visits.md](office-visits.md) | APPROVED | 2, 3 | district-office visit listings and slot requests; lives on the captain screen and member pages |
 | 8 | [primary-2028.md](primary-2028.md) | APPROVED (§2 blocked) | 2 | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
+| 9 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–8 |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
 in the same commit; dropping an idea deletes its row.
 | # | Idea | Targets | Notes |
 |---|---|---|---|
-| 1 | Senate leader candidate scan (IG, TikTok, web) | new | Research first: `docs/research/senate-leader-candidates.md`; feeds `our_picks` on the Senate leader goal |
 
 ## Template (copy for a new feature)
 
