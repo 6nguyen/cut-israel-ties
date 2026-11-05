@@ -37,6 +37,7 @@ function main(argv: string[]): number {
     dc_phone: row.dc_phone || null, district_phone: row.district_phone || null, contact_form_url: row.contact_form_url || null,
     hasc: Number(row.hasc || 0), conferee: Number(row.conferee || 0), rc243: row.rc243, jrd_april_2026: row.jrd_april_2026 || null,
     btb_cosponsor: Number(row.btb_cosponsor || 0), target_2028: 1, money_url: row.money_url || null,
+    district_office_address: row.district_office_address || null, district_office_city: row.district_office_city || null,
   };
   const slug = primarySlug(state, district);
   const goalPath = join(DATA, 'goals', `${slug}.yaml`);

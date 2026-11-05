@@ -1,7 +1,6 @@
 import type {
   Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
-  LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts,
-  LatestReport, Visit, VisitRequestRow, VisitRow, VisitStatus,
+  LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
 
 const HOUR = 3_600_000;
