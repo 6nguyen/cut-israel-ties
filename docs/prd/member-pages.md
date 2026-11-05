@@ -134,13 +134,13 @@ from result cards.
 ## State (updated 2026-11-04)
 - Status: BUILDING
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Roster import · feat/member-pages · PR pending
-  - [~] 2. Member page · feat/member-pages · PR pending
-  - [~] 3. Whip count table · feat/member-pages · PR pending
-  - [~] 4. Build, sitemap and freshness · feat/member-pages · PR pending
+  - [~] 1. Roster import · feat/member-pages · PR #25
+  - [~] 2. Member page · feat/member-pages · PR #25
+  - [~] 3. Whip count table · feat/member-pages · PR #25
+  - [~] 4. Build, sitemap and freshness · feat/member-pages · PR #25
 - Completed: none merged; §1–4 built and green on the branch.
 - Folded: none merged; on the branch: `docs/specs/member-pages.md` added, `docs/specs/action-router.md` goal-detail link, `docs/specs/README.md` index row.
-- Branch / open PRs: `feat/member-pages` · PR pending.
+- Branch / open PRs: `feat/member-pages` · PR #25.
 - Files changed: `worker/scripts/import-members.ts` (new, §1); `worker/src/districts.ts` (new), `worker/src/load.ts` `checkMembers` (§1.3 seed checks); `data/members.csv` (539 rows), `data/README.md` §Provenance; `worker/src/whip.ts` (new: targets, rows, counts, filters); `worker/src/types.ts` (`Repo.latestReport`, `LatestReport`, appended), `worker/src/repo.ts` (D1 + memory `latestReport`, appended), `worker/src/index.ts` (`GET /api/members/:bioguide_id/reports` before `notFound`); `worker/test/members.test.ts` (new), `worker/test/{route,goals,generate}.test.ts` (roster-aware expectations: unknown state `ZZ`, sourced office phone); `web/src/lib/members.ts`, `web/src/pages/m/[id].astro`, `web/src/pages/m/[id]/card.png.ts`, `web/src/components/WhipTable.astro`, `web/src/pages/goals/[slug]/whip.astro`, `web/src/pages/goals/[slug]/whip/[...filter].astro`, `web/src/pages/goals/[slug].astro:89` (link), `web/src/pages/sitemap.xml.ts`, `web/src/pages/404.astro`, `web/public/robots.txt`.
 - Tests run + result: quiet-check prd-lint, doc-lint, tsc, test (worker vitest incl. new members.test.ts: seed checks, import merge, whip counts/sort/filters, reports endpoint), test-web, build — all PASS. Sizes: `/m/C001110` 2.7 KB gz HTML + 4.7 KB gz CSS (budget 100 KB); `/goals/ndaa-1217/whip` 11.4 KB gz, `/whip/all` 23.2 KB gz (budget 150 KB).
 - Remaining: merge; prior-vote flags (open question 1) come in a separate sourced `data/` PR.
@@ -155,7 +155,7 @@ from result cards.
 ## Changes
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Replaces `## Next` row 1.
-- 2026-11-04 — §1–4 built together on feat/member-pages (PR pending). Decisions:
+- 2026-11-04 — §1–4 built together on feat/member-pages (PR #25). Decisions:
   the import keeps the file's `name` for existing rows (dataset
   `official_full` only for new rows); query-string filters became
   pre-rendered filter pages (`/whip/all`, `/whip/<ST>`, `/whip/<ST>/<P>`,
