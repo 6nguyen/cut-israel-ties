@@ -1,5 +1,5 @@
 # On-device district lookup — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-04
 
 ## Problem
 Routing sends the visitor's street address to the Census Geocoder
@@ -107,16 +107,31 @@ location versus address (a boolean on the route request, no
 coordinates); null-resolution rate.
 
 ## State (updated 2026-11-04)
+- Status: BUILDING
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. District geometry build
-  - [ ] 2. "Use my location" path
-  - [ ] 3. Privacy page and copy
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all.
-- Next action: /implement-prd-section docs/prd/on-device-districts.md (§1).
-
+  - [~] 1. District geometry build · feat/on-device-districts · PR pending
+  - [~] 2. "Use my location" path · feat/on-device-districts · PR pending
+  - [~] 3. Privacy page and copy · feat/on-device-districts · PR pending
+- Completed: none merged; §1–§3 built on the branch.
+- Folded: none merged; the delta is applied on the branch
+  (`action-router.md` §Behavior 1 and 3, §Data & contracts, §Invariants;
+  `on-device-districts.md` added, README index row).
+- Branch / open PRs: `feat/on-device-districts` · PR pending.
+- Files changed: `scripts/build-districts.ts` (new); `web/public/districts/`
+  (51 state files, `states.json`, `manifest.json`, TIGER2025 CD119);
+  `web/src/lib/pip.ts`, `pip.test.ts`, `districts.fixture.json` (new);
+  `web/src/lib/api.ts:6` (`by_location`); `web/src/components/AddressForm.tsx`
+  (hasGeo/addressRef state, hydration effect, `locate()`, the control,
+  helper line); `web/src/pages/privacy.astro` (location bullet);
+  `package.json` (mapshaper devDependency); specs as under Folded.
+- Tests run: test-web 8 passed (52 fixture points resolve; 52 warm lookups
+  1 ms, cold 39 ms incl. decode); test, tsc, build, prd-lint, doc-lint PASS.
+  Landing gzip: HTML 3.9 KB + CSS 4.7 KB + island chunks ≈18.5 KB
+  (baseline ≈18.0 KB; +0.5 KB from the handler and Vite's preload helper);
+  `pip` chunk 1.0 KB and geometry load only after the tap.
+- Remaining: review and merge; follow-up PRD on the geocoder vintage (Changes).
+- Next action: merge the PR; then rerun the build with
+  `--vintage 2026 --congress 120` when `data/` moves to the 120th Congress.
 ## Open questions
 1. Should the location path become the default on phones? Proposal: no
    for v1; the address field stays first, the control second, until
@@ -128,3 +143,18 @@ coordinates); null-resolution rate.
 ## Changes
 - 2026-11-04 — created (APPROVED, auto: every question carries a
   proposal, none blocking). Replaces `## Next` row 5.
+- 2026-11-04 — §1–§3 built on `feat/on-device-districts` (one PR).
+  Geometry: TIGER2025 per-state `tl_2025_<fips>_cd119.zip` (the national
+  `tl_2025_us_cd119.zip` named in §1 does not exist; TIGER ships CD files
+  per state), mapshaper Visvalingam interval 30 m for districts and
+  1000 m for state outlines, `keep-shapes`; 52 files, 3.7 MB raw,
+  largest TX 117 KB gzip, `states.json` 35 KB gzip; against a 1 m
+  reference build 4 of 20,493 random points differ (0.02 %). Fixture: 52
+  points (50 capitols, DC, Philadelphia) recorded from the geocoder with
+  vintage `ACS2025_Current`, because `Current_Current` now returns the
+  120th Congress maps (2026 redistricting). Finding: the Worker's address
+  path reads whichever CD layer the geocoder returns, so it already
+  answers 120th districts in redistricted states; follow-up PRD: pin the
+  Worker to a vintage, or move `data/` to the 120th Congress and rebuild
+  with `--vintage 2026 --congress 120`. `by_location` is sent (the Worker
+  ignores unknown fields); nothing records it yet.

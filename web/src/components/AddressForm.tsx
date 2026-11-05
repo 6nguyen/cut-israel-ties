@@ -16,6 +16,8 @@ export default function AddressForm({ siteKey }: Props) {
   const [district, setDistrict] = useState('');
   const token = useRef<string | undefined>(undefined);
   const widget = useRef<HTMLDivElement>(null);
+  const [hasGeo, setHasGeo] = useState(false);
+  const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // §1.5 return visit: skip the field.
@@ -28,6 +30,9 @@ export default function AddressForm({ siteKey }: Props) {
       document.head.appendChild(s);
     }
   }, [siteKey]);
+
+  // on-device-districts §2.1: the location control exists only where the browser can give a position.
+  useEffect(() => { setHasGeo(typeof navigator !== 'undefined' && 'geolocation' in navigator); }, []);
 
   async function go(body: Parameters<typeof route>[0]) {
     setBusy(true); setError(null);
@@ -44,16 +49,32 @@ export default function AddressForm({ siteKey }: Props) {
     }
   }
 
+  /** on-device-districts §2: one-time position → lookup in the browser → the existing {state, district} route. Coordinates never leave this function. */
+  async function locate() {
+    setBusy(true); setError(null);
+    let pos: GeolocationPosition;
+    try {
+      pos = await new Promise<GeolocationPosition>((ok, fail) => navigator.geolocation.getCurrentPosition(ok, fail, { maximumAge: 0, enableHighAccuracy: false, timeout: 20000 }));
+    } catch {
+      setError('No location shared. Enter an address instead.'); setPicker(true); setBusy(false); addressRef.current?.focus(); return;
+    }
+    const { resolvePoint } = await import('../lib/pip');
+    const place = await resolvePoint(pos.coords.longitude, pos.coords.latitude).catch(() => null);
+    if (!place) { setError("We couldn't place that point. Enter an address."); setPicker(true); setBusy(false); addressRef.current?.focus(); return; }
+    await go({ state: place.state, district: place.district, by_location: true });
+  }
+
   return (
     <div class="w-full">
       <form class="flex flex-col sm:flex-row gap-3" onSubmit={(e) => { e.preventDefault(); void go({ address }); }}>
         <label class="sr-only" for="address">Street address</label>
-        <input id="address" name="address" type="text" autocomplete="street-address" required class="input-field flex-1 text-base"
+        <input id="address" name="address" type="text" autocomplete="street-address" required class="input-field flex-1 text-base" ref={addressRef}
           placeholder="Street address, city, state" value={address} onInput={(e) => setAddress((e.target as HTMLInputElement).value)} />
         <button type="submit" class="btn btn-primary whitespace-nowrap" disabled={busy}>{busy ? 'Finding…' : 'Find my actions →'}</button>
       </form>
       <div ref={widget} class="mt-2" />
-      <p class="mt-3 text-sm text-newsprint-muted"><span class="chip bg-acid text-ink mr-2">✓</span>Full street address needed: cities are split between districts. Nothing is stored.</p>
+      {hasGeo && <button type="button" class="btn btn-ghost mt-3 text-sm" disabled={busy} onClick={() => void locate()}>Use my location instead</button>}
+      <p class="mt-3 text-sm text-newsprint-muted"><span class="chip bg-acid text-ink mr-2">✓</span>Full street address, or use your location: nothing is stored.</p>
       {error && <p role="alert" class="mt-4 card border-crimson bg-newsprint text-ink px-4 py-3 text-sm font-semibold">{error}</p>}
       {picker && (
         <form class="mt-4 card bg-newsprint text-ink p-4 flex flex-col sm:flex-row gap-3 sm:items-end" onSubmit={(e) => { e.preventDefault(); void go({ state, district: Number(district) }); }}>

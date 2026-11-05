@@ -9,10 +9,12 @@ receipts and reports are in `personalised-documents.md`.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
-   the button "Find my actions", the line "Full street address needed:
-   cities are split between districts. Nothing is stored." and a link to
+   the button "Find my actions", the line "Full street address, or use
+   your location: nothing is stored." and a link to
    all goals. Below it, every active goal as a card linking to
-   `/goals/<slug>`.
+   `/goals/<slug>`. Under the field, only when the browser offers
+   `navigator.geolocation`, the control "Use my location instead"
+   (`on-device-districts.md`).
 2. **ZIP or partial input.** A bare ZIP (`\d{5}(-\d{4})?`) is refused
    before any lookup with "A ZIP code is not enough: many cities are split
    between districts. Enter your street address." Input shorter than eight
@@ -21,7 +23,13 @@ receipts and reports are in `personalised-documents.md`.
 3. **Lookup.** The Worker sends the address to the Census Geocoder
    (`geographies/onelineaddress`, benchmark `Public_AR_Current`, vintage
    `Current_Current`) and reads the 119th Congressional District and state.
-   At-large districts (`00`, `98`) are district 0.
+   At-large districts (`00`, `98`) are district 0. The location path
+   never reaches the geocoder: the browser resolves a one-time position
+   against `/districts/*.json` and posts `{state, district, by_location:
+   true}`. A denied or failed position shows "No location shared. Enter
+   an address instead."; a point in no polygon shows "We couldn't place
+   that point. Enter an address."; both focus the address field and open
+   the state + district picker.
 4. **Unresolved.** No match returns 404 `unresolved` with "retry, or pick
    your state and district"; the page shows the message, keeps the field
    and opens a state + district picker that posts `{state, district}` and
@@ -160,6 +168,10 @@ receipts and reports are in `personalised-documents.md`.
   `sessionStorage` `cut-ties:route` = last route response;
   `localStorage` `cut-ties:device` = random per-browser id (the Worker
   stores only its SHA-256).
+- `by_location: true` on the route body marks a location-path route; the
+  Worker ignores unknown fields, so it is a metric placeholder until one
+  reads it. No new storage key: the location path saves only the resolved
+  `{state, district}`.
 ## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
       request carrying it is the geocoder call, and the response body
@@ -189,6 +201,10 @@ receipts and reports are in `personalised-documents.md`.
       leadership goal with `our_picks` shows them in order before any
       section, and the ask names the first pick; every date, count or name
       in `prep_md` is a `data/` row or carries a `[VERIFY: …]` marker.
+- [ ] No coordinate is ever sent or logged: during the location path the
+      only requests are `GET /districts/<name>.json` (no query string) and
+      `POST /api/route {state, district, by_location}`
+      (`web/src/lib/pip.test.ts` asserts the loader names).
 
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
