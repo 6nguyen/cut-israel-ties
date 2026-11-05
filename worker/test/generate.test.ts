@@ -406,7 +406,7 @@ describe('POST /api/receipt and /api/report (§4.5–4.6)', () => {
     const res = await post('/api/receipt', { goal: 'ndaa-1217', action: 'ndaa-1217-call', target: CORREA, state: 'CA', district: 46, device: DEVICE });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ id: 1 });
-    expect(repo.receipts[0]).toEqual({ goal_id: 2, action_id: 2, target_id: CORREA, state: 'CA', district: 46, created_at: TODAY.toISOString(), device_hash: await sha(DEVICE), kind: 'action' });
+    expect(repo.receipts[0]).toEqual({ goal_id: 2, action_id: 2, target_id: CORREA, state: 'CA', district: 46, created_at: TODAY.toISOString(), device_hash: await sha(DEVICE), kind: 'action', ip_hash: await sha('203.0.113.9||2026-11-04') });
     expect((await post('/api/receipt', { goal: 'ndaa-1217', action: 'state-bonds-call', target: 'TX', device: DEVICE })).status).toBe(400);
     expect((await post('/api/receipt', { goal: 'state-bonds', action: 'state-bonds-call', target: 'TX', device: DEVICE })).status).toBe(200);
   });
@@ -416,7 +416,7 @@ describe('POST /api/receipt and /api/report (§4.5–4.6)', () => {
     const res = await post('/api/receipt', { goal: 'ndaa-1217', action: 'captain-list', state: 'CA', district: 46, device: DEVICE });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ id: 1 });
-    expect(repo.receipts[0]).toEqual({ goal_id: 2, action_id: null, target_id: null, state: 'CA', district: 46, created_at: TODAY.toISOString(), device_hash: await sha(DEVICE), kind: 'captain-list' });
+    expect(repo.receipts[0]).toEqual({ goal_id: 2, action_id: null, target_id: null, state: 'CA', district: 46, created_at: TODAY.toISOString(), device_hash: await sha(DEVICE), kind: 'captain-list', ip_hash: await sha('203.0.113.9||2026-11-04') });
     expect(JSON.stringify(repo.receipts)).not.toMatch(/people|name/);
     // a target with a captain list is refused; so is an upcoming or unknown goal
     expect((await post('/api/receipt', { goal: 'ndaa-1217', action: 'captain-list', target: CORREA, device: DEVICE })).status).toBe(400);

@@ -27,8 +27,9 @@
     "MAX_GENERATIONS_PER_DAY": "500",
     "STRIPE_LINKS": "{}",
     "MAINTAINER_EMAIL": "",
-    "DIGEST_FROM": "digest@example.org"
-    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY.
+    "DIGEST_FROM": "digest@example.org",
+    "COUNT_THRESHOLD": "5"
+    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY, IP_SALT.
     // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
   }
 }

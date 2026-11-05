@@ -108,10 +108,16 @@ CREATE TABLE receipts (
   -- commitment-funnel §2.1: a completed captain list is a receipt of kind 'captain-list' with no
   -- action and no target (names never reach the server); 'action' rows keep both and the FK.
   kind TEXT NOT NULL DEFAULT 'action' CHECK (kind IN ('action','captain-list')),
+  -- district-counters §3.2: SHA-256(ip | daily salt | UTC date); rotates daily so days cannot be joined. NULL on old rows.
+  ip_hash TEXT,
   CHECK (CASE kind WHEN 'action' THEN action_id IS NOT NULL AND target_id IS NOT NULL ELSE action_id IS NULL AND target_id IS NULL END)
 );
 CREATE INDEX receipts_created ON receipts(created_at);
 CREATE INDEX receipts_kind_goal ON receipts(kind, goal_id, state, district);
+-- district-counters: §1 count window and §3 limits.
+CREATE INDEX receipts_goal_place ON receipts(goal_id, state, district, created_at);
+CREATE INDEX receipts_device ON receipts(device_hash, created_at);
+CREATE INDEX receipts_ip ON receipts(ip_hash, created_at);
 
 CREATE TABLE reports (
   id INTEGER PRIMARY KEY,

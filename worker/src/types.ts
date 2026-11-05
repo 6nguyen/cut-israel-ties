@@ -107,7 +107,11 @@ export interface GenerationRow {
   model: string;
 }
 export type ReceiptKind = 'action' | 'captain-list'; // commitment-funnel §2.1: 'captain-list' rows have no action and no target
-export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind }
+export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind; ip_hash: string | null }
+/** district-counters §1: one COUNT per bucket; `calls|letters|comments` follow the action `type`, `captain_lists` the receipt kind. */
+export interface ReceiptBuckets { calls: number; letters: number; comments: number; captain_lists: number }
+/** district-counters §3: the receipt limits read; windows are [now − 24 h, now] and [now − 10 min, now]. */
+export interface ReceiptLimitCounts { device_day: number; repeat: number; ip_day: number }
 export type ReportOutcome = 'will_support' | 'undecided' | 'opposed' | 'no_answer' | 'other';
 export interface ReportRow { bioguide_id: string; goal_id: number; outcome: ReportOutcome; note: string | null; created_at: string; device_hash: string }
 export type ScreenClass = 'off_topic' | 'injection' | 'harmful';
@@ -148,6 +152,9 @@ export interface Repo {
   recordDigestRun(at: Date, reportCount: number): Promise<void>;
   // member-pages §2.2: the newest visible office response for one member and goal (GET /api/members/:id/reports).
   latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null>;
+  // district-counters §1/§3 (worker/src/counts.ts and POST /api/receipt are the only callers).
+  countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }>;
+  receiptLimitCounts(deviceHash: string, ipHash: string, goalId: number, actionId: number | null, kind: ReceiptKind, now: Date): Promise<ReceiptLimitCounts>;
 }
 
 /** What a member page shows of a constituent report: no device hash, no id. */
@@ -163,4 +170,7 @@ export interface Env {
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;
   DIGEST_FROM?: string;
+  // district-counters: hide buckets below this (default 5); daily salt for receipts.ip_hash (secret).
+  COUNT_THRESHOLD?: string;
+  IP_SALT?: string;
 }

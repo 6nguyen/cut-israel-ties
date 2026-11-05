@@ -1,6 +1,6 @@
 import type {
   Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
-  LatestReport,
+  LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts,
 } from './types';
 
 const HOUR = 3_600_000;
@@ -136,8 +136,8 @@ export class D1Repo implements Repo {
   }
   async insertReceipt(row: ReceiptRow): Promise<number> {
     const r = await this.db
-      .prepare(`INSERT INTO receipts (goal_id, action_id, target_id, state, district, created_at, device_hash, kind) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-      .bind(row.goal_id, row.action_id, row.target_id, row.state, row.district, row.created_at, row.device_hash, row.kind)
+      .prepare(`INSERT INTO receipts (goal_id, action_id, target_id, state, district, created_at, device_hash, kind, ip_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(row.goal_id, row.action_id, row.target_id, row.state, row.district, row.created_at, row.device_hash, row.kind, row.ip_hash)
       .run();
     return Number(r.meta.last_row_id);
   }
@@ -179,6 +179,49 @@ export class D1Repo implements Repo {
       .bind(bioguideId, goalId)
       .first<LatestReport>()) ?? null;
   }
+
+  // district-counters §1: one query, grouped by in-district flag, kind and action type; code sums the buckets.
+  async countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }> {
+    const { results } = await this.db
+      .prepare(
+        `SELECT (r.district = ?3) AS in_district, r.kind, a.type, COUNT(*) AS n
+         FROM receipts r LEFT JOIN actions a ON a.id = r.action_id
+         WHERE r.goal_id = ?1 AND r.state = ?2 AND r.created_at >= ?4
+         GROUP BY in_district, r.kind, a.type`,
+      )
+      .bind(goalId, state, district, sinceIso)
+      .all<{ in_district: number | null; kind: ReceiptKind; type: string | null; n: number }>();
+    return foldBuckets(results.map((r) => ({ inDistrict: r.in_district === 1, kind: r.kind, type: r.type, n: Number(r.n) })));
+  }
+  // district-counters §3: the three receipt limits in one read.
+  async receiptLimitCounts(deviceHash: string, ipHash: string, goalId: number, actionId: number | null, kind: ReceiptKind, now: Date): Promise<ReceiptLimitCounts> {
+    const dayAgo = iso(new Date(now.getTime() - DAY));
+    const tenAgo = iso(new Date(now.getTime() - 10 * 60_000));
+    const row = await this.db
+      .prepare(
+        `SELECT
+           SUM(device_hash = ?1) AS device_day,
+           SUM(device_hash = ?1 AND goal_id = ?3 AND kind = ?5 AND action_id IS ?4 AND created_at >= ?6) AS repeat,
+           SUM(ip_hash = ?2) AS ip_day
+         FROM receipts WHERE created_at >= ?7`,
+      )
+      .bind(deviceHash, ipHash, goalId, actionId, kind, tenAgo, dayAgo)
+      .first<Record<keyof ReceiptLimitCounts, number | null>>();
+    return { device_day: row?.device_day ?? 0, repeat: row?.repeat ?? 0, ip_day: row?.ip_day ?? 0 };
+  }
+}
+
+/** Sums grouped receipt rows into state buckets (every row) and district buckets (in-district rows). */
+export function foldBuckets(rows: { inDistrict: boolean; kind: ReceiptKind; type: string | null | undefined; n: number }[]): { district: ReceiptBuckets; state: ReceiptBuckets } {
+  const district: ReceiptBuckets = { calls: 0, letters: 0, comments: 0, captain_lists: 0 };
+  const state: ReceiptBuckets = { calls: 0, letters: 0, comments: 0, captain_lists: 0 };
+  for (const r of rows) {
+    const b = r.kind === 'captain-list' ? 'captain_lists' : r.type === 'call' ? 'calls' : r.type === 'letter' ? 'letters' : r.type === 'public_comment' ? 'comments' : null;
+    if (!b) continue;
+    state[b] += r.n;
+    if (r.inDistrict) district[b] += r.n;
+  }
+  return { district, state };
 }
 
 export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
@@ -270,5 +313,23 @@ export class MemoryRepo implements Repo {
   async latestReport(bioguideId: string, goalId: number): Promise<LatestReport | null> {
     const r = this.reports.filter((x) => x.bioguide_id === bioguideId && x.goal_id === goalId).at(-1);
     return r ? { outcome: r.outcome, note: r.note, created_at: r.created_at } : null;
+  }
+  async countReceipts(goalId: number, state: string, district: number | null, sinceIso: string): Promise<{ district: ReceiptBuckets; state: ReceiptBuckets }> {
+    const type = (id: number | null) => this.rows.actions.find((a) => a.id === id)?.type ?? null;
+    return foldBuckets(
+      this.receipts
+        .filter((r) => r.goal_id === goalId && r.state === state && r.created_at >= sinceIso)
+        .map((r) => ({ inDistrict: district !== null && r.district === district, kind: r.kind, type: type(r.action_id), n: 1 })),
+    );
+  }
+  async receiptLimitCounts(deviceHash: string, ipHash: string, goalId: number, actionId: number | null, kind: ReceiptKind, now: Date): Promise<ReceiptLimitCounts> {
+    const dayAgo = iso(new Date(now.getTime() - DAY));
+    const tenAgo = iso(new Date(now.getTime() - 10 * 60_000));
+    const day = this.receipts.filter((r) => r.created_at >= dayAgo);
+    return {
+      device_day: day.filter((r) => r.device_hash === deviceHash).length,
+      repeat: day.filter((r) => r.device_hash === deviceHash && r.goal_id === goalId && r.kind === kind && r.action_id === actionId && r.created_at >= tenAgo).length,
+      ip_day: day.filter((r) => r.ip_hash === ipHash).length,
+    };
   }
 }
