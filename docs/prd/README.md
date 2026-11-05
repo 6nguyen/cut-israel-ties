@@ -41,7 +41,6 @@ never load them.
 ## Index (open changes only)
 | PRD | Status | Owner surfaces |
 |---|---|---|
-| [action-router](action-router.md) | APPROVED | new: landing + address routing, goals overview/detail, prep pages, personalised documents, ranking, donations, maintainer tooling |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row

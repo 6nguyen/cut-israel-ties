@@ -46,7 +46,7 @@ Before editing code under a mapped area, read its map.
   spec change; `prd-lint` fails on a stale one.
 
 ## Performance budgets
-From `docs/prd/action-router.md` acceptance criteria:
+From `docs/prd/archive/2026-11-action-router.md` acceptance criteria:
 - Landing ≤100 KB transferred; LCP ≤1.5 s on a mid-range phone over 4G.
 - `/api/route` ≤2 s p95.
 - Generation: first streamed token ≤3 s p95, complete ≤10 s p95.
