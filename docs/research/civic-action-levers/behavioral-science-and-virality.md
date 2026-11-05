@@ -1,5 +1,5 @@
 # Behavioral science and virality
-Researched: 2026-11-04 · Informs: [docs/prd/vote-tracker.md](../../prd/vote-tracker.md)
+Researched: 2026-11-04 · Informs: [docs/prd/action-router.md](../../prd/action-router.md)
 
 Question set: (1) do small ineffective tasks placate people; (2) what motivates hard, effective action; (3) how to get people to join and keep using a tool; (4) what makes it spread; (5) how virality distorts the tool; (6) sharing mechanics.
 
