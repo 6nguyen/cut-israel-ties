@@ -58,6 +58,39 @@ describe('eligibility rules (§5.3)', () => {
     d.state_row.campaign_name = 'Divest';
     expect(evaluate(bySlug['state-bonds'], d)).toBe(true);
   });
+  it('rules may test only the §5.1 inputs, with the right value types', () => {
+    const bad = [
+      '{"house":{"partyy":"D"}}',
+      '{"house":{"party":"X"}}',
+      '{"house":{"hasc":true}}',
+      '{"senator":{"hasc":1}}',
+      '{"state":{"nonempty":["state"]}}',
+      '{"state":{}}',
+      '{"all":[]}',
+      '{"always":false}',
+      '{"house":{},"senator":{}}',
+      '[]',
+      'not json',
+    ];
+    for (const b of bad) expect(() => parseRule(b), b).toThrow();
+    const good = [
+      '{"always":true}',
+      '{"house":{"party":"R","hasc":1,"conferee":0,"btb_cosponsor":1,"rc243":"yes"}}',
+      '{"senator":{"party":"D","jrd_april_2026":"yes"}}',
+      '{"all":[{"any":[{"house":{}}]},{"state":{"nonempty":["israel_bonds_usd"]}}]}',
+    ];
+    for (const g of good) expect(() => parseRule(g), g).not.toThrow();
+  });
+  it('flag rules match the seeded integer flags', () => {
+    const d = delegation('D', ['D', 'D']);
+    d.house = member({ party: 'D', hasc: 1, conferee: 1 });
+    expect(evaluate(parseRule('{"house":{"hasc":1}}'), d)).toBe(true);
+    expect(evaluate(parseRule('{"house":{"conferee":0}}'), d)).toBe(false);
+    expect(evaluate(parseRule('{"all":[{"house":{"party":"D"}},{"senator":{"party":"R"}}]}'), d)).toBe(false);
+  });
+  it('every seeded goal rule validates', () => {
+    for (const g of rows.goals) expect(() => parseRule(g.eligibility), g.slug).not.toThrow();
+  });
   it('unknown rule keys throw', () => {
     expect(() => evaluate({ bogus: 1 } as never, delegation('D', []))).toThrow(/unknown eligibility/);
   });
