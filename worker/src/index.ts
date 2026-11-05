@@ -143,15 +143,21 @@ export function createApp(deps: Deps) {
       return c.json({ error: 'bad_request', message: 'Send goal, action, target and device.' }, 400);
     }
     const repo = deps.repo(c.env);
+    const state = typeof body.state === 'string' && STATE.test(body.state) ? body.state : null;
+    const district = Number.isInteger(body.district) && (body.district as number) >= 0 ? (body.district as number) : null;
+    const common = { state, district, created_at: deps.now().toISOString(), device_hash: await sha256Hex(body.device) };
+    // commitment-funnel §2.1: a completed captain list is a receipt with no action and no target. Names never arrive here.
+    if (body.action === 'captain-list') {
+      if (body.target !== undefined && body.target !== null) return c.json({ error: 'bad_request', message: 'A captain list carries no target.' }, 400);
+      const goal = await repo.goalBySlug(body.goal);
+      if (!goal || goal.status !== 'active') return c.json({ error: 'no_action', message: 'No open goal by that name.' }, 400);
+      return c.json({ id: await repo.insertReceipt({ goal_id: goal.id, action_id: null, target_id: null, kind: 'captain-list', ...common }) });
+    }
     const [goal, action] = await Promise.all([repo.goalBySlug(body.goal), repo.actionBySlug(body.action)]);
     if (!goal || !action || action.goal_id !== goal.id) return c.json({ error: 'no_action', message: 'No open action by that name.' }, 400);
     const target = await resolveTarget(repo, action, goal, body.target);
     if (!target) return c.json({ error: 'no_target', message: 'That target is not on file for this action.' }, 400);
-    const state = typeof body.state === 'string' && STATE.test(body.state) ? body.state : null;
-    const district = Number.isInteger(body.district) && (body.district as number) >= 0 ? (body.district as number) : null;
-    const id = await repo.insertReceipt({
-      goal_id: goal.id, action_id: action.id, target_id: target.id, state, district, created_at: deps.now().toISOString(), device_hash: await sha256Hex(body.device),
-    });
+    const id = await repo.insertReceipt({ goal_id: goal.id, action_id: action.id, target_id: target.id, kind: 'action', ...common });
     return c.json({ id });
   });
 

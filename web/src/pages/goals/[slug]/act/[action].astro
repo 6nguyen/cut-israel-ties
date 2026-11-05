@@ -18,7 +18,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
     <p class="label-code"><a href={`/goals/${goal.slug}`} class="underline">{goal.title}</a> · the ask</p>
     <h1 class="headline-lg mt-2 max-w-3xl">{action.ask_text}</h1>
     <div class="mt-8 max-w-2xl">
-      <ActForm client:load goal={goal.slug} action={action.slug} type={action.type} scope={action.target_scope} fields={fields} fmt={fmt} siteKey={siteKey} />
+      <ActForm client:load goal={goal.slug} action={action.slug} type={action.type} scope={action.target_scope} fields={fields} fmt={fmt} siteKey={siteKey} title={goal.title} decision={goal.decision_date} />
     </div>
     <p class="mt-8 text-sm"><a href="/results" class="underline">Your two actions</a> · <a href="/privacy" class="underline">what is stored</a></p>
   </section>

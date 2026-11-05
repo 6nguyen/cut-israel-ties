@@ -135,8 +135,8 @@ export class D1Repo implements Repo {
   }
   async insertReceipt(row: ReceiptRow): Promise<number> {
     const r = await this.db
-      .prepare(`INSERT INTO receipts (goal_id, action_id, target_id, state, district, created_at, device_hash) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-      .bind(row.goal_id, row.action_id, row.target_id, row.state, row.district, row.created_at, row.device_hash)
+      .prepare(`INSERT INTO receipts (goal_id, action_id, target_id, state, district, created_at, device_hash, kind) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(row.goal_id, row.action_id, row.target_id, row.state, row.district, row.created_at, row.device_hash, row.kind)
       .run();
     return Number(r.meta.last_row_id);
   }

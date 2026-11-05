@@ -12,7 +12,9 @@ receipts and reports are in `personalised-documents.md`.
    the button "Find my actions", the line "Full street address needed:
    cities are split between districts. Nothing is stored." and a link to
    all goals. Below it, every active goal as a card linking to
-   `/goals/<slug>`.
+   `/goals/<slug>`. A return visitor with a stored district and an open
+   commitment or captain list sees the "Your week" card above the field
+   (`commitment-funnel.md` §5) instead of the redirect in §6.
 2. **ZIP or partial input.** A bare ZIP (`\d{5}(-\d{4})?`) is refused
    before any lookup with "A ZIP code is not enough: many cities are split
    between districts. Enter your street address." Input shorter than eight
@@ -38,7 +40,8 @@ receipts and reports are in `personalised-documents.md`.
    `/`.
 6. **Return visit.** The browser keeps only `{state, district}` in
    `localStorage` (`cut-ties:place`); `/` redirects straight to `/results`,
-   which re-posts the stored pair. The last route response is cached in
+   which re-posts the stored pair, unless an open commitment or captain
+   list keeps the visitor on `/` (§1). The last route response is cached in
    `sessionStorage` (`cut-ties:route`) for the immediate navigation only.
 7. **Targets per goal.** Federal goals target the representative and both
    senators; leadership goals target only Democratic members of the
