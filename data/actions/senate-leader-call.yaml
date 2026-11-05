@@ -1,0 +1,9 @@
+slug: senate-leader-call
+goal: senate-leader
+type: call
+target_scope: senate
+order: 1
+ask_text: Ask your senator to vote only for a leader who commits, in public, to stripping the integration section.
+form_schema: {"fields": []}
+prompt_template: ""
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}

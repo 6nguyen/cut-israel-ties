@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+interface Props { title: string; description?: string }
+const { title, description = 'Enter your address. We find your members of Congress and the two things you can do this week to cut US military ties with Israel.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=Space+Mono:wght@700&family=Syne:wght@800&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen flex flex-col selection:bg-acid selection:text-ink">
+    <header class="border-b-2 border-ink bg-newsprint">
+      <div class="mx-auto max-w-[1360px] px-4 lg:px-10 h-14 flex items-center justify-between">
+        <a href="/" class="flex items-baseline gap-2">
+          <span class="font-condensed text-2xl tracking-wider uppercase">Cut the Ties</span>
+          <span class="label-ticker hidden sm:inline">Constituent action</span>
+        </a>
+        <nav class="flex items-center gap-4">
+          <a href="/goals" class="label-code hover:underline">All goals</a>
+          <a href="/donate" class="btn btn-primary !py-2 !px-3 text-xs">Donate</a>
+        </nav>
+      </div>
+    </header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="bg-ink text-newsprint border-t-2 border-ink mt-10">
+      <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <p class="font-syne font-extrabold text-lg">
+          Built and paid for by one person; donations keep it up.
+          <a href="/donate" class="underline decoration-acid decoration-2 underline-offset-4 hover:text-acid">Donate</a>
+        </p>
+        <nav class="flex gap-5 label-ticker">
+          <a href="/about" class="hover:text-acid">About</a>
+          <a href="/privacy" class="hover:text-acid">Privacy</a>
+          <a href="/goals" class="hover:text-acid">All goals</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

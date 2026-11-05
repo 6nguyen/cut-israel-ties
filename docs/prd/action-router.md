@@ -349,21 +349,28 @@ page shows the real number from `MONTHLY_COST_USD`.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Landing and address routing
+  - [~] 1. Landing and address routing · feat/action-router-landing-routing · PR #8
   - [ ] 5. Goal ranking (deterministic)
   - [ ] 2. Goals overview and detail
   - [ ] 4. Actions and personalised documents
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all.
-- Decisions since last update: supersedes vote-tracker; stack, donations
-  and funnel scope decided with the owner (see Changes).
-- Next action: scaffold repo (Astro + Worker + D1 + `data/`) as §1.
-
+- Completed: §1 (built, awaiting merge). §5 ranking engine landed inside §1
+  (`worker/src/ranking.ts`, 15 tests); §5 still needs its own review.
+- Folded: §1 (`docs/specs/action-router.md` created).
+- Branch / open PRs: feat/action-router-landing-routing · PR #8.
+- Files changed: `web/` (Astro + Tailwind + Preact), `worker/` (Hono + D1,
+  `schema.sql`, `seed.ts`), `data/` (goals, actions, members, states),
+  `scripts/quiet-check.sh`, `.github/workflows/ci.yml`, `CLAUDE.md`.
+- Tests run: quiet-check tsc PASS, test PASS (40 vitest), build PASS;
+  landing 20 KB gzip; manual browser check desktop + 390 px.
+- Remaining: §5 review, §2, §4, §3, §6, §7.
+- Decisions since last update: Turnstile on `/api/route` (skipped when the
+  secret is unset); six fixture delegations only in `data/members.csv`;
+  hero photos replaced by a neutral gradient (no licence-safe image yet).
+- Next action: merge PR #8, then /implement-prd-section
+  docs/prd/action-router.md (next: §5. Goal ranking (deterministic)).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
    the goal ships with up to three picks (`our_picks`), chosen by a
@@ -410,3 +417,8 @@ page shows the real number from `MONTHLY_COST_USD`.
   `our_picks`); misuse guardrails and tighter generation limits added
   (§4.7–4.8, `screenings`/`blocks`, three acceptance tests); 3–7
   decided as proposed. UI design brief: `docs/research/ui-design-brief.md`.
+- 2026-11-04 — §1 built: Astro + Tailwind + Preact site, Hono Worker with
+  D1 seeded from `data/`, `POST /api/route` (Turnstile, Census Geocoder,
+  no address logging) and the §5 ranking engine; landing + results pages;
+  `tsc`/`test`/`build` quiet-check targets in CI; perf budgets copied to
+  CLAUDE.md; spec folded to `docs/specs/action-router.md`.

@@ -1,0 +1,9 @@
+---
+import Base from '../layouts/Base.astro';
+import Results from '../components/Results';
+---
+<Base title="Your two actions this week — Cut the Ties">
+  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10 lg:py-14">
+    <Results client:load />
+  </section>
+</Base>

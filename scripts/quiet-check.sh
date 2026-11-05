@@ -18,10 +18,10 @@ TARGETS='
 prd-lint|.|bash scripts/prd-lint.sh|generic
 doc-lint|.|bash scripts/doc-lint.sh|generic
 # pytest|backend|.venv/bin/python -m pytest -q -rfE --tb=short|pytest
-# tsc|web|npx tsc --noEmit|tsc
-# build|web|npm run build|nextbuild
+tsc|worker|npx tsc --noEmit|tsc
+build|web|npm run build|nextbuild
 # e2e|web|npx playwright test --reporter=line|playwright
-# unit|web|npx vitest run|vitest
+test|worker|npx vitest run|vitest
 # ios|ios|xcodebuild test -scheme App -destination "platform=iOS Simulator,name=iPhone 17" -derivedDataPath build|xcodebuild
 '
 

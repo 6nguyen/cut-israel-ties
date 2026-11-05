@@ -1,0 +1,17 @@
+slug: state-bonds
+category: state
+title: Get your state treasury out of Israel Bonds
+summary: State treasurers hold Israel Bonds with public money and decide alone whether to roll them over. A public comment or a call to the treasurer's office is on the record.
+what_we_want: The treasurer stops buying and lets current Israel Bonds mature without rollover.
+status: active
+window_start: 2026-01-01
+window_end: 2027-12-31
+decision_date: ""
+priority: 1
+eligibility: {"state": {"nonempty": ["israel_bonds_usd", "campaign_name"]}}
+our_picks: []
+this_week: ""
+this_week_date: ""
+detail_md: ""
+prep_md: ""
+partner_url: ""

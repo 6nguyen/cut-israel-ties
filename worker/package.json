@@ -1,0 +1,25 @@
+{
+  "name": "@cut/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx scripts/seed.ts && wrangler d1 execute cut_ties --local --file=schema.sql && wrangler d1 execute cut_ties --local --file=seed.sql",
+    "seed:remote": "tsx scripts/seed.ts && wrangler d1 execute cut_ties --remote --file=schema.sql && wrangler d1 execute cut_ties --remote --file=seed.sql"
+  },
+  "dependencies": {
+    "hono": "^4.10.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251104.0",
+    "@types/node": "^22.20.5",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0",
+    "wrangler": "^4.40.0",
+    "yaml": "^2.8.0"
+  }
+}

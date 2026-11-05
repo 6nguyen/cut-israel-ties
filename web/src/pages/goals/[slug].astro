@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadGoals } from '../../lib/goals';
+export function getStaticPaths() {
+  return loadGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
+}
+const { goal } = Astro.props;
+---
+<Base title={`${goal.title} — Cut the Ties`}>
+  <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
+    <span class="chip bg-hazard">{goal.category.replace('_', ' ')}</span>
+    <h1 class="display-lg mt-3 max-w-4xl">{goal.title}</h1>
+    <p class="mt-4 max-w-2xl text-lg">{goal.summary}</p>
+    <p class="mt-6 card p-4 max-w-2xl text-sm">Stub: the goal detail page and its actions land with §2 and §4. <a href="/" class="underline">Back to your actions</a>.</p>
+  </section>
+</Base>

@@ -1,0 +1,19 @@
+{
+  "name": "@cut/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/preact": "^4.1.1",
+    "@tailwindcss/vite": "^4.1.0",
+    "astro": "^5.15.0",
+    "preact": "^10.26.0",
+    "tailwindcss": "^4.1.0",
+    "yaml": "^2.8.0"
+  }
+}

@@ -16,6 +16,7 @@ Rules:
 ## Index (the feature set)
 | Spec | Capability | Owner surfaces |
 |---|---|---|
+| [action-router.md](action-router.md) | Address → delegation → two ranked goals | `web/src/pages/index.astro`, `web/src/pages/results.astro`, `worker/src/route.ts`, `worker/src/ranking.ts` |
 
 ## Template (copy for a new capability)
 

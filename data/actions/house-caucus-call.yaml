@@ -1,0 +1,9 @@
+slug: house-caucus-call
+goal: house-caucus
+type: call
+target_scope: house
+order: 1
+ask_text: Ask your representative to say on the record that they will vote against any NDAA report that keeps the integration section.
+form_schema: {"fields": []}
+prompt_template: ""
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}

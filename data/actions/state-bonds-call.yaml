@@ -1,0 +1,9 @@
+slug: state-bonds-call
+goal: state-bonds
+type: call
+target_scope: state
+order: 1
+ask_text: Ask the treasurer's office whether the state holds Israel Bonds and when they will stop rolling them over.
+form_schema: {"fields": []}
+prompt_template: ""
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}

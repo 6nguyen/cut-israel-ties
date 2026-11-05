@@ -1,0 +1,17 @@
+slug: ndaa-1217
+category: federal_vote
+title: Strip the Israel integration section from the NDAA
+summary: House and Senate conferees are reconciling the FY27 NDAA. The integration section (House §219 / Senate §1217) locks US forces into joint operations and munitions pipelines with Israel. Conferees can delete it.
+what_we_want: Conferees drop the integration section from the conference report; members vote no on a report that keeps it.
+status: active
+window_start: 2026-10-01
+window_end: 2026-12-31
+decision_date: 2026-12-10   # placeholder: set to the conference report date when scheduled
+priority: 3
+eligibility: {"any": [{"house": {}}, {"senator": {}}]}
+our_picks: []
+this_week: Conferees are meeting; staff tally constituent calls before the report is filed.
+this_week_date: 2026-11-04
+detail_md: ""
+prep_md: ""
+partner_url: ""

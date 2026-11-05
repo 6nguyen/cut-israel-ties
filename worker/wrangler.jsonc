@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cut-ties-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  // Production: route /api/* of the Pages domain to this Worker.
+  // "routes": [{ "pattern": "example.org/api/*", "zone_name": "example.org" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cut_ties",
+      // Replace with the id `wrangler d1 create cut_ties` prints.
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "vars": {
+    "MONTHLY_COST_USD": "0",
+    "MAX_GENERATIONS_PER_DAY": "500",
+    "STRIPE_LINKS": "{}"
+    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY.
+    // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
+  }
+}

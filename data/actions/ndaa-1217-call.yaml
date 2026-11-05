@@ -1,0 +1,9 @@
+slug: ndaa-1217-call
+goal: ndaa-1217
+type: call
+target_scope: both
+order: 1
+ask_text: Ask your member to tell the conferees to drop the integration section, and to vote no on a report that keeps it.
+form_schema: {"fields": []}
+prompt_template: ""
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120}
