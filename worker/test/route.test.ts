@@ -150,7 +150,7 @@ describe('privacy: the address never reaches a log or a store (§1.2)', () => {
     const repo = new MemoryRepo(rows);
     const writers = Object.getOwnPropertyNames(Object.getPrototypeOf(repo)).filter((n) => /insert|write|save|record|put|set|^block$/i.test(n));
     expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening']);
-    const spies = writers.map((w) => vi.spyOn(repo, w as keyof MemoryRepo & string));
+    const spies = writers.map((w) => vi.spyOn(repo as unknown as Record<string, (...a: unknown[]) => unknown>, w));
     const a = createApp({ repo: () => repo, fetch: f.impl, now: () => TODAY });
     for (const fx of FIXTURES) {
       const res = await a.request('/api/route', { method: 'POST', body: JSON.stringify({ address: fx.address }), headers: { 'content-type': 'application/json' } }, ENV);
