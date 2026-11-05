@@ -96,6 +96,13 @@ stores identifies them. Address routing, goals and ranking are in
   (action guidance appended to the system prompt) and `doc_format`
   (`kind, min_words, max_words, mentions[], ask`); `mentions` and `ask`
   are the exact phrases the output check requires.
+- Receipt limits (`district-counters.md` §8–9): `POST /api/receipt`
+  answers 429 `limit_day` after 10 receipts per device hash in 24 h,
+  `limit_repeat` for a second receipt on the same device, goal and action
+  within 10 minutes and `limit_ip` after 50 per IP hash in 24 h; none of
+  those rows is stored. Every stored receipt carries `ip_hash` =
+  SHA-256(`CF-Connecting-IP` | `IP_SALT` | UTC date), nullable, never the
+  IP. The generation limits above are unchanged.
 
 
 ## Invariants (regression checklist)

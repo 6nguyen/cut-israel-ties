@@ -64,6 +64,8 @@ monitoring, no schema migrations (the schema is created once by hand).
 | `TURNSTILE_SECRET`, `ANTHROPIC_API_KEY` | `wrangler secret put` | Worker | Turnstile skipped (dev only); generation 503 |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `D1_DATABASE_ID` | GitHub Actions secrets | `deploy.yml` → wrangler, renderer | every deploy step fails / renderer refuses |
 | `SITE_DOMAIN`, `PAGES_PROJECT` | GitHub Actions variables | renderer (route), `deploy-web` | workers.dev only; project `cut-ties` |
+| `COUNT_THRESHOLD` | `worker/wrangler.jsonc` `vars` | Worker (`/api/counts`) | code default 5 |
+| `IP_SALT` | `wrangler secret put` | Worker (`/api/receipt`) | `ip_hash` rotates on the UTC date only; one warning per isolate |
 
 Files: `.env.example` (one block per name, kept in step with the code
 by `worker/test/env-example.test.ts`), `.github/workflows/deploy.yml`,

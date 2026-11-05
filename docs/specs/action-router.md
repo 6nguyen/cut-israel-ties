@@ -46,7 +46,10 @@ receipts and reports are in `personalised-documents.md`.
    ask text and a CTA to `/goals/<goal>/act/<action>`. Zero eligible goals
    shows a message and a link to `/goals`. One column at 390 px, two at
    ≥1024 px. "Change address" clears the stored district and returns to
-   `/`.
+   `/`. Under each card's targets box the `Counts` island adds one line
+   ("12 constituents in TX-35 called this week", else the state line,
+   else nothing) from `GET /api/counts`; buckets below the threshold
+   arrive as 0 and the line waits for the response (`district-counters.md`).
 6. **Return visit.** The browser keeps only `{state, district}` in
    `localStorage` (`cut-ties:place`); `/` redirects straight to `/results`,
    which re-posts the stored pair, unless an open commitment or captain
@@ -76,7 +79,8 @@ receipts and reports are in `personalised-documents.md`.
    that have a whip table (`member-pages.md`). The
    sidebar's "Your targets" island reads the stored `{state, district}`
    and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
-   "Enter your address" linking to `/`. A closed goal shows its outcome
+   "Enter your address" linking to `/`. A non-empty target list carries
+   the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
    block instead of targets and actions. Every page carries Open Graph
    and Twitter share metadata with a 1200×630 card at
    `/goals/<slug>/card.png` (other pages use `/card.png`).
