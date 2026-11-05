@@ -39,10 +39,13 @@ monitoring, no schema migrations (the schema is created once by hand).
 5. **Pull-request previews.** For PRs from this repository the `preview`
    job builds the site and runs `deploy-web --branch <head ref>`, then
    posts one PR comment (edited on later pushes) with the `*.pages.dev`
-   URL. Forks get no preview: the job needs the repo's secrets. The
-   preview's `/api/*` reaches the production Worker through the Pages
-   Function (Preview environment variable `API_ORIGIN` = the Worker's
-   workers.dev URL), so routing and read-only endpoints work and
+   URL. Forks get no preview: the job needs the repo's secrets. Until
+   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` exist both jobs
+   skip their deploy steps and pass, so PRs are never blocked on
+   provisioning. The preview's `/api/*` reaches the production Worker
+   through the Pages Function (Preview environment variable `API_ORIGIN`
+   = the Worker's workers.dev URL), so routing and read-only endpoints
+   work and
    `generate` is rate-limited per device as in production.
 6. **Rollback.** Re-run the last green `deploy` workflow from the
    Actions UI: it redeploys that commit's Worker, rows and site. A bad

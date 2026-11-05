@@ -3,6 +3,8 @@ name: deploy
 # Production: after `ci` passes on main, deploy the Worker, seed D1 from data/, then publish the
 # site. Each step runs only if the one before it succeeded, so a failure leaves the previous
 # deployment live (docs/specs/deployment.md). Pull requests from this repo get a Pages preview.
+# Until the owner sets the Cloudflare secrets (runbook step 11) every deploy step is skipped and
+# the jobs stay green, so a clean clone's PRs are not blocked on provisioning.
 
 on:
   workflow_run:
@@ -38,13 +40,22 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
       - run: npm ci
+      - name: check Cloudflare secrets
+        id: cf
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then echo ready=true >> "$GITHUB_OUTPUT"
+          else echo "::notice::Cloudflare secrets not set; skipping deploy steps (docs/guides/deploy.md)"; echo ready=false >> "$GITHUB_OUTPUT"; fi
       - name: build web
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh build
       - name: deploy worker
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh deploy-worker
       - name: seed remote D1 from data/
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh seed-remote
       - name: deploy web
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh deploy-web --branch main
       - if: failure()
         uses: actions/upload-artifact@v4
@@ -59,12 +70,20 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
       - run: npm ci
+      - name: check Cloudflare secrets
+        id: cf
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then echo ready=true >> "$GITHUB_OUTPUT"
+          else echo "::notice::Cloudflare secrets not set; skipping deploy steps (docs/guides/deploy.md)"; echo ready=false >> "$GITHUB_OUTPUT"; fi
       - name: build web
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh build
       - name: deploy preview
+        if: steps.cf.outputs.ready == 'true'
         run: scripts/quiet-check.sh deploy-web --branch "$HEAD_REF"
         env: { HEAD_REF: "${{ github.event.pull_request.head.ref }}" }
       - name: post the preview URL on the PR
+        if: steps.cf.outputs.ready == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}

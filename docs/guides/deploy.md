@@ -67,8 +67,10 @@ artifact on failure.
 ## 3. Pull-request previews
 Every PR from this repo gets a `preview` job that builds the site and
 runs `deploy-web --branch <head>`; the job posts (and later edits) one
-comment holding the `*.pages.dev` URL. The preview's `/api/*` is proxied
-to the production Worker by the Pages Function, so the landing page
+comment holding the `*.pages.dev` URL (once the Cloudflare secrets are
+set; before that the job skips its deploy steps and passes). The
+preview's `/api/*` is proxied to the production Worker by the Pages
+Function, so the landing page
 routes a fixture address and read-only endpoints work; `generate` is
 rate-limited per device as in production.
 
