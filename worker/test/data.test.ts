@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { appendFileSync, cpSync, mkdtempSync, readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadRows, parseCsv } from '../src/load';
 
@@ -20,7 +22,21 @@ describe('data/ files', () => {
   it('states: one row per fixture state', () => {
     expect(rows.states.map((s) => s.state).sort()).toEqual(['CA', 'PA', 'TX']);
   });
+  it('positions: every row carries source_url and source_date, and loadRows refuses one without', () => {
+    for (const p of rows.positions) {
+      expect(p.source_url, `${p.bioguide_id} on goal ${p.goal_id}`).toMatch(/^https?:\/\//);
+      expect(p.source_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    const copy = mkdtempSync(join(tmpdir(), 'cut-ties-data-'));
+    cpSync(join(__dirname, '..', '..', 'data'), copy, { recursive: true });
+    const file = readdirSync(join(copy, 'positions')).find((f) => f.endsWith('.csv'))!;
+    appendFileSync(join(copy, 'positions', file), 'C001110,for,,,hand\n');
+    expect(() => loadRows(copy, '2026-11-04T00:00:00Z')).toThrow(/has no source/);
+  });
   it('parseCsv rejects ragged rows', () => {
     expect(() => parseCsv('a,b\n1,2,3')).toThrow(/expected 2/);
+  });
+  it('parseCsv reads quoted cells with commas and doubled quotes', () => {
+    expect(parseCsv('a,b\n"x, y","say ""hi"""\n')).toEqual([{ a: 'x, y', b: 'say "hi"' }]);
   });
 });

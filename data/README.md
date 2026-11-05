@@ -13,6 +13,24 @@ number or a name that is not a row here.
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; empty fields render as "not yet sourced". |
 
+## Seeding (PRD §7.3)
+Every `npm run seed` deletes and re-inserts the five data tables above
+from these files; user tables (`receipts`, `reports`, `screenings`,
+`blocks`, `generations`, `digest_runs`) are untouched. Publishing a data
+change is a merged PR plus a deploy; there is no admin UI.
+
+## Adding a position (PRD §7.1)
+Run `npm run draft-position -w worker -- <bioguide_id> <url> [goal-slug]`
+with `ANTHROPIC_API_KEY` set. It fetches the page, asks a Haiku-class
+model for the member's stated position with a verbatim quote and date,
+verifies the quote against the page by code, and prints one row in the
+`positions/<goal>.csv` column order (`changed_by` = `draft-position`).
+Read the quote it prints, then paste the row at the end of the file in a
+PR; the script never writes here. No row is printed when the quote is not
+verbatim on the page or the page shows no date — find a better source
+rather than hand-filling those columns. The loader rejects any row without
+`source_url` and `source_date`.
+
 ## Provenance (2026-11-04)
 `members.csv` holds only the six fixture delegations the §1 tests need
 (CA-46, CA-23, TX-35, TX-21, PA-1, PA-2). Name, party, chamber, state and

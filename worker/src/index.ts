@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { streamSSE } from 'hono/streaming';
 import type { Env, Repo, ReportOutcome } from './types';
 import { D1Repo } from './repo';
+import { runDigest, sendWithEmailRouting } from './digest';
 import { classifyAddress, geocode } from './geocode';
 import { verifyTurnstile } from './turnstile';
 import { buildRoute, goalTargets } from './route';
@@ -178,4 +179,11 @@ export function createApp(deps: Deps) {
   return app;
 }
 
-export default createApp({ repo: (env) => new D1Repo(env.DB), fetch: (...a) => fetch(...a), now: () => new Date() });
+const app = createApp({ repo: (env) => new D1Repo(env.DB), fetch: (...a) => fetch(...a), now: () => new Date() });
+
+/** §7.2 cron (`0 9 * * *` in wrangler.jsonc): the nightly maintainer digest. */
+export const scheduled: ExportedHandlerScheduledHandler<Env> = async (_controller, env) => {
+  await runDigest({ repo: new D1Repo(env.DB), fetch: (...a) => fetch(...a), now: () => new Date(), send: sendWithEmailRouting }, env);
+};
+
+export default { fetch: app.fetch, scheduled } satisfies ExportedHandler<Env>;

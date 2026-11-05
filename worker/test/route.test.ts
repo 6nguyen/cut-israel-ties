@@ -149,7 +149,7 @@ describe('privacy: the address never reaches a log or a store (§1.2)', () => {
     const f = fakeFetch({});
     const repo = new MemoryRepo(rows);
     const writers = Object.getOwnPropertyNames(Object.getPrototypeOf(repo)).filter((n) => /insert|write|save|record|put|set|^block$/i.test(n));
-    expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening']);
+    expect(writers.sort()).toEqual(['block', 'insertGeneration', 'insertReceipt', 'insertReport', 'insertScreening', 'recordDigestRun']);
     const spies = writers.map((w) => vi.spyOn(repo as unknown as Record<string, (...a: unknown[]) => unknown>, w));
     const a = createApp({ repo: () => repo, fetch: f.impl, now: () => TODAY });
     for (const fx of FIXTURES) {

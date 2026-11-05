@@ -1,5 +1,5 @@
 import type {
-  Action, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, StateRow,
+  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
 } from './types';
 
 const HOUR = 3_600_000;
@@ -147,6 +147,31 @@ export class D1Repo implements Repo {
       .run();
     return Number(r.meta.last_row_id);
   }
+  // ---- §7.2 digest reads ----
+  async reportsSince(since: Date): Promise<ReportRow[]> {
+    const { results } = await this.db
+      .prepare(`SELECT bioguide_id, goal_id, outcome, note, created_at, device_hash FROM reports WHERE created_at > ? AND hidden = 0 ORDER BY created_at`)
+      .bind(iso(since)).all<ReportRow>();
+    return results;
+  }
+  async screeningsSince(since: Date): Promise<ScreeningRow[]> {
+    const { results } = await this.db
+      .prepare(`SELECT device_hash, action_id, class, created_at FROM screenings WHERE created_at > ? ORDER BY created_at`)
+      .bind(iso(since)).all<ScreeningRow>();
+    return results;
+  }
+  async activeBlocks(now: Date): Promise<BlockRow[]> {
+    const { results } = await this.db.prepare(`SELECT device_hash, until FROM blocks WHERE until > ? ORDER BY until`).bind(iso(now)).all<BlockRow>();
+    return results;
+  }
+  async lastDigestRun(): Promise<Date | null> {
+    const row = await this.db.prepare(`SELECT MAX(ran_at) AS ran_at FROM digest_runs`).first<{ ran_at: string | null }>();
+    return row?.ran_at ? new Date(row.ran_at) : null;
+  }
+  async recordDigestRun(at: Date, reportCount: number): Promise<void> {
+    await this.db.prepare(`INSERT INTO digest_runs (ran_at, report_count) VALUES (?, ?)`).bind(iso(at), reportCount).run();
+  }
+
 }
 
 export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
@@ -162,6 +187,7 @@ export class MemoryRepo implements Repo {
   blocks = new Map<string, string>();
   receipts: ReceiptRow[] = [];
   reports: ReportRow[] = [];
+  digestRuns: { ran_at: string; report_count: number }[] = [];
 
   constructor(
     private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[] },
@@ -223,4 +249,15 @@ export class MemoryRepo implements Repo {
   async block(deviceHash: string, until: Date): Promise<void> { this.blocks.set(deviceHash, iso(until)); }
   async insertReceipt(row: ReceiptRow): Promise<number> { this.receipts.push(row); return this.receipts.length; }
   async insertReport(row: ReportRow): Promise<number> { this.reports.push(row); return this.reports.length; }
+  async reportsSince(since: Date): Promise<ReportRow[]> { const s = iso(since); return this.reports.filter((r) => r.created_at > s); }
+  async screeningsSince(since: Date): Promise<ScreeningRow[]> { const s = iso(since); return this.screenings.filter((x) => x.created_at > s); }
+  async activeBlocks(now: Date): Promise<BlockRow[]> {
+    const n = iso(now);
+    return [...this.blocks].filter(([, until]) => until > n).map(([device_hash, until]) => ({ device_hash, until }));
+  }
+  async lastDigestRun(): Promise<Date | null> {
+    const last = this.digestRuns.map((r) => r.ran_at).sort().at(-1);
+    return last ? new Date(last) : null;
+  }
+  async recordDigestRun(at: Date, reportCount: number): Promise<void> { this.digestRuns.push({ ran_at: iso(at), report_count: reportCount }); }
 }

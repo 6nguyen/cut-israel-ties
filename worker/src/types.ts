@@ -106,6 +106,9 @@ export interface ReceiptRow { goal_id: number; action_id: number; target_id: str
 export type ReportOutcome = 'will_support' | 'undecided' | 'opposed' | 'no_answer' | 'other';
 export interface ReportRow { bioguide_id: string; goal_id: number; outcome: ReportOutcome; note: string | null; created_at: string; device_hash: string }
 export type ScreenClass = 'off_topic' | 'injection' | 'harmful';
+/** §7.2 digest reads: a screening row without content, an active block, the last digest run. */
+export interface ScreeningRow { device_hash: string; action_id: number; class: ScreenClass; created_at: string }
+export interface BlockRow { device_hash: string; until: string }
 
 /** Counts the §4.7 limits read; every window is [since, now]. */
 export interface GenerationCounts { device_hour: number; device_day: number; device_action_day: number; ip_day: number; global_day: number }
@@ -132,6 +135,12 @@ export interface Repo {
   block(deviceHash: string, until: Date): Promise<void>;
   insertReceipt(row: ReceiptRow): Promise<number>;
   insertReport(row: ReportRow): Promise<number>;
+  // §7.2 digest reads and its run marker (worker/src/digest.ts is the only caller). Nothing here touches `positions`.
+  reportsSince(since: Date): Promise<ReportRow[]>;
+  screeningsSince(since: Date): Promise<ScreeningRow[]>;
+  activeBlocks(now: Date): Promise<BlockRow[]>;
+  lastDigestRun(): Promise<Date | null>;
+  recordDigestRun(at: Date, reportCount: number): Promise<void>;
 }
 
 export interface Env {
@@ -140,4 +149,8 @@ export interface Env {
   GEOCODER_URL?: string;
   ANTHROPIC_API_KEY?: string;
   MAX_GENERATIONS_PER_DAY?: string;
+  // §7.2 nightly digest: Email Routing binding, recipient and sender (an address on the zone).
+  DIGEST_MAIL?: SendEmail;
+  MAINTAINER_EMAIL?: string;
+  DIGEST_FROM?: string;
 }

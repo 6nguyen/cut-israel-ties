@@ -5,6 +5,11 @@
   "compatibility_date": "2025-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // §7.2 nightly digest (worker/src/digest.ts): 09:00 UTC.
+  "triggers": { "crons": ["0 9 * * *"] },
+  // Cloudflare Email Routing. Enable Email Routing on the zone and add MAINTAINER_EMAIL as a
+  // verified destination; DIGEST_FROM must be an address on the zone.
+  "send_email": [{ "name": "DIGEST_MAIL" }],
   // Production: route /api/* of the Pages domain to this Worker.
   // "routes": [{ "pattern": "example.org/api/*", "zone_name": "example.org" }],
   "d1_databases": [
@@ -18,7 +23,9 @@
   "vars": {
     "MONTHLY_COST_USD": "0",
     "MAX_GENERATIONS_PER_DAY": "500",
-    "STRIPE_LINKS": "{}"
+    "STRIPE_LINKS": "{}",
+    "MAINTAINER_EMAIL": "",
+    "DIGEST_FROM": "digest@example.org"
     // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY.
     // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
   }

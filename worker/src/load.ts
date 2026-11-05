@@ -14,12 +14,31 @@ export interface Rows {
   states: StateRow[];
 }
 
+/** One CSV line → cells. RFC 4180: a cell wrapped in double quotes may hold commas and doubled quotes. */
+export function splitCsvLine(line: string): string[] {
+  const cells: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"' && cell === '') quoted = true;
+    else if (ch === ',') { cells.push(cell); cell = ''; }
+    else cell += ch;
+  }
+  cells.push(cell);
+  return cells;
+}
+
 export function parseCsv(text: string): Record<string, string>[] {
   const lines = text.replace(/\r\n/g, '\n').split('\n').filter((l) => l.trim() !== '');
   if (lines.length === 0) return [];
-  const header = lines[0].split(',');
+  const header = splitCsvLine(lines[0]);
   return lines.slice(1).map((line, i) => {
-    const cells = line.split(',');
+    const cells = splitCsvLine(line);
     if (cells.length !== header.length) throw new Error(`csv row ${i + 2}: ${cells.length} cells, expected ${header.length}`);
     return Object.fromEntries(header.map((h, j) => [h, cells[j]]));
   });

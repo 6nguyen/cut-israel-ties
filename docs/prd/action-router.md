@@ -357,9 +357,9 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [~] 4. Actions and personalised documents · feat/action-router-actions-docs · PR #13
   - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12
   - [~] 6. Donations and about · feat/action-router-donate-about · PR #11
-  - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
+  - [~] 7. Maintainer tooling (LLM-assisted, maintainer-approved) · feat/action-router-maintainer-tooling · PR #14
 - Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2, §4, §3, §6 (`docs/specs/action-router.md`; §4 in
+- Folded: §1, §5, §2, §4, §3, §6, §7 (`docs/specs/action-router.md`; §4 in
   `docs/specs/personalised-documents.md`).
 - Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
@@ -482,3 +482,17 @@ page shows the real number from `MONTHLY_COST_USD`.
   (`web/src/lib/donate.ts`), not Worker vars, because the pages are
   static; defaults are $15 and disabled buttons ("link not configured").
   The "after every receipt" link belongs to the §4 receipt screen.
+- 2026-11-04 — §7 built: `worker/scripts/draft-position.ts <bioguide>
+  <url> [goal]` (Haiku proposes position + verbatim quote + date, code
+  verifies the quote on the page, prints one `positions/<goal>.csv` row,
+  never writes); nightly digest (`worker/src/digest.ts`, cron `0 9 * * *`,
+  `scheduled` export) counts new reports by member × goal × outcome in
+  code, Haiku writes prose only (dropped if it adds a number), one email
+  via Email Routing with the raw rows as CSV; seed documented as a full
+  delete+insert of the five data tables. Deviations: the row follows the
+  real positions header (`bioguide_id,position,source_url,source_date,
+  changed_by`; the goal picks the file) rather than a goal column; a
+  `digest_runs` table records each run so "since last run" survives
+  restarts; `parseCsv` now reads RFC 4180 quoted cells; new vars
+  `MAINTAINER_EMAIL`, `DIGEST_FROM` and binding `DIGEST_MAIL`. Spec:
+  `docs/specs/maintainer-tooling.md`.
