@@ -105,15 +105,15 @@ versus `unknown`; state-goal receipts per state after each batch.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Draft tool and lint · feat/state-holdings-sweep · PR pending
+  - [~] 1. Draft tool and lint · feat/state-holdings-sweep · PR #22
   - [ ] 2. The sweep · maintainer research, not a build; batches of ten
     from `docs/research/state-israel-bonds.md` (50 rows, all "not checked")
-  - [~] 3. State page copy · feat/state-holdings-sweep · PR pending
+  - [~] 3. State page copy · feat/state-holdings-sweep · PR #22
 - Completed: none merged.
 - Folded: §1 and §3 spec deltas applied on the branch
   (`docs/specs/maintainer-tooling.md` §Behavior 2, 5, contracts,
   invariants; `docs/specs/action-router.md` §Behavior 14, invariant).
-- Branch / open PRs: feat/state-holdings-sweep · PR pending.
+- Branch / open PRs: feat/state-holdings-sweep · PR #22.
 - Files changed: worker/src/{draft-shared,draft-holding,state-copy}.ts
   (new), worker/src/{draft-position,load,types,ranking,route,generate}.ts,
   worker/scripts/draft-holding.ts (new), worker/schema.sql,
