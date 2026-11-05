@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { DocFormat, FormField, GenerateDone } from '@worker/generate';
 import type { TargetCard } from '../lib/api';
-import { loadPlace } from '../lib/store';
+import { deviceId, loadPlace } from '../lib/store';
+import { commitmentFor, fmtDue } from '../lib/commitments';
+import Funnel from './Funnel';
 
 interface Props {
   goal: string;
@@ -11,24 +13,14 @@ interface Props {
   fields: FormField[];
   fmt: DocFormat;
   siteKey?: string;
+  /** Goal title and decision date for the commitment step (commitment-funnel §1). */
+  title?: string;
+  decision?: string | null;
 }
 
 interface Choice { id: string; label: string }
 type Phase = { kind: 'form' } | { kind: 'generating'; stage: string } | { kind: 'output'; doc: GenerateDone } | { kind: 'refused'; message: string };
 const OUTCOMES: [string, string][] = [['will_support', 'Will support'], ['undecided', 'Undecided'], ['opposed', 'Opposed'], ['no_answer', 'No answer'], ['other', 'Other']];
-const DEVICE_KEY = 'cut-ties:device';
-
-/** A random per-browser id; the Worker stores only its SHA-256. */
-function deviceId(): string {
-  try {
-    const have = localStorage.getItem(DEVICE_KEY);
-    if (have && have.length >= 16) return have;
-  } catch { /* private mode */ }
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  const id = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
-  try { localStorage.setItem(DEVICE_KEY, id); } catch { /* ignore */ }
-  return id;
-}
 
 /** Parses the Worker's SSE body (`event:` + `data:` lines, blank-line separated). */
 async function readSse(body: ReadableStream<Uint8Array>, on: (event: string, data: Record<string, unknown>) => void): Promise<void> {
@@ -55,7 +47,7 @@ async function readSse(body: ReadableStream<Uint8Array>, on: (event: string, dat
 }
 
 /** §4.1–4.6: the form, the streamed document, receipt, share and the office-response report. */
-export default function ActForm({ goal, action, type, scope, fields, fmt, siteKey }: Props) {
+export default function ActForm({ goal, action, type, scope, fields, fmt, siteKey, title, decision }: Props) {
   const [choices, setChoices] = useState<Choice[] | null>(null);
   const [target, setTarget] = useState<string>('');
   const [values, setValues] = useState<Record<string, string>>({});
@@ -67,12 +59,15 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   const [note, setNote] = useState('');
   const [reported, setReported] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [funnelDone, setFunnelDone] = useState(false);
+  const [promised, setPromised] = useState<string | null>(null);
   const token = useRef<string | undefined>(undefined);
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   const place = loadPlace();
 
   useEffect(() => {
+    setPromised(commitmentFor(goal)?.due ?? null); // commitment-funnel §2.4
     const fromUrl = new URLSearchParams(location.search).get('target');
     if (fromUrl) { setTarget(fromUrl); setChoices([{ id: fromUrl, label: '' }]); }
     if (!place) { if (!fromUrl) setChoices([]); return; }
@@ -105,7 +100,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   });
 
   async function generate() {
-    setError(null); setText(''); setReceipt(null); setReported(false); setOutcome(''); setNote('');
+    setError(null); setText(''); setReceipt(null); setReported(false); setOutcome(''); setNote(''); setFunnelDone(false);
     setPhase({ kind: 'generating', stage: 'Drafting…' });
     const body = { action, target, fields: Object.fromEntries(fields.map((f) => [f.name, (values[f.name] ?? '').trim()]).filter(([, v]) => v)), device: deviceId(), turnstile: token.current };
     try {
@@ -177,6 +172,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
 
   return (
     <div class="flex flex-col gap-6">
+      {phase.kind === 'form' && promised && <p class="label-code" data-promise><span class="chip bg-acid text-ink mr-2">✓</span>You said you'd call by {fmtDue(promised)}.</p>}
       {phase.kind === 'form' && (
         <form class="card p-4 flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); if (valid) void generate(); }}>
           {choices.length > 1 && (
@@ -245,10 +241,13 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             ) : (
               <>
                 <p class="font-semibold"><span class="chip bg-acid text-ink mr-2">✓</span>Counted. No name, no address: just this goal, this office, today.</p>
-                <div class="flex flex-wrap gap-2">
-                  <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
-                  <a href="/results" class="btn btn-ghost">Your other action</a>
-                </div>
+                <Funnel goal={goal} action={action} target={target} who={phase.doc.target.name.trim().split(/\s+/).pop()} title={title ?? goal} type={type} decision={decision ?? null} place={place} onFinished={() => setFunnelDone(true)} />
+                {funnelDone && (
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
+                    <a href="/results" class="btn btn-ghost">Your other action</a>
+                  </div>
+                )}
                 {!reported ? (
                   <form class="flex flex-col gap-2 border-t-2 border-ink pt-3" onSubmit={(e) => { e.preventDefault(); if (outcome) void report(); }}>
                     <p class="label-code">What did the office say? (optional)</p>

@@ -1,8 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import AddressForm from '../components/AddressForm';
-import { activeGoals, CATEGORY } from '../lib/goals';
+import YourWeek from '../components/YourWeek';
+import { activeGoals, publishedGoals, CATEGORY } from '../lib/goals';
 const goals = activeGoals();
+// commitment-funnel §2: the "Your week" card needs every published goal's status to drop closed items with their outcome.
+const weekGoals = publishedGoals().map((g) => ({ slug: g.slug, title: g.title, status: g.status, decision_date: g.decision_date, outcome_note: g.outcome_note }));
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 ---
 <Base title="Cut the Ties — find the two things you can do this week">
@@ -13,6 +16,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
       <h1 class="display-xl max-w-4xl">Find the two things you can do <span class="text-acid">this week</span></h1>
       <p class="mt-5 text-lg max-w-2xl">One site to end US aid, military partnership and integration with Israel. Enter your address. We find your members of Congress and give you the words that work.</p>
       <div class="mt-8 max-w-2xl">
+        <YourWeek client:load goals={weekGoals} />
         <AddressForm client:load siteKey={siteKey} />
       </div>
     </div>

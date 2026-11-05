@@ -1,0 +1,25 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import WhipTable from '../../../../components/WhipTable.astro';
+import { firstAction, members, whipGoals, whipTargets, type Goal } from '../../../../lib/members';
+// Pre-rendered filter views so `/whip/all`, `/whip/TX`, `/whip/TX/R` and `/whip/party/R` work without JavaScript.
+export function getStaticPaths() {
+  const out: { params: { slug: string; filter: string }; props: { goal: Goal; state?: string; party?: string; all?: boolean } }[] = [];
+  for (const goal of whipGoals()) {
+    const targets = whipTargets(goal, firstAction(goal), members());
+    const parties = ['D', 'R', 'I'].filter((p) => targets.some((m) => m.party === p));
+    out.push({ params: { slug: goal.slug, filter: 'all' }, props: { goal, all: true } });
+    for (const p of parties) out.push({ params: { slug: goal.slug, filter: `party/${p}` }, props: { goal, party: p } });
+    for (const state of [...new Set(targets.map((m) => m.state))].sort()) {
+      out.push({ params: { slug: goal.slug, filter: state }, props: { goal, state } });
+      for (const p of parties) out.push({ params: { slug: goal.slug, filter: `${state}/${p}` }, props: { goal, state, party: p } });
+    }
+  }
+  return out;
+}
+const { goal, state, party, all } = Astro.props as { goal: Goal; state?: string; party?: string; all?: boolean };
+const label = all ? 'everyone' : [state, party].filter(Boolean).join(' ');
+---
+<Base title={`Where everyone stands (${label}): ${goal.title} — Cut the Ties`} description={`Every member's sourced position on: ${goal.summary}`} image={`/goals/${goal.slug}/card.png`}>
+  <WhipTable goal={goal} state={state} party={party} all={all} />
+</Base>

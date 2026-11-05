@@ -1,4 +1,4 @@
-state,treasurer_name,treasurer_phone,decider,israel_bonds_usd,holdings_date,holdings_source,campaign_name,campaign_url,next_comment_date
-CA,,,,,,,,,
-TX,,,,,,,,,
-PA,,,,,,,,,
+state,treasurer_name,treasurer_phone,decider,israel_bonds_usd,holdings_date,holdings_source,campaign_name,campaign_url,next_comment_date,holdings_status
+CA,,,,,,,,,,unknown
+TX,,,,,,,,,,unknown
+PA,,,,,,,,,,unknown

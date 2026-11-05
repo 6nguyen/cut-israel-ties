@@ -2,8 +2,9 @@ import { useEffect, useState } from 'preact/hooks';
 import { districtLabel, route, type GoalCard, type RouteResponse } from '../lib/api';
 import { clearPlace, loadPlace, takeRoute } from '../lib/store';
 import { CATEGORY, Target, fmtDate } from './Target';
+import Counts from './Counts';
 
-function Card({ g, n }: { g: GoalCard; n: number }) {
+function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string; district: number }) {
   const date = fmtDate(g.decision_date);
   return (
     <article class="card-lg flex flex-col">
@@ -14,13 +15,19 @@ function Card({ g, n }: { g: GoalCard; n: number }) {
           <span class="chip bg-ink text-newsprint border-newsprint">Action {n}</span>
         </div>
         <h2 class="relative headline-lg">{g.title}</h2>
-        {date && <p class="relative label-code mt-2 text-hazard">Decision: {date}</p>}
+        {date && <p class="relative label-code mt-2 text-hazard">{g.election ? 'Primary' : 'Decision'}: {date}</p>}
+        {g.election && (
+          <p class="relative label-code mt-1 text-hazard">Filing deadline: {fmtDate(g.election.filing_deadline) ?? 'not yet sourced'}
+            {g.election.source_url && <> · <a href={g.election.source_url} class="underline" rel="noopener noreferrer">source</a></>}
+          </p>
+        )}
       </div>
       <div class="p-5 flex flex-col gap-4 flex-1">
         <p class="text-base">{g.summary}</p>
         <div class="border-2 border-ink">
           <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets ({g.targets.length})</p>
-          <ul class="px-3">{g.targets.map((t) => <Target t={t} />)}</ul>
+          <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
+          <Counts goal={g.slug} state={state} district={district} />
         </div>
         <p class="font-semibold">{g.ask_text}</p>
         <a href={g.action_href} class="btn btn-primary mt-auto self-start">Get my script →</a>
@@ -65,7 +72,7 @@ export default function Results() {
         </div>
       ) : (
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mt-8">
-          {data.goals.map((g, i) => <Card g={g} n={i + 1} />)}
+          {data.goals.map((g, i) => <Card g={g} n={i + 1} state={data.state} district={data.district} />)}
         </div>
       )}
       <p class="mt-8"><a href="/goals" class="label-code underline underline-offset-4">See all goals →</a></p>

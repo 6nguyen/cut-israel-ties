@@ -1,0 +1,105 @@
+---
+// The whip table for one goal and one filter (member-pages spec §3). Static: the
+// filters are links to pre-rendered pages, so they work without JavaScript; a
+// tiny inline script maps a shared `?state=&party=` link onto those pages.
+import { CATEGORY, fmtDate, type Goal } from '../lib/goals';
+import { applyFilters, firstAction, members, positions, role, seat, tel, updatedAt, whipCounts, whipRows } from '../lib/members';
+import { isDelegate } from '../lib/members';
+interface Props { goal: Goal; state?: string; party?: string; all?: boolean }
+const { goal, state, party, all } = Astro.props;
+const action = firstAction(goal);
+const rows = whipRows(goal, action, members(), positions());
+const counts = whipCounts(rows);
+const shown = applyFilters(rows, { state, party, all });
+const updated = updatedAt(positions(), goal.id);
+const base = `/goals/${goal.slug}/whip`;
+const states = [...new Set(rows.map((r) => r.member.state))].sort();
+const parties = ['D', 'R', 'I'].filter((p) => rows.some((r) => r.member.party === p));
+const href = (s?: string, p?: string) => (s && p ? `${base}/${s}/${p}` : s ? `${base}/${s}` : p ? `${base}/party/${p}` : base);
+const view = all ? 'every member' : state || party ? [state, party && { D: 'Democrats', R: 'Republicans', I: 'Independents' }[party]].filter(Boolean).join(' ') : action?.target_scope === 'senate' ? 'the movable set: Senate Democrats and Independents plus every conferee' : 'the movable set: House Democrats and Independents plus every conferee';
+const open = goal.status === 'active';
+const POS: Record<string, string> = { for: 'bg-acid', uncommitted: 'bg-hazard', against: 'bg-crimson text-paper', unknown: 'bg-newsprint-muted' };
+const TILE = [['for', 'For'], ['uncommitted', 'Uncommitted'], ['against', 'Against'], ['unknown', 'Unknown']] as const;
+---
+<section class="relative hero-gradient text-newsprint overflow-hidden">
+  <div class="absolute inset-0 halftone pointer-events-none"></div>
+  <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-12 lg:py-16">
+    <div class="flex gap-2 mb-4">
+      <span class="chip bg-hazard text-ink border-ink">{CATEGORY[goal.category]}</span>
+      <span class="chip bg-newsprint text-ink border-ink">Whip count</span>
+      {!open && <span class={`chip ${goal.status === 'completed' ? 'bg-acid text-ink' : 'bg-crimson text-paper'} border-newsprint`}>{goal.status}</span>}
+    </div>
+    <h1 class="display-lg max-w-4xl">Where everyone stands</h1>
+    <p class="mt-5 text-lg max-w-2xl"><a href={`/goals/${goal.slug}`} class="underline">{goal.title}</a></p>
+    <p class="mt-4 label-code text-hazard">Updated {updated ? fmtDate(updated) : 'never — no sourced position yet'}{open && goal.decision_date ? ` · Decision ${fmtDate(goal.decision_date)}` : ''}</p>
+  </div>
+</section>
+<div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10 flex flex-col gap-8">
+  {!open && (
+    <section class="card p-5">
+      <p class="label-code">Outcome</p>
+      <h2 class="headline-md mt-1">{goal.status === 'completed' ? 'Decided' : 'Window closed'}{goal.decision_date ? ` · ${fmtDate(goal.decision_date)}` : ''}</h2>
+      <p class="mt-2">{goal.outcome_note}</p>
+    </section>
+  )}
+  <ul class="grid grid-cols-2 md:grid-cols-4 gap-3" aria-label="Count">
+    {TILE.map(([k, label]) => (
+      <li class={`card p-4 ${POS[k]}`}>
+        <p class="label-code">{label}</p>
+        <p class="font-condensed text-5xl leading-none mt-1">{counts[k]}</p>
+      </li>
+    ))}
+  </ul>
+  <p class="text-sm text-ink/70">Counts cover every voting member the goal targets ({counts.for + counts.uncommitted + counts.against + counts.unknown}); delegates are listed but have no floor vote. Positions are sourced statements and votes; "unknown" means none is on file yet.</p>
+
+  <nav class="flex flex-col gap-3" aria-label="Filters" data-filters data-base={base}>
+    <p class="text-sm">Showing <strong>{view}</strong> ({shown.length}).
+      {all ? <a href={base} class="underline">Show the movable set</a> : <a href={`${base}/all`} class="underline">Show all</a>}</p>
+    <div class="flex flex-wrap gap-2 items-center">
+      <span class="label-code">Party:</span>
+      <a href={href(state)} class={`chip border-ink ${party ? 'bg-paper' : 'bg-ink text-newsprint'}`}>All</a>
+      {parties.map((p) => <a href={href(state, p)} class={`chip border-ink ${party === p ? 'bg-ink text-newsprint' : 'bg-paper'}`}>{p}</a>)}
+      {state && <a href={href(undefined, party)} class="chip border-ink bg-hazard">{state} ✕</a>}
+    </div>
+    <details>
+      <summary class="label-code cursor-pointer">Filter by state{state ? ` (${state})` : ''}</summary>
+      <div class="mt-2 flex flex-wrap gap-1">
+        {states.map((s) => <a href={href(s, party)} class={`chip border-ink text-xs ${state === s ? 'bg-ink text-newsprint' : 'bg-paper'}`}>{s}</a>)}
+      </div>
+    </details>
+  </nav>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="text-left label-code border-b-2 border-ink">
+          <th class="py-2 pr-3">Member</th><th class="py-2 pr-3">Seat</th><th class="py-2 pr-3">Position</th><th class="py-2 pr-3">Source</th><th class="py-2 pr-3">Role</th><th class="py-2 pr-3">Phone</th><th class="py-2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {shown.length === 0 && <tr><td colspan="7" class="py-6 text-center text-ink/70">No member matches this filter.</td></tr>}
+        {shown.map((r) => (
+          <tr class="border-b border-rule align-top">
+            <td class="py-2 pr-3 font-semibold"><a href={`/m/${r.member.bioguide_id}`} class="hover:underline">{role(r.member)} {r.member.name}</a> <span class="font-normal text-ink/70">({r.member.party})</span></td>
+            <td class="py-2 pr-3 whitespace-nowrap">{seat(r.member)}</td>
+            <td class="py-2 pr-3"><span class={`chip border-ink ${POS[r.position]}`}>{r.position}</span></td>
+            <td class="py-2 pr-3 whitespace-nowrap">{r.source_url ? <a href={r.source_url} rel="noopener" class="underline">{fmtDate(r.source_date)}</a> : <span class="text-ink/50">—</span>}</td>
+            <td class="py-2 pr-3">{[r.member.conferee ? 'conferee' : '', r.member.hasc ? 'HASC' : '', isDelegate(r.member) ? 'delegate, no floor vote' : ''].filter(Boolean).join(' · ') || ''}</td>
+            <td class="py-2 pr-3 whitespace-nowrap">{r.member.dc_phone ? <a href={tel(r.member.dc_phone)} class="underline">{r.member.dc_phone}</a> : ''}</td>
+            <td class="py-2 whitespace-nowrap">{open && action && <a href={`/goals/${goal.slug}/act/${action.slug}?target=${r.member.bioguide_id}`} class="btn btn-primary !py-1 !px-3 text-xs">Call</a>}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p><a href={`/goals/${goal.slug}`} class="label-code underline underline-offset-4">← About this goal</a></p>
+</div>
+<script is:inline>
+  // Progressive enhancement only: a shared `?state=TX&party=R` link lands on the pre-rendered page for that filter.
+  (function () {
+    var q = new URLSearchParams(location.search), s = (q.get('state') || '').toUpperCase(), p = (q.get('party') || '').toUpperCase(), n = document.querySelector('[data-filters]');
+    if (!n || (!s && !p && !q.has('all'))) return;
+    var b = n.getAttribute('data-base'), to = q.has('all') ? b + '/all' : s && p ? b + '/' + s + '/' + p : s ? b + '/' + s : b + '/party/' + p;
+    if (/^[A-Z]{0,2}$/.test(s) && /^[DRI]?$/.test(p) && to !== location.pathname) location.replace(to);
+  })();
+</script>

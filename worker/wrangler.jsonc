@@ -10,13 +10,15 @@
   // Cloudflare Email Routing. Enable Email Routing on the zone and add MAINTAINER_EMAIL as a
   // verified destination; DIGEST_FROM must be an address on the zone.
   "send_email": [{ "name": "DIGEST_MAIL" }],
-  // Production: route /api/* of the Pages domain to this Worker.
-  // "routes": [{ "pattern": "example.org/api/*", "zone_name": "example.org" }],
+  // Production: `npm run deploy` renders wrangler.deploy.json (gitignored) from this file with the
+  // real D1 id from $D1_DATABASE_ID and, when $SITE_DOMAIN is set, a `<domain>/api/*` route
+  // (scripts/render-deploy-config.ts, docs/specs/deployment.md). Wrangler cannot read env vars
+  // from this file, so the id never lives in git and local dev keeps the placeholder below.
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "cut_ties",
-      // Replace with the id `wrangler d1 create cut_ties` prints.
+      // Placeholder for local dev and tests; production id comes from $D1_DATABASE_ID at deploy time.
       "database_id": "00000000-0000-0000-0000-000000000000"
     }
   ],
@@ -25,8 +27,10 @@
     "MAX_GENERATIONS_PER_DAY": "500",
     "STRIPE_LINKS": "{}",
     "MAINTAINER_EMAIL": "",
-    "DIGEST_FROM": "digest@example.org"
-    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY.
+    "DIGEST_FROM": "digest@example.org",
+    "COUNT_THRESHOLD": "5",
+    "VISITS_ENABLED": "1"
+    // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY, IP_SALT, VISITS_REVIEW_SECRET.
     // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
   }
 }

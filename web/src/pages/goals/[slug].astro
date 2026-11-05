@@ -1,7 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import GoalTargets from '../../components/GoalTargets';
+import { fillAsk } from '@worker/state-copy';
 import { actionsFor, CATEGORY, fmtDate, markdown, picks, publishedGoals, sources, type Goal } from '../../lib/goals';
+import { whipGoals } from '../../lib/members';
 export function getStaticPaths() {
   return publishedGoals().map((g) => ({ params: { slug: g.slug }, props: { goal: g } }));
 }
@@ -12,6 +14,7 @@ const srcs = sources(goal);
 const situation = markdown(goal.detail_md);
 const date = fmtDate(goal.decision_date);
 const open = goal.status === 'active';
+const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision_date is the primary, window_end the filing deadline
 ---
 <Base title={`${goal.title} — Cut the Ties`} description={goal.summary} image={`/goals/${goal.slug}/card.png`}>
   <section class="relative hero-gradient text-newsprint overflow-hidden">
@@ -23,7 +26,7 @@ const open = goal.status === 'active';
       </div>
       <h1 class="display-lg max-w-4xl">{goal.title}</h1>
       <p class="mt-5 text-lg max-w-2xl">{goal.summary}</p>
-      {open && <p class="mt-4 label-code text-hazard">Decision: {date ?? 'not yet scheduled'}</p>}
+      {open && <p class="mt-4 label-code text-hazard">{electoral ? 'Primary' : 'Decision'}: {date ?? 'not yet scheduled'}</p>}
     </div>
   </section>
 
@@ -50,7 +53,7 @@ const open = goal.status === 'active';
       <section aria-labelledby="decides">
         <p class="label-code">Who decides and when</p>
         <h2 id="decides" class="headline-md mt-1">{goal.decider ?? 'Not yet sourced'}</h2>
-        <p class="mt-2 label-code text-ink/70">{date ? `Decision ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · window closes ${fmtDate(goal.window_end)}` : ''}</p>
+        <p class="mt-2 label-code text-ink/70">{date ? `${electoral ? 'Primary' : 'Decision'} ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · ${electoral ? 'filing deadline' : 'window closes'} ${fmtDate(goal.window_end)}` : ''}</p>
       </section>
       {pick && (
         <section class="card p-5" aria-labelledby="pick">
@@ -67,7 +70,7 @@ const open = goal.status === 'active';
           <ul class="mt-4 flex flex-col gap-3 max-w-2xl">
             {actions.map((a) => (
               <li class="card p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <p class="flex-1 font-semibold">{a.ask_text}</p>
+                <p class="flex-1 font-semibold">{fillAsk(a.ask_text, null)}</p>
                 <a href={`/goals/${goal.slug}/act/${a.slug}`} class="btn btn-primary shrink-0">{a.type === 'call' ? 'Get my call script' : a.type === 'letter' ? 'Write my letter' : 'Comment'} →</a>
               </li>
             ))}
@@ -85,6 +88,7 @@ const open = goal.status === 'active';
         </section>
       )}
       {goal.prep_md && <p><a href={`/goals/${goal.slug}/prep`} class="btn btn-ghost">Prep: what to say →</a></p>}
+      {whipGoals().some((g) => g.slug === goal.slug) && <p><a href={`/goals/${goal.slug}/whip`} class="btn btn-ghost">Where everyone stands →</a></p>}
       {goal.partner_url && (
         <section aria-labelledby="partner">
           <p class="label-code">Partner campaign</p>

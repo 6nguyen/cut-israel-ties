@@ -32,9 +32,10 @@ export function evaluate(rule: Rule, d: Delegation): boolean {
 }
 
 /** §5.1 inputs: the only member/state fields a rule may test, with the value type each accepts. */
-const HOUSE_FIELDS: Record<string, 'party' | 'flag' | 'text'> = { party: 'party', hasc: 'flag', conferee: 'flag', rc243: 'text', btb_cosponsor: 'flag' };
-const SENATOR_FIELDS: Record<string, 'party' | 'flag' | 'text'> = { party: 'party', jrd_april_2026: 'text' };
-const STATE_FIELDS = new Set<keyof StateRow>(['treasurer_name', 'treasurer_phone', 'decider', 'israel_bonds_usd', 'holdings_date', 'holdings_source', 'campaign_name', 'campaign_url', 'next_comment_date']);
+// primary-2028 §1.1: electoral goals name one seat, so `target_2028`, `state` and `district` join the house inputs.
+const HOUSE_FIELDS: Record<string, 'party' | 'flag' | 'text' | 'int'> = { party: 'party', hasc: 'flag', conferee: 'flag', rc243: 'text', btb_cosponsor: 'flag', target_2028: 'flag', state: 'text', district: 'int' };
+const SENATOR_FIELDS: Record<string, 'party' | 'flag' | 'text' | 'int'> = { party: 'party', jrd_april_2026: 'text' };
+const STATE_FIELDS = new Set<keyof StateRow>(['treasurer_name', 'treasurer_phone', 'decider', 'israel_bonds_usd', 'holdings_date', 'holdings_source', 'campaign_name', 'campaign_url', 'next_comment_date', 'holdings_status']);
 const PARTIES = new Set(['D', 'R', 'I']);
 
 function checkWhere(kind: 'house' | 'senator', where: unknown): void {
@@ -43,8 +44,8 @@ function checkWhere(kind: 'house' | 'senator', where: unknown): void {
   for (const [k, v] of Object.entries(where)) {
     const t = allowed[k];
     if (!t) throw new Error(`eligibility: ${kind}.${k} is not a §5.1 input (allowed: ${Object.keys(allowed).join(', ')})`);
-    const ok = t === 'party' ? typeof v === 'string' && PARTIES.has(v) : t === 'flag' ? v === 0 || v === 1 : typeof v === 'string';
-    if (!ok) throw new Error(`eligibility: ${kind}.${k} expects ${t === 'party' ? 'D|R|I' : t === 'flag' ? '0|1' : 'a string'}, got ${JSON.stringify(v)}`);
+    const ok = t === 'party' ? typeof v === 'string' && PARTIES.has(v) : t === 'flag' ? v === 0 || v === 1 : t === 'int' ? Number.isInteger(v) && (v as number) >= 0 : typeof v === 'string';
+    if (!ok) throw new Error(`eligibility: ${kind}.${k} expects ${t === 'party' ? 'D|R|I' : t === 'flag' ? '0|1' : t === 'int' ? 'a non-negative integer' : 'a string'}, got ${JSON.stringify(v)}`);
   }
 }
 
@@ -78,6 +79,18 @@ export function validateRule(r: unknown, depth = 0): asserts r is Rule {
     default:
       throw new Error(`unknown eligibility rule: ${JSON.stringify(r)}`);
   }
+}
+
+/**
+ * primary-2028 §1.1: the one House seat an electoral goal's rule names,
+ * `{"house": {"target_2028": 1, "state": "XX", "district": N}}`; null for any other rule.
+ */
+export function electoralSeat(eligibility: string): { state: string; district: number } | null {
+  let r: unknown;
+  try { r = JSON.parse(eligibility); } catch { return null; }
+  const h = (r as { house?: Record<string, unknown> } | null)?.house;
+  if (!h || typeof h.state !== 'string' || !Number.isInteger(h.district) || h.target_2028 !== 1) return null;
+  return { state: h.state, district: h.district as number };
 }
 
 export function parseRule(json: string): Rule {

@@ -21,3 +21,16 @@ export function takeRoute<T>(): T | null {
 }
 
 export const STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+// A random per-browser id; the Worker stores only its SHA-256 (personalised-documents §4.4).
+const DEVICE_KEY = 'cut-ties:device';
+export function deviceId(): string {
+  try {
+    const have = localStorage.getItem(DEVICE_KEY);
+    if (have && have.length >= 16) return have;
+  } catch { /* private mode */ }
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  const id = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+  try { localStorage.setItem(DEVICE_KEY, id); } catch { /* ignore */ }
+  return id;
+}

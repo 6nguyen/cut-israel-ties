@@ -49,12 +49,16 @@ stores identifies them. Address routing, goals and ranking are in
 4. **Receipt, share, report.** The output screen offers copy, download
    `.txt`, `tel:` links for every phone on file, the contact-form link
    for letters and comments, and "I did it" → `POST /api/receipt`
-   (goal, action, target, stored state/district, device hash). Only
-   after a receipt: "Share" (device share sheet with the goal deep
-   link, clipboard fallback), the office-response picker (`will_support
-   · undecided · opposed · no_answer · other` + note ≤140) →
-   `POST /api/report`, a reflection line that never leaves the page, and
-   a link to `/donate`. Reports never change a position row.
+   (goal, action, target, stored state/district, device hash). After a
+   receipt, first the commitment line and the captain list
+   (`commitment-funnel.md` §1–4; each skippable in one tap), and only
+   once both are answered or skipped: "Share" (device share sheet with
+   the goal deep link, clipboard fallback), the office-response picker
+   (`will_support · undecided · opposed · no_answer · other` + note
+   ≤140) → `POST /api/report`, a reflection line that never leaves the
+   page, and a link to `/donate`. Share is offered after a receipt or a
+   completed captain list, never before. Reports never change a
+   position row.
 
 ## Data & contracts
 - `POST /api/generate` body `{action, target, fields, device,
@@ -72,7 +76,8 @@ stores identifies them. Address routing, goals and ranking are in
   `max_tokens` 1500; three screened-out attempts in 24 h block the
   device for 24 h.
 - `POST /api/receipt` `{goal, action, target, state?, district?,
-  device}` → `{id}`; `POST /api/report` `{goal, target, outcome, note?,
+  device}` → `{id}` (`action: 'captain-list'` with no target records a
+  completed captain list, `commitment-funnel.md`); `POST /api/report` `{goal, target, outcome, note?,
   device}` → `{id}` (note sanitised to ≤140 chars). Both 400
   `bad_request | no_action | no_target | bad_outcome`.
 - Anthropic is called through the injected `fetch` (raw Messages API,
@@ -91,6 +96,13 @@ stores identifies them. Address routing, goals and ranking are in
   (action guidance appended to the system prompt) and `doc_format`
   (`kind, min_words, max_words, mentions[], ask`); `mentions` and `ask`
   are the exact phrases the output check requires.
+- Receipt limits (`district-counters.md` §8–9): `POST /api/receipt`
+  answers 429 `limit_day` after 10 receipts per device hash in 24 h,
+  `limit_repeat` for a second receipt on the same device, goal and action
+  within 10 minutes and `limit_ip` after 50 per IP hash in 24 h; none of
+  those rows is stored. Every stored receipt carries `ip_hash` =
+  SHA-256(`CF-Connecting-IP` | `IP_SALT` | UTC date), nullable, never the
+  IP. The generation limits above are unchanged.
 
 
 ## Invariants (regression checklist)

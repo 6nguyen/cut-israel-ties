@@ -22,6 +22,11 @@ tsc|worker|npx tsc --noEmit|tsc
 build|web|npm run build|nextbuild
 # e2e|web|npx playwright test --reporter=line|playwright
 test|worker|npx vitest run|vitest
+test-web|web|npx vitest run --passWithNoTests|vitest
+# Deploy targets: only .github/workflows/deploy.yml (and the owner) call these; never in CI_TARGETS.
+deploy-worker|worker|npm run deploy|generic
+seed-remote|worker|npm run seed:remote|generic
+deploy-web|web|npx wrangler pages deploy dist --project-name "${PAGES_PROJECT:-cut-ties}" --commit-dirty=true|generic
 # ios|ios|xcodebuild test -scheme App -destination "platform=iOS Simulator,name=iPhone 17" -derivedDataPath build|xcodebuild
 '
 
