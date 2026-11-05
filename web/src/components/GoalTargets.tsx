@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import { districtLabel, type TargetCard } from '../lib/api';
-import { loadPlace } from '../lib/store';
+import { loadPlace, type Place } from '../lib/store';
 import { Target } from './Target';
+import Counts from './Counts';
 
-type State = { kind: 'loading' } | { kind: 'no_place' } | { kind: 'error'; message: string } | { kind: 'ok'; where: string; targets: TargetCard[] };
+type State = { kind: 'loading' } | { kind: 'no_place' } | { kind: 'error'; message: string } | { kind: 'ok'; where: string; place: Place; targets: TargetCard[] };
 
 /** §2.2 "your targets": the stored {state, district} only; nothing else leaves the browser. */
 export default function GoalTargets({ slug }: { slug: string }) {
@@ -17,7 +18,7 @@ export default function GoalTargets({ slug }: { slug: string }) {
       .then(async (res) => {
         const body = (await res.json().catch(() => ({}))) as { targets?: TargetCard[]; message?: string };
         if (!res.ok) throw new Error(body.message ?? 'Could not load your targets.');
-        setS({ kind: 'ok', where, targets: body.targets ?? [] });
+        setS({ kind: 'ok', where, place, targets: body.targets ?? [] });
       })
       .catch((e: Error) => setS({ kind: 'error', message: e.message }));
   }, [slug]);
@@ -41,6 +42,7 @@ export default function GoalTargets({ slug }: { slug: string }) {
       {s.targets.length === 0
         ? <p class="px-3 py-3 text-sm">No one in your delegation decides this goal.</p>
         : <ul class="px-3">{s.targets.map((t) => <Target t={t} />)}</ul>}
+      {s.targets.length > 0 && <Counts goal={slug} state={s.place.state} district={s.place.district} />}
     </div>
   );
 }

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'preact/hooks';
 import { districtLabel, route, type GoalCard, type RouteResponse } from '../lib/api';
 import { clearPlace, loadPlace, takeRoute } from '../lib/store';
 import { CATEGORY, Target, fmtDate } from './Target';
+import Counts from './Counts';
 
-function Card({ g, n }: { g: GoalCard; n: number }) {
+function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string; district: number }) {
   const date = fmtDate(g.decision_date);
   return (
     <article class="card-lg flex flex-col">
@@ -21,6 +22,7 @@ function Card({ g, n }: { g: GoalCard; n: number }) {
         <div class="border-2 border-ink">
           <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets ({g.targets.length})</p>
           <ul class="px-3">{g.targets.map((t) => <Target t={t} />)}</ul>
+          <Counts goal={g.slug} state={state} district={district} />
         </div>
         <p class="font-semibold">{g.ask_text}</p>
         <a href={g.action_href} class="btn btn-primary mt-auto self-start">Get my script →</a>
@@ -65,7 +67,7 @@ export default function Results() {
         </div>
       ) : (
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mt-8">
-          {data.goals.map((g, i) => <Card g={g} n={i + 1} />)}
+          {data.goals.map((g, i) => <Card g={g} n={i + 1} state={data.state} district={data.district} />)}
         </div>
       )}
       <p class="mt-8"><a href="/goals" class="label-code underline underline-offset-4">See all goals →</a></p>

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { fmtDate } from '../../lib/goals';
 import { goalsFor, members, PARTY, positionLine, role, seat, tel, type Member } from '../../lib/members';
+import Counts from '../../components/Counts';
 // One static page per sitting member; unknown ids fall through to the 404 page.
 export function getStaticPaths() {
   return members().map((m) => ({ params: { id: m.bioguide_id }, props: { member: m } }));
@@ -54,6 +55,7 @@ const POS: Record<string, string> = { for: 'bg-acid text-ink', uncommitted: 'bg-
             {flags.length === 0 ? <li class="text-ink/70">No recorded vote yet</li> : flags.map((f) => <li>{f}</li>)}
           </ul>
           <p class="mt-4 text-sm text-ink/70" data-report={goal.slug} hidden></p>
+          <Counts client:load goal={goal.slug} state={m.state} district={m.chamber === 'house' ? m.district : null} />
           {action && (
             <div class="mt-5 flex flex-col sm:flex-row sm:items-center gap-3">
               <p class="flex-1 font-semibold">{action.ask_text}</p>
