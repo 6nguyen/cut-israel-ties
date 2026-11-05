@@ -349,7 +349,7 @@ page shows the real number from `MONTHLY_COST_USD`.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Landing and address routing · feat/action-router-landing-routing
+  - [~] 1. Landing and address routing · feat/action-router-landing-routing · PR #8
   - [ ] 5. Goal ranking (deterministic)
   - [ ] 2. Goals overview and detail
   - [ ] 4. Actions and personalised documents
@@ -359,7 +359,7 @@ page shows the real number from `MONTHLY_COST_USD`.
 - Completed: §1 (built, awaiting merge). §5 ranking engine landed inside §1
   (`worker/src/ranking.ts`, 15 tests); §5 still needs its own review.
 - Folded: §1 (`docs/specs/action-router.md` created).
-- Branch / open PRs: feat/action-router-landing-routing.
+- Branch / open PRs: feat/action-router-landing-routing · PR #8.
 - Files changed: `web/` (Astro + Tailwind + Preact), `worker/` (Hono + D1,
   `schema.sql`, `seed.ts`), `data/` (goals, actions, members, states),
   `scripts/quiet-check.sh`, `.github/workflows/ci.yml`, `CLAUDE.md`.
@@ -369,7 +369,7 @@ page shows the real number from `MONTHLY_COST_USD`.
 - Decisions since last update: Turnstile on `/api/route` (skipped when the
   secret is unset); six fixture delegations only in `data/members.csv`;
   hero photos replaced by a neutral gradient (no licence-safe image yet).
-- Next action: open PR for §1, then /implement-prd-section
+- Next action: merge PR #8, then /implement-prd-section
   docs/prd/action-router.md (next: §5. Goal ranking (deterministic)).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
