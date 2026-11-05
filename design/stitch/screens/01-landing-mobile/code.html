@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES // Grassroots Civic Action Protocol</title>
+<!-- Typography: Syne, Space Mono, Bebas Neue, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ef",
+            "surface-bright": "#faf8ff",
+            "primary": "#006d34",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1b21",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed-variant": "#574500",
+            "on-primary-fixed": "#00210b",
+            "surface": "#faf8ff",
+            "inverse-primary": "#00e474",
+            "surface-variant": "#e3e1e9",
+            "on-tertiary-container": "#675300",
+            "primary-container": "#00e876",
+            "tertiary-fixed": "#ffe083",
+            "on-background": "#1a1b21",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3036",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "secondary-container": "#e4164a",
+            "surface-container-highest": "#e3e1e9",
+            "on-surface-variant": "#3b4a3d",
+            "tertiary-container": "#f3c504",
+            "secondary-fixed-dim": "#ffb2b7",
+            "primary-fixed-dim": "#00e474",
+            "error-container": "#ffdad6",
+            "outline-variant": "#bacbb9",
+            "surface-container-low": "#f4f2fa",
+            "surface-container": "#efedf5",
+            "on-primary-container": "#00622e",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#ffdadb",
+            "primary-fixed": "#62ff95",
+            "on-primary-fixed-variant": "#005226",
+            "on-tertiary-fixed": "#231b00",
+            "secondary": "#b90038",
+            "on-secondary-fixed-variant": "#92002a",
+            "surface-tint": "#006d34"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Syne"],
+            "label-code": ["Space Mono"],
+            "headline-md": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-ticker": ["Space Mono"],
+            "display-lg": ["Bebas Neue"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Syne"],
+            "body-lg": ["Inter"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Agitprop Tactile Brutalism Styles */
+    .brutalist-card-shadow {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .brutalist-btn-shadow {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .brutalist-btn-shadow:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px #1a1b21;
+    }
+    .halftone-overlay {
+      background-image: radial-gradient(#1a1b21 0.75px, transparent 0.75px);
+      background-size: 8px 8px;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: flex;
+      width: 200%;
+      animation: marquee 16s linear infinite;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col justify-between antialiased selection:bg-primary-container selection:text-on-background font-body-md text-body-md">
+<!-- TOP SHELL / APP BAR (Shared Components JSON Anchor) -->
+<header class="w-full border-b-2 border-on-background bg-background px-margin py-space-sm flex justify-between items-center max-w-[1360px] mx-auto sticky top-0 z-50">
+<div class="flex items-center gap-space-xs">
+<span class="font-display-lg-mobile text-display-lg-mobile uppercase tracking-tight text-on-background">
+        CUT THE TIES
+      </span>
+<span class="h-2 w-2 bg-secondary-container rounded-full animate-ping ml-1" title="Live System"></span>
+</div>
+<div class="flex items-center gap-space-sm">
+<a class="bg-tertiary-container text-on-background font-label-code text-label-code px- space-sm py-space-xs border-2 border-on-background brutalist-btn-shadow hover:bg-surface transition-none active:translate-x-0.5 active:translate-y-0.5" href="#donate">
+        DONATE
+      </a>
+<div class="bg-on-background text-surface px-space-xs py-space-xs border border-on-background flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">campaign</span>
+</div>
+</div>
+</header>
+<!-- LIVE AGITATION SUB-HEADER MARQUEE BANNER -->
+<div class="w-full bg-on-background text-tertiary-fixed border-b-2 border-on-background overflow-hidden py-1.5 flex items-center">
+<div class="animate-marquee whitespace-nowrap font-label-ticker text-label-ticker font-bold tracking-widest uppercase">
+<span class="mx-3 flex items-center gap-1.5"><span class="h-1.5 w-1.5 bg-secondary-container rounded-none"></span> CIVIC ACTION DISPATCH // LIVE</span>
+<span class="mx-3 text-surface-dim">/</span>
+<span class="mx-3 flex items-center gap-1.5">CONGRESSIONAL WAR POWERS HEARINGS OPEN</span>
+<span class="mx-3 text-surface-dim">/</span>
+<span class="mx-3 flex items-center gap-1.5"><span class="h-1.5 w-1.5 bg-primary-container rounded-none"></span> 42,819 DIRECT SESSIONS LOGGED TODAY</span>
+<span class="mx-3 text-surface-dim">/</span>
+<span class="mx-3 flex items-center gap-1.5"><span class="h-1.5 w-1.5 bg-secondary-container rounded-none"></span> CIVIC ACTION DISPATCH // LIVE</span>
+<span class="mx-3 text-surface-dim">/</span>
+<span class="mx-3 flex items-center gap-1.5">CONGRESSIONAL WAR POWERS HEARINGS OPEN</span>
+<span class="mx-3 text-surface-dim">/</span>
+<span class="mx-3 flex items-center gap-1.5"><span class="h-1.5 w-1.5 bg-primary-container rounded-none"></span> 42,819 DIRECT SESSIONS LOGGED TODAY</span>
+</div>
+</div>
+<!-- MAIN VIEWPORT CANVAS (Mobile 390px Optimized Tactical Frame) -->
+<main class="w-full max-w-[440px] mx-auto px-4 py-space-lg flex-1 flex flex-col gap-space-lg">
+<!-- URGENT HERO BROADSIDE HEADER -->
+<section class="border-2 border-on-background bg-surface-container-lowest p-4 brutalist-card-shadow relative overflow-hidden">
+<!-- Background Graphic Accents -->
+<div class="absolute -right-10 -bottom-10 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[180px]">gavel</span>
+</div>
+<div class="flex items-center justify-between pb-3 border-b-2 border-on-background mb-3">
+<span class="bg-secondary-container text-on-secondary px-2 py-0.5 font-label-ticker text-label-ticker font-bold tracking-wider uppercase border border-on-background">
+          CRITICAL ALERT // S.RES.418
+        </span>
+<span class="font-label-code text-label-code text-on-surface-variant font-bold tracking-tight">
+          SEC. 1217
+        </span>
+</div>
+<!-- Broadsheet Headline -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background uppercase tracking-tight leading-none mb-3">
+        STOP CONGRESS ARMING A GENOCIDE. CALL YOUR REP IN 90 SECONDS.
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 leading-snug">
+        Capitol Hill switchboards prioritize verified constituents over PAC lobbyists. Pick up your phone, demand an immediate halt to foreign military transfers, and log your dissent on the public record.
+      </p>
+<!-- Tactical Visual Proof Tag -->
+<div class="relative border-2 border-on-background h-32 w-full overflow-hidden mb-1">
+<img class="w-full h-full object-cover filter contrast-125 grayscale" data-alt="A cinematic, high-contrast night view of the illuminated United States Capitol building under heavy dramatic thunderous storm clouds. The architectural dome glows against deep inky blue and charcoal skies, creating a somber, serious tone matching an urgent investigative political broadsheet. Harsh realistic editorial photojournalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5frJSxv_TlSMi18z8eV0-UdFFJSAmTJlfrR-z2GsFbjOi_qY_Nxrh0q_WanYEK-N1UDl01zj-1PA0H2RSuV5ej2BWPqM49Obq6coFeOUvgt5k24YM1gPFtY7erM7VFqEURi7OrbAvYVHS5AXcL4yuvdHXbjC1Sy2vuE7oCHL6MqvmUAg02spwWWY14-ysIqWOUYFbLVeDGPolI5U-yfsdbMQUnERIXyyJ5sGfigM"/>
+<div class="absolute bottom-0 left-0 right-0 bg-on-background bg-opacity-90 text-surface p-1 px-2 flex justify-between items-center text-label-ticker font-label-ticker border-t border-on-background">
+<span>CAPITOL SWITCHBOARD // LIVE</span>
+<span class="text-primary-container font-bold">MONITORED</span>
+</div>
+</div>
+</section>
+<!-- PRIMARY TACTICAL INPUT MODULE -->
+<section class="border-3 border-on-background bg-surface-bright p-5 brutalist-card-shadow relative">
+<div class="inline-block bg-on-background text-surface font-label-code text-label-code font-bold px-2 py-0.5 uppercase tracking-wider mb-3">
+        STAGE 01: LOCATE YOUR REPRESENTATIVE
+      </div>
+<label class="block font-headline-md text-headline-md text-on-background mb-1" for="street-address">
+        ENTER YOUR US STREET ADDRESS
+      </label>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3">
+        We map your exact House district down to the congressional switchboard desk.
+      </p>
+<form class="flex flex-col gap-3" onsubmit="event.preventDefault(); document.getElementById('output-feedback').classList.remove('hidden');">
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-2 border-on-background text-on-background p-3.5 font-body-md text-body-md placeholder:text-surface-dim focus:outline-none focus:ring-0 focus:border-on-background brutalist-card-shadow" id="street-address" placeholder="e.g. 742 Evergreen Terrace, Springfield, OR" required="" type="text"/>
+<button class="absolute right-2 top-2.5 bg-surface-container-high hover:bg-surface-variant text-on-surface border border-on-background px-2 py-1 flex items-center gap-1 font-label-ticker text-label-ticker font-bold active:translate-x-0.5 active:translate-y-0.5 transition-none" onclick="document.getElementById('street-address').value = '1400 Constitution Ave NW, Washington, DC'; document.getElementById('geo-status').innerText = 'LOCATION PINPOINTED // DISTRICT AT-LARGE';" title="Use current device geolocation" type="button">
+<span class="material-symbols-outlined text-[14px]">my_location</span>
+<span>USE GPS</span>
+</button>
+</div>
+<div class="font-label-ticker text-label-ticker text-on-surface-variant text-right" id="geo-status">
+          TAP 'USE GPS' OR ENTER POSTAL DETAILS
+        </div>
+<!-- High-Contrast Electric Action CTA Button -->
+<button class="w-full bg-primary-container text-on-background border-2 border-on-background py-4 px-4 font-label-code text-[15px] font-bold tracking-wider uppercase brutalist-btn-shadow flex items-center justify-center gap-2 hover:bg-surface-container-lowest transition-none" type="submit">
+<span>GET MY SCRIPT</span>
+<span class="material-symbols-outlined text-[20px] font-bold">bolt</span>
+</button>
+<!-- Monospace Reassurance / Privacy Guarantee -->
+<div class="pt-2 border-t border-surface-variant flex items-center justify-between text-center font-label-ticker text-label-ticker text-on-surface-variant uppercase">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+            Free Forever
+          </span>
+<span>·</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">lock</span>
+            No Sign-Up
+          </span>
+<span>·</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">shield</span>
+            Zero Data Retained
+          </span>
+</div>
+</form>
+<!-- Instant Simulated Output Feedback Box -->
+<div class="hidden mt-4 border-2 border-on-background bg-tertiary-fixed p-3" id="output-feedback">
+<div class="font-label-code text-label-code text-on-tertiary-fixed font-bold flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[16px]">verified</span> TARGET IDENTIFIED: DISTRICT REP
+        </div>
+<p class="font-body-sm text-body-sm text-on-background font-medium">
+          Dialing Line: <strong class="underline decoration-2">(202) 224-3121</strong>. Read verified statement in under 60 seconds.
+        </p>
+</div>
+</section>
+<!-- LIVE MOVEMENT STATS TICKER PLACARD -->
+<section class="border-2 border-on-background bg-surface-container-lowest p-4 brutalist-card-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-code text-label-code uppercase tracking-wider text-on-surface-variant font-bold">
+          CONGRESSIONAL IMPACT INDEX
+        </span>
+<span class="bg-primary-container text-on-background border border-on-background px-1.5 py-0.5 font-label-ticker text-label-ticker font-bold">
+          435/435 TARGETED
+        </span>
+</div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-display-xl-mobile text-display-xl-mobile text-on-background tracking-tight">
+          42,819
+        </span>
+<span class="font-headline-md text-headline-md text-secondary uppercase font-extrabold">
+          CALLS LOGGED
+        </span>
+</div>
+<div class="w-full bg-surface-container border border-on-background h-3 overflow-hidden mb-2">
+<div class="bg-secondary-container h-full w-[78%]"></div>
+</div>
+<div class="flex justify-between font-label-ticker text-label-ticker text-on-surface-variant uppercase">
+<span>CURRENT OBJECTIVE: 50,000 SESSIONS</span>
+<span class="font-bold text-on-background">78% SURPASSED</span>
+</div>
+</section>
+<!-- FEATURED ACTIVE GOALS PREVIEW CARD -->
+<section class="border-2 border-on-background bg-surface p-4 brutalist-card-shadow relative">
+<div class="border-l-8 border-secondary mb-3 pl-2.5">
+<div class="font-label-ticker text-label-ticker font-bold text-secondary uppercase tracking-widest">
+          ACTIVE LEGISLATIVE DIRECTIVE // PRIORITY 01
+        </div>
+<h2 class="font-headline-md text-headline-md text-on-background uppercase">
+          NDAA SECTION 1217 INTEGRATION
+        </h2>
+</div>
+<!-- Legislative Chamber Image Strip -->
+<div class="border-2 border-on-background h-24 w-full overflow-hidden mb-3 relative">
+<img class="w-full h-full object-cover filter contrast-125" data-alt="Documentary view of the packed United States House of Representatives chamber during an intense congressional debate. Members of congress are seated along curved polished wooden desks under high ornate classical ceilings. Dramatic realistic documentary press lighting emphasizing civic tension and bureaucratic power." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALr49zv7Aw9NuA_NHxUYd6k2VASv9VqNDVpeWe_Eee1aozkTExrCWlAHVwihxb-DSQJFAqknJwaMJwOEA4P7UPxIFsW4oeaIlCorWfz4dGw4Q6eGUfckSBTRVneI55feMZRg3z6Kvce7K7I2zHo_Qwncf35Umx_rGm_V-qSlx1GqX3Z0GRnAhGJOOISiQE2qkEf5ilzBTsowWFptD7ptIqRJgaLyVUMLhGYhh1EV0"/>
+<div class="absolute top-2 left-2 bg-on-background text-primary-container px-1.5 py-0.5 font-label-ticker text-label-ticker border border-surface">
+          FLOOR AMENDMENT PENDING
+        </div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3">
+        Conditioning all emergency foreign supplemental financing on standard human rights compliance certification. Requires immediate committee markup.
+      </p>
+<!-- Target Rep Chip & Indicator -->
+<div class="bg-surface-container-high border border-on-background p-2.5 flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">person_alert</span>
+<div>
+<div class="font-label-code text-label-code text-on-background font-bold uppercase leading-none">
+              REP. COMMITTEE CHAIR
+            </div>
+<div class="font-label-ticker text-label-ticker text-on-surface-variant">
+              ARMED SERVICES COMMITTEE
+            </div>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary px-2 py-0.5 font-label-ticker text-label-ticker uppercase font-bold border border-on-background">
+          3.2K CALLS NEEDED
+        </span>
+</div>
+<!-- Direct Tap Trigger -->
+<button class="w-full bg-on-background text-surface border-2 border-on-background py-3 font-label-code text-label-code uppercase tracking-wider font-bold flex items-center justify-center gap-2 hover:bg-surface hover:text-on-background transition-none brutalist-btn-shadow" onclick="document.getElementById('street-address').focus(); window.scrollTo({top: 0, behavior: 'smooth'});">
+<span>EXECUTE SCRIPT FOR SECTION 1217</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<!-- Quick Navigation Link -->
+<div class="mt-4 pt-3 border-t-2 border-on-background flex justify-between items-center">
+<span class="font-label-ticker text-label-ticker text-on-surface-variant uppercase">
+          04 OTHER ACTIVE BILLS IN FLIGHT
+        </span>
+<a class="font-label-code text-label-code font-bold uppercase underline decoration-2 underline-offset-4 text-on-background hover:text-primary" href="#goals">
+          See all active goals →
+        </a>
+</div>
+</section>
+<!-- FREQUENTLY FILED TACTICAL DISPATCHES (Field Notes) -->
+<section class="border-2 border-on-background bg-surface-container-low p-4 brutalist-card-shadow">
+<div class="flex items-center justify-between border-b-2 border-on-background pb-2 mb-3">
+<span class="font-label-code text-label-code font-bold uppercase tracking-wider text-on-background">
+          DISPATCH PROTOCOL
+        </span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant">FAQ // REV 04</span>
+</div>
+<div class="space-y-3 font-body-sm text-body-sm">
+<div class="border border-on-background bg-surface p-2.5">
+<p class="font-label-code text-label-code font-bold text-on-background mb-1">
+            Q: DOES MY PHONE CALL ACTUALLY COUNT?
+          </p>
+<p class="text-on-surface-variant">
+            Congressional interns tally every distinct constituent call in a real-time tracking binder. A volume spike of 50+ calls in one afternoon forces senior legislative staff briefings.
+          </p>
+</div>
+<div class="border border-on-background bg-surface p-2.5">
+<p class="font-label-code text-label-code font-bold text-on-background mb-1">
+            Q: WILL I HAVE TO ARGUE WITH AN AIDE?
+          </p>
+<p class="text-on-surface-variant">
+            No. Phone staffers simply log: your zip code, the bill number, and your explicit stance ("Oppose unconditional arms packages"). It takes under 90 seconds.
+          </p>
+</div>
+</div>
+</section>
+</main>
+<!-- TACTILE MOVEMENT FOOTER (Shared Components JSON Anchor) -->
+<footer class="w-full bg-on-background text-surface py-space-xl px-4 border-t-2 border-on-background mt-8">
+<div class="max-w-[440px] mx-auto flex flex-col gap-5">
+<!-- Funding & Sovereign Transparency Statement -->
+<div class="border-2 border-surface p-3.5 bg-inverse-surface">
+<div class="font-label-code text-label-code font-bold text-primary-container uppercase tracking-wide mb-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">info</span> SOVEREIGN VOLUNTEER NETWORK
+        </div>
+<p class="font-body-sm text-body-sm text-surface-dim leading-snug">
+          Built and paid for by one person. No dark PAC capital. Donations keep server lines open. 
+          <a class="text-tertiary-fixed font-bold underline ml-1 hover:text-primary-container" href="#donate">Donate</a>
+</p>
+</div>
+<!-- Footer Nav Links Array from JSON Specification -->
+<div class="grid grid-cols-2 gap-2 text-label-ticker font-label-ticker">
+<a class="border border-surface-dim p-2 hover:text-primary-container hover:border-primary-container transition-none uppercase" href="#security">
+          SECURITY DIRECTIVE
+        </a>
+<a class="border border-surface-dim p-2 hover:text-primary-container hover:border-primary-container transition-none uppercase" href="#legal">
+          LEGAL DISCLAIMER
+        </a>
+<a class="border border-surface-dim p-2 hover:text-primary-container hover:border-primary-container transition-none uppercase" href="#switchboard">
+          SWITCHBOARD PROTOCOL
+        </a>
+<a class="border border-surface-dim p-2 hover:text-primary-container hover:border-primary-container transition-none uppercase" href="#direct-access">
+          DIRECT ACCESS
+        </a>
+</div>
+<!-- Explicit Copyright & Protocol Label from JSON -->
+<div class="border-t border-surface-dim pt-4 flex flex-col gap-2">
+<p class="font-label-ticker text-label-ticker text-surface-dim uppercase tracking-wider leading-relaxed">
+          CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+        </p>
+<div class="flex items-center justify-between text-label-ticker font-label-ticker text-surface-dim pt-2 border-t border-surface-dim">
+<span>DISTRICT 07 ENGINE VERIFIED</span>
+<span class="text-primary-container font-mono">STATUS: OPTIMAL</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

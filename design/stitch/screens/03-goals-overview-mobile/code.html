@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES — Goals &amp; Legislative Interventions</title>
+<!-- Google Fonts: Bebas Neue, Syne, Inter, Space Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ef",
+            "surface-bright": "#faf8ff",
+            "primary": "#006d34",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1b21",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed-variant": "#574500",
+            "on-primary-fixed": "#00210b",
+            "surface": "#faf8ff",
+            "inverse-primary": "#00e474",
+            "surface-variant": "#e3e1e9",
+            "on-tertiary-container": "#675300",
+            "primary-container": "#00e876",
+            "tertiary-fixed": "#ffe083",
+            "on-background": "#1a1b21",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3036",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "secondary-container": "#e4164a",
+            "surface-container-highest": "#e3e1e9",
+            "on-surface-variant": "#3b4a3d",
+            "tertiary-container": "#f3c504",
+            "secondary-fixed-dim": "#ffb2b7",
+            "primary-fixed-dim": "#00e474",
+            "error-container": "#ffdad6",
+            "outline-variant": "#bacbb9",
+            "surface-container-low": "#f4f2fa",
+            "surface-container": "#efedf5",
+            "on-primary-container": "#00622e",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#ffdadb",
+            "primary-fixed": "#62ff95",
+            "on-primary-fixed-variant": "#005226",
+            "on-tertiary-fixed": "#231b00",
+            "secondary": "#b90038",
+            "on-secondary-fixed-variant": "#92002a",
+            "surface-tint": "#006d34"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": [
+              "Syne"
+            ],
+            "label-code": [
+              "Space Mono"
+            ],
+            "headline-md": [
+              "Syne"
+            ],
+            "display-xl": [
+              "Bebas Neue"
+            ],
+            "label-ticker": [
+              "Space Mono"
+            ],
+            "display-lg": [
+              "Bebas Neue"
+            ],
+            "body-md": [
+              "Inter"
+            ],
+            "headline-lg": [
+              "Syne"
+            ],
+            "body-lg": [
+              "Inter"
+            ],
+            "display-lg-mobile": [
+              "Bebas Neue"
+            ],
+            "display-xl-mobile": [
+              "Bebas Neue"
+            ],
+            "body-sm": [
+              "Inter"
+            ]
+          },
+          "fontSize": {
+            "headline-lg-mobile": [
+              "26px",
+              {
+                "lineHeight": "32px",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "800"
+              }
+            ],
+            "label-code": [
+              "13px",
+              {
+                "lineHeight": "16px",
+                "letterSpacing": "0.05em",
+                "fontWeight": "700"
+              }
+            ],
+            "headline-md": [
+              "22px",
+              {
+                "lineHeight": "28px",
+                "fontWeight": "700"
+              }
+            ],
+            "display-xl": [
+              "96px",
+              {
+                "lineHeight": "88px",
+                "letterSpacing": "0.02em",
+                "fontWeight": "400"
+              }
+            ],
+            "label-ticker": [
+              "11px",
+              {
+                "lineHeight": "14px",
+                "letterSpacing": "0.08em",
+                "fontWeight": "400"
+              }
+            ],
+            "display-lg": [
+              "64px",
+              {
+                "lineHeight": "60px",
+                "letterSpacing": "0.02em",
+                "fontWeight": "400"
+              }
+            ],
+            "body-md": [
+              "15px",
+              {
+                "lineHeight": "22px",
+                "fontWeight": "400"
+              }
+            ],
+            "headline-lg": [
+              "32px",
+              {
+                "lineHeight": "38px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "800"
+              }
+            ],
+            "body-lg": [
+              "18px",
+              {
+                "lineHeight": "28px",
+                "fontWeight": "400"
+              }
+            ],
+            "display-lg-mobile": [
+              "40px",
+              {
+                "lineHeight": "38px",
+                "letterSpacing": "0.02em",
+                "fontWeight": "400"
+              }
+            ],
+            "display-xl-mobile": [
+              "56px",
+              {
+                "lineHeight": "52px",
+                "letterSpacing": "0.02em",
+                "fontWeight": "400"
+              }
+            ],
+            "body-sm": [
+              "13px",
+              {
+                "lineHeight": "18px",
+                "fontWeight": "400"
+              }
+            ]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Tactile Brutalist shadow utilities */
+    .hard-shadow-sm {
+      box-shadow: 2px 2px 0px #1a1b21;
+    }
+    .hard-shadow-md {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .hard-shadow-lg {
+      box-shadow: 6px 6px 0px #1a1b21;
+    }
+    .hard-shadow-active:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #1a1b21;
+    }
+    
+    /* Agitprop newspaper column rule */
+    .ink-border {
+      border: 2px solid #1a1b21;
+    }
+    .ink-border-b {
+      border-bottom: 2px solid #1a1b21;
+    }
+    .ink-border-t {
+      border-top: 2px solid #1a1b21;
+    }
+    .ink-border-r {
+      border-right: 2px solid #1a1b21;
+    }
+    .ink-border-l {
+      border-left: 2px solid #1a1b21;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex justify-center selection:bg-primary-container selection:text-on-background">
+<!-- Mobile Device Screen Container (390px locked canvas) -->
+<div class="w-full max-w-[390px] min-h-screen bg-background flex flex-col ink-border shadow-2xl relative">
+<!-- Top Navigation Anchor (Task-Focused Return Header) -->
+<header class="w-full bg-surface-container-lowest ink-border-b px-space-md py-space-sm flex items-center justify-between sticky top-0 z-50">
+<a class="inline-flex items-center gap-1 font-label-code text-label-code text-on-surface hover:text-primary active:translate-x-0.5 transition-none font-bold" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>HOME</span>
+</a>
+<div class="flex flex-col items-center">
+<span class="font-display-lg-mobile text-[22px] leading-tight tracking-tight text-on-background">CUT THE TIES</span>
+<span class="font-label-ticker text-[9px] tracking-widest text-on-surface-variant uppercase">LEGISLATION WATCH</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-primary-container ink-border hard-shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-ticker text-[10px] font-bold text-on-background uppercase">LIVE</span>
+</div>
+</header>
+<!-- Urgency Ticker Banner -->
+<div class="w-full bg-on-background text-tertiary-container ink-border-b px-space-md py-1.5 flex items-center justify-between overflow-hidden">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-[14px]">warning</span>
+<span class="font-label-ticker text-[10px] tracking-widest uppercase font-bold text-tertiary-container">
+          DISTRICT 07 CALL PRIORITY ACTIVE
+        </span>
+</div>
+<span class="font-label-code text-[10px] text-surface-container-highest uppercase underline">ACTION BRIEF #89</span>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-space-md py-space-lg flex flex-col gap-space-lg">
+<!-- Hero Header Section -->
+<section class="flex flex-col gap-space-xs border-b-2 border-on-background pb-space-md">
+<div class="inline-flex items-center gap-2 mb-1">
+<span class="bg-secondary text-on-secondary px-1.5 py-0.5 font-label-ticker text-[10px] font-bold uppercase tracking-wider ink-border">
+            CONGRESSIONAL DEMANDS
+          </span>
+<span class="font-label-ticker text-[10px] text-on-surface-variant">WEEK 47 — 118TH CONG.</span>
+</div>
+<h1 class="font-display-xl-mobile text-display-xl-mobile tracking-tight text-on-background uppercase leading-none">
+          WHAT WE ARE ASKING FOR
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium mt-1 leading-snug">
+          Targeted legislative interventions where constituent phone calls flip conference votes.
+        </p>
+<!-- Capitol Visual Context Panel (from prompt inspiration) -->
+<div class="mt-space-sm relative ink-border hard-shadow-md overflow-hidden bg-on-background group">
+<img class="w-full h-36 object-cover opacity-90 contrast-125" data-alt="A moody, high-contrast photograph of a neoclassical state capitol building under storm clouds at dusk. Wet marble steps reflect glowing lantern light, with dark raincoats and umbrellas visible in silhouette. The image carries dramatic tactical lighting, deep ink shadows, and cold grey stone tones tailored to an urgent civic campaign broadsheet aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdlwP4i1PbiYKUpS2_AF1HyF6ss82u4ImbFc3rQTMgAZjXnQlgIVtV5WeXHVOlwK8urGfI69RMgee26DabQsKmcfT6_Kz1BwEm8_b4mNYHOk2HQX85NB_wi4rsa3kUtQwI5KlKj4BpqrRwdrMwqPOC9jqrtO4JfFjwXhBKrE-E3sWt5TS2FjwayIci-z9CVnBaSXIijLxNje7NOynEc7AJ6koKxqHb-aYOzF-fFq0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background via-transparent to-transparent"></div>
+<div class="absolute bottom-2 left-2 right-2 flex items-center justify-between text-surface">
+<span class="font-label-code text-[11px] font-bold tracking-wider text-surface-bright uppercase">WASHINGTON D.C. DOCKET</span>
+<span class="font-label-ticker text-[10px] bg-secondary-container text-on-secondary-container px-1 py-0.5 font-bold uppercase">3 FLOORS CONTESTED</span>
+</div>
+</div>
+</section>
+<!-- Active Goal Cards Stack -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-secondary ink-border"></span>
+<h2 class="font-headline-md text-headline-md tracking-tight text-on-background uppercase">
+              ACTIVE INTERVENTIONS
+            </h2>
+</div>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant font-bold">3 CRITICAL TARGETS</span>
+</div>
+<!-- Card 1: Strip NDAA Section 1217 Integration -->
+<article class="bg-surface-container-lowest ink-border hard-shadow-md flex flex-col relative border-l-8 border-l-secondary-container">
+<div class="p-space-md flex flex-col gap-space-sm">
+<!-- Badges Row -->
+<div class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-container-high pb-space-xs">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 font-label-ticker text-[10px] font-bold uppercase ink-border">
+                CONFERENCE DECIDING NOW
+              </span>
+<span class="font-label-code text-[11px] text-on-surface-variant tracking-wider uppercase font-bold">
+                TARGET: HOUSE &amp; SENATE
+              </span>
+</div>
+<!-- Title & Context -->
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-lg-mobile text-[20px] leading-tight text-on-background font-extrabold uppercase">
+                Strip NDAA Section 1217 Integration
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Prevents automatic $4.2B arms pipeline re-authorization without explicit floor roll-call vote. Conference committee chairs are currently negotiating final draft language.
+              </p>
+</div>
+<!-- Target Meter Indicator -->
+<div class="bg-surface-container-low ink-border p-2 flex flex-col gap-1">
+<div class="flex justify-between items-center text-[10px] font-label-ticker uppercase">
+<span class="text-on-surface-variant">Conference Pressure Threshold</span>
+<span class="font-bold text-secondary">68% / 12 Key Staffers</span>
+</div>
+<div class="w-full bg-surface-variant h-2 ink-border overflow-hidden">
+<div class="bg-secondary-container h-full w-[68%]"></div>
+</div>
+</div>
+<!-- Action Trigger -->
+<a class="w-full mt-1 bg-primary-container text-on-background ink-border hard-shadow-sm hard-shadow-active py-2.5 px-space-md flex items-center justify-center gap-2 font-label-code text-[13px] font-bold uppercase tracking-wider hover:bg-surface-container-lowest transition-none" href="#">
+<span>TAKE ACTION</span>
+<span class="material-symbols-outlined font-bold text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 2: Senate Democratic Leader Vote -->
+<article class="bg-surface-container-lowest ink-border hard-shadow-md flex flex-col relative border-l-8 border-l-tertiary-container">
+<div class="p-space-md flex flex-col gap-space-sm">
+<!-- Badges Row -->
+<div class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-container-high pb-space-xs">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 font-label-ticker text-[10px] font-bold uppercase ink-border">
+                VOTE IMMINENT
+              </span>
+<span class="font-label-code text-[11px] text-on-surface-variant tracking-wider uppercase font-bold">
+                TARGET: SENATE DEMOCRATS
+              </span>
+</div>
+<!-- Title & Context -->
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-lg-mobile text-[20px] leading-tight text-on-background font-extrabold uppercase">
+                Senate Democratic Leader Vote
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Compel Democratic leadership to allow open amendment process on military subsidy conditions. Direct constituent pressure needed in 4 battleground delegations.
+              </p>
+</div>
+<!-- Target Meter Indicator -->
+<div class="bg-surface-container-low ink-border p-2 flex flex-col gap-1">
+<div class="flex justify-between items-center text-[10px] font-label-ticker uppercase">
+<span class="text-on-surface-variant">Switchboard Call Target</span>
+<span class="font-bold text-on-tertiary-container">840 / 1,000 Verified Calls</span>
+</div>
+<div class="w-full bg-surface-variant h-2 ink-border overflow-hidden">
+<div class="bg-tertiary-container h-full w-[84%]"></div>
+</div>
+</div>
+<!-- Action Trigger -->
+<a class="w-full mt-1 bg-primary-container text-on-background ink-border hard-shadow-sm hard-shadow-active py-2.5 px-space-md flex items-center justify-center gap-2 font-label-code text-[13px] font-bold uppercase tracking-wider hover:bg-surface-container-lowest transition-none" href="#">
+<span>TAKE ACTION</span>
+<span class="material-symbols-outlined font-bold text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 3: Block Joint Resolutions of Disapproval (JRD) -->
+<article class="bg-surface-container-lowest ink-border hard-shadow-md flex flex-col relative border-l-8 border-l-primary-container">
+<div class="p-space-md flex flex-col gap-space-sm">
+<!-- Badges Row -->
+<div class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-container-high pb-space-xs">
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 font-label-ticker text-[10px] font-bold uppercase ink-border">
+                FLOOR VOTE SCHEDULED
+              </span>
+<span class="font-label-code text-[11px] text-on-surface-variant tracking-wider uppercase font-bold">
+                TARGET: SENATE FLOOR
+              </span>
+</div>
+<!-- Title & Context -->
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-lg-mobile text-[20px] leading-tight text-on-background font-extrabold uppercase">
+                Block Joint Resolutions of Disapproval (JRD)
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                S.J.Res 111-113: Support bipartisan resolutions blocking offensive tank ammunition transfers. Filibuster-proof motion to discharge reaches senate floor Wednesday at 14:00.
+              </p>
+</div>
+<!-- Target Meter Indicator -->
+<div class="bg-surface-container-low ink-border p-2 flex flex-col gap-1">
+<div class="flex justify-between items-center text-[10px] font-label-ticker uppercase">
+<span class="text-on-surface-variant">Confirmed Senators</span>
+<span class="font-bold text-primary">19 Yes / Need 51</span>
+</div>
+<div class="w-full bg-surface-variant h-2 ink-border overflow-hidden">
+<div class="bg-primary-container h-full w-[37%]"></div>
+</div>
+</div>
+<!-- Action Trigger -->
+<a class="w-full mt-1 bg-primary-container text-on-background ink-border hard-shadow-sm hard-shadow-active py-2.5 px-space-md flex items-center justify-center gap-2 font-label-code text-[13px] font-bold uppercase tracking-wider hover:bg-surface-container-lowest transition-none" href="#">
+<span>TAKE ACTION</span>
+<span class="material-symbols-outlined font-bold text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+</section>
+<!-- Section: RESOLVED / PAST ACTIONS -->
+<section class="flex flex-col gap-space-sm pt-space-sm border-t-2 border-on-background">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-outline-variant ink-border"></span>
+<h2 class="font-headline-md text-[18px] tracking-tight text-on-background uppercase">
+              RESOLVED / PAST ACTIONS
+            </h2>
+</div>
+<span class="font-label-ticker text-[10px] text-on-surface-variant uppercase">RECORD AUDIT</span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant leading-relaxed">
+          Historical record of targeted grassroots legislative interventions and their final roll-call outcomes.
+        </p>
+<!-- Compact Rows -->
+<div class="flex flex-col gap-2 mt-1">
+<!-- Row 1: Passed Outcome -->
+<div class="bg-surface-container-lowest ink-border p-space-sm flex items-start gap-2.5 hard-shadow-sm">
+<div class="w-6 h-6 rounded-none bg-primary-container ink-border flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-on-background font-bold">check</span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-baseline justify-between gap-1">
+<span class="font-label-code text-[12px] font-bold text-on-background leading-tight">
+                  Emergency Aid Package Amendment #44
+                </span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 font-label-ticker text-[10px]">
+<span class="text-primary font-bold uppercase">OUTCOME: SECTION REMOVED</span>
+<span class="text-outline-variant">·</span>
+<span class="bg-primary-fixed text-on-primary-fixed font-bold px-1 ink-border">PASSED</span>
+</div>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
+                Stripped unconditional foreign police credit expansion by 54-46 floor vote.
+              </span>
+</div>
+</div>
+<!-- Row 2: Blocked Outcome -->
+<div class="bg-surface-container-lowest ink-border p-space-sm flex items-start gap-2.5 hard-shadow-sm">
+<div class="w-6 h-6 rounded-none bg-surface-variant ink-border flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant font-bold">remove</span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-baseline justify-between gap-1">
+<span class="font-label-code text-[12px] font-bold text-on-background leading-tight">
+                  Appropriations Committee Markup
+                </span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 font-label-ticker text-[10px]">
+<span class="text-on-surface-variant font-bold uppercase">OUTCOME: FLOOR VOTE BLOCKED</span>
+<span class="text-outline-variant">·</span>
+<span class="bg-surface-variant text-on-surface-variant font-bold px-1 ink-border">ARCHIVED</span>
+</div>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
+                Defense sub-panel refused mandatory drone sales pipeline without audit riders.
+              </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Tactical Organizing Dispatch Notice -->
+<section class="bg-tertiary-container ink-border hard-shadow-md p-space-md flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-tertiary-container text-[18px]">cell_tower</span>
+<span class="font-label-code text-label-code uppercase font-bold text-on-tertiary-container">SWITCHBOARD PROTOCOL</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-tertiary-container font-medium">
+          Capitol switchboards log callers by zip code. If you reside in Districts CA-11, NY-05, or TX-35, your direct phone call carries 4x conference committee weight.
+        </p>
+<div class="pt-1">
+<a class="inline-flex items-center gap-1.5 font-label-code text-[11px] text-on-background font-bold uppercase underline decoration-2 underline-offset-2" href="#">
+<span>GET CONSTITUENT DIALER SCRIPT</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</section>
+</main>
+<!-- Footer: Tactile Unbleached Paper Footer with Solo Operator Notice -->
+<footer class="w-full bg-surface-container-high text-on-background ink-border-t px-space-md py-space-lg flex flex-col gap-space-md mt-space-lg">
+<!-- Solo Operator Notice -->
+<div class="bg-surface-container-lowest ink-border hard-shadow-sm p-space-sm flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-label-ticker text-[10px] font-bold uppercase tracking-wider">CIVIC INFRASTRUCTURE NOTE</span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface leading-normal">
+          Built and paid for by one person. Donations keep it up. 
+          <a class="font-bold underline decoration-2 text-primary hover:text-on-background ml-1" href="#">Donate</a>
+</p>
+</div>
+<!-- Navigation Links from Shared Components Footer Blueprint -->
+<div class="flex flex-col gap-2">
+<span class="font-label-ticker text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+          FIELD ACCESS DIRECTORY
+        </span>
+<div class="grid grid-cols-2 gap-y-2 gap-x-space-md font-label-ticker text-[11px] uppercase tracking-wider">
+<a class="text-on-surface hover:underline hover:text-primary transition-none" href="#">
+            SECURITY DIRECTIVE
+          </a>
+<a class="text-on-surface hover:underline hover:text-primary transition-none" href="#">
+            LEGAL DISCLAIMER
+          </a>
+<a class="text-on-surface hover:underline hover:text-primary transition-none" href="#">
+            SWITCHBOARD PROTOCOL
+          </a>
+<a class="text-on-surface hover:underline hover:text-primary transition-none" href="#">
+            DIRECT ACCESS
+          </a>
+</div>
+</div>
+<!-- Legal & Architecture Line -->
+<div class="border-t border-on-surface-variant/20 pt-space-sm flex flex-col gap-1">
+<p class="font-label-ticker text-[9px] text-on-surface-variant leading-tight uppercase">
+          CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+        </p>
+<span class="font-label-ticker text-[8px] text-on-surface-variant/70 uppercase">
+          TERMINAL REV 2.4.9 — ENCRYPTED MOBILE CLIENT
+        </span>
+</div>
+</footer>
+</div>
+</body></html>

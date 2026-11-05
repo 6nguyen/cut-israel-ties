@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cut the Ties // System Status &amp; Error States</title>
+<!-- Google Fonts: Bebas Neue, Syne, Space Mono, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ef",
+            "surface-bright": "#faf8ff",
+            "primary": "#006d34",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1b21",
+            "outline": "#6b7b6c",
+            "on-tertiary-fixed-variant": "#574500",
+            "on-primary-fixed": "#00210b",
+            "surface": "#faf8ff",
+            "inverse-primary": "#00e474",
+            "surface-variant": "#e3e1e9",
+            "on-tertiary-container": "#675300",
+            "primary-container": "#00e876",
+            "tertiary-fixed": "#ffe083",
+            "on-background": "#1a1b21",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-secondary-fixed": "#40000d",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#eec200",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3036",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "secondary-container": "#e4164a",
+            "surface-container-highest": "#e3e1e9",
+            "on-surface-variant": "#3b4a3d",
+            "tertiary-container": "#f3c504",
+            "secondary-fixed-dim": "#ffb2b7",
+            "primary-fixed-dim": "#00e474",
+            "error-container": "#ffdad6",
+            "outline-variant": "#bacbb9",
+            "surface-container-low": "#f4f2fa",
+            "surface-container": "#efedf5",
+            "on-primary-container": "#00622e",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#ffdadb",
+            "primary-fixed": "#62ff95",
+            "on-primary-fixed-variant": "#005226",
+            "on-tertiary-fixed": "#231b00",
+            "secondary": "#b90038",
+            "on-secondary-fixed-variant": "#92002a",
+            "surface-tint": "#006d34"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Syne"],
+            "label-code": ["Space Mono"],
+            "headline-md": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "label-ticker": ["Space Mono"],
+            "display-lg": ["Bebas Neue"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Syne"],
+            "body-lg": ["Inter"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["26px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+            "label-code": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+            "headline-md": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+            "display-xl": ["96px", {"lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+            "label-ticker": ["11px", {"lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400"}],
+            "display-lg": ["64px", {"lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+            "body-md": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+            "headline-lg": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+            "display-lg-mobile": ["40px", {"lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+            "display-xl-mobile": ["56px", {"lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Agitprop Brutalist Print Shadows */
+    .hard-shadow-1 {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .hard-shadow-2 {
+      box-shadow: 6px 6px 0px #1a1b21;
+    }
+    .hard-shadow-focus {
+      box-shadow: 4px 4px 0px #00e876;
+    }
+    .hard-shadow-error {
+      box-shadow: 4px 4px 0px #e4164a;
+    }
+    .active-press:active {
+      transform: translate(3px, 3px);
+      box-shadow: 0px 0px 0px #1a1b21;
+    }
+    /* Marquee ticker animation */
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: flex;
+      width: 200%;
+      animation: marquee 16s linear infinite;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen antialiased flex flex-col items-center justify-start p-0 m-0">
+<!-- Outer Mobile Container Frame (Strict 390px Optimized Canvas) -->
+<main class="w-full max-w-[390px] min-h-screen bg-background border-x-2 border-on-background flex flex-col shadow-2xl relative">
+<!-- Top System Diagnostic Bar (Agitprop Terminal Status) -->
+<header class="w-full bg-on-background text-surface border-b-2 border-on-background px-space-md py-space-xs flex justify-between items-center select-none">
+<div class="flex items-center gap-space-xs">
+<span class="inline-block w-2.5 h-2.5 bg-secondary-container animate-pulse border border-on-secondary"></span>
+<span class="font-label-ticker text-label-ticker text-tertiary-fixed font-bold tracking-wider">DIAGNOSTIC PROTOCOL ACTIVE</span>
+</div>
+<div class="font-label-ticker text-label-ticker text-surface-dim">
+        TERMINAL #07-ERR
+      </div>
+</header>
+<!-- Top Navigation Header (from Shared Components JSON adapted for Mobile Screen) -->
+<nav class="w-full border-b-2 border-on-background bg-background px-space-md py-space-sm flex justify-between items-center">
+<div class="flex items-center gap-space-xs">
+<a class="p-1 border border-on-background hover:bg-surface-variant active:translate-x-0.5 active:translate-y-0.5 flex items-center justify-center bg-surface" href="#targets">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_back">arrow_back</span>
+</a>
+<div class="flex flex-col">
+<span class="font-display-lg-mobile text-display-lg-mobile leading-none tracking-tight text-on-background font-bold">CUT THE TIES</span>
+<span class="font-label-ticker text-label-ticker text-on-surface-variant font-bold">TACTICAL CIVIC SWITCHBOARD</span>
+</div>
+</div>
+<div class="border border-on-background bg-primary-container px-space-xs py-0.5 font-label-ticker text-label-ticker text-on-background font-bold">
+        DISTRICT 07 VERIFIED
+      </div>
+</nav>
+<!-- Page Title & Agitation Header Banner -->
+<section class="w-full bg-surface-container-high border-b-2 border-on-background px-space-md py-space-md">
+<div class="inline-block bg-on-background text-surface px-1.5 py-0.5 mb-space-xs font-label-ticker text-label-ticker font-bold tracking-widest">
+        SYSTEM DIRECTIVE // MOBILE GATEWAY
+      </div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background uppercase tracking-tight mb-space-xs leading-none">
+        CUT THE TIES // PROTOCOL DIAGNOSTICS &amp; SYSTEM STATES
+      </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Review below the 3 tactical failure &amp; verification conditions encountered during congressional dispatch routing.
+      </p>
+<!-- Multi-State Selector Segmented Tab Controller -->
+<div class="mt-space-md grid grid-cols-3 gap-1 p-1 bg-on-background border border-on-background">
+<button class="py-1 px-1 text-center font-label-code text-[11px] uppercase bg-secondary-container text-on-secondary font-bold border border-on-background active-press" id="tab-btn-1" onclick="switchState(1)">
+          STATE 01: ERROR
+        </button>
+<button class="py-1 px-1 text-center font-label-code text-[11px] uppercase bg-background text-on-background font-bold border border-on-background hover:bg-surface-variant active-press" id="tab-btn-2" onclick="switchState(2)">
+          STATE 02: CLOSED
+        </button>
+<button class="py-1 px-1 text-center font-label-code text-[11px] uppercase bg-background text-on-background font-bold border border-on-background hover:bg-surface-variant active-press" id="tab-btn-3" onclick="switchState(3)">
+          STATE 03: SCREEN
+        </button>
+</div>
+</section>
+<!-- Continuous Breaking Action Marquee Ticker -->
+<div class="w-full bg-on-background text-tertiary-fixed border-b-2 border-on-background overflow-hidden py-1">
+<div class="animate-marquee whitespace-nowrap font-label-ticker text-label-ticker uppercase tracking-wider font-bold">
+<span class="mx-3">/// ALERT: HOUSE RESOLUTION 9104 VOTE PENDING</span>
+<span class="mx-3 text-secondary-container">■ TARGET: DISTRICT CA-46 REPRESENTATIVE</span>
+<span class="mx-3 text-primary-container">● PHYSICAL PROOF OF RESIDENCY REQUIRED</span>
+<span class="mx-3">▲ DO NOT USE PO BOX FOR GATEWAY ROUTING</span>
+<span class="mx-3">/// ALERT: HOUSE RESOLUTION 9104 VOTE PENDING</span>
+<span class="mx-3 text-secondary-container">■ TARGET: DISTRICT CA-46 REPRESENTATIVE</span>
+</div>
+</div>
+<!-- MAIN INTERACTIVE STATE CANVAS (Mobile 390px Viewport) -->
+<div class="flex-1 w-full px-space-md py-space-lg flex flex-col gap-space-lg bg-surface">
+<!-- ========================================================= -->
+<!-- STATE 1: PRECINCT / ADDRESS MISMATCH (Error state)        -->
+<!-- ========================================================= -->
+<section class="state-container flex flex-col transition-all" id="state-panel-1">
+<!-- Target Dossier Card with Red Strike Indicator Bar -->
+<article class="w-full bg-surface-container-lowest border-2 border-on-background hard-shadow-1 border-l-8 border-l-secondary-container flex flex-col">
+<!-- Card Header Plate -->
+<div class="px-space-md py-space-sm border-b-2 border-on-background bg-error-container/40 flex justify-between items-center">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary font-bold text-[18px]" data-icon="error">error</span>
+<span class="font-label-code text-label-code uppercase text-on-error-container font-bold">STATE 01 // CRITICAL MISMATCH</span>
+</div>
+<span class="bg-secondary-container text-on-secondary px-1.5 py-0.5 font-label-ticker text-label-ticker font-bold border border-on-background">
+              REJECTED
+            </span>
+</div>
+<!-- Alert Banner: High-contrast red/black warning stamp -->
+<div class="p-space-md bg-secondary-container text-on-secondary border-b-2 border-on-background">
+<div class="flex items-start gap-space-sm">
+<div class="bg-on-background text-secondary-container p-1 border border-on-background flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="wrong_location">wrong_location</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-ticker text-label-ticker text-white/80 uppercase font-bold tracking-widest">DISPATCH TERMINAL ALERT</span>
+<h2 class="font-headline-md text-[18px] leading-tight text-white uppercase font-extrabold mt-0.5">
+                  P.O. BOX OR PRECINCT BOUNDARY UNRESOLVED
+                </h2>
+</div>
+</div>
+</div>
+<!-- Explanatory Tactical Dispatch Body -->
+<div class="p-space-md flex flex-col gap-space-md bg-surface-container-lowest">
+<div class="border-l-2 border-on-background pl-space-sm">
+<p class="font-body-md text-body-md text-on-background leading-snug">
+                Congressional offices require a physical street address to verify you as a voting constituent. P.O. Boxes cannot be assigned to House District CA-46.
+              </p>
+</div>
+<!-- Error Payload Metadata Inspection -->
+<div class="bg-surface-container border border-on-background p-space-sm font-label-code text-[11px] leading-tight">
+<div class="flex justify-between border-b border-outline-variant pb-1 mb-1 text-on-surface-variant">
+<span>SUBMITTED INPUT:</span>
+<span class="text-error font-bold font-mono">P.O. BOX 44109, SANTA ANA</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>CONGRESSIONAL RECORD:</span>
+<span class="text-on-background font-bold">ERR_NON_PHYSICAL_RESIDENCE</span>
+</div>
+</div>
+<!-- Input Retry Form with inline error border & halo -->
+<div class="flex flex-col gap-space-xs mt-1">
+<label class="font-label-ticker text-label-ticker uppercase text-on-surface-variant font-bold flex justify-between" for="address-input">
+<span>RESIDENTIAL PHYSICAL ADDRESS</span>
+<span class="text-error">*REQUIRED FOR DISPATCH</span>
+</label>
+<div class="relative">
+<input aria-invalid="true" class="w-full bg-surface-container-lowest border-2 border-secondary-container text-on-background px-space-md py-2.5 font-body-md hard-shadow-error focus:outline-none focus:ring-0 text-sm" id="address-input" type="text" value="P.O. BOX 44109, Santa Ana, CA 92701"/>
+<div class="absolute right-2.5 top-2.5 text-secondary">
+<span class="material-symbols-outlined text-[20px]" data-icon="cancel">cancel</span>
+</div>
+</div>
+<span class="font-label-code text-[11px] text-error font-bold flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]" data-icon="priority_high">priority_high</span> Invalid geometry: Street number &amp; street name mandatory.
+              </span>
+</div>
+<!-- Action Mobilize Button -->
+<button class="w-full bg-primary-container text-on-background border-2 border-on-background hard-shadow-1 active-press py-3 px-space-md font-label-code text-label-code uppercase tracking-wider font-bold hover:bg-surface-container-lowest transition-none flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+              Re-enter physical street address
+            </button>
+<!-- Secondary Guidance Outline -->
+<a class="text-center font-label-ticker text-label-ticker uppercase text-on-surface-variant underline decoration-1 underline-offset-4 hover:text-on-background" href="#lookup">
+              Find my county precinct mapping records →
+            </a>
+</div>
+</article>
+</section>
+<!-- ========================================================= -->
+<!-- STATE 2: CONGRESSIONAL SWITCHBOARD CLOSED / RATE LIMIT    -->
+<!-- ========================================================= -->
+<section class="state-container flex flex-col transition-all" id="state-panel-2">
+<article class="w-full bg-surface-container-lowest border-2 border-on-background hard-shadow-1 flex flex-col">
+<!-- Card Header Plate -->
+<div class="px-space-md py-space-sm border-b-2 border-on-background bg-tertiary-fixed/30 flex justify-between items-center">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-tertiary font-bold text-[18px]" data-icon="schedule">schedule</span>
+<span class="font-label-code text-label-code uppercase text-on-tertiary-container font-bold">STATE 02 // TIME GATE RESTRICTION</span>
+</div>
+<span class="border border-on-background bg-tertiary text-on-tertiary px-1.5 py-0.5 font-label-ticker text-label-ticker font-bold">
+              OFFLINE
+            </span>
+</div>
+<!-- Alert Badge: Amber/Yellow newsprint stamp -->
+<div class="p-space-md bg-tertiary-container text-on-tertiary-container border-b-2 border-on-background">
+<div class="inline-flex items-center gap-1.5 bg-on-background text-tertiary-container px-2 py-0.5 font-label-ticker text-label-ticker font-bold uppercase mb-2">
+<span class="material-symbols-outlined text-[14px]" data-icon="phone_disabled">phone_disabled</span>
+              HIGH TRAFFIC &amp; RECESS
+            </div>
+<h2 class="font-headline-md text-[18px] leading-tight text-on-background uppercase font-extrabold">
+              SWITCHBOARD RECESS // AFTER HOURS (20:15 EST)
+            </h2>
+</div>
+<!-- Message & Tactical Briefing -->
+<div class="p-space-md flex flex-col gap-space-md">
+<p class="font-body-md text-body-md text-on-background leading-snug">
+              Congressional voicemailboxes are currently full or switchboard is closed until 9:00 AM EST. Your script is saved below — queue your reminder or leave a voicemail right now.
+            </p>
+<!-- Cached Script Terminal Window -->
+<div class="bg-surface-container-high border-2 border-on-background p-space-md flex flex-col gap-2">
+<div class="flex justify-between items-center border-b border-on-background/20 pb-1">
+<span class="font-label-ticker text-label-ticker uppercase font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="description">description</span>
+                  CACHED CITIZEN TESTIMONY
+                </span>
+<span class="font-label-ticker text-label-ticker bg-primary-container px-1 text-on-background font-bold">READY</span>
+</div>
+<blockquote class="font-label-code text-[12px] text-on-background italic bg-surface-container-lowest p-2 border border-on-background">
+                "Representative, I am a voting constituent from District CA-46. Cut the ties to private defense contractor PACs on Resolution 9104. Record my vote as an unequivocal NO."
+              </blockquote>
+<div class="flex items-center justify-between font-label-ticker text-[10px] text-on-surface-variant">
+<span>ESTIMATED DURATION: 18 SEC</span>
+<span>DESTINATION: REP. OFFICE 202-225-XXXX</span>
+</div>
+</div>
+<!-- Primary Action Call Voicemail -->
+<div class="flex flex-col gap-space-sm pt-1">
+<button class="w-full bg-secondary-container text-on-secondary border-2 border-on-background hard-shadow-1 active-press py-3 px-space-md font-label-code text-label-code uppercase tracking-wider font-bold hover:bg-surface-container-lowest hover:text-on-background transition-none flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="voicemail">voicemail</span>
+                Call office voicemail
+              </button>
+<button class="w-full bg-transparent text-on-background border-2 border-on-background hard-shadow-1 active-press py-2.5 px-space-md font-label-code text-label-code uppercase tracking-wider font-bold hover:bg-surface-variant transition-none flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="alarm">alarm</span>
+                Queue 9:00 AM EST SMS Dispatch Prompt
+              </button>
+</div>
+</div>
+</article>
+</section>
+<!-- ========================================================= -->
+<!-- STATE 3: BOT SCREEN / TURNSTILE VERIFICATION             -->
+<!-- ========================================================= -->
+<section class="state-container flex flex-col transition-all" id="state-panel-3">
+<article class="w-full bg-surface-container-lowest border-2 border-on-background hard-shadow-2 flex flex-col">
+<!-- Card Header Plate -->
+<div class="px-space-md py-space-sm border-b-2 border-on-background bg-primary-container/20 flex justify-between items-center">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary font-bold text-[18px]" data-icon="verified_user">verified_user</span>
+<span class="font-label-code text-label-code uppercase text-on-primary-container font-bold">STATE 03 // ACTIVE SECURITY SCREEN</span>
+</div>
+<span class="border border-on-background bg-primary-container text-on-background px-1.5 py-0.5 font-label-ticker text-label-ticker font-bold">
+              SCREENING
+            </span>
+</div>
+<!-- Boxed Card Turnstile Verification Core -->
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- High impact display header -->
+<div>
+<span class="font-label-ticker text-label-ticker uppercase text-primary font-bold tracking-widest">GATEWAY INTEGRITY PROTOCOL</span>
+<h2 class="font-headline-md text-[20px] uppercase font-extrabold text-on-background mt-0.5 leading-none">
+                VERIFYING CONSTITUENT INTEGRITY...
+              </h2>
+</div>
+<!-- Simulated Cloudflare Turnstile Tactile Widget -->
+<div class="w-full border-2 border-on-background bg-surface-container-low p-space-md hard-shadow-1 relative overflow-hidden">
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<!-- Green checkmark loading progress indicator -->
+<div class="w-10 h-10 border-2 border-on-background bg-primary-container flex items-center justify-center hard-shadow-1">
+<span class="material-symbols-outlined text-on-background text-[24px] font-extrabold" data-icon="check">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-sm uppercase text-on-background font-bold tracking-tight">TURNSTILE PASSED</span>
+<span class="font-label-ticker text-[10px] text-on-surface-variant font-bold">CHALLENGE SOLVED (42ms)</span>
+</div>
+</div>
+<!-- Cloudflare Branding Tag -->
+<div class="flex flex-col items-end">
+<span class="font-label-ticker text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">CLOUDFLARE</span>
+<span class="font-label-ticker text-[9px] text-outline font-mono">PROTOCOL v2.4</span>
+</div>
+</div>
+<!-- Animated Scan Line Accent -->
+<div class="w-full bg-outline-variant h-1 mt-3 border border-on-background overflow-hidden">
+<div class="bg-primary-container h-full w-full"></div>
+</div>
+</div>
+<!-- Monospace status telemetry -->
+<div class="p-space-md bg-on-background text-surface border-2 border-on-background flex flex-col gap-2">
+<div class="flex items-center gap-2 border-b border-surface/20 pb-1.5">
+<span class="inline-block w-2 h-2 bg-primary-container"></span>
+<span class="font-label-ticker text-label-ticker text-tertiary-fixed font-bold uppercase">LIVE AUDIT TRACE</span>
+</div>
+<p class="font-label-code text-[12px] text-surface-bright leading-relaxed">
+                Checking browser cryptographic proof · Preventing congressional phone flooding · 100% human verified
+              </p>
+<div class="flex justify-between items-center pt-1 font-label-ticker text-[10px] text-surface-dim">
+<span>NONCE: 0x9AF882C7</span>
+<span class="text-primary-container font-bold">STATUS: CLEAN CONSTITUENT</span>
+</div>
+</div>
+<!-- Proceed to Dispatch Button -->
+<button class="w-full bg-primary-container text-on-background border-2 border-on-background hard-shadow-1 active-press py-3 px-space-md font-label-code text-label-code uppercase tracking-wider font-bold hover:bg-surface-container-lowest transition-none flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="phone_in_talk">phone_in_talk</span>
+              Connect to House Switchboard Now
+            </button>
+</div>
+</article>
+</section>
+<!-- Tactical Assistance / Hotline Help Tile -->
+<section class="w-full border-2 border-on-background bg-surface-container p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-ticker text-label-ticker uppercase font-bold text-on-background">MUTUAL AID TECHNICAL DISPATCH</span>
+<span class="font-label-ticker text-label-ticker bg-on-background text-surface px-1">SYS_DOCS</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Persistent bypass errors or geo-resolution failures can be bypassed via direct analog patch cord or manual congressional operator transfer.
+        </p>
+<div class="flex gap-2 mt-1">
+<button class="flex-1 py-1.5 px-2 bg-surface border border-on-background font-label-code text-[11px] text-on-background font-bold active-press text-center">
+            OPERATOR LINE
+          </button>
+<button class="flex-1 py-1.5 px-2 bg-surface border border-on-background font-label-code text-[11px] text-on-background font-bold active-press text-center">
+            REPORT CENSORSHIP
+          </button>
+</div>
+</section>
+</div>
+<!-- Quiet Footer with direct link back to Targets (Shared Components JSON execution) -->
+<footer class="w-full bg-on-background text-surface py-space-lg px-space-md border-t-2 border-on-background flex flex-col gap-space-md">
+<!-- Back to Targets Primary Return Action -->
+<div class="w-full flex items-center justify-between pb-space-sm border-b border-surface/20">
+<a class="flex items-center gap-2 text-primary-container font-label-code text-label-code uppercase font-bold hover:underline active:underline" href="#targets" id="targets">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_back">arrow_back</span>
+<span>RETURN TO TARGETS DIRECTORY</span>
+</a>
+<span class="font-label-ticker text-label-ticker text-surface-dim font-bold">SECURE CHANNEL</span>
+</div>
+<!-- Links defined in Footer JSON -->
+<nav class="flex flex-wrap gap-x-space-md gap-y-1 justify-start">
+<a class="font-label-ticker text-label-ticker uppercase text-surface-dim hover:text-primary-container transition-none active:underline" href="#security">
+          SECURITY DIRECTIVE
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase text-surface-dim hover:text-primary-container transition-none active:underline" href="#disclaimer">
+          LEGAL DISCLAIMER
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase text-surface-dim hover:text-primary-container transition-none active:underline" href="#switchboard">
+          SWITCHBOARD PROTOCOL
+        </a>
+<a class="font-label-ticker text-label-ticker uppercase text-surface-dim hover:text-primary-container transition-none active:underline" href="#access">
+          DIRECT ACCESS
+        </a>
+</nav>
+<!-- Mandatory Copyright & Operational Notice -->
+<div class="pt-space-xs text-left">
+<p class="font-label-ticker text-[10px] text-surface-dim uppercase leading-tight tracking-wider">
+          CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+        </p>
+</div>
+</footer>
+</main>
+<!-- Segmented Tab Switching Interactive Script -->
+<script>
+    function switchState(stateNumber) {
+      // Manage panel visibility for mobile demonstration
+      const panels = [
+        document.getElementById('state-panel-1'),
+        document.getElementById('state-panel-2'),
+        document.getElementById('state-panel-3')
+      ];
+      const buttons = [
+        document.getElementById('tab-btn-1'),
+        document.getElementById('tab-btn-2'),
+        document.getElementById('tab-btn-3')
+      ];
+
+      // Highlight active tab with tactical agitprop styles
+      buttons.forEach((btn, index) => {
+        if (index === stateNumber - 1) {
+          btn.className = "py-1 px-1 text-center font-label-code text-[11px] uppercase bg-secondary-container text-on-secondary font-bold border border-on-background active-press";
+        } else {
+          btn.className = "py-1 px-1 text-center font-label-code text-[11px] uppercase bg-background text-on-background font-bold border border-on-background hover:bg-surface-variant active-press";
+        }
+      });
+
+      // Smoothly scroll the selected state into prominence
+      if (panels[stateNumber - 1]) {
+        panels[stateNumber - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  </script>
+</body></html>

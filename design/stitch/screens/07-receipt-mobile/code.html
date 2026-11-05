@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUT THE TIES | Dispatch Confirmation</title>
+<!-- Google Fonts: Bebas Neue, Space Mono, Syne, Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;700&amp;family=Space+Mono:wght@400;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface-variant": "#3b4a3d",
+            "on-tertiary": "#ffffff",
+            "inverse-primary": "#00e474",
+            "on-primary-fixed-variant": "#005226",
+            "on-surface": "#1a1b21",
+            "surface-container-low": "#f4f2fa",
+            "tertiary-container": "#f3c504",
+            "on-error-container": "#93000a",
+            "surface-container-highest": "#e3e1e9",
+            "primary-container": "#00e876",
+            "on-background": "#1a1b21",
+            "inverse-surface": "#2f3036",
+            "surface-container": "#efedf5",
+            "surface": "#faf8ff",
+            "background": "#faf8ff",
+            "inverse-on-surface": "#f1f0f7",
+            "on-error": "#ffffff",
+            "secondary": "#b90038",
+            "on-secondary-fixed": "#40000d",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "secondary-fixed-dim": "#ffb2b7",
+            "on-primary-fixed": "#00210b",
+            "primary-fixed-dim": "#00e474",
+            "surface-container-high": "#e9e7ef",
+            "surface-variant": "#e3e1e9",
+            "error": "#ba1a1a",
+            "tertiary": "#735c00",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dad9e1",
+            "on-tertiary-fixed": "#231b00",
+            "outline-variant": "#bacbb9",
+            "on-secondary-fixed-variant": "#92002a",
+            "on-primary": "#ffffff",
+            "surface-bright": "#faf8ff",
+            "tertiary-fixed-dim": "#eec200",
+            "primary": "#006d34",
+            "tertiary-fixed": "#ffe083",
+            "surface-tint": "#006d34",
+            "on-primary-container": "#00622e",
+            "primary-fixed": "#62ff95",
+            "secondary-container": "#e4164a",
+            "secondary-fixed": "#ffdadb",
+            "outline": "#6b7b6c",
+            "on-tertiary-container": "#675300",
+            "on-tertiary-fixed-variant": "#574500"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "margin-desktop": "2.5rem",
+            "gutter-desktop": "1.5rem",
+            "space-xl": "2.5rem"
+          },
+          "fontFamily": {
+            "label-code": ["Space Mono"],
+            "label-ticker": ["Space Mono"],
+            "headline-lg-mobile": ["Syne"],
+            "display-xl": ["Bebas Neue"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Syne"],
+            "display-lg": ["Bebas Neue"],
+            "body-md": ["Inter"],
+            "display-xl-mobile": ["Bebas Neue"],
+            "display-lg-mobile": ["Bebas Neue"],
+            "headline-md": ["Syne"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "label-code": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "label-ticker": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "display-xl": ["96px", { "lineHeight": "88px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "display-lg": ["64px", { "lineHeight": "60px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "display-xl-mobile": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "display-lg-mobile": ["40px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Tactical shadow tokens per style guidance */
+    .tactical-shadow-sm {
+      box-shadow: 2px 2px 0px #1a1b21;
+    }
+    .tactical-shadow {
+      box-shadow: 4px 4px 0px #1a1b21;
+    }
+    .tactical-shadow-lg {
+      box-shadow: 6px 6px 0px #1a1b21;
+    }
+    .btn-press:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #1a1b21;
+    }
+    .btn-press-lg:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #1a1b21;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center justify-start antialiased selection:bg-primary-container selection:text-on-background">
+<!-- Mobile Viewport Canvas Container: 390px portrait standard -->
+<div class="w-full max-w-[390px] min-h-screen bg-background flex flex-col border-x-2 border-on-background">
+<!-- Top Header: Slim mobile agitprop header with wordmark, CA-46 district badge, and back link -->
+<header class="w-full bg-background border-b-2 border-on-background px-margin py-space-sm flex items-center justify-between sticky top-0 z-30">
+<a aria-label="Go back" class="flex items-center gap-1 text-on-background hover:bg-primary-container p-1 btn-press transition-none" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="arrow_back">arrow_back</span>
+<span class="font-label-code text-label-code uppercase tracking-wider">RETURN</span>
+</a>
+<div class="flex items-center gap-2">
+<span class="font-display-lg-mobile text-[22px] tracking-tight uppercase leading-none font-bold">CUT THE TIES</span>
+<span class="bg-on-background text-background font-label-code text-[10px] px-1.5 py-0.5 border border-on-background font-bold tracking-wider">CA-46</span>
+</div>
+</header>
+<!-- Urgent Ticker Bar (Agitation Newsprint Element) -->
+<aside aria-label="System status ticker" class="w-full bg-on-background text-tertiary-container border-b-2 border-on-background px-3 py-1 flex items-center justify-between text-label-ticker font-label-ticker tracking-widest uppercase overflow-hidden">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-primary-container animate-pulse inline-block"></span>
+<span>CIVIC LOG: DISPATCH FILED</span>
+</div>
+<span class="text-surface-dim font-bold">11.04 // 14:32 PST</span>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 px-margin py-space-md flex flex-col justify-start">
+<!-- Main Action Confirmation Card: 2px hard border and tactile drop shadow -->
+<section aria-labelledby="confirmation-heading" class="bg-surface-container-lowest border-2 border-on-background tactical-shadow-lg p-space-md mb-space-md relative">
+<!-- Top Status Sub-Header inside Card -->
+<div class="flex items-center justify-between border-b-2 border-on-background pb-space-sm mb-space-md">
+<div class="flex items-center gap-2">
+<!-- Green checkmark badge with electric acid green #00E876 -->
+<div class="w-7 h-7 bg-primary-container border-2 border-on-background flex items-center justify-center tactical-shadow-sm">
+<span class="material-symbols-outlined text-on-background font-bold text-[18px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-code text-label-code text-on-primary-container tracking-wider">VERIFIED ENTRY</span>
+</div>
+<span class="font-label-code text-[11px] bg-surface-container-high px-1.5 py-0.5 border border-on-background uppercase text-on-surface-variant font-bold">TICKET #8942</span>
+</div>
+<!-- H1: 'DONE. THAT COUNTED.' Bebas Neue Display Font -->
+<h1 class="font-display-xl-mobile text-display-xl-mobile text-on-background uppercase tracking-tight leading-none mb-1" id="confirmation-heading">
+          DONE. THAT COUNTED.
+        </h1>
+<!-- Context Line -->
+<div class="bg-surface-container-low border-l-4 border-primary px-2.5 py-1.5 mb-space-md border-y border-r border-outline-variant">
+<p class="font-body-sm text-body-sm text-on-surface font-medium">
+            Your call to <span class="font-bold underline decoration-primary decoration-2">Rep. Correa's office</span> on Nov 4
+          </p>
+</div>
+<!-- Feedback Section: Question -->
+<div class="pt-space-xs mb-space-md border-t border-dashed border-outline">
+<div class="flex items-center justify-between mb-2.5">
+<label class="font-headline-md text-[17px] leading-tight text-on-background uppercase tracking-tight font-bold">
+              How did the office respond?
+            </label>
+<span class="font-label-ticker text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">ANONYMOUS</span>
+</div>
+<!-- Five pill buttons wrapped cleanly for mobile -->
+<div aria-label="Office response options" class="flex flex-wrap gap-2" role="radiogroup">
+<button aria-checked="true" class="bg-primary-container text-on-background border-2 border-on-background tactical-shadow-sm font-label-code text-[12px] px-3 py-1.5 uppercase font-bold btn-press transition-none focus:outline-none focus:ring-2 focus:ring-on-background" role="radio" type="button">
+              Will support
+            </button>
+<button aria-checked="false" class="bg-surface text-on-background border-2 border-on-background tactical-shadow-sm hover:bg-surface-container-high font-label-code text-[12px] px-3 py-1.5 uppercase font-bold btn-press transition-none focus:outline-none focus:ring-2 focus:ring-on-background" role="radio" type="button">
+              Undecided
+            </button>
+<button aria-checked="false" class="bg-surface text-on-background border-2 border-on-background tactical-shadow-sm hover:bg-surface-container-high font-label-code text-[12px] px-3 py-1.5 uppercase font-bold btn-press transition-none focus:outline-none focus:ring-2 focus:ring-on-background" role="radio" type="button">
+              Opposed
+            </button>
+<button aria-checked="false" class="bg-surface text-on-background border-2 border-on-background tactical-shadow-sm hover:bg-surface-container-high font-label-code text-[12px] px-3 py-1.5 uppercase font-bold btn-press transition-none focus:outline-none focus:ring-2 focus:ring-on-background" role="radio" type="button">
+              No answer
+            </button>
+<button aria-checked="false" class="bg-surface text-on-background border-2 border-on-background tactical-shadow-sm hover:bg-surface-container-high font-label-code text-[12px] px-3 py-1.5 uppercase font-bold btn-press transition-none focus:outline-none focus:ring-2 focus:ring-on-background" role="radio" type="button">
+              Other
+            </button>
+</div>
+</div>
+<!-- Optional one-line text field -->
+<div class="mb-space-lg">
+<div class="flex justify-between items-center mb-1">
+<label class="font-label-code text-[11px] text-on-surface-variant uppercase font-bold" for="call-notes">
+              Dispatch Note (Optional)
+            </label>
+<span class="font-label-ticker text-[10px] text-outline uppercase font-semibold">NOT STORED ON SERVER</span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-2 border-on-background px-3 py-2 text-body-sm font-body-sm text-on-background placeholder:text-outline focus:outline-none focus:ring-0 focus:border-on-background focus:shadow-[3px_3px_0px_#00e876] transition-none" id="call-notes" placeholder="One line on how it went (not stored)" type="text"/>
+</div>
+</div>
+<!-- Action buttons: Stacked cleanly for mobile touch ergonomics -->
+<div class="flex flex-col gap-2.5 pt-space-xs border-t-2 border-on-background">
+<!-- Primary Action Button: 'Share this goal' -->
+<button class="w-full bg-primary-container hover:bg-surface-container-lowest text-on-background border-2 border-on-background tactical-shadow py-2.5 px-4 flex items-center justify-center gap-2 font-label-code text-label-code uppercase tracking-wider font-bold btn-press-lg transition-none" type="button">
+<span class="material-symbols-outlined text-[19px]" data-icon="share">share</span>
+<span>Share this goal</span>
+</button>
+<!-- Secondary Action Button: 'Next action' -->
+<button class="w-full bg-surface hover:bg-surface-container-high text-on-background border-2 border-on-background tactical-shadow py-2.5 px-4 flex items-center justify-center gap-2 font-label-code text-label-code uppercase tracking-wider font-bold btn-press-lg transition-none" type="button">
+<span>Next action</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Under the Card: Quiet Patronage Band -->
+<aside aria-label="Support CUT THE TIES" class="w-full bg-surface-container border-2 border-on-background tactical-shadow-sm p-3 mb-space-md">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-on-background text-[20px] shrink-0 mt-0.5" data-icon="shield">shield</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-tight">
+            Built and paid for by one person. If this helped, a donation keeps it running. 
+            <a class="font-label-code text-label-code text-on-background font-bold underline decoration-2 decoration-on-background hover:bg-primary-container px-1 inline-block ml-1" href="#">
+              Donate →
+            </a>
+</p>
+</div>
+</aside>
+<!-- Grassroots Metrics Snippet -->
+<section class="border-2 border-on-background bg-surface-container-lowest p-2.5 mb-2 tactical-shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-ticker text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">CONSTITUENT TALLY (CA-46)</span>
+<span class="font-display-lg-mobile text-[24px] leading-none text-on-background font-bold tracking-tight">1,409 CALLS LOGGED</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-[11px] bg-primary-container px-1.5 py-0.5 border border-on-background font-bold uppercase text-on-background inline-block">TARGET SURGING</span>
+</div>
+</section>
+</main>
+<!-- Minimal Cut the Ties Mobile Footer per Shared Components & Aesthetic Guideline -->
+<footer class="w-full bg-on-background text-surface border-t-2 border-on-background px-margin py-space-md mt-auto">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-display-lg-mobile text-[22px] tracking-tight uppercase text-surface">CUT THE TIES</span>
+<span class="font-label-code text-[11px] text-primary-container font-bold uppercase tracking-wider">v2.4 NO LOGS</span>
+</div>
+<p class="font-body-sm text-[11px] leading-relaxed text-surface-dim uppercase font-label-ticker tracking-wide border-t border-outline/30 pt-2">
+          CUT THE TIES CIVIC ACTION NETWORK. NO CORPORATE LOBBY DATA RETAINED. OPEN DISPATCH PROTOCOL.
+        </p>
+<nav aria-label="Legal and protocol links" class="flex flex-wrap gap-x-3 gap-y-1 font-label-ticker text-label-ticker pt-1">
+<a class="text-surface-dim hover:text-primary-container uppercase transition-none" href="#">SECURITY DIRECTIVE</a>
+<span class="text-outline">•</span>
+<a class="text-surface-dim hover:text-primary-container uppercase transition-none" href="#">LEGAL DISCLAIMER</a>
+<span class="text-outline">•</span>
+<a class="text-surface-dim hover:text-primary-container uppercase transition-none" href="#">SWITCHBOARD PROTOCOL</a>
+</nav>
+</div>
+</footer>
+</div>
+<!-- Interactive State Logic: Pill Selection and Input Toggle -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const responseButtons = document.querySelectorAll('[role="radio"]');
+      
+      responseButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Reset all radio buttons
+          responseButtons.forEach(b => {
+            b.setAttribute('aria-checked', 'false');
+            b.classList.remove('bg-primary-container');
+            b.classList.add('bg-surface');
+          });
+
+          // Set active state on clicked pill
+          btn.setAttribute('aria-checked', 'true');
+          btn.classList.remove('bg-surface');
+          btn.classList.add('bg-primary-container');
+        });
+      });
+    });
+  </script>
+</body></html>
