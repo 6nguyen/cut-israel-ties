@@ -9,5 +9,6 @@
     "test": "npm run test -w worker",
     "seed": "npm run seed -w worker"
   },
+  "devDependencies": { "mapshaper": "^0.6.102" },
   "engines": { "node": ">=22" }
 }
