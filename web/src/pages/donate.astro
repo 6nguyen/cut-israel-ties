@@ -1,9 +1,37 @@
 ---
 import Base from '../layouts/Base.astro';
+import { DONATE_OPTIONS, formatUsd, monthlyCost, stripeLinks } from '../lib/donate';
+const cost = formatUsd(monthlyCost);
 ---
-<Base title="Donate — Cut the Ties">
+<Base title="Donate — Cut the Ties" description="This site is built and paid for by one person. Donations cover the monthly running cost.">
   <section class="mx-auto px-4 lg:px-10 py-10 max-w-2xl">
     <h1 class="display-lg">Donate</h1>
-    <p class="mt-4">Built and paid for by one person; donations keep it up. This page lands with §6.</p>
+    <div class="prose-cut mt-6">
+      <p>This site is built and paid for by George Nguyen, one person, not a PAC or organisation. Donations are not tax-deductible and are not political contributions to any candidate.</p>
+      <p data-monthly-cost>Running it costs about <strong>{cost} a month</strong>. Donations cover that, and nothing else is funded.</p>
+    </div>
+    <ul class="mt-8 grid grid-cols-2 gap-4">
+      {DONATE_OPTIONS.map(({ key, label, note }) => {
+        const href = stripeLinks[key];
+        return (
+          <li>
+            {href ? (
+              <a href={href} target="_blank" rel="noopener noreferrer" class="btn btn-primary w-full flex-col !gap-0" data-donate={key}>
+                <span class="headline-md">{label}</span>
+                <span class="label-ticker">{note}</span>
+              </a>
+            ) : (
+              <span class="btn btn-ghost w-full flex-col !gap-0 opacity-50 cursor-not-allowed" aria-disabled="true" data-donate={key}>
+                <span class="headline-md">{label}</span>
+                <span class="label-ticker">{note}</span>
+                <span class="label-ticker mt-1">link not configured</span>
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+    <p class="label-ticker mt-4">Payments are handled by Stripe and open in a new tab. We never see your card.</p>
+    <p class="mt-6"><a href="/about" class="label-code underline">Who runs this</a> · <a href="/privacy" class="label-code underline">Privacy</a></p>
   </section>
 </Base>

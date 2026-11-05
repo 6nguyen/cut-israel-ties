@@ -355,10 +355,10 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
   - [ ] 4. Actions and personalised documents
   - [ ] 3. Prep and briefing pages
-  - [ ] 6. Donations and about
+  - [~] 6. Donations and about · feat/action-router-donate-about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
 - Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2 (`docs/specs/action-router.md`).
+- Folded: §1, §5, §2, §6 (`docs/specs/action-router.md`).
 - Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
   of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
@@ -436,3 +436,12 @@ page shows the real number from `MONTHLY_COST_USD`.
   successor, §2.3), `goals.sources` and `goals.decider`; the seed now
   enforces summary ≤60 words and `outcome_note` on closed goals. The web
   build reads `data/` through the Worker loader. 10 tests added.
+- 2026-11-04 — §6 built: `/donate` (self-funding statement, deterministic
+  monthly cost line, four Stripe Payment Link buttons opening in a new
+  tab), `/about` and `/privacy` (stored vs sent-where, incl. the Census
+  proxy wording from Open question 4); the Donate button in the header and
+  the footer line already existed. Deviation: `MONTHLY_COST_USD` and
+  `STRIPE_LINKS` are build-time env read by Astro
+  (`web/src/lib/donate.ts`), not Worker vars, because the pages are
+  static; defaults are $15 and disabled buttons ("link not configured").
+  The "after every receipt" link belongs to the §4 receipt screen.

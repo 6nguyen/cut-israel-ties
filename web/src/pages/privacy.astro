@@ -1,9 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Privacy — Cut the Ties">
+<Base title="Privacy — Cut the Ties" description="What Cut the Ties stores, and what it sends to other services.">
   <section class="mx-auto px-4 lg:px-10 py-10 max-w-2xl">
     <h1 class="display-lg">Privacy</h1>
-    <p class="mt-4">Built and paid for by one person; donations keep it up. This page lands with §6.</p>
+    <div class="prose-cut mt-6">
+      <h2>What is stored</h2>
+      <ul>
+        <li><strong>In your browser:</strong> only your state and district, so you do not have to re-enter your address. Clear it with "change address".</li>
+        <li><strong>On our server:</strong> your district only, never your address. When you finish an action we keep a receipt (which action, which target, the outcome you report) with no name, email or address attached.</li>
+        <li><strong>Documents:</strong> we keep a short fingerprint of each generated letter or script (shingle hashes) so no two people send the same text. We do not keep the text itself.</li>
+      </ul>
+      <h2>What is sent where</h2>
+      <ul>
+        <li><strong>Your address goes to the US Census Bureau's geocoder</strong>, through our server, to find your district. Our server does not log it and does not store it. The Census Bureau sees it.</li>
+        <li><strong>The fields you fill in to personalise a letter or script go to Anthropic</strong> to write the draft. The site does not retain them.</li>
+        <li><strong>Bot protection:</strong> Cloudflare Turnstile checks that a request comes from a person before a document is generated.</li>
+        <li><strong>Donations:</strong> payments are handled entirely by Stripe, in a new tab. We never see your card details.</li>
+      </ul>
+      <h2>What we do not do</h2>
+      <p>No accounts, no advertising, no selling or sharing of data, no tracking of you across sites.</p>
+    </div>
   </section>
 </Base>

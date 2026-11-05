@@ -3,8 +3,9 @@
 ## Purpose
 Turns a street address into the visitor's House district and senators and
 the two open goals where their call matters most this week. It stops at the
-two goal cards: the goal overview, prep pages, generated documents and
-receipts are later capabilities and are still stubs.
+two goal cards, plus the goal overview, `/donate`, `/about` and
+`/privacy`; prep pages, generated documents and receipts are later
+capabilities and are still stubs.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
@@ -70,6 +71,24 @@ receipts are later capabilities and are still stubs.
    ranking. When the goal naming it in `successor_slug` is `completed` or
    `expired`, the loader flips it to `active` on the next seed and build,
    so retiring a goal is one YAML edit and no code change.
+11. **Donate (`/donate`).** States "This site is built and paid for by
+    George Nguyen, one person, not a PAC or organisation. Donations are not
+    tax-deductible and are not political contributions to any candidate.",
+    then "Running it costs about $N a month" (formatted by code from
+    `MONTHLY_COST_USD`, default $15) and four Stripe Payment Link buttons
+    (one-time $5 / $20 / $50, monthly $5) that open in a new tab with
+    `rel="noopener noreferrer"`. A link that is unset or not `https://`
+    renders a disabled button reading "link not configured". The header
+    carries a Donate button and the footer the self-funding line with a
+    Donate link on every page.
+12. **About and privacy.** `/about` says who runs the site (one person,
+    not a PAC), what it does, who pays and links to `/donate` and
+    `/privacy`. `/privacy` lists what is stored (district only in the
+    browser and on the server, never the address; receipts without
+    identity; shingle hashes, not document text) and what is sent where
+    (address → Census Geocoder through the Worker, not logged; form fields
+    → Anthropic, not retained by the site; Turnstile; Stripe handles
+    payments in its own tab).
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
@@ -109,6 +128,13 @@ receipts are later capabilities and are still stubs.
   pages and API agree on every row and on the lifecycle. Share cards are
   rendered at build by `sharp` from an SVG template; absolute share URLs
   need `SITE_URL` in the Pages build environment.
+- Donation config is read at build, not by the Worker (the pages are
+  static; this replaces the PRD's "Worker vars"): `MONTHLY_COST_USD`
+  (number, default 15 from the PRD estimate) and `STRIPE_LINKS` (JSON
+  `{once_5, once_20, once_50, monthly_5}` of Stripe Payment Link URLs,
+  default `{}`). Set both in the Pages build environment, like `SITE_URL`;
+  parsing is `web/src/lib/donate.ts`. Invalid values fall back to the
+  defaults.
 - Browser storage: `localStorage` `cut-ties:place` = `{state, district}`;
   `sessionStorage` `cut-ties:route` = last route response.
 
@@ -138,6 +164,6 @@ receipts are later capabilities and are still stubs.
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
 CSS and the page's JS chunks, fonts excluded; `/goals` 6 KB,
-`/goals/<slug>` 7 KB); LCP ≤1.5 s on a mid-range phone
+`/goals/<slug>` 7 KB, `/donate` 1.4 KB); LCP ≤1.5 s on a mid-range phone
 over 4G; `/api/route` ≤2 s p95; infra cost excluding LLM and domain
 = $0/month.
