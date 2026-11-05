@@ -349,28 +349,26 @@ page shows the real number from `MONTHLY_COST_USD`.
 
 ## State (updated 2026-11-04)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Landing and address routing · feat/action-router-landing-routing · PR #8
-  - [ ] 5. Goal ranking (deterministic)
+  - [x] 1. Landing and address routing · PR #8 merged
+  - [~] 5. Goal ranking (deterministic) · feat/action-router-goal-ranking · PR #9
   - [ ] 2. Goals overview and detail
   - [ ] 4. Actions and personalised documents
   - [ ] 3. Prep and briefing pages
   - [ ] 6. Donations and about
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
-- Completed: §1 (built, awaiting merge). §5 ranking engine landed inside §1
-  (`worker/src/ranking.ts`, 15 tests); §5 still needs its own review.
-- Folded: §1 (`docs/specs/action-router.md` created).
-- Branch / open PRs: feat/action-router-landing-routing · PR #8.
-- Files changed: `web/` (Astro + Tailwind + Preact), `worker/` (Hono + D1,
-  `schema.sql`, `seed.ts`), `data/` (goals, actions, members, states),
-  `scripts/quiet-check.sh`, `.github/workflows/ci.yml`, `CLAUDE.md`.
-- Tests run: quiet-check tsc PASS, test PASS (40 vitest), build PASS;
-  landing 20 KB gzip; manual browser check desktop + 390 px.
-- Remaining: §5 review, §2, §4, §3, §6, §7.
-- Decisions since last update: Turnstile on `/api/route` (skipped when the
-  secret is unset); six fixture delegations only in `data/members.csv`;
-  hero photos replaced by a neutral gradient (no licence-safe image yet).
-- Next action: merge PR #8, then /implement-prd-section
-  docs/prd/action-router.md (next: §5. Goal ranking (deterministic)).
+- Completed: §1 (PR #8). §5 engine landed in §1; this PR adds strict rule
+  validation and the grammar doc.
+- Folded: §1, §5 (`docs/specs/action-router.md`).
+- Branch / open PRs: feat/action-router-goal-ranking · PR #9.
+- Files changed: `worker/src/ranking.ts` (validateRule),
+  `worker/test/ranking.test.ts`, `data/README.md`, spec.
+- Tests run: quiet-check tsc PASS, test PASS (43 vitest); topTwo 3.4 µs
+  per delegation.
+- Remaining: §2, §4, §3, §6, §7.
+- Decisions since last update: rule fields limited to the §5.1 inputs;
+  flags are integers 0/1 in rules, matching the CSV loader.
+- Next action: merge PR #9, then /implement-prd-section
+  docs/prd/action-router.md (next: §2. Goals overview and detail).
 ## Open questions
 1. Senate leader vote: date and challenger unknown. Decided 2026-11-04:
    the goal ships with up to three picks (`our_picks`), chosen by a
@@ -422,3 +420,7 @@ page shows the real number from `MONTHLY_COST_USD`.
   no address logging) and the §5 ranking engine; landing + results pages;
   `tsc`/`test`/`build` quiet-check targets in CI; perf budgets copied to
   CLAUDE.md; spec folded to `docs/specs/action-router.md`.
+- 2026-11-04 — §5 reviewed: `parseRule` now enforces the §5.1 input
+  allowlist and value types (party `D|R|I`, flags `0|1`, text), so a bad
+  seed rule fails at seed time instead of silently excluding a goal;
+  grammar documented in `data/README.md`; 3 tests added.

@@ -59,9 +59,14 @@ receipts are later capabilities and are still stubs.
 - Ranking (`worker/src/ranking.ts`): eligibility rule JSON (`always`,
   `all`, `any`, `house{field: value}`, `senator{…}`, `state{nonempty:
   […]}`) evaluated against the delegation; score = priority × urgency
-  (2 when the decision is ≤14 days away, 1.5 when ≤45, else 1); ties by
-  earlier decision date then slug. One eligible goal is padded with the
-  state goal.
+  (2 when the decision is ≤14 days away, 1.5 when ≤45, else 1; past or
+  empty date = 1); ties by earlier decision date then slug. One eligible
+  goal is padded with the state goal. A rule may test only the §5.1
+  inputs (house: party, hasc, conferee, rc243, btb_cosponsor; senator:
+  party, jrd_april_2026; state: any column but `state`) with typed values
+  (party `D|R|I`, flags `0|1`, text strings); `parseRule` rejects
+  anything else, so the seed fails before a bad rule can silently
+  exclude a goal. Grammar: `data/README.md`.
 - D1 tables `goals`, `actions`, `members`, `positions`, `states`
   (`worker/schema.sql`) are regenerated from `data/` by
   `npm run seed -w worker`; the seed validates slugs, categories,
@@ -82,6 +87,8 @@ receipts are later capabilities and are still stubs.
 - [ ] `/api/route` never writes to D1.
 - [ ] Fixture delegations D/DD, D/RR, R/DD, R/RR, R/DR, D/DR (one in a
       split city) resolve to the goals in `worker/test/fixtures.ts`.
+- [ ] A goal YAML whose rule names an unknown field, a wrong value type
+      or an unknown key fails `npm run seed` and `parseRule`.
 
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 20 KB gzip for HTML,
