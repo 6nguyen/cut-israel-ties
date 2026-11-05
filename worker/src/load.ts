@@ -29,6 +29,34 @@ const int = (v: unknown): number => (v === undefined || v === null || v === '' ?
 const intOrNull = (v: unknown): number | null => (v === undefined || v === null || v === '' ? null : Number(v));
 const json = (v: unknown): string => (typeof v === 'string' ? v : JSON.stringify(v ?? null));
 
+const wordCount = (t: string): number => t.trim().split(/\s+/).filter(Boolean).length;
+
+function checkJsonList(slug: string, field: string, raw: string, required: string[], max = Infinity): void {
+  const list = JSON.parse(raw) as unknown;
+  if (!Array.isArray(list)) throw new Error(`goal ${slug}: ${field} must be a list`);
+  if (list.length > max) throw new Error(`goal ${slug}: ${field} holds ${list.length} entries, max ${max}`);
+  list.forEach((e, i) => {
+    for (const k of required) {
+      if (typeof (e as Record<string, unknown>)?.[k] !== 'string' || (e as Record<string, string>)[k] === '') throw new Error(`goal ${slug}: ${field}[${i}] needs ${k}`);
+    }
+  });
+}
+
+/**
+ * §2.3 lifecycle: a goal authored as `upcoming` stays hidden from the overview
+ * and the ranking until the goal naming it as `successor_slug` is completed or
+ * expired; then the next seed/deploy flips it to `active` with no code change.
+ */
+export function activateSuccessors(goals: Goal[]): void {
+  for (const g of goals) {
+    if (!g.successor_slug) continue;
+    const next = goals.find((x) => x.slug === g.successor_slug);
+    if (!next) throw new Error(`goal ${g.slug}: successor_slug ${g.successor_slug} names no goal`);
+    if (next.slug === g.slug) throw new Error(`goal ${g.slug}: successor_slug points at itself`);
+    if ((g.status === 'completed' || g.status === 'expired') && next.status === 'upcoming') next.status = 'active';
+  }
+}
+
 export function loadRows(dataDir: string, updatedAt = new Date().toISOString()): Rows {
   const goals: Goal[] = readdirSync(join(dataDir, 'goals'))
     .filter((f) => f.endsWith('.yaml'))
@@ -52,6 +80,8 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
         priority: int(y.priority),
         eligibility,
         our_picks: json(y.our_picks ?? []),
+        sources: json(y.sources ?? []),
+        decider: str(y.decider),
         successor_slug: str(y.successor_slug),
         this_week: str(y.this_week),
         this_week_date: str(y.this_week_date),
@@ -62,10 +92,15 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
       };
       if (g.slug !== f.replace(/\.yaml$/, '')) throw new Error(`goal slug ${g.slug} != file ${f}`);
       if (!['federal_vote', 'leadership', 'state', 'electoral'].includes(g.category)) throw new Error(`goal ${g.slug}: bad category`);
-      if (!['active', 'completed', 'expired'].includes(g.status)) throw new Error(`goal ${g.slug}: bad status`);
+      if (!['upcoming', 'active', 'completed', 'expired'].includes(g.status)) throw new Error(`goal ${g.slug}: bad status`);
       if (!Number.isInteger(g.priority) || g.priority < 1) throw new Error(`goal ${g.slug}: priority must be a positive integer`);
+      if (wordCount(g.summary) > 60) throw new Error(`goal ${g.slug}: summary is ${wordCount(g.summary)} words, max 60 (§2.1)`);
+      if ((g.status === 'completed' || g.status === 'expired') && !g.outcome_note) throw new Error(`goal ${g.slug}: a ${g.status} goal needs outcome_note (§2.1)`);
+      checkJsonList(g.slug, 'our_picks', g.our_picks, ['name', 'rationale', 'source_url'], 3);
+      checkJsonList(g.slug, 'sources', g.sources, ['title', 'url']);
       return g;
     });
+  activateSuccessors(goals);
   const goalId = (slug: string): number => {
     const g = goals.find((x) => x.slug === slug);
     if (!g) throw new Error(`unknown goal slug ${slug}`);

@@ -4,7 +4,7 @@ import type { Env, Repo } from './types';
 import { D1Repo } from './repo';
 import { classifyAddress, geocode } from './geocode';
 import { verifyTurnstile } from './turnstile';
-import { buildRoute } from './route';
+import { buildRoute, goalTargets } from './route';
 
 export interface Deps {
   repo: (env: Env) => Repo;
@@ -25,6 +25,19 @@ export function createApp(deps: Deps) {
   app.get('/api/goals', async (c) => {
     const goals = await deps.repo(c.env).activeGoals();
     return c.json({ goals: goals.map(({ eligibility, ...g }) => g) });
+  });
+
+  // §2.2: the stored district's targets for one goal (the detail page's "your targets" block).
+  app.get('/api/goals/:slug/targets', async (c) => {
+    const state = c.req.query('state') ?? '';
+    const district = Number(c.req.query('district'));
+    if (!STATE.test(state) || !Number.isInteger(district) || district < 0) {
+      return c.json({ error: 'missing', message: 'Send a state and district.' }, 400);
+    }
+    const result = await goalTargets(deps.repo(c.env), c.req.param('slug'), state, district);
+    if (result === 'no_goal') return c.json({ error: 'no_goal', message: 'No open goal by that name.' }, 404);
+    if (result === 'no_delegation') return c.json({ error: 'no_delegation', message: `No members on file for ${state}-${district} yet.` }, 404);
+    return c.json(result);
   });
 
   app.post('/api/route', async (c) => {

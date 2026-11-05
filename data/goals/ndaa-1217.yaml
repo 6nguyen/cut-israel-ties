@@ -10,8 +10,21 @@ decision_date: 2026-12-10   # placeholder: set to the conference report date whe
 priority: 3
 eligibility: {"any": [{"house": {}}, {"senator": {}}]}
 our_picks: []
+sources: []   # add {title, url} rows as the conference record is sourced
+decider: House and Senate Armed Services conferees, then every member on the conference report
+successor_slug: ndaa-report-vote
 this_week: Conferees are meeting; staff tally constituent calls before the report is filed.
 this_week_date: 2026-11-04
-detail_md: ""
+detail_md: |
+  The House and Senate passed different NDAA texts and a conference committee
+  is now writing the single report both chambers will vote on. The House
+  version carries the integration section as §219 and the Senate version as
+  §1217. Conferees can drop it, keep it, or rewrite it; once the report is
+  filed it is voted on without amendment.
+
+  **Why calls matter now.** Conference staff tally constituent calls while the
+  report is being written. A member who hears from their district before the
+  report is filed can ask the conferees to strike the section; after filing,
+  the only lever left is a no vote on the whole report.
 prep_md: ""
 partner_url: ""

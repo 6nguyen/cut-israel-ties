@@ -7,7 +7,7 @@ number or a name that is not a row here.
 
 | File | Table | Notes |
 |---|---|---|
-| `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. |
+| `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
 | `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
@@ -21,6 +21,17 @@ switchboard until each office number is sourced; every position flag is
 empty. Goal `decision_date` values are maintainer placeholders to be
 replaced with sourced dates before launch. Filling the full roster is a
 maintainer task (§7 tooling).
+
+## Goal status lifecycle (PRD §2)
+`upcoming` → `active` → `completed` | `expired`. The overview and the
+ranking show only `active` goals; `completed`/`expired` goals appear in
+the Outcomes strip and must carry `outcome_note`. A goal authored as
+`upcoming` with a predecessor naming it in `successor_slug` is flipped to
+`active` by the loader on the first seed after the predecessor closes,
+so retiring a goal is one YAML edit. `summary` is at most 60 words;
+`our_picks` holds at most three `{name, rationale, source_url, signal,
+signal_date}` rows; `sources` holds `{title, url}` rows; `decider` is the
+one-line "who decides" shown on the detail page.
 
 ## Eligibility rule grammar (PRD §5.1)
 One key per object. `{"always": true}` · `{"all": [rule, …]}` ·

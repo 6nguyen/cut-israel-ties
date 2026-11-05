@@ -5,7 +5,7 @@
 
 | Feature | State | What it does | Spec | Change | Updated |
 |---|---|---|---|---|---|
-| action-router | BUILDING | Address → delegation → two ranked goals | [spec](specs/action-router.md) | [action-router](prd/action-router.md) 1/7 | 2026-11-04 |
+| action-router | BUILDING | Address → delegation → two ranked goals | [spec](specs/action-router.md) | [action-router](prd/action-router.md) 2/7 | 2026-11-04 |
 | per-member-public-pages-and-whip-count-t | PLANNED | Per-member public pages and whip-count table | - | Next #1 | - |
 | captains-district-counters-reflection-of | PLANNED | Captains, district counters, reflection, office visits | - | Next #2 | - |
 | state-israel-bond-holdings-sweep-44-stat | PLANNED | State Israel-bond holdings sweep (44 states) | - | Next #3 | - |

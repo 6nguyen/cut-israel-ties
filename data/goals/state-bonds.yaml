@@ -10,6 +10,8 @@ decision_date: ""
 priority: 1
 eligibility: {"state": {"nonempty": ["israel_bonds_usd", "campaign_name"]}}
 our_picks: []
+sources: []
+decider: Your state treasurer, alone, at each rollover
 this_week: ""
 this_week_date: ""
 detail_md: ""

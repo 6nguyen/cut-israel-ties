@@ -1,22 +1,57 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadGoals } from '../../lib/goals';
-const goals = loadGoals();
+import { activeGoals, closedGoals, CATEGORY, fmtDate } from '../../lib/goals';
+const goals = activeGoals();
+const closed = closedGoals();
 ---
-<Base title="All goals — Cut the Ties">
+<Base title="All goals — Cut the Ties" description="Every open decision on US military ties with Israel, ordered by how much your call matters, and the outcomes so far.">
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
     <p class="label-code">All goals</p>
     <h1 class="display-lg mt-2">Every open decision</h1>
-    <p class="mt-3 max-w-2xl">Stub: the full overview with status, outcome notes and successors lands with §2.</p>
-    <ul class="mt-8 grid gap-4 max-w-3xl">
-      {goals.map((g) => (
-        <li class="card p-4">
-          <span class="chip bg-hazard">{g.category.replace('_', ' ')}</span>
-          <span class="chip ml-2">{g.status}</span>
-          <h2 class="headline-md mt-2"><a href={`/goals/${g.slug}`} class="hover:underline">{g.title}</a></h2>
-          <p class="text-sm mt-1">{g.summary}</p>
+    <p class="mt-3 max-w-2xl text-lg">Ordered by priority. Enter your address on the <a href="/" class="underline decoration-acid decoration-2 underline-offset-4">front page</a> to see the two where your call matters most this week.</p>
+    <ol class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="Active goals">
+      {goals.map((g, i) => (
+        <li class="card flex flex-col">
+          <div class="relative hero-gradient text-newsprint p-5 min-h-[150px] flex flex-col justify-end">
+            <div class="absolute inset-0 halftone pointer-events-none"></div>
+            <div class="relative flex gap-2 mb-2">
+              <span class="chip bg-hazard text-ink border-ink">{CATEGORY[g.category]}</span>
+              <span class="chip bg-ink text-newsprint border-newsprint">Priority {i + 1}</span>
+            </div>
+            <h2 class="relative headline-lg"><a href={`/goals/${g.slug}`} class="hover:underline">{g.title}</a></h2>
+          </div>
+          <div class="p-5 flex flex-col gap-3 flex-1">
+            <p class="text-sm">{g.summary}</p>
+            <p class="font-semibold"><span class="label-code mr-2">We want</span>{g.what_we_want}</p>
+            <p class="label-code text-ink/70">Decision: {fmtDate(g.decision_date) ?? 'not yet scheduled'}</p>
+            <a href={`/goals/${g.slug}`} class="btn btn-primary self-start mt-auto">See the goal →</a>
+          </div>
         </li>
       ))}
-    </ul>
+    </ol>
+  </section>
+
+  <section class="border-t-2 border-ink bg-newsprint-muted" aria-labelledby="outcomes">
+    <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
+      <p class="label-code">Outcomes</p>
+      <h2 id="outcomes" class="headline-lg mt-2">What has already been decided</h2>
+      {closed.length === 0 ? (
+        <p class="mt-3 max-w-2xl">No goal has closed yet. Wins and losses stay on this page once a decision is made.</p>
+      ) : (
+        <ul class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {closed.map((g) => (
+            <li class="card p-4 flex flex-col gap-2">
+              <div class="flex gap-2">
+                <span class="chip bg-hazard">{CATEGORY[g.category]}</span>
+                <span class={`chip ${g.status === 'completed' ? 'bg-acid' : 'bg-crimson text-paper'}`}>{g.status}</span>
+              </div>
+              <h3 class="headline-md"><a href={`/goals/${g.slug}`} class="hover:underline">{g.title}</a></h3>
+              <p class="text-sm">{g.outcome_note}</p>
+              {fmtDate(g.decision_date) && <p class="label-ticker text-ink/70">Decided {fmtDate(g.decision_date)}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   </section>
 </Base>

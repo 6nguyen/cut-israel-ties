@@ -120,3 +120,14 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
     }),
   };
 }
+
+/** §2.2 targets for one active goal and a {state, district}; same rules as the results cards. */
+export async function goalTargets(repo: Repo, slug: string, state: string, district: number): Promise<{ targets: TargetCard[] } | 'no_goal' | 'no_delegation'> {
+  const goal = await repo.goalBySlug(slug);
+  if (!goal || goal.status !== 'active') return 'no_goal';
+  const d = await repo.delegation(state, district);
+  if (!d.house && d.senators.length === 0) return 'no_delegation';
+  const members = [d.house, ...d.senators].filter((m): m is Member => m !== null);
+  const [actions, positions] = await Promise.all([repo.actionsFor([goal.id]), repo.positionsFor(members.map((m) => m.bioguide_id), [goal.id])]);
+  return { targets: targetsFor(goal, actions[0], d, positions) };
+}

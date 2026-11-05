@@ -41,14 +41,16 @@ export interface Goal {
   title: string;
   summary: string;
   what_we_want: string;
-  status: 'active' | 'completed' | 'expired';
+  status: 'upcoming' | 'active' | 'completed' | 'expired'; // upcoming = hidden until its predecessor closes (§2.3)
   outcome_note: string | null;
   window_start: string | null;
   window_end: string | null;
   decision_date: string | null;
   priority: number;
   eligibility: string; // JSON rule, see ranking.ts
-  our_picks: string;
+  our_picks: string; // JSON [{name, rationale, source_url, signal, signal_date}]
+  sources: string; // JSON [{title, url}]
+  decider: string | null; // who decides, one line (§2.2)
   successor_slug: string | null;
   this_week: string | null;
   this_week_date: string | null;
@@ -91,6 +93,7 @@ export interface Delegation {
 /** Read-only data access; D1 in production, in-memory in tests and seed. */
 export interface Repo {
   activeGoals(): Promise<Goal[]>;
+  goalBySlug(slug: string): Promise<Goal | null>;
   actionsFor(goalIds: number[]): Promise<Action[]>;
   positionsFor(bioguideIds: string[], goalIds: number[]): Promise<Position[]>;
   delegation(state: string, district: number): Promise<Delegation>;
