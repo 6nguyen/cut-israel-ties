@@ -354,11 +354,11 @@ page shows the real number from `MONTHLY_COST_USD`.
   - [x] 5. Goal ranking (deterministic) · PR #9 merged
   - [~] 2. Goals overview and detail · feat/action-router-goals-overview · PR #10
   - [ ] 4. Actions and personalised documents
-  - [ ] 3. Prep and briefing pages
+  - [~] 3. Prep and briefing pages · feat/action-router-prep-pages · PR #12
   - [~] 6. Donations and about · feat/action-router-donate-about · PR #11
   - [ ] 7. Maintainer tooling (LLM-assisted, maintainer-approved)
 - Completed: §1 (PR #8), §5 (PR #9).
-- Folded: §1, §5, §2, §6 (`docs/specs/action-router.md`).
+- Folded: §1, §5, §2, §3, §6 (`docs/specs/action-router.md`).
 - Branch / open PRs: feat/action-router-goals-overview (PR #10).
 - Tests run: tsc PASS, test PASS (53 vitest), build PASS; browser check
   of `/goals`, `/goals/ndaa-1217` (no address, CA-46, TX-21 on the Senate
@@ -436,6 +436,22 @@ page shows the real number from `MONTHLY_COST_USD`.
   successor, §2.3), `goals.sources` and `goals.decider`; the seed now
   enforces summary ≤60 words and `outcome_note` on closed goals. The web
   build reads `data/` through the Worker loader. 10 tests added.
+- 2026-11-04 — §3 built: `/goals/<slug>/prep` for every published goal
+  with `prep_md` (ndaa-1217, senate-leader, house-caucus, state-bonds;
+  none for `upcoming`). `prep_md` must carry six `##` sections in order
+  (where things stand, dated; timeline; what to say in 30 seconds; likely
+  pushback and answers; what counts as a win; sources), enforced at load
+  (`worker/src/prep.ts`); "our pick" is rendered from `our_picks`, which
+  leads the page for leadership goals with the unified ask
+  (`unifiedAsk`: `what_we_want` + first pick) and a "picks not set yet"
+  state while `our_picks` is empty. `[VERIFY: …]` markers in `prep_md`
+  render as visible chips. "Take action" island carries each stored-district
+  target to `/goals/<slug>/act/<action>?target=<bioguide_id>`; "Prep" link
+  added to the goal page. Open: `our_picks` still empty pending the
+  maintainer's paste from `docs/research/senate-leader-candidates.md`
+  (Open question 1); the act-page "Prep" link is left to §4; Open question
+  8 handled in the NDAA pushback answers (ask for a position, record via
+  reports). 6 tests added.
 - 2026-11-04 — §6 built: `/donate` (self-funding statement, deterministic
   monthly cost line, four Stripe Payment Link buttons opening in a new
   tab), `/about` and `/privacy` (stored vs sent-where, incl. the Census

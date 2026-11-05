@@ -3,9 +3,9 @@
 ## Purpose
 Turns a street address into the visitor's House district and senators and
 the two open goals where their call matters most this week. It stops at the
-two goal cards, plus the goal overview, `/donate`, `/about` and
-`/privacy`; prep pages, generated documents and receipts are later
-capabilities and are still stubs.
+two goal cards, then the goal overview, goal detail and prep pages,
+`/donate`, `/about` and `/privacy`; generated documents and receipts
+are later capabilities and are still stubs.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
@@ -71,7 +71,25 @@ capabilities and are still stubs.
    ranking. When the goal naming it in `successor_slug` is `completed` or
    `expired`, the loader flips it to `active` on the next seed and build,
    so retiring a goal is one YAML edit and no code change.
-11. **Donate (`/donate`).** States "This site is built and paid for by
+11. **Prep page (`/goals/<slug>/prep`).** Built for every published goal
+   with a non-empty `prep_md` (never for `upcoming` goals); the goal page
+   links to it ("Prep: what to say"). Hero with a "Take action" anchor;
+   for a `leadership` goal the page leads with "Our picks": up to three
+   `our_picks` in order (name, rationale, source link, signal, signal date,
+   plus "as of" the latest signal date) and "The ask, same for every
+   caller" = `what_we_want` followed by "Our first pick: <name>." (just
+   `what_we_want` with no picks; a leadership goal with no picks says so
+   instead of naming anyone). Then the six `prep_md` sections as numbered
+   blocks (where things stand, timeline, what to say in 30 seconds, likely
+   pushback and answers, what counts as a win, sources; the goal's
+   `sources` rows are listed under Sources). `[VERIFY: …]` markers render
+   as visible chips. The "Take action" island reads the stored
+   `{state, district}`, calls `GET /api/goals/<slug>/targets` and links each
+   target to `/goals/<slug>/act/<action>?target=<bioguide_id>` for every
+   action of the goal (no `target` for a target without a bioguide id; no
+   stored place shows "Enter your address" plus a plain link to the first
+   action). A closed goal has no Take action block.
+12. **Donate (`/donate`).** States "This site is built and paid for by
     George Nguyen, one person, not a PAC or organisation. Donations are not
     tax-deductible and are not political contributions to any candidate.",
     then "Running it costs about $N a month" (formatted by code from
@@ -81,7 +99,7 @@ capabilities and are still stubs.
     renders a disabled button reading "link not configured". The header
     carries a Donate button and the footer the self-funding line with a
     Donate link on every page.
-12. **About and privacy.** `/about` says who runs the site (one person,
+13. **About and privacy.** `/about` says who runs the site (one person,
     not a PAC), what it does, who pays and links to `/donate` and
     `/privacy`. `/privacy` lists what is stored (district only in the
     browser and on the server, never the address; receipts without
@@ -119,7 +137,10 @@ capabilities and are still stubs.
   (`worker/schema.sql`) are regenerated from `data/` by
   `npm run seed -w worker`; the seed validates slugs, categories,
   priorities, summary length (≤60 words), `outcome_note` on closed goals,
-  `our_picks` (≤3 rows with name, rationale, source_url), `sources`
+  `our_picks` (≤3 rows with name, rationale, source_url), `prep_md` (when
+  non-empty: exactly the six `##` headings of `worker/src/prep.ts` in
+  order, each non-empty, "Where things stand" carrying an ISO date),
+  `sources`
   (`{title, url}` rows), `successor_slug` targets, and that every
   position row carries a source. `goals.status` also allows `upcoming`;
   `goals.decider` is the one-line "who decides".
@@ -160,10 +181,17 @@ capabilities and are still stubs.
 - [ ] An `upcoming` goal has no page, no act page and is absent from
       `/api/goals`; `/api/goals/:slug/targets` returns Democrats only for
       leadership goals and the treasurer row for state goals.
+- [ ] Every goal with `prep_md` has `/goals/<slug>/prep` with all six
+      sections and no `upcoming` goal has one; a `prep_md` missing a
+      heading, out of order, with an empty section or an undated "Where
+      things stand" fails the seed (`worker/test/prep.test.ts`); a
+      leadership goal with `our_picks` shows them in order before any
+      section, and the ask names the first pick; every date, count or name
+      in `prep_md` is a `data/` row or carries a `[VERIFY: …]` marker.
 
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
 CSS and the page's JS chunks, fonts excluded; `/goals` 6 KB,
-`/goals/<slug>` 7 KB, `/donate` 1.4 KB); LCP ≤1.5 s on a mid-range phone
+`/goals/<slug>` 7 KB, `/goals/<slug>/prep` 4–5 KB, `/donate` 1.4 KB); LCP ≤1.5 s on a mid-range phone
 over 4G; `/api/route` ≤2 s p95; infra cost excluding LLM and domain
 = $0/month.

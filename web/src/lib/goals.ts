@@ -26,6 +26,15 @@ export function picks(goal: Goal): Pick[] { return JSON.parse(goal.our_picks) as
 export function sources(goal: Goal): Source[] { return JSON.parse(goal.sources) as Source[]; }
 export function markdown(md: string | null): string { return md ? (marked.parse(md, { async: false }) as string) : ''; }
 
+// §3 prep pages
+export { prepSections, unifiedAsk } from '@worker/prep';
+/** Goals that get `/goals/<slug>/prep`: published (never upcoming) with a non-empty prep_md. */
+export function prepGoals(): Goal[] { return publishedGoals().filter((g) => !!g.prep_md); }
+/** Render a maintainer-authored markdown block; `[VERIFY: …]` markers become visible chips so none ships unnoticed. */
+export function prepHtml(md: string): string {
+  return markdown(md).replace(/\[VERIFY([^\]]*)\]/g, (_m, rest: string) => `<mark class="chip bg-hazard text-ink border-ink align-middle">VERIFY${rest.replace(/\s+/g, ' ')}</mark>`);
+}
+
 export const CATEGORY: Record<Goal['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
 export function fmtDate(d: string | null): string | null {
   if (!d) return null;

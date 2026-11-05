@@ -84,6 +84,7 @@ const open = goal.status === 'active';
           <GoalTargets client:load slug={goal.slug} />
         </section>
       )}
+      {goal.prep_md && <p><a href={`/goals/${goal.slug}/prep`} class="btn btn-ghost">Prep: what to say →</a></p>}
       {goal.partner_url && (
         <section aria-labelledby="partner">
           <p class="label-code">Partner campaign</p>

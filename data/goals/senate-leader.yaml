@@ -10,10 +10,61 @@ decision_date: 2027-01-05   # placeholder: caucus leadership election date
 priority: 2
 eligibility: {"senator": {"party": "D"}}
 our_picks: []
-sources: []
+sources:
+  - {title: "The Hill: Schumer says he has the votes (2026-11-04)", url: "https://thehill.com/homenews/senate/6198456-schumer-senate-majority-leader-support/"}
+  - {title: "Star Tribune: Flanagan wants a new Senate Democratic leader (2026-11-04)", url: "https://www.startribune.com/peggy-flanagan-wants-new-senate-democratic-leader-to-replace-chuck-schumer/601910776"}
+  - {title: "The Lever: Will the blue wave come for Schumer? (2026-11-03)", url: "https://www.levernews.com/would-a-blue-wave-put-schumers-leadership-on-the-line/"}
+  - {title: "Newsweek: If not Schumer, who?", url: "https://www.newsweek.com/chuck-schumer-favorites-replace-democratic-senate-leader-12656990"}
 decider: Senate Democrats, by secret ballot in caucus
 this_week: ""
 this_week_date: ""
 detail_md: ""
-prep_md: ""
+prep_md: |
+  ## Where things stand
+  *As of 2026-11-04.* Senate Democrats choose their leader by secret ballot
+  in caucus. No challenger has declared, and five incoming senators have said
+  they will not vote for the incumbent [VERIFY: count and names, from The
+  Hill, Star Tribune and The Lever, 2026-11-04]. The vote date is not
+  published: press says December, this goal's placeholder is 2027-01-05
+  [VERIFY: the caucus date]. The ballot is secret, so what can be asked of a
+  senator is a condition they will apply, stated before the vote.
+
+  ## Timeline
+  - 2026-11-01: our window opens.
+  - 2026-11-04: midterm results in; leadership talk starts.
+  - December 2026: caucus leadership election expected [VERIFY: date].
+  - 2027-01-05: placeholder date in our data until the caucus date is
+    published.
+  - 2027-01-31: our window closes.
+  - 2028: the current US-Israel MOU expires, so a new MOU is the next lever
+    [VERIFY: expiry year and the status of any replacement talks].
+
+  ## What to say in 30 seconds
+  "Hello, I'm a constituent from [your town]. Senate Democrats are about to
+  pick a leader. I'm asking Senator [name] to vote only for a leader who
+  commits, in public, to stripping the integration section from the NDAA and
+  to opposing a new MOU. Will the senator tell me whether that is a condition
+  for their vote?"
+
+  ## Likely pushback and answers
+  - **"The ballot is secret."** The ask is the condition, not the ballot. A
+    senator can say what they will require of a leader without saying how
+    they voted.
+  - **"There is no candidate to choose between yet."** That is why now: the
+    condition is put to whoever runs. Ask the senator to put it to every
+    candidate, including the incumbent.
+  - **"Leadership is about much more than one section."** Agreed; this is
+    one commitment asked of every candidate, not a litmus test on the rest.
+  - **"Why only Democrats?"** Only Democratic senators vote in this caucus,
+    so a Republican senator is not a target for this goal.
+
+  ## What counts as a win
+  Your senator tells you or your office, or says publicly, that they will
+  apply the condition. Bigger: a candidate adopts the commitment, or the
+  elected leader makes it. Report the answer you got; positions are recorded
+  from reports, with a source.
+
+  ## Sources
+  Dated reporting behind this page is listed below. Everything marked
+  VERIFY above is waiting on a primary source.
 partner_url: ""

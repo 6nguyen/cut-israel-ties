@@ -15,5 +15,45 @@ decider: Your state treasurer, alone, at each rollover
 this_week: ""
 this_week_date: ""
 detail_md: ""
-prep_md: ""
+prep_md: |
+  ## Where things stand
+  *As of 2026-11-04.* State treasurers hold Israel Bonds with public money
+  and decide, alone and at each rollover, whether to buy more or let them
+  mature. Our state table has no sourced holdings, treasurer name, rollover
+  date or campaign link yet, so this page states none [VERIFY: holdings
+  amount and date for your state, from the treasurer's own report]. A phone
+  call or a public comment to the treasurer's office is on the record.
+
+  ## Timeline
+  - 2026-01-01: our window opens.
+  - Your state's next rollover or public-comment date is not yet sourced
+    [VERIFY: next_comment_date for your state].
+  - 2027-12-31: our window closes.
+
+  ## What to say in 30 seconds
+  "Hello, I'm a resident of [your town]. I'm asking the State Treasurer to
+  stop buying Israel Bonds and to let the ones the state holds mature
+  without rollover. Could you tell me how much the state holds, when the
+  next rollover decision is, and how I can put a comment on the record?"
+
+  ## Likely pushback and answers
+  - **"These are ordinary investments."** They are bought with public money.
+    Ask for the holdings figure and the rollover schedule in writing.
+  - **"That is a federal foreign-policy matter."** The decision to buy or
+    roll over is the state treasurer's own; no federal body decides it.
+  - **"The office only takes comments at hearings."** Ask when the next
+    comment period is and whether a written comment is entered in the
+    record.
+  - **"The treasurer has already decided."** Ask for the date and the
+    decision in writing, then report it.
+
+  ## What counts as a win
+  The treasurer announces that the state will not buy more and will let
+  current bonds mature without rollover. Smaller: the office gives you the
+  holdings figure and the next decision date, which becomes a sourced row.
+
+  ## Sources
+  Holdings and rollover figures come from each state's own records and are
+  added to the state table with a source. [VERIFY: treasurer report or
+  public-records response for your state.]
 partner_url: ""
