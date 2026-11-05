@@ -1,5 +1,5 @@
 {
-  "name": "cut-israel-ties",
+  "name": "cut-the-ties",
   "private": true,
   "version": "0.1.0",
   "workspaces": ["web", "worker"],

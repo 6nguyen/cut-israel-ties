@@ -1,4 +1,4 @@
-# CLAUDE.md — cut-israel-ties
+# CLAUDE.md — cut-the-ties
 
 Repo-specific facts only. Communication, token/agent rules, sessions, git,
 PRD-first, verification cadence and the quality bar are global
