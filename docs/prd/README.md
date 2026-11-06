@@ -51,6 +51,7 @@ no `Needs` entry can run in parallel with the row above it. Rules:
   changes a PRD's Status or State block updates its row.
 - A PRD that ships, is superseded or is dropped loses its row in the
   commit that archives it (Lifecycle 4–5); completed work never stays here.
+
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
 | 1 | [address-autocomplete.md](address-autocomplete.md) | APPROVED | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
