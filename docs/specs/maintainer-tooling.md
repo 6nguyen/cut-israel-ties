@@ -114,6 +114,26 @@ and nothing here writes to `data/` or to `positions`.
    same upstream next time. Needs `GITHUB_TOKEN` with `contents: write`
    and `pull-requests: write`; on failure the logs upload as `roster-logs`.
 
+7. **Research routines** — three prompt files under `.claude/routines/`
+   (`federal-positions.md`, `senate-leader-signals.md`,
+   `state-holdings.md`) are the maintainer's recurring research, run by a
+   scheduled Claude Code task whose stored prompt is one line pointing at
+   the file. All three carry one identical `## Output contract`: the run
+   starts from `main` on `data/<routine>-<YYYY-MM-DD>` and ends in one PR
+   titled `data: <routine> <YYYY-MM-DD>` (or none); it writes at most one
+   new dated `docs/research/` snapshot (with `Supersedes`, `## What
+   changed`, index row), CSV rows a draft CLI printed, and the goal YAML
+   fields `decision_date`, `this_week`, `this_week_date`, `sources`,
+   `our_picks` and `[VERIFY]` chips; the PR body is `## Changed`,
+   `## VERIFY`, `## Not found`; the run is capped at 100 tool calls and
+   40 fetched pages, one request per second per host, a fixed
+   `User-Agent`, no retry on 403, back-off on 429/503, and runs
+   `check-data` before opening the PR. Cadences: federal positions
+   Tuesday and Friday 14:00 UTC 2026-11-07 to 2026-12-19 (plus named
+   manual runs); Senate leader signals Mondays 14:00 UTC from 2026-11-09
+   until the caucus vote; state holdings 2026-11-12 and 2026-12-03 (ten
+   states each). Each file's `## Steps` section holds its own work.
+
 ## Data & contracts
 - `worker/scripts/draft-position.ts` (CLI) → `worker/src/draft-position.ts`
   (`draftPosition(fetch, apiKey, {bioguide, memberName?, url, goal,
@@ -157,6 +177,15 @@ and nothing here writes to `data/` or to `positions`.
   `worker/src/visits.ts`; Repo `pendingVisits()`; the link handler is
   `GET /api/visits/review` (docs/specs/office-visits.md §Behavior 2).
 
+- Research routines: `.claude/routines/<routine>.md` (`## Output contract`
+  identical across files, `worker/test/routines.test.ts`; then `## Steps`,
+  `## Cadence`). Scheduled tasks `cut-ties/federal-positions`,
+  `cut-ties/senate-leader-signals`, `cut-ties/state-holdings` on
+  `6nguyen/cut-the-ties`, write access limited to `data/*` branches,
+  `ANTHROPIC_API_KEY` for the CLIs; no Worker cron, no D1 access. Branch
+  `data/<routine>-<YYYY-MM-DD>`, PR title `data: <routine> <YYYY-MM-DD>`,
+  body sections `## Changed`, `## VERIFY`, `## Not found`.
+
 ## Invariants (regression checklist)
 - [ ] `draft-position` never writes a file; its only outputs are stdout,
       stderr and the exit code.
@@ -186,8 +215,15 @@ and nothing here writes to `data/` or to `positions`.
       source or date, a past `next_comment_date`, or a `campaign_url`
       without a `campaign_name`.
 
+- [ ] A routine never pushes to `main`, never writes `worker/`, `web/`,
+      `docs/specs/` or D1, writes a CSV row only when a draft CLI printed
+      it, and removes a `[VERIFY]` chip only with its source in the same
+      commit.
+
 ## Performance budget
 Infra cost excluding LLM and domain stays $0/month: one cron invocation
 and at most one Email Routing message per week, one Haiku call per digest
 and one per `draft-position` or `draft-holding` run (Haiku, ≤60k characters
-of page text, about $0.01 per run).
+of page text, about $0.01 per run). Research routines add about 15 scheduled runs through 2026-12-19,
+each a Claude Code task capped at 100 tool calls and 40 pages plus the
+Haiku draft-CLI calls above; infra stays $0.
