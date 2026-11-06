@@ -18,3 +18,30 @@ this_week_date: ""
 detail_md: ""
 prep_md: ""
 partner_url: ""
+# personalised-documents §1: first-person starting points for the act form's "why" field. Plain words, no figures (numbers come from sourced rows).
+reasons:
+  - angle: "Why a no vote is the ask"
+    points:
+      - "Once the section is in the final text, a no vote on the whole bill is the only lever left. I want you to use it."
+      - "Voting no is how you send the bill back without that section. That is all I am asking for."
+  - angle: "Who our government answers to"
+    points:
+      - "I elected you to represent my interests, not another country's military. Once our forces are tied together, disagreeing with Israel gets harder every year."
+      - "Our foreign policy should be decided in open votes I can see, not locked in through a defense bill section most voters never heard of."
+      - "If a partnership this deep is a good idea, make the case to the public and vote on it on its own. Do not bury it in the must-pass bill."
+  - angle: "Being dragged into wars without a vote"
+    points:
+      - "Shared planning, shared stockpiles and shared command mean the next war Israel starts becomes ours, and nobody in my district gets a say."
+      - "Congress is supposed to decide when we go to war. Integration hands that decision to another government's generals."
+  - angle: "My money"
+    points:
+      - "I pay taxes for roads, schools and veterans here. I do not want them wired into another country's military budget on autopilot."
+      - "Every shell we set aside for Israel is one our own troops cannot count on."
+  - angle: "What this military did in Gaza"
+    points:
+      - "I watched what was done in Gaza with American weapons. I do not want my country's forces fused with the military that did it."
+      - "Integrating with a military facing war-crimes cases puts our own service members at legal and moral risk."
+  - angle: "Our own readiness"
+    points:
+      - "Our munitions stockpiles are already stretched. Promising Israel first call on them weakens our own deterrence."
+      - "Our commanders should answer to one chain of command, ours. Joint structures blur who is in charge when it counts."

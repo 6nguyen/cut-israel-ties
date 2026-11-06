@@ -101,6 +101,7 @@ export interface Goal {
   eligibility: string; // JSON rule, see ranking.ts
   our_picks: string; // JSON [{name, rationale, source_url, signal, signal_date}]
   sources: string; // JSON [{title, url}]
+  reasons: string; // JSON [{angle, points[]}]: first-person starting points for the act form's "why" field
   decider: string | null; // who decides, one line (§2.2)
   successor_slug: string | null;
   this_week: string | null;

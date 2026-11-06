@@ -12,7 +12,17 @@ stores identifies them. Address routing, goals and ranking are in
 1. **Act page.** `/goals/<slug>/act/<action>` (active goals only) renders
    the action's `form_schema` fields (first name 40, city 60, "why this
    matters to you" 280 multiline, optional affiliation 80) with live
-   counts and a Turnstile widget. `?target=<bioguide_id>` (state code
+   counts and a Turnstile widget. Above the multiline "why" field a
+   collapsed "Not sure what to say?" panel lists the goal's `reasons`:
+   first-person starting points grouped by angle (who our government
+   answers to, being dragged into wars, my money, Gaza, readiness, speech);
+   tapping one appends it to the field for the caller to rewrite. The
+   Turnstile widget sits outside the form, so it renders once the island
+   has a target (not on the "Loading your target…" render) and stays
+   through the output state for Regenerate; an expired token is dropped
+   and re-issued, and a 403 `turnstile` answer is retried once with a
+   fresh token before the error shows.
+   `?target=<bioguide_id>` (state code
    for treasurer actions) preselects the target; otherwise the island
    loads the stored district's targets for the goal and offers a radio
    list, or "Enter your address" with nothing stored. Nothing submits
@@ -181,6 +191,9 @@ stores identifies them. Address routing, goals and ranking are in
   (`kind, min_words, max_words, mentions[], ask`) and
   `standard_template` (Behavior 5; required while the goal is active);
   `mentions` and `ask` are the exact phrases the output check requires.
+- Goal YAML `reasons[]` (`angle`, `points[]`): at most six angles, one to
+  five points each, ≤160 characters, no digits; the seed rejects anything
+  else (`data/README.md`).
 - Receipt limits (`district-counters.md` §8–9): `POST /api/receipt`
   answers 429 `limit_day` after 10 receipts per device hash in 24 h,
   `limit_repeat` for a second receipt on the same device, goal and action

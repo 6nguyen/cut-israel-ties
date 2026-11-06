@@ -92,3 +92,26 @@ prep_md: |
   Dated reporting behind this page is listed below. Everything marked
   VERIFY above is waiting on a primary source.
 partner_url: ""
+# personalised-documents §1: first-person starting points for the act form's "why" field. Plain words, no figures (numbers come from sourced rows).
+reasons:
+  - angle: "Who leads my party"
+    points:
+      - "A leader who puts Israel's government first cannot speak for Democratic voters like me. I want my senator to back someone else."
+      - "It is a secret ballot. There is no excuse to vote for the status quo out of fear."
+      - "I am a Democrat, not a Democrat no matter what. Leadership that ignores the base on this loses my votes and my donations."
+  - angle: "The next long-term weapons deal"
+    points:
+      - "I do not want my party's leader negotiating another decade-long weapons commitment while the last one is still paying for a war."
+      - "Any new long-term military deal should go through an open vote, not a leader's handshake."
+  - angle: "Who our government answers to"
+    points:
+      - "My senator answers to me. Picking a leader who answers to a foreign government's lobby first is a betrayal of that."
+  - angle: "Being dragged into wars without a vote"
+    points:
+      - "Under this leadership the Senate waved through weapons and planning for a war I never voted for. That is on the leader."
+  - angle: "My money"
+    points:
+      - "The leadership kept the money flowing abroad while telling us there is none for health care and housing at home."
+  - angle: "What was done in Gaza"
+    points:
+      - "I watched Gaza unfold with American weapons and my party's leader defending it. I cannot support a caucus led by that person."
