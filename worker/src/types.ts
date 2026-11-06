@@ -190,6 +190,8 @@ export interface Env {
   DB: D1Database;
   TURNSTILE_SECRET?: string;
   GEOCODER_URL?: string;
+  // district-vintage-rollover §1: geocoder vintage (ACS2025_Current = 119th map until 2027-01-03).
+  DISTRICT_VINTAGE?: string;
   ANTHROPIC_API_KEY?: string;
   MAX_GENERATIONS_PER_DAY?: string;
   // §7.2 nightly digest: Email Routing binding, recipient and sender (an address on the zone).

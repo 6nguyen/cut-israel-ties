@@ -100,3 +100,35 @@ revert the data PR instead; the merge redeploys.
 - [ ] `README.md` carries the live URL.
 - [ ] After one week: Cloudflare billing shows $0 for Pages, Workers, D1,
       Turnstile and Email Routing.
+
+## 6. District flip to the 120th Congress (2027-01-03, dated checklist)
+Context: `docs/prd/district-vintage-rollover.md` §3. Both district sets
+are already deployed (`web/public/districts/` = cd119,
+`web/public/districts-120/` = cd120 with Missouri on cd119), so the flip
+is one PR and the rollback is its revert. Do not open it before
+2027-01-03 and merge it only after the roster PR (roster-freshness §4,
+`left_office` set on departed members) has merged.
+- [ ] Roster PR merged and `import-members` re-run for the 120th
+      (`docs/research/data-ingestion.md`); `members.csv` keys new
+      members by state and 120th district.
+- [ ] `web/src/lib/pip.ts`: `ACTIVE_CONGRESS = 120`.
+- [ ] `worker/wrangler.jsonc` `vars`: `DISTRICT_VINTAGE = "Current_Current"`
+      (`.env.example` line to match); `VINTAGE_OVERRIDES` unchanged
+      (`MO` stays on `ACS2025_Current`).
+- [ ] `worker/src/districts.ts`: `SEATS_CONGRESS = 120` (counts unchanged).
+- [ ] `web/src/lib/pip.test.ts`: the "ACTIVE_CONGRESS picks the
+      directory" assertions flip to `120` / `/districts-120`; the
+      cd120 fixture is the gate, no cd119 test changes.
+- [ ] `npx tsx scripts/probe-districts.ts --set 120` prints 0 mismatches
+      against `Current_Current` on the day (Census can re-cut the layer).
+- [ ] `scripts/quiet-check.sh tsc`, `test`, `test-web`, `build` green;
+      `/api/route` for `600 Congress Ave, Austin, TX 78701` answers
+      TX-10 and `414 E 12th St, Kansas City, MO 64106` answers MO-5.
+- [ ] After the deploy: a browser location in Austin requests
+      `/districts-120/TX.json` only (DevTools network), landing still
+      ≤100 KB; `/api/route` p95 ≤2 s including the Missouri re-query.
+- [ ] One deploy later, a second PR deletes `web/public/districts/` and
+      moves `districts-120/` to `districts/` with `DISTRICTS_DIR` back to
+      `/districts` (or leaves the directory name; never in the flip PR).
+- Rollback: revert the flip PR; cd119 files are still deployed and
+  `DISTRICT_VINTAGE` returns to `ACS2025_Current`, no rebuild needed.

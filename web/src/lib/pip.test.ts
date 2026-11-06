@@ -1,13 +1,24 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import fixture from './districts.fixture.json';
-import { clearCache, contains, decode, locateAll, pointInRing, resolvePoint, type Topology } from './pip';
+import fixture120 from './districts.fixture.120.json';
+import { ACTIVE_CONGRESS, DISTRICTS_DIR, clearCache, contains, decode, fetchLoader, locateAll, pointInRing, resolvePoint, type Topology } from './pip';
 
 const dir = new URL('../../public/districts/', import.meta.url);
+const dir120 = new URL('../../public/districts-120/', import.meta.url);
 const calls: string[] = [];
-const load = async (name: string): Promise<Topology> => {
+const loaderFor = (d: URL) => async (name: string): Promise<Topology> => {
   calls.push(name);
-  return JSON.parse(readFileSync(new URL(`${name}.json`, dir), 'utf8')) as Topology;
+  return JSON.parse(readFileSync(new URL(`${name}.json`, d), 'utf8')) as Topology;
+};
+const load = loaderFor(dir);
+const load120 = loaderFor(dir120);
+type Manifest = { congress: number; overrides?: Record<string, { vintage: number; congress: number }>; files: Record<string, { gzip: number; source?: string }> };
+const manifestOf = (d: URL) => JSON.parse(readFileSync(new URL('manifest.json', d), 'utf8')) as Manifest;
+const underGates = (m: Manifest) => {
+  expect(Object.keys(m.files)).toHaveLength(52);
+  for (const [name, f] of Object.entries(m.files)) expect(f.gzip, name).toBeLessThanOrEqual(name === 'states' ? 150 * 1024 : 300 * 1024);
 };
 
 // Two unit squares sharing the edge x=1, the right one with a hole; delta-encoded with a transform.
@@ -88,9 +99,47 @@ describe('on-device district lookup', () => {
     expect(await resolvePoint(Number.NaN, 30, load)).toBeNull();
   });
   it('ships every state file under the size gates recorded in the manifest', () => {
-    const manifest = JSON.parse(readFileSync(new URL('manifest.json', dir), 'utf8')) as { congress: number; files: Record<string, { gzip: number }> };
+    const manifest = manifestOf(dir);
     expect(manifest.congress).toBe(119);
-    expect(Object.keys(manifest.files)).toHaveLength(52);
-    for (const [name, f] of Object.entries(manifest.files)) expect(f.gzip, name).toBeLessThanOrEqual(name === 'states' ? 150 * 1024 : 300 * 1024);
+    underGates(manifest);
+  });
+});
+
+// district-vintage-rollover §2/§3: the cd120 set ships beside cd119 until the dated flip.
+describe('120th-Congress set (web/public/districts-120)', () => {
+  afterEach(() => vi.restoreAllMocks());
+  it('ACTIVE_CONGRESS picks the directory; 119 today, so only /districts is ever requested', async () => {
+    expect(ACTIVE_CONGRESS).toBe(119);
+    expect(DISTRICTS_DIR).toBe('/districts');
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => Response.json(JSON.parse(readFileSync(new URL(`${String(input).split('/').pop()}`, dir), 'utf8'))));
+    await fetchLoader('states');
+    expect(fetchMock.mock.calls.map((c) => String(c[0]))).toEqual(['/districts/states.json']);
+  });
+  it('resolves every fixture-120 point, Missouri on the 2022 map, redrawn areas on the 2026 maps', async () => {
+    clearCache();
+    for (const p of fixture120.points) {
+      expect(await resolvePoint(p.lon, p.lat, load120), p.label).toEqual({ state: p.state, district: p.district });
+    }
+    const by = Object.fromEntries(fixture120.points.map((p) => [p.label, p]));
+    expect(by['Kansas City']).toMatchObject({ state: 'MO', district: 5 });
+    expect(by.Austin).toMatchObject({ state: 'TX', district: 10 });
+    expect(fixture120.points.length).toBeGreaterThanOrEqual(57);
+    clearCache();
+  });
+  it('the two sets disagree exactly where the maps changed and agree on the Kansas City point', async () => {
+    clearCache();
+    const austin = fixture120.points.find((p) => p.label === 'Austin')!;
+    expect(await resolvePoint(austin.lon, austin.lat, load)).toEqual({ state: 'TX', district: 37 });
+    const kc = fixture120.points.find((p) => p.label === 'Kansas City')!;
+    expect(await resolvePoint(kc.lon, kc.lat, load)).toEqual({ state: 'MO', district: 5 });
+    clearCache();
+  });
+  it('manifest records congress 120, the Missouri override with its cd119 source, and every file under the gates', () => {
+    const m = manifestOf(dir120);
+    expect(m.congress).toBe(120);
+    expect(m.overrides).toEqual({ MO: { vintage: 2025, congress: 119 } });
+    expect(m.files.MO.source).toMatch(/TIGER2025\/CD\/tl_2025_29_cd119\.zip$/);
+    expect(m.files.TX.source).toMatch(/TIGER2026\/CD\/tl_2026_48_cd120\.zip$/);
+    underGates(m);
   });
 });

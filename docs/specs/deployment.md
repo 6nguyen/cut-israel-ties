@@ -51,7 +51,10 @@ monitoring, no schema migrations (the schema is created once by hand).
    Actions UI: it redeploys that commit's Worker, rows and site. A bad
    data change is reverted by a PR; the merge redeploys.
 7. **Provisioning** is manual and documented step by step in
-   `docs/guides/deploy.md`, which also holds the go-live checklist.
+   `docs/guides/deploy.md`, which also holds the go-live checklist and
+   the dated checklist for the 2027-01-03 district flip
+   (`ACTIVE_CONGRESS=120`, `DISTRICT_VINTAGE=Current_Current`, one PR,
+   rollback = revert; both district sets stay deployed).
 
 ## Data & contracts
 | Name | Set in | Read by | Without it |
@@ -61,6 +64,7 @@ monitoring, no schema migrations (the schema is created once by hand).
 | `PUBLIC_TURNSTILE_SITE_KEY` | GitHub Actions variable → build env | landing and act pages | no widget; `/api/route` refused once the secret is set |
 | `API_ORIGIN` | dev shell; Pages Preview variable | dev proxy; `web/functions/api/[[path]].ts` | dev → `localhost:8787`; previews answer 503 on `/api/*` |
 | `MAX_GENERATIONS_PER_DAY`, `MAINTAINER_EMAIL`, `DIGEST_FROM`, `GEOCODER_URL` | `worker/wrangler.jsonc` `vars` | Worker | code defaults; digest logs and exits |
+| `DISTRICT_VINTAGE` | `worker/wrangler.jsonc` `vars` | Worker (`geocode.ts`) | code default `ACS2025_Current` (119th map); `Current_Current` from 2027-01-03 with `ACTIVE_CONGRESS` |
 | `TURNSTILE_SECRET`, `ANTHROPIC_API_KEY` | `wrangler secret put` | Worker | Turnstile skipped (dev only); generation 503 |
 | `VISITS_ENABLED` | `worker/wrangler.jsonc` `vars` | Worker (`/api/visits*`) | on; `"0"` pauses listings (POST 503, lists empty) |
 | `VISITS_REVIEW_SECRET` | `wrangler secret put` | Worker (digest review links) | digest lists pending visits without links; `/api/visits/review` 503 |

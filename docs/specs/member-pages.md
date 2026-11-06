@@ -30,7 +30,9 @@ never by this capability, and nothing here calls an LLM.
    senators keep an empty district.
 2. **Seed checks.** `loadRows` rejects `members.csv` when a `bioguide_id`
    repeats, a senator carries a district, a House district is outside the
-   state's 119th-Congress seat count (`worker/src/districts.ts`), a
+   state's seat count (`worker/src/districts.ts`, labelled by
+   `SEATS_CONGRESS`, 119 today; the 2020 apportionment holds through the
+   120th), a
    single-seat state uses a district other than `0`, or a state code is
    unknown. The error names the file and the row.
 3. **Member page (`/m/<bioguide_id>`).** One static page per member,
