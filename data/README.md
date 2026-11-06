@@ -162,7 +162,7 @@ eligible goal is paired with the state goal.
   regenerates once, then refuses.
 - `standard_template` or `script_blocks` (one of the two while the goal
   is `active`): the script served when no model may run
-  (`docs/specs/personalised-documents.md` §5). `script_blocks: <name>`
+  (`docs/specs/standard-scripts.md`). `script_blocks: <name>`
   names `script_blocks/<name>.yaml`:
   - `incumbents`: bioguide ids whose script asks them to commit or step
     aside (`when: {self: true}` variants).
