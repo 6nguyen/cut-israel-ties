@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 import fixture from './districts.fixture.json';
 import fixture120 from './districts.fixture.120.json';
-import { ACTIVE_CONGRESS, DISTRICTS_DIR, clearCache, contains, decode, fetchLoader, locateAll, pointInRing, resolvePoint, type Topology } from './pip';
+import { ACTIVE_CONGRESS, DISTRICTS_DIR, clearCache, contains, decode, fetchLoader, locateAll, pointInRing, resolveInState, resolvePoint, type Topology } from './pip';
 
 const dir = new URL('../../public/districts/', import.meta.url);
 const dir120 = new URL('../../public/districts-120/', import.meta.url);
@@ -141,5 +141,22 @@ describe('120th-Congress set (web/public/districts-120)', () => {
     expect(m.files.MO.source).toMatch(/TIGER2025\/CD\/tl_2025_29_cd119\.zip$/);
     expect(m.files.TX.source).toMatch(/TIGER2026\/CD\/tl_2026_48_cd120\.zip$/);
     underGates(m);
+  });
+});
+
+describe('resolveInState (address-autocomplete §3)', () => {
+  beforeEach(() => { clearCache(); calls.length = 0; });
+  it('loads only the named state file and places the point in it', async () => {
+    const ca = fixture.points.find((p) => p.state === 'CA')!;
+    expect(await resolveInState('CA', ca.lon, ca.lat, load)).toEqual({ state: 'CA', district: ca.district });
+    expect(calls).toEqual(['CA']);
+  });
+  it('returns null for a point outside every district of that state, and never loads for a bad state code or coordinate', async () => {
+    expect(await resolveInState('CA', -130, 30, load)).toBeNull(); // Pacific
+    expect(calls).toEqual(['CA']);
+    expect(await resolveInState('ca', -121.4934, 38.5767, load)).toBeNull();
+    expect(await resolveInState('states', -121.4934, 38.5767, load)).toBeNull();
+    expect(await resolveInState('CA', Number.NaN, 38.5767, load)).toBeNull();
+    expect(calls).toEqual(['CA']);
   });
 });

@@ -128,3 +128,14 @@ export async function resolvePoint(lon: number, lat: number, load: Loader = fetc
   }
   return null;
 }
+
+/**
+ * address-autocomplete §3: a picked suggestion already names its state, so only that state's file
+ * is loaded (never `states`); a point outside every district of that state, an unknown state code
+ * or a non-finite coordinate → null, and the caller falls back to the Census path.
+ */
+export async function resolveInState(state: string, lon: number, lat: number, load: Loader = fetchLoader): Promise<Place | null> {
+  if (!/^[A-Z]{2}$/.test(state) || !Number.isFinite(lon) || !Number.isFinite(lat)) return null;
+  const hit = locateAll(await shapes(state, load), lon, lat)[0];
+  return hit && typeof hit.district === 'number' ? { state, district: hit.district } : null;
+}

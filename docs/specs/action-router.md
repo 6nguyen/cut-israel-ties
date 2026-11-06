@@ -20,9 +20,12 @@ documents, receipts and reports are in `personalised-documents.md`.
    (`role="combobox"`, `aria-expanded`, `aria-controls`,
    `aria-activedescendant`, `autocomplete="off"`, a polite live count):
    three or more typed characters followed by 250 ms idle request up to
-   five US street addresses; the open list shows the provider's
-   attribution under it; ArrowDown/ArrowUp move the highlight, Enter
-   picks it, Escape or blur closes. A new keystroke aborts the request in
+   five US street addresses, each shown as "street, city, ST ZIP" built
+   from the provider's structured fields (a result missing a house
+   number, city, two-letter state, ZIP or point is dropped); the open
+   list shows the provider's attribution under it; ArrowDown/ArrowUp
+   move the highlight, Enter or a tap picks it (§3), Escape or blur
+   closes. A new keystroke aborts the request in
    flight; a failure, a 429 or a 2 s timeout closes the list with no
    message. With `none` (the default, also a provider without a token,
    which the build warns about) the plain field renders unchanged.
@@ -46,11 +49,23 @@ documents, receipts and reports are in `personalised-documents.md`.
    true}`. A denied or failed position shows "No location shared. Enter
    an address instead."; a point in no polygon shows "We couldn't place
    that point. Enter an address."; both focus the address field and open
-   the state + district picker.
+   the state + district picker. A picked address suggestion never
+   reaches the geocoder either: the label fills the field, the browser
+   loads only `/districts/<STATE>.json` for the suggestion's state
+   (`resolveInState`, `on-device-districts.md` §2), places the
+   suggestion's coordinates with the same point-in-polygon and posts
+   `{state, district, by_suggestion: true}`; a point in no district of
+   that state falls through to the free-text path below with the
+   suggestion's label as the address. The typed text, the suggestion and
+   its coordinates are never stored.
 4. **Unresolved.** No match returns 404 `unresolved` with "retry, or pick
    your state and district"; the page shows the message, keeps the field
    and opens a state + district picker that posts `{state, district}` and
-   skips the geocoder. A state/district with no members in `data/` returns
+   skips the geocoder. When a suggestion provider is set the page shows
+   "We could not place that address. Pick one of the suggestions, check
+   the address, or pick your state and district." instead of the Worker's
+   text (`UNRESOLVED_WITH_SUGGESTIONS` in `AddressForm.tsx`); `none`
+   keeps the Worker's message. A state/district with no members in `data/` returns
    404 `no_delegation`.
 5. **Results (`/results`).** Header `<STATE-NN> · change address`, H1
    "Your two actions this week", one line naming the delegation ("Your
@@ -80,7 +95,7 @@ documents, receipts and reports are in `personalised-documents.md`.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
-  turnstile?}`. 200 `{state, district, house, senators, state_row, goals}`
+  by_location?, by_suggestion?, turnstile?}`. 200 `{state, district, house, senators, state_row, goals}`
   where `goals` is at most two `GoalCard`s (`worker/src/route.ts`).
   Errors: 400 `bad_json | zip_only | incomplete | missing`, 403
   `turnstile`, 404 `unresolved | no_delegation`, 502 `upstream`; every
@@ -104,10 +119,11 @@ documents, receipts and reports are in `personalised-documents.md`.
   `sessionStorage` `cut-ties:route` = last route response;
   `localStorage` `cut-ties:device` = random per-browser id (the Worker
   stores only its SHA-256).
-- `by_location: true` on the route body marks a location-path route; the
-  Worker ignores unknown fields, so it is a metric placeholder until one
-  reads it. No new storage key: the location path saves only the resolved
-  `{state, district}`.
+- `by_location: true` on the route body marks a location-path route and
+  `by_suggestion: true` a picked-suggestion route; the Worker ignores
+  unknown fields, so both are metric placeholders until one reads them
+  (`worker/test/route.test.ts`). No new storage key: both paths save only
+  the resolved `{state, district}`.
 - Pages build env: `PUBLIC_SUGGEST_PROVIDER` = `none | mapbox | geoapify`
   (default `none`), `PUBLIC_SUGGEST_TOKEN` = the provider's public,
   URL-restricted token. `web/src/lib/suggest.ts`: `configuredProvider()`
@@ -115,9 +131,22 @@ documents, receipts and reports are in `personalised-documents.md`.
   or a missing token), `shouldSuggest(q)`, `suggestLoop(suggester,
   onResult, timings)` (debounce, abort, timeout, failure → `[]`) and
   `suggest(q, signal): Promise<Suggestion[]>`, `Suggestion = {label, state,
-  lon, lat}`. The provider adapters are not built yet
-  (address-autocomplete §2): `suggest()` returns `[]`, so a provider flag
-  today renders the combobox without a list.
+  lon, lat}`. One adapter per provider maps the response, builds the label
+  from structured fields (`shortLabel`) and drops results without a house
+  number, city, two-letter state, ZIP or point; a non-2xx response (429
+  included) rejects, which the loop turns into a closed list:
+  - Mapbox: `GET https://api.mapbox.com/search/geocode/v6/forward?q=…&autocomplete=true&country=us&types=address&limit=5&proximity=ip&access_token=…`;
+    `state` from `properties.context.region.region_code`, the point from
+    `geometry.coordinates`.
+  - Geoapify: `GET https://api.geoapify.com/v1/geocode/autocomplete?text=…&filter=countrycode:us&limit=5&apiKey=…`;
+    features with `properties.housenumber`, `state` from
+    `properties.state_code`, `lon`/`lat` from properties.
+  `PROVIDER_NAME` gives the name `/privacy` prints. Mapbox's geocoding
+  terms allow responses only "in conjunction with a Mapbox map", which
+  this on-device use is not, so the flag flip uses `geoapify`; the Mapbox
+  adapter stays behind the flag. Picking calls `resolveInState(state,
+  lon, lat)` from `web/src/lib/pip.ts`, then `route({state, district,
+  by_suggestion: true})`; `null` → `route({address: label})`.
 
 - Goal pages, `GET /api/goals`, the goal lifecycle, seed validation of
   goal rows and the donation config are in `goal-pages.md`; a `GoalCard`
@@ -125,8 +154,14 @@ documents, receipts and reports are in `personalised-documents.md`.
 
 ## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
-      request carrying it is the geocoder call, and the response body
-      does not contain it (`worker/test/route.test.ts`).
+      requests carrying typed text are the suggestion calls from the
+      browser to the configured provider and, for a free-text submit, the
+      Worker's geocoder call; a picked suggestion never reaches the
+      Worker: the route body carries only `{state, district,
+      by_suggestion}` and the response body contains no address
+      (`web/src/lib/suggest.test.ts`,
+      `web/src/components/AddressForm.test.tsx`,
+      `worker/test/route.test.ts`).
 - [ ] A ZIP-only submission never reaches the geocoder.
 - [ ] The district parser reads the number from `BASENAME`, then `GEOID`,
       then a legacy `CD<nnn>` field, so a Census field rename never turns
@@ -160,9 +195,10 @@ documents, receipts and reports are in `personalised-documents.md`.
 
 
 ## Performance budget
-Landing ≤100 KB transferred including the combobox (measured 2026-11-06:
-33.3 KB gzip for HTML, CSS and every JS chunk the page reaches, fonts
-excluded; the combobox added 1.4 KB gzip and no third-party script);
+Landing ≤100 KB transferred including the combobox (measured 2026-11-06
+after address-autocomplete §2–§4: 29.2 KB gzip for HTML, CSS and every JS
+chunk the page loads eagerly, fonts excluded; the `pip` chunk, 1.0 KB
+gzip, loads only on a pick or a location tap; no third-party script);
 LCP ≤1.5 s on a mid-range phone over 4G; `/api/route` ≤2 s p95;
 suggestions ≤800 ms p95 from the browser; infra cost excluding LLM and
 domain = $0/month.

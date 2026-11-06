@@ -1,5 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import { PROVIDER_NAME, configuredProvider } from '../lib/suggest';
+// address-autocomplete §6: the address bullet names the suggestion provider when one is set; `none` keeps today's text.
+const provider = configuredProvider(undefined, () => {}); // index.astro already warned once at build
 ---
 <Base title="Privacy — Cut the Ties" description="What Cut the Ties stores, and what it sends to other services.">
   <section class="mx-auto px-4 lg:px-10 py-10 max-w-2xl">
@@ -15,7 +18,11 @@ import Base from '../layouts/Base.astro';
       </ul>
       <h2>What is sent where</h2>
       <ul>
-        <li><strong>Your address goes to the US Census Bureau's geocoder</strong>, through our server, to find your district. Our server does not log it and does not store it. The Census Bureau sees it.</li>
+        {provider === 'none' ? (
+          <li><strong>Your address goes to the US Census Bureau's geocoder</strong>, through our server, to find your district. Our server does not log it and does not store it. The Census Bureau sees it.</li>
+        ) : (
+          <li><strong>As you type an address, the characters you type go from your browser to {PROVIDER_NAME[provider]}</strong> to suggest addresses. The address you pick stays in your browser, which works out your district from public district maps downloaded from this site and sends only your state and district to our server. If you submit without picking a suggestion, the address goes to the US Census Bureau's geocoder through our server, as before: our server does not log it and does not store it, and the Census Bureau sees it.</li>
+        )}
         <li><strong>The fields you fill in to personalise a letter or script go to Anthropic</strong> to write the draft. The site does not retain them.</li>
         <li><strong>Bot protection:</strong> Cloudflare Turnstile checks that a request comes from a person before a document is generated.</li>
         <li><strong>Donations:</strong> payments are handled entirely by Stripe, in a new tab. We never see your card details.</li>
