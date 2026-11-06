@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { districtLabel } from '../lib/api';
 import { clearPlace, deviceId, loadPlace, type Place } from '../lib/store';
-import { clearFunnel, fmtDay, fmtDue, isOverdue, loadCaptain, loadCommitments, loadVisits, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment, type JoinedVisit } from '../lib/commitments';
+import { atDue, clearFunnel, fmtDay, fmtDue, isOverdue, loadCaptain, loadCommitments, loadVisits, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment, type JoinedVisit } from '../lib/commitments';
 import { fmtWhen, withdrawVisit } from '../lib/visits';
 
 /** The build-time slice of every published goal the card needs (index.astro passes it). */
@@ -69,7 +69,7 @@ export default function YourWeek({ goals }: Props) {
   function update(list: Commitment[]) { saveCommitments(list); setItems(list); }
   function setCap(c: Captain | null) { saveCaptain(c); setCaptain(c); }
   function newDate(key: string, apply: (iso: string) => void) {
-    const d = new Date(`${date}T17:00:00`);
+    const d = atDue(date);
     if (Number.isNaN(d.getTime())) return;
     apply(d.toISOString()); setEditing(null);
   }

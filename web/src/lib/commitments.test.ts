@@ -19,19 +19,20 @@ describe('captain names (§1.3)', () => {
   });
 });
 
-describe('default deadline (open question 1)', () => {
+describe('default deadline (call-follow-through §2)', () => {
   const at = (s: string) => new Date(s);
-  it('is the next weekday at 17:00 local', () => {
+  it('is the next weekday at 10:00 local', () => {
     const tue = defaultDue(at('2026-11-03T09:00:00'), null); // Tuesday → Wednesday
-    expect([tue.getDay(), tue.getHours(), tue.getMinutes()]).toEqual([3, 17, 0]);
+    expect([tue.getDay(), tue.getHours(), tue.getMinutes()]).toEqual([3, 10, 0]);
     const fri = defaultDue(at('2026-11-06T18:30:00'), null); // Friday → Monday
-    expect([fri.getDay(), fri.getDate(), fri.getHours()]).toEqual([1, 9, 17]);
+    expect([fri.getDay(), fri.getDate(), fri.getHours()]).toEqual([1, 9, 10]);
     const sat = defaultDue(at('2026-11-07T10:00:00'), null); // Saturday → Monday
     expect([sat.getDay(), sat.getDate()]).toEqual([1, 9]);
   });
   it('never passes the goal decision date', () => {
     const d = defaultDue(at('2026-11-06T09:00:00'), '2026-11-07'); // Friday, vote Saturday
     expect(d.getTime()).toBe(ceilingFor('2026-11-07')!.getTime());
+    expect(ceilingFor('2026-11-07')!.getHours()).toBe(10);
     expect(defaultDue(at('2026-11-03T09:00:00'), '2026-12-10').getDate()).toBe(4);
     expect(defaultDue(at('2026-11-03T09:00:00'), '').getDate()).toBe(4);
   });

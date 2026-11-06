@@ -4,6 +4,8 @@ import type { TargetCard } from '../lib/api';
 import { deviceId, loadPlace } from '../lib/store';
 import { commitmentFor, fmtDue } from '../lib/commitments';
 import Funnel from './Funnel';
+import OpenChip from './OpenChip';
+import { isOpen } from '../lib/hours';
 
 interface Props {
   goal: string;
@@ -21,6 +23,12 @@ interface Props {
 interface Choice { id: string; label: string }
 type Phase = { kind: 'form' } | { kind: 'generating'; stage: string } | { kind: 'output'; doc: GenerateDone } | { kind: 'refused'; message: string };
 const OUTCOMES: [string, string][] = [['will_support', 'Will support'], ['undecided', 'Undecided'], ['opposed', 'Opposed'], ['no_answer', 'No answer'], ['other', 'Other']];
+
+/** call-follow-through §2: the Worker lists the DC number first, the district number second; when DC is closed the district office (no sourced hours yet) goes first. */
+export function phoneOrder(phones: string[], now: Date = new Date()): { phone: string; district: boolean }[] {
+  const list = phones.map((phone, i) => ({ phone, district: phones.length > 1 && i === 1 }));
+  return list.length > 1 && !isOpen(now) ? [list[1], list[0]] : list;
+}
 
 /** Parses the Worker's SSE body (`event:` + `data:` lines, blank-line separated). */
 async function readSse(body: ReadableStream<Uint8Array>, on: (event: string, data: Record<string, unknown>) => void): Promise<void> {
@@ -228,9 +236,13 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             <button type="button" class="btn btn-ghost" onClick={() => void generate()}>Regenerate</button>
           </div>
           <div class="flex flex-wrap gap-2 items-center">
-            {phase.doc.target.phones.map((p) => (
-              <a href={`tel:${p.replace(/[^\d+]/g, '')}`} class="btn btn-primary">Call {phase.doc.target.role} {phase.doc.target.name} · {p}</a>
+            {phoneOrder(phase.doc.target.phones).map(({ phone, district }) => (
+              <span class="flex items-center gap-2">
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="btn btn-primary" data-office={district ? 'district' : 'dc'}>Call {phase.doc.target.role} {phase.doc.target.name} · {phone}</a>
+                <OpenChip state={district ? place?.state : undefined} />
+              </span>
             ))}
+            {phoneOrder(phase.doc.target.phones)[0]?.district && <p class="text-sm w-full" data-dc-closed>DC office closed; district office answers in office hours.</p>}
             {type !== 'call' && phase.doc.target.contact_form_url && (
               <a href={phase.doc.target.contact_form_url} class="btn btn-primary" rel="noopener" target="_blank">Open the contact form ↗</a>
             )}

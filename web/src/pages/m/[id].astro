@@ -4,6 +4,7 @@ import { fmtDate } from '../../lib/goals';
 import { goalsFor, members, PARTY, positionLine, role, seat, tel, type Member } from '../../lib/members';
 import Counts from '../../components/Counts';
 import Visits from '../../components/Visits';
+import OpenChip from '../../components/OpenChip';
 // One static page per sitting member; unknown ids fall through to the 404 page.
 export function getStaticPaths() {
   return members().map((m) => ({ params: { id: m.bioguide_id }, props: { member: m } }));
@@ -28,8 +29,8 @@ const POS: Record<string, string> = { for: 'bg-acid text-ink', uncommitted: 'bg-
       <h1 class="display-lg max-w-4xl">{role(m)} {m.name}</h1>
       <p class="mt-5 text-lg max-w-2xl">{m.state}{m.chamber === 'house' ? ` · District ${m.district === 0 ? 'at large' : m.district}` : ' · Senator'} · {PARTY[m.party]}</p>
       <div class="mt-6 flex flex-wrap gap-3">
-        {m.dc_phone && <a href={tel(m.dc_phone)} class="btn btn-primary">Call DC office · {m.dc_phone}</a>}
-        {m.district_phone && <a href={tel(m.district_phone)} class="btn btn-ghost">District office · {m.district_phone}</a>}
+        {m.dc_phone && <span class="flex items-center gap-2"><a href={tel(m.dc_phone)} class="btn btn-primary">Call DC office · {m.dc_phone}</a><OpenChip client:load /></span>}
+        {m.district_phone && <span class="flex items-center gap-2"><a href={tel(m.district_phone)} class="btn btn-ghost">District office · {m.district_phone}</a><OpenChip client:load state={m.state} /></span>}
         {m.contact_form_url && <a href={m.contact_form_url} rel="noopener" class="btn btn-ghost">Contact form ↗</a>}
       </div>
       {m.district_office_address && <p class="mt-4 text-sm label-ticker" data-office>District office: {m.district_office_address}{m.district_office_city ? `, ${m.district_office_city}` : ''}</p>}

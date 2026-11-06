@@ -56,21 +56,25 @@ export function validName(s: unknown): s is string {
 }
 
 const DAY = 86_400_000;
-const at17 = (d: Date): Date => { const x = new Date(d); x.setHours(17, 0, 0, 0); return x; };
-/** Open question 1: the next weekday at 17:00 local, never past the goal's decision date (its 17:00) when one is set. */
+/** call-follow-through §2: every funnel time anchor is 10:00 local; 10:00 anywhere in the US (Hawaii included) falls inside DC hours. */
+export const DUE_HOUR = 10;
+const atHour = (d: Date): Date => { const x = new Date(d); x.setHours(DUE_HOUR, 0, 0, 0); return x; };
+/** A date input's value at the funnel hour, local time. */
+export const atDue = (ymdValue: string): Date => new Date(`${ymdValue}T${String(DUE_HOUR).padStart(2, '0')}:00:00`);
+/** The next weekday at 10:00 local, never past the goal's decision date (its 10:00) when one is set. */
 export function defaultDue(now: Date, decisionDate: string | null | undefined): Date {
-  let d = at17(new Date(now.getTime() + DAY));
-  while (d.getDay() === 0 || d.getDay() === 6) d = at17(new Date(d.getTime() + DAY));
+  let d = atHour(new Date(now.getTime() + DAY));
+  while (d.getDay() === 0 || d.getDay() === 6) d = atHour(new Date(d.getTime() + DAY));
   const ceiling = ceilingFor(decisionDate);
   return ceiling && ceiling < d ? ceiling : d;
 }
 export function ceilingFor(decisionDate: string | null | undefined): Date | null {
   if (!decisionDate || !/^\d{4}-\d{2}-\d{2}$/.test(decisionDate)) return null;
-  return at17(new Date(decisionDate + 'T12:00:00'));
+  return atHour(new Date(decisionDate + 'T12:00:00'));
 }
 /** The latest date the user may pick: ≤7 days out and never past the decision date (a call again before the vote may use the whole window). */
 export function maxDue(now: Date, decisionDate: string | null | undefined, wholeWindow: boolean): Date {
-  const week = at17(new Date(now.getTime() + 7 * DAY));
+  const week = atHour(new Date(now.getTime() + 7 * DAY));
   const ceiling = ceilingFor(decisionDate);
   if (wholeWindow && ceiling) return ceiling;
   return ceiling && ceiling < week ? ceiling : week;

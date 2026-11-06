@@ -13,8 +13,9 @@ who was on it. The receipt itself and the share sheet are in
 1. **Commitment line.** On the receipt screen, before any share
    affordance, one line: "Will you call by <date>?" for a letter or
    comment, "Will you call again before the vote?" for a call. A date
-   input (17:00 local) defaults to the next weekday, never later than the
-   goal's decision date; the user may move it up to seven days out
+   input (10:00 local; 10:00 anywhere in the US falls inside DC office
+   hours, `call-follow-through`) defaults to the next weekday, never
+   later than the goal's decision date; the user may move it up to seven days out
    (a repeat call may use the whole window to the decision date). "Yes,
    I'll call" stores the commitment locally and moves on; "Skip" is one
    tap. Nothing is sent and no counter moves.
@@ -51,7 +52,7 @@ who was on it. The receipt itself and the share sheet are in
    keeps every commitment) and "Start over" (clears the place and every
    commitment and list).
 6. **Overdue and closed.** An item past its due time reads "Still on?"
-   with "Done", "New date" (a date input, 17:00 local) and "Drop"
+   with "Done", "New date" (a date input, 10:00 local) and "Drop"
    (deletes it locally). On load, items whose goal is no longer active
    are removed and the card shows one line per goal: "<title>:
    <outcome_note>" (or "the window closed" / "closed"); a goal no longer
@@ -75,8 +76,9 @@ who was on it. The receipt itself and the share sheet are in
   with another `v`, a wrong shape or an invalid name are ignored.
   `cut-ties:device` (`web/src/lib/store.ts`) is shared with the receipt
   flow. Nothing in these keys is ever sent.
-- Deadline rules (`web/src/lib/commitments.ts`): default = next weekday
-  17:00 local, capped at the decision date's 17:00; editable maximum =
+- Deadline rules (`web/src/lib/commitments.ts`, `DUE_HOUR = 10`): default
+  = next weekday 10:00 local, capped at the decision date's 10:00; editable
+  maximum =
   min(now + 7 days, decision date), or the decision date alone for a
   repeat call; a missing decision date means no cap.
 - `POST /api/receipt` accepts `{goal, action: 'captain-list', state?,
@@ -112,7 +114,7 @@ who was on it. The receipt itself and the share sheet are in
       `kind 'captain-list'` with null ids (`worker/test/generate.test.ts`).
 - [ ] The `.ics` parses (CRLF, ≤75 octets per line, required properties
       in order), carries the goal link and no name (`web/src/lib/ics.test.ts`).
-- [ ] The default deadline is the next weekday 17:00 local and never
+- [ ] The default deadline is the next weekday 10:00 local and never
       later than the decision date (`web/src/lib/commitments.test.ts`).
 - [ ] A return visit with an open item shows "Your week" above the
       address field and does not redirect; "Change address" keeps the

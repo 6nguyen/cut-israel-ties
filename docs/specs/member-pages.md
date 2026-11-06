@@ -37,7 +37,13 @@ never by this capability, and nothing here calls an LLM.
    built from `data/`. Hero: party and seat chip (`CA-46`, `TX at large`,
    `VT` for a senator), chamber chip, title "Rep./Del./Sen. Name", a
    `tel:` button for the DC office, a `tel:` button for the district
-   office and a contact-form link when those columns are filled. Below,
+   office and a contact-form link when those columns are filled. Each
+   `tel:` button carries an "Open now" / "Closed · opens <weekday>
+   <time>" chip (`web/src/components/OpenChip.tsx`) computed from the
+   visitor's clock after hydration: DC is Mon–Fri 09:00–18:00 ET, the
+   district office follows its sourced `hours` in the state's zone or
+   the same default shifted there (`web/src/lib/hours.ts`); the static
+   order stays DC first. Below,
    one block per active goal whose targets include the member (same
    first-action scope rule as the result cards): goal title linking to
    `/goals/<slug>`, the newest sourced position as a chip (`for`,

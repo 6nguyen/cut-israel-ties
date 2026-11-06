@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { districtLabel } from '../lib/api';
 import type { Place } from '../lib/store';
-import { CHANNELS, NAME_MAX, addCommitment, copyLine, defaultDue, fmtDue, maxDue, saveCaptain, validName, ymd, type Channel, type Person } from '../lib/commitments';
+import { CHANNELS, NAME_MAX, addCommitment, atDue, copyLine, defaultDue, fmtDue, maxDue, saveCaptain, validName, ymd, type Channel, type Person } from '../lib/commitments';
 import { buildIcs, downloadIcs } from '../lib/ics';
 
 interface Props {
@@ -35,7 +35,7 @@ export default function Funnel({ goal, action, target, who, title, type, decisio
 
   function finish() { setStep('done'); onFinished(); }
   function commit() {
-    const d = new Date(`${date}T17:00:00`);
+    const d = atDue(date);
     const iso = (Number.isNaN(d.getTime()) ? defaultDue(now, decision) : d).toISOString();
     addCommitment({ goal, action, target, due: iso });
     setDue(iso);
@@ -56,11 +56,11 @@ export default function Funnel({ goal, action, target, who, title, type, decisio
 
   if (step === 'commit') return (
     <div class="border-t-2 border-ink pt-3 flex flex-col gap-2" data-step="commit">
-      <p class="font-semibold">{type === 'call' ? 'Will you call again before the vote?' : 'Will you call by '}{type !== 'call' && <span>{fmtDue(new Date(`${date}T17:00:00`).toISOString())}?</span>}</p>
+      <p class="font-semibold">{type === 'call' ? 'Will you call again before the vote?' : 'Will you call by '}{type !== 'call' && <span>{fmtDue(atDue(date).toISOString())}?</span>}</p>
       <div class="flex flex-wrap gap-2 items-center">
         <label class="label-code" for="commit-date">By</label>
         <input id="commit-date" type="date" class="input-field text-sm" value={date} min={minDay} max={maxDay} onInput={(e) => setDate((e.target as HTMLInputElement).value)} />
-        <span class="text-sm">at 5 pm</span>
+        <span class="text-sm">at 10 am</span>
         <button type="button" class="btn btn-primary" onClick={commit}>Yes, I'll call</button>
         <button type="button" class="btn btn-ghost" onClick={() => setStep('captains')}>Skip</button>
       </div>

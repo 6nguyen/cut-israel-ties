@@ -47,7 +47,10 @@ stores identifies them. Address routing, goals and ranking are in
    request (shingles, hashes, tokens; empty shingles on refusal). One
    "Regenerate" button.
 4. **Receipt, share, report.** The output screen offers copy, download
-   `.txt`, `tel:` links for every phone on file, the contact-form link
+   `.txt`, `tel:` links for every phone on file (each with the open/closed
+   chip of `web/src/lib/hours.ts`; when the DC office is closed the
+   district number is listed first with "DC office closed; district
+   office answers in office hours."), the contact-form link
    for letters and comments, and "I did it" → `POST /api/receipt`
    (goal, action, target, stored state/district, device hash). After a
    receipt, first the commitment line and the captain list
