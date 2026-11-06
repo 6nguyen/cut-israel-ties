@@ -21,6 +21,10 @@ export function closedGoals(): Goal[] {
 }
 /** Every goal that gets a page: active and closed; upcoming goals stay unpublished. */
 export function publishedGoals(): Goal[] { return [...activeGoals(), ...closedGoals()]; }
+/** call-follow-through §5: every `upcoming` or `active` goal with a decision date, soonest first. */
+export function feedGoals(): Goal[] {
+  return rows().goals.filter((g) => (g.status === 'upcoming' || g.status === 'active') && !!g.decision_date).sort((a, b) => a.decision_date!.localeCompare(b.decision_date!) || a.slug.localeCompare(b.slug));
+}
 export function actionsFor(goal: Goal): Action[] { return rows().actions.filter((a) => a.goal_id === goal.id).sort((a, b) => a.order - b.order); }
 export function picks(goal: Goal): Pick[] { return JSON.parse(goal.our_picks) as Pick[]; }
 export function sources(goal: Goal): Source[] { return JSON.parse(goal.sources) as Source[]; }
