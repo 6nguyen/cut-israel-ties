@@ -232,25 +232,30 @@ Unchanged
 
 ## State (updated 2026-11-06, PR TBD)
 - Sections: (build order)
-  - [ ] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path
+  - [~] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path · `feat/address-autocomplete-field`
   - [ ] 2. Suggesting · `web/src/lib/suggest.ts` with the Mapbox and Geoapify adapters and tests
   - [ ] 3. Picking · on-device resolve, `by_suggestion`, no-polygon fallthrough
   - [ ] 4. Free text · message copy, spec fold
   - [ ] 6. Privacy copy · `/privacy` paragraph keyed on the flag, `goal-pages.md` fold
 - Completed: —
-- Folded: —
-- Branch / open PRs: `docs/prd-address-autocomplete` (this PRD)
-- Files changed: —
-- Tests run + result: —
-- Remaining: all sections; manual: provider account, token restriction,
+- Folded: §1 Field
+- Branch / open PRs: `feat/address-autocomplete-field` (§1)
+- Files changed: `web/src/lib/suggest.ts` (new), `web/src/components/AddressForm.tsx`,
+  `web/src/pages/index.astro`, `web/src/lib/suggest.test.ts`,
+  `web/src/components/AddressForm.test.tsx`, `docs/specs/action-router.md`
+- Tests run + result: `quiet-check test-web` PASS (77 passed, 2 skipped; 8 new
+  in suggest.test.ts, 5 in AddressForm.test.tsx); `quiet-check build` PASS;
+  landing 33.3 KB gzip (HTML + CSS + reached JS), combobox +1.4 KB gzip
+- Remaining: §2, §3, §4, §6; manual: provider account, token restriction,
   Pages variables, flag flip PR
-- Decisions since last update: Mapbox Geocoding v6 is the default
-  provider, Geoapify the configured alternative; no SDK; on-device resolve
-  for picks; Census stays for free text
-- Known failures / blockers: none; the flag flip waits on the manual
-  provider steps
-- Next action: `/implement-prd-section` §1 Field
-
+- Decisions since last update: `none` renders today's input untouched (no
+  combobox role) so street-address autofill keeps working; the combobox
+  attributes appear only with a provider; a §1 pick fills the field and
+  closes the list, §3 adds the on-device resolve; `AddressForm` takes
+  `suggester`/`timings` props as the test seam
+- Known failures / blockers: none
+- Next action: open PR for §1, then `/implement-prd-section
+  docs/prd/address-autocomplete.md` (next: §2. Suggesting)
 ## Open questions
 1. Provider terms for on-device use of temporary results. Mapbox forbids
    caching temporary geocoding results; this design uses each result once,
@@ -274,3 +279,8 @@ Unchanged
 ## Changes
 - 2026-11-06 — created; APPROVED (auto): no blocking questions, proposals
   1–4 are the decisions.
+- 2026-11-06 — §1 Field built: `web/src/lib/suggest.ts` (flag, gate,
+  debounce/abort loop; adapter table filled by §2), the combobox in
+  `AddressForm.tsx`, `index.astro` reads the flag at build. `none` keeps
+  today's input byte-for-byte (no combobox role, so browser street-address
+  autofill still works). Spec folded. Landing 33.3 KB gzip, +1.4 KB.

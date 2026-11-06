@@ -3,10 +3,13 @@ import Base from '../layouts/Base.astro';
 import AddressForm from '../components/AddressForm';
 import YourWeek from '../components/YourWeek';
 import { activeGoals, publishedGoals, CATEGORY } from '../lib/goals';
+import { configuredProvider } from '../lib/suggest';
 const goals = activeGoals();
 // commitment-funnel §2: the "Your week" card needs every published goal's status to drop closed items with their outcome.
 const weekGoals = publishedGoals().map((g) => ({ slug: g.slug, title: g.title, status: g.status, decision_date: g.decision_date, outcome_note: g.outcome_note }));
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+// address-autocomplete §1: `none` keeps today's field; the flag is read once at build so a missing token warns here.
+const suggestProvider = configuredProvider();
 ---
 <Base title="Cut the Ties — find the two things you can do this week">
   <section class="relative hero-gradient text-newsprint overflow-hidden">
@@ -17,7 +20,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
       <p class="mt-5 text-lg max-w-2xl">One site to end US aid, military partnership and integration with Israel. Enter your address. We find your members of Congress and give you the words that work.</p>
       <div class="mt-8 max-w-2xl">
         <YourWeek client:load goals={weekGoals} />
-        <AddressForm client:load siteKey={siteKey} />
+        <AddressForm client:load siteKey={siteKey} provider={suggestProvider} />
       </div>
     </div>
   </section>
