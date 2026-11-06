@@ -1,5 +1,5 @@
 # Roster freshness and district offices — PRD
-Status: APPROVED 2026-11-05 (auto) · Owner: George Nguyen · Last updated: 2026-11-05
+Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-05
 
 ## Problem
 `data/members.csv` is refreshed only when a maintainer runs
@@ -158,17 +158,19 @@ and the roster paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. District offices as rows
-  - [ ] 2. Contact-form fallback
-  - [ ] 3. Weekly roster diff
-  - [ ] 4. Departing members
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all; about two days.
-- Decisions since last update: none.
-- Known failures / blockers: Senate XML must be re-tested from a GitHub Actions runner (200 observed only from a residential IP).
-- Next action: /implement-prd-section docs/prd/roster-freshness.md §1.
+  - [~] 1. District offices as rows
+  - [~] 2. Contact-form fallback
+  - [~] 3. Weekly roster diff
+  - [~] 4. Departing members
+- Completed: none merged; all four sections built on `feat/roster-freshness`, awaiting the integration PR.
+- Folded: spec delta applied in `docs/specs/member-pages.md`,
+  `action-router.md` §7, `maintainer-tooling.md` §6, `deployment.md` §8
+  (same branch; the final integration PR archives this file).
+- Branch / open PRs: `feat/roster-freshness` (no PR; the orchestrator integrates it).
+- Remaining: first scheduled run of `roster.yml`; hand-entered office rows for the 4 members with none (Gallagher, Wahab, Blair, Graham).
+- Decisions since last update: see `## Changes` 2026-11-05.
+- Known failures / blockers: Senate XML must be re-tested from a GitHub Actions runner (200 observed only from a residential IP; the workflow only warns when it fails). The member page is 4.7 KB gzip, over the 2.7 KB figure measured on 2026-11-04 before other features landed; budget is the landing page's, not this one's.
+- Next action: integration PR; then `workflow_dispatch` the roster workflow once and merge its first data PR.
 
 ## Open questions
 - Should the results card show the district number first for users whose
@@ -179,3 +181,13 @@ and the roster paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## Changes
 - 2026-11-05: created from the roster research.
+- 2026-11-05: open questions decided per their proposals: results-card order is fixed (DC number, then "District: <city> <phone>"); the roster PR never auto-merges.
+- 2026-11-05: the 7-day nag is a comment the workflow posts on its own open PR, not a Worker-digest line (the Worker holds no GitHub token).
+- 2026-11-05: the importer downloads from raw `main` of `unitedstates/congress-legislators` (replacing the github.io mirror) and the workflow records the upstream commit SHA in the PR body.
+- 2026-11-05: office phones are normalised to `NNN-NNN-NNNN`; a phone that is not ten digits is cleared and printed, the row kept (none in the 2026-11-05 file). `checkOffices` enforces the same rule at seed time.
+- 2026-11-05: `district_phone` is derived at load time (first office in file order) rather than written into `members.csv`, so a hand-filled cell always wins and the derived value never shows up as a diff.
+- 2026-11-05: the results/act card's district line is the first office in the member's own state with a phone; a hand-filled `district_phone` stands in without a city. The Capitol switchboard (`SWITCHBOARD` in `route.ts`, 202-224-3121) is shown only when neither number exists; the spec's "falls back to the switchboard" was not in code before this.
+- 2026-11-05: a hand-set contact link is kept only when its `contact_kind` is filled; a senator without a form and without a Senate XML source falls back to the term `url` as `homepage`. Schiff (S001150) lost the form link the roster dropped and now shows `homepage` per the rules; not hand-restored.
+- 2026-11-05: `left_office` members are dropped in `assembleDelegation`, `targetsFor`, `whipTargets` and the web `members()` helper (page, sitemap, share card, whip tables) so every surface agrees; the row stays in `data/` for positions and receipts.
+- 2026-11-05: the loader check is `npm run check-data -w worker` (`seed.ts --check`, no write); the workflow needs `contents: write` as well as `pull-requests: write`; a Senate XML fetch failure in the workflow is a warning, not a failure; one open `chore/roster-*` PR is reused.
+- 2026-11-05: Rollout metrics (digest line "4 members without an office row") not built; not in Expected behavior.

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><contact_information><member>
+        <member_full>Alsobrooks (D-MD)</member_full>
+        <last_name>Alsobrooks</last_name>
+        <first_name>Angela D.</first_name>
+        <party>D</party>
+        <state>MD</state>
+        <address>374 Russell Senate Office Building Washington DC 20510</address>
+        <phone>(202) 224-4524</phone>
+        <email>https://alsobrooks.senate.gov/</email>
+        <website>https://alsobrooks.senate.gov/</website>
+        <class>Class I</class>
+        <bioguide_id>A000382</bioguide_id>
+    </member><member>
+        <member_full>Sullivan (R-AK)</member_full>
+        <last_name>Sullivan</last_name>
+        <first_name>Dan</first_name>
+        <party>R</party>
+        <state>AK</state>
+        <address>706 Hart Senate Office Building Washington DC 20510</address>
+        <phone>(202) 224-3004</phone>
+        <email>https://www.sullivan.senate.gov/contact/email</email>
+        <website>https://www.sullivan.senate.gov/</website>
+        <class>Class II</class>
+        <bioguide_id>S001198</bioguide_id>
+    </member><member>
+        <member_full>Vacant (I-ZZ)</member_full>
+        <last_name>Vacant</last_name>
+        <email>https://example.senate.gov/contact</email>
+        <website>https://example.senate.gov/</website>
+    </member></contact_information>

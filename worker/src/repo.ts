@@ -1,5 +1,5 @@
 import type {
-  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
+  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Office, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
   LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
 
@@ -67,6 +67,9 @@ export class D1Repo implements Repo {
   }
   async member(bioguideId: string): Promise<Member | null> {
     return (await this.db.prepare(`SELECT * FROM members WHERE bioguide_id = ?`).bind(bioguideId).first<Member>()) ?? null;
+  }
+  async offices(bioguideId: string): Promise<Office[]> {
+    return (await this.db.prepare(`SELECT * FROM district_offices WHERE bioguide_id = ? ORDER BY rowid`).bind(bioguideId).all<Office>()).results;
   }
   async stateRow(state: string): Promise<StateRow | null> {
     return (await this.db.prepare(`SELECT * FROM states WHERE state = ?`).bind(state).first<StateRow>()) ?? null;
@@ -276,7 +279,8 @@ export function foldBuckets(rows: { inDistrict: boolean; kind: ReceiptKind; type
   return { district, state };
 }
 
-export function assembleDelegation(state: string, district: number, members: Member[], stateRow: StateRow | null): Delegation {
+export function assembleDelegation(state: string, district: number, allMembers: Member[], stateRow: StateRow | null): Delegation {
+  const members = allMembers.filter((m) => !m.left_office); // roster-freshness §4: a departed member is never a target; the row stays for receipts
   const house = members.find((m) => m.chamber === 'house' && m.district === district) ?? null;
   const senators = members.filter((m) => m.chamber === 'senate').sort((a, b) => a.name.localeCompare(b.name));
   return { state, district, house, senators, state_row: stateRow };
@@ -295,7 +299,7 @@ export class MemoryRepo implements Repo {
   private visitsDeleted = 0; // keeps ids unique after a delete, like AUTOINCREMENT would
 
   constructor(
-    private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[] },
+    private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[]; offices?: Office[] },
   ) {}
 
   async activeGoals(): Promise<Goal[]> {
@@ -323,6 +327,7 @@ export class MemoryRepo implements Repo {
   async goalById(id: number): Promise<Goal | null> { return this.rows.goals.find((g) => g.id === id) ?? null; }
   async member(bioguideId: string): Promise<Member | null> { return this.rows.members.find((m) => m.bioguide_id === bioguideId) ?? null; }
   async stateRow(state: string): Promise<StateRow | null> { return this.rows.states.find((s) => s.state === state) ?? null; }
+  async offices(bioguideId: string): Promise<Office[]> { return (this.rows.offices ?? []).filter((o) => o.bioguide_id === bioguideId); }
 
   async generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts> {
     const hourAgo = iso(new Date(now.getTime() - HOUR));

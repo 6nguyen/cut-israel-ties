@@ -2,16 +2,17 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { HOLDINGS_STATUSES, type Action, type Goal, type Member, type Position, type StateRow } from './types';
+import { CONTACT_KINDS, HOLDINGS_STATUSES, type Action, type Goal, type Member, type Office, type Position, type StateRow } from './types';
 import { parseRule } from './ranking';
 import { checkPrep } from './prep';
-import { districtError } from './districts';
+import { HOUSE_SEATS, districtError } from './districts';
 import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
 
 export interface Rows {
   goals: Goal[];
   actions: Action[];
   members: Member[];
+  offices: Office[]; // roster-freshness §1: data/district_offices.csv, file order
   positions: Position[];
   states: StateRow[];
   elections: ElectionRow[]; // primary-2028 §1: folded into the electoral goals' dates and sources, not a D1 table
@@ -50,6 +51,7 @@ export function parseCsv(text: string): Record<string, string>[] {
 const str = (v: unknown): string | null => (v === undefined || v === null || v === '' ? null : String(v));
 const int = (v: unknown): number => (v === undefined || v === null || v === '' ? 0 : Number(v));
 const intOrNull = (v: unknown): number | null => (v === undefined || v === null || v === '' ? null : Number(v));
+const numOrNull = intOrNull;
 const json = (v: unknown): string => (typeof v === 'string' ? v : JSON.stringify(v ?? null));
 
 const wordCount = (t: string): number => t.trim().split(/\s+/).filter(Boolean).length;
@@ -91,6 +93,35 @@ export function checkMembers(rows: Record<string, string>[]): void {
       const err = districtError(r.state, int(r.district));
       if (err) throw new Error(`members.csv: ${r.bioguide_id}: ${err}`);
     }
+    if (r.contact_kind && !(CONTACT_KINDS as readonly string[]).includes(r.contact_kind)) throw new Error(`members.csv: ${r.bioguide_id}: unknown contact_kind ${r.contact_kind}`);
+    if (r.contact_form_url && !r.contact_kind) throw new Error(`members.csv: ${r.bioguide_id}: contact_form_url without contact_kind`);
+    if (r.left_office && !/^\d{4}-\d{2}-\d{2}$/.test(r.left_office)) throw new Error(`members.csv: ${r.bioguide_id}: left_office is not an ISO date (${r.left_office})`);
+  }
+}
+
+/** roster-freshness §1: a ten-digit phone as NNN-NNN-NNNN, or null when the digits are not ten (a leading 1 is dropped). */
+export function tenDigitPhone(raw: string | null | undefined): string | null {
+  const d = String(raw ?? '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
+  return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}` : null;
+}
+
+/** roster-freshness §1 seed checks on district_offices.csv: known member, known state, ten-digit phone when present. */
+export function checkOffices(rows: Record<string, string>[], memberIds: Set<string>): void {
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (!memberIds.has(r.bioguide_id)) throw new Error(`district_offices.csv: ${r.office_id}: unknown bioguide_id ${r.bioguide_id}`);
+    if (!HOUSE_SEATS[r.state]) throw new Error(`district_offices.csv: ${r.office_id}: unknown state ${r.state}`);
+    if (r.phone && !tenDigitPhone(r.phone)) throw new Error(`district_offices.csv: ${r.office_id}: phone ${r.phone} is not ten digits`);
+    if (seen.has(r.office_id)) throw new Error(`district_offices.csv: duplicate office_id ${r.office_id}`);
+    seen.add(r.office_id);
+  }
+}
+
+/** roster-freshness §1: an empty district_phone cell means "derive": the first office phone in file order. A filled cell wins. */
+export function deriveDistrictPhones(members: Member[], offices: Office[]): void {
+  for (const m of members) {
+    if (m.district_phone) continue;
+    m.district_phone = offices.find((o) => o.bioguide_id === m.bioguide_id && o.phone)?.phone ?? null;
   }
 }
 
@@ -185,8 +216,30 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     money_url: str(r.money_url),
     district_office_address: str(r.district_office_address),
     district_office_city: str(r.district_office_city),
+    contact_kind: str(r.contact_kind) as Member['contact_kind'],
+    not_returning: int(r.not_returning),
+    left_office: str(r.left_office),
   }));
   checkMembers(parseCsv(readFileSync(join(dataDir, 'members.csv'), 'utf8')));
+
+  const officeRows = parseCsv(readFileSync(join(dataDir, 'district_offices.csv'), 'utf8'));
+  checkOffices(officeRows, new Set(members.map((m) => m.bioguide_id)));
+  const offices: Office[] = officeRows.map((r) => ({
+    bioguide_id: r.bioguide_id,
+    office_id: r.office_id,
+    city: r.city,
+    state: r.state,
+    zip: str(r.zip),
+    address: str(r.address),
+    suite: str(r.suite),
+    building: str(r.building),
+    phone: str(r.phone),
+    fax: str(r.fax),
+    hours: str(r.hours),
+    lat: numOrNull(r.lat),
+    lng: numOrNull(r.lng),
+  }));
+  deriveDistrictPhones(members, offices);
 
   const positions: Position[] = [];
   for (const f of readdirSync(join(dataDir, 'positions')).filter((x) => x.endsWith('.csv')).sort()) {
@@ -218,7 +271,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   applyElections(goals, elections);
   checkElectoral(goals, actions, members);
 
-  return { goals, actions, members, positions, states, elections };
+  return { goals, actions, members, offices, positions, states, elections };
 }
 
 /** states.csv seed checks (state-holdings-sweep §1.2): no number without a source, no stale comment date. */

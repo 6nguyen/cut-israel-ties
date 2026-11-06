@@ -1,5 +1,5 @@
 // POST /api/route — §1.2–§1.4 + §5. Builds the response the results page renders.
-import type { Action, Delegation, Goal, Member, Position, Repo } from './types';
+import type { Action, Delegation, Goal, Member, Office, Position, Repo } from './types';
 import { electoralSeat, topTwo } from './ranking';
 import { fillAsk, holdingsLine } from './state-copy';
 import { ELECTION_SOURCE_TITLE, recordFor, type RecordLine } from './electoral';
@@ -13,6 +13,9 @@ export interface TargetCard {
   position_source_url: string | null;
   prior_vote: string;
   phone: string | null;
+  // roster-freshness §1: the first district office in the member's state ("District: <city> <phone>"), after the DC number.
+  district_phone?: string | null;
+  district_city?: string | null;
   // State targets only (state-holdings-sweep §3): the states.csv cells behind the holdings line.
   holdings_status?: 'held' | 'none' | 'unknown';
   holdings_usd?: number | null;
@@ -75,8 +78,19 @@ export function priorVote(m: Member, goal: Goal): string {
   return NO_VOTE;
 }
 
-function memberCard(m: Member, goal: Goal, positions: Position[]): TargetCard {
+/** action-router §7: the Capitol switchboard, shown only when a member row has neither a DC nor a district number. */
+export const SWITCHBOARD = '202-224-3121';
+
+/** roster-freshness §1: the first office in the member's own state with a phone; a hand-filled district_phone stands in when there is none. */
+export function districtLine(m: Member, offices: Office[]): { district_phone: string | null; district_city: string | null } {
+  const o = offices.find((x) => x.bioguide_id === m.bioguide_id && x.state === m.state && x.phone);
+  if (o) return { district_phone: o.phone, district_city: o.city };
+  return { district_phone: m.district_phone, district_city: null };
+}
+
+function memberCard(m: Member, goal: Goal, positions: Position[], offices: Office[]): TargetCard {
   const p = positions.find((x) => x.bioguide_id === m.bioguide_id && x.goal_id === goal.id);
+  const d = districtLine(m, offices);
   return {
     bioguide_id: m.bioguide_id,
     name: m.name,
@@ -85,12 +99,13 @@ function memberCard(m: Member, goal: Goal, positions: Position[]): TargetCard {
     position: p?.position ?? 'unknown',
     position_source_url: p?.source_url ?? null,
     prior_vote: priorVote(m, goal),
-    phone: m.dc_phone,
+    phone: m.dc_phone ?? (d.district_phone ? null : SWITCHBOARD),
+    ...d,
   };
 }
 
 /** Targets for a goal follow its first action's scope; §3 seed rules decide party filters. */
-export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation, positions: Position[]): TargetCard[] {
+export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation, positions: Position[], offices: Office[] = []): TargetCard[] {
   const scope = action?.target_scope ?? (goal.category === 'state' ? 'state' : 'both');
   if (scope === 'state') {
     const s = d.state_row;
@@ -114,6 +129,8 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
   const out: Member[] = [];
   if ((scope === 'house' || scope === 'both') && d.house) out.push(d.house);
   if (scope === 'senate' || scope === 'both') out.push(...d.senators);
+  // roster-freshness §4: a row with left_office is never a target (assembleDelegation drops it too); not_returning keeps every slot.
+  out.splice(0, out.length, ...out.filter((m) => !m.left_office));
   // Leadership goals only make sense for the party holding the vote.
   let filtered = goal.category === 'leadership' ? out.filter((m) => m.party === 'D') : out;
   // An electoral goal names one seat (primary-2028 §1.1); any other district gets no target, whatever its member's flags.
@@ -121,7 +138,12 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
     const seat = electoralSeat(goal.eligibility);
     filtered = filtered.filter((m) => seat !== null && m.chamber === 'house' && m.state === seat.state && m.district === seat.district);
   }
-  return filtered.map((m) => memberCard(m, goal, positions));
+  return filtered.map((m) => memberCard(m, goal, positions, offices));
+}
+
+/** The delegation's district offices in one list (at most three members, so three small reads). */
+async function officesFor(repo: Repo, members: Member[]): Promise<Office[]> {
+  return (await Promise.all(members.map((m) => repo.offices(m.bioguide_id)))).flat();
 }
 
 export async function buildRoute(repo: Repo, state: string, district: number, today: Date): Promise<RouteResponse> {
@@ -130,12 +152,13 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
   const chosen = topTwo(goals, d, today);
   const ids = chosen.map((g) => g.id);
   const members = [d.house, ...d.senators].filter((m): m is Member => m !== null);
-  const [actions, positions] = await Promise.all([
+  const [actions, positions, offices] = await Promise.all([
     repo.actionsFor(ids),
     repo.positionsFor(
       members.map((m) => m.bioguide_id),
       ids,
     ),
+    officesFor(repo, members),
   ]);
   const record = chosen.some((g) => g.category === 'electoral') ? await memberRecord(repo, d.house) : null;
   return {
@@ -155,7 +178,7 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
         this_week: g.this_week,
         ask_text: fillAsk(action?.ask_text ?? g.what_we_want, g.category === 'state' ? d.state_row : null),
         action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,
-        targets: targetsFor(g, action, d, positions).map((t) => (g.category === 'electoral' && record ? { ...t, record } : t)),
+        targets: targetsFor(g, action, d, positions, offices).map((t) => (g.category === 'electoral' && record ? { ...t, record } : t)),
         election: electionDates(g),
         partner_url: g.partner_url || null,
       };
@@ -170,8 +193,8 @@ export async function goalTargets(repo: Repo, slug: string, state: string, distr
   const d = await repo.delegation(state, district);
   if (!d.house && d.senators.length === 0) return 'no_delegation';
   const members = [d.house, ...d.senators].filter((m): m is Member => m !== null);
-  const [actions, positions] = await Promise.all([repo.actionsFor([goal.id]), repo.positionsFor(members.map((m) => m.bioguide_id), [goal.id])]);
-  const targets = targetsFor(goal, actions[0], d, positions);
+  const [actions, positions, offices] = await Promise.all([repo.actionsFor([goal.id]), repo.positionsFor(members.map((m) => m.bioguide_id), [goal.id]), officesFor(repo, members)]);
+  const targets = targetsFor(goal, actions[0], d, positions, offices);
   if (goal.category !== 'electoral' || targets.length === 0) return { targets };
   const record = await memberRecord(repo, d.house);
   return { targets: targets.map((t) => ({ ...t, record })) };

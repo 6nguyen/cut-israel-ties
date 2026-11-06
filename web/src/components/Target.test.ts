@@ -66,3 +66,28 @@ describe('state target holdings copy', () => {
     expect(holdingsLine(null)).toBe('Israel Bonds: not yet sourced');
   });
 });
+
+// roster-freshness §1: a member target shows the DC "Call" button, then "District: <city> <phone>" as a tel: link; no office, no line.
+describe('member target district line', () => {
+  const member = {
+    bioguide_id: 'C001110', name: 'Lou Correa', party: 'D', chamber: 'house', state: 'CA', district: 46, dc_phone: '202-225-2965', district_phone: null,
+    contact_form_url: 'https://correa.house.gov/contact', hasc: 0, conferee: 0, rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null,
+    district_office_address: null, district_office_city: null, contact_kind: 'zip_gate', not_returning: 0, left_office: null,
+  } as const;
+  const office = { bioguide_id: 'C001110', office_id: 'C001110-santa_ana', city: 'Santa Ana', state: 'CA', zip: null, address: null, suite: null, building: null, phone: '714-559-6190', fax: null, hours: null, lat: null, lng: null };
+  const goal = { id: 1, slug: 'ndaa-1217', category: 'federal_vote', status: 'active' } as unknown as Goal;
+  const d: Delegation = { state: 'CA', district: 46, house: { ...member }, senators: [], state_row: null };
+  it('with an office: DC call button, then the district line', () => {
+    const out = render(h(Target, { t: targetsFor(goal, undefined, d, [], [office])[0] }));
+    expect(out).toContain('href="tel:2022252965"');
+    expect(out).toContain('data-district-line');
+    expect(out).toContain('District: Santa Ana ');
+    expect(out).toContain('href="tel:7145596190"');
+    expect(out.indexOf('tel:2022252965')).toBeLessThan(out.indexOf('tel:7145596190'));
+  });
+  it('without an office: no district line', () => {
+    const out = render(h(Target, { t: targetsFor(goal, undefined, d, [], [])[0] }));
+    expect(out).toContain('href="tel:2022252965"');
+    expect(out).not.toContain('data-district-line');
+  });
+});

@@ -69,9 +69,30 @@ CREATE TABLE members (
   target_2028 INTEGER NOT NULL DEFAULT 0,
   money_url TEXT,
   district_office_address TEXT,
-  district_office_city TEXT
+  district_office_city TEXT,
+  contact_kind TEXT CHECK (contact_kind IN ('form','zip_gate','homepage')),
+  not_returning INTEGER NOT NULL DEFAULT 0,
+  left_office TEXT
 );
 CREATE INDEX members_state_district ON members(state, chamber, district);
+
+-- roster-freshness §1: district offices as rows (data/district_offices.csv); seeded with members.
+CREATE TABLE district_offices (
+  bioguide_id TEXT NOT NULL REFERENCES members(bioguide_id),
+  office_id TEXT PRIMARY KEY,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  zip TEXT,
+  address TEXT,
+  suite TEXT,
+  building TEXT,
+  phone TEXT,
+  fax TEXT,
+  hours TEXT,
+  lat REAL,
+  lng REAL
+);
+CREATE INDEX district_offices_member ON district_offices(bioguide_id);
 
 CREATE TABLE positions (
   id INTEGER PRIMARY KEY,

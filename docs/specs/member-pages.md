@@ -13,31 +13,55 @@ never by this capability, and nothing here calls an LLM.
 ## Behavior
 1. **Roster import (`npm run import-members -w worker`).** Reads the
    `unitedstates/congress-legislators` `legislators-current.yaml` file
-   (from the path passed as the first argument, or downloaded when none is
-   given), takes each person's last term, and merges it into
-   `data/members.csv`. Rows for a `bioguide_id` already in the file keep
-   their `name` (the file's common name wins over the dataset's
-   `official_full`, so "Lou Correa" stays), their `district_phone`,
-   `money_url` and every flag column (`hasc`, `conferee`, `rc243`,
-   `jrd_april_2026`, `btb_cosponsor`, `target_2028`); `party`, `chamber`,
-   `state`, `district`, `dc_phone` and `contact_form_url` are refreshed
-   from the dataset when it has a value. New members get the dataset's
-   name and empty flags. Members in the file but not in the roster are
-   kept and printed under `stale:` so the maintainer decides; the script
-   never deletes a row. Rows are sorted by state, House before Senate,
-   district, name, and the script is idempotent (a second run changes no
-   bytes). At-large seats, DC and the territories keep district `0`;
-   senators keep an empty district.
+   (from the path passed as the first argument, or downloaded from raw
+   `main` when none is given) and, with `--senate-xml <path|url>`, the
+   Senate directory `senators_cfm.xml` as a second source. It takes each
+   person's last term and merges it into `data/members.csv`. Rows for a
+   `bioguide_id` already in the file keep their `name` (the file's common
+   name wins over the dataset's `official_full`, so "Lou Correa" stays),
+   their `district_phone`, `money_url`, `not_returning`, `left_office` and
+   every flag column (`hasc`, `conferee`, `rc243`, `jrd_april_2026`,
+   `btb_cosponsor`, `target_2028`); `party`, `chamber`, `state`,
+   `district`, `dc_phone`, `contact_form_url` and `contact_kind` are
+   refreshed from the dataset when it has a value. The contact link is
+   filled by kind: a roster `contact_form` is `form`; a senator without one
+   gets the XML `email` as `form` when it differs from the homepage, else
+   the homepage as `homepage`; a representative without one gets
+   `terms[-1].url + '/contact'` as `zip_gate`. A row whose `contact_kind`
+   is already set keeps its link unless the dataset itself carries a form.
+   New members get the dataset's name and empty flags. Members in the file
+   but not in the roster are kept, never deleted: before 2027-01-03
+   (`TRANSITION_DATE`) they are printed under `stale:` with no column
+   change; from that day on the import sets `left_office` to the run date
+   (kept once set) and prints them under `left:`. Rows are sorted by
+   state, House before Senate, district, name, and the script is
+   idempotent (a second run changes no bytes). At-large seats, DC and the
+   territories keep district `0`; senators keep an empty district.
 2. **Seed checks.** `loadRows` rejects `members.csv` when a `bioguide_id`
    repeats, a senator carries a district, a House district is outside the
    state's 119th-Congress seat count (`worker/src/districts.ts`), a
-   single-seat state uses a district other than `0`, or a state code is
-   unknown. The error names the file and the row.
+   single-seat state uses a district other than `0`, a state code is
+   unknown, `contact_kind` is outside `form · zip_gate · homepage`, a
+   `contact_form_url` has no kind, or `left_office` is not an ISO date.
+   `district_offices.csv` (`checkOffices`) is rejected on a `bioguide_id`
+   not in `members.csv`, an unknown state, a repeated `office_id` or a
+   phone that is not ten digits after stripping punctuation. After the
+   checks an empty `district_phone` is derived in memory as the member's
+   first office phone in file order; a filled cell wins. The error names
+   the file and the row.
 3. **Member page (`/m/<bioguide_id>`).** One static page per member,
    built from `data/`. Hero: party and seat chip (`CA-46`, `TX at large`,
    `VT` for a senator), chamber chip, title "Rep./Del./Sen. Name", a
    `tel:` button for the DC office, a `tel:` button for the district
-   office and a contact-form link when those columns are filled. Below,
+   office (the derived or hand-filled `district_phone`) and the contact
+   link labelled by `contact_kind`: "Contact form", "Contact form (asks
+   for your ZIP)" or "Office website"; a link without a kind is never
+   shown. Under the hero (`components/Offices.astro`): for a
+   `not_returning` member the line "Leaves office 2027-01-03. Votes on the
+   NDAA and the funding bill until then.", then every district office from
+   `data/district_offices.csv` in file order (city, phone as `tel:`,
+   street address with suite and building, hours when present), or "No
+   district office listed yet" when the member has none. Below,
    one block per active goal whose targets include the member (same
    first-action scope rule as the result cards): goal title linking to
    `/goals/<slug>`, the newest sourced position as a chip (`for`,
@@ -67,9 +91,13 @@ never by this capability, and nothing here calls an LLM.
    position line ("Rep. Lou Correa (D, CA-46): unknown on …"). Members
    without an open goal get "Rep./Sen. Name" and "no open decision right
    now". The page's Open Graph tags point at it.
-7. **Unknown ids.** The build emits only sitting members; any other
-   `/m/…` path (and any unknown goal path) is served the static 404 page
-   ("Nothing on file at this address", link to `/goals`).
+7. **Unknown ids.** The build emits only sitting members: a row with
+   `left_office` is not built, listed in the sitemap, given a share card
+   or counted in any whip table (`web/src/lib/members.ts` `members()`
+   drops it; `whipTargets` drops it too), though its row stays in `data/`
+   so positions and receipts keep resolving. Any other `/m/…` path (and
+   any unknown goal path) is served the static 404 page ("Nothing on file
+   at this address", link to `/goals`).
 8. **Whip table (`/goals/<slug>/whip`).** Exists for every published goal
    whose first action targets a chamber (`house`, `senate` or `both`;
    state-scope goals have none). Hero: category chip, "Where everyone
@@ -109,15 +137,34 @@ never by this capability, and nothing here calls an LLM.
     allows everything except `/api/` and names the sitemap.
 
 ## Data & contracts
-- `data/members.csv`: one row per sitting member, columns unchanged
-  (`bioguide_id,name,party,chamber,state,district,dc_phone,district_phone,
+- `data/members.csv`: one row per member the roster has listed, columns
+  `bioguide_id,name,party,chamber,state,district,dc_phone,district_phone,
   contact_form_url,hasc,conferee,rc243,jrd_april_2026,btb_cosponsor,
-  target_2028,money_url,district_office_address,district_office_city`;
-  the last two are empty until sourced, see office-visits). Provenance
-  and the merge rules in `data/README.md`.
-- `worker/scripts/import-members.ts` — `rosterRows(yaml)`, `merge(existing,
-  roster) → {rows, stale, added}`, `toCsv(rows)`; the CLI prints the row
-  counts and the `stale:` list.
+  target_2028,money_url,district_office_address,district_office_city,
+  contact_kind,not_returning,left_office` (`district_office_*` are empty
+  until sourced, see office-visits; `district_phone` empty means "derive";
+  `contact_kind` ∈ `form · zip_gate · homepage`; `not_returning` is `1` or
+  empty, hand-set from election results; `left_office` is an ISO date the
+  import sets). Provenance and the merge rules in `data/README.md`.
+- `data/district_offices.csv`: one row per district office, columns
+  `bioguide_id,office_id,city,state,zip,address,suite,building,phone,fax,
+  hours,lat,lng`, sorted by `bioguide_id` then `office_id`; generated by
+  `npm run import-offices -w worker [path]` from
+  `legislators-district-offices.yaml` (CC0), which drops offices of members
+  not in `members.csv` and clears (and prints) a phone that is not ten
+  digits. Seeded into the `district_offices` table with members.
+- `worker/scripts/import-members.ts` — `senateContacts(xml)`,
+  `contactFor(term, senate?)`, `rosterRows(yaml, senate?)`,
+  `merge(existing, roster, today) → {rows, stale, left, added, changed}`,
+  `toCsv(rows)`, `TRANSITION_DATE`; the CLI prints the counts per
+  `contact_kind` and the `changed:`, `stale:` and `left:` lists.
+- `worker/scripts/import-offices.ts` — `officeRows(yaml, memberIds) →
+  {rows, dropped, skippedMembers}`, `toOfficesCsv(rows)`.
+- `worker/src/load.ts` — `checkOffices(rows, memberIds)`,
+  `tenDigitPhone(raw)`, `deriveDistrictPhones(members, offices)`;
+  `loadRows` returns `offices` beside `members`. `Repo.offices(bioguide_id)`
+  returns them in file order (D1 and in-memory); `web/src/lib/members.ts`
+  exposes `officesFor(m)`, `contactLabel(m)` and `LEAVES_LINE`.
 - `worker/src/districts.ts` — `HOUSE_SEATS` (119th apportionment plus the
   six delegate seats), `isDelegate(member)`, `districtError(state,
   district)`.
@@ -154,7 +201,14 @@ never by this capability, and nothing here calls an LLM.
       a fixture member keeps its name and flags; a member missing from the
       roster is printed under `stale:` and still in the file.
 - [ ] A `members.csv` row with `TX,37`, `WY,1`, a duplicate id or a senator
-      with a district fails the seed with a message naming the row.
+      with a district fails the seed with a message naming the row; so does
+      a `district_offices.csv` row with an unknown member, state or a
+      seven-digit phone.
+- [ ] `/m/C001110` lists the Santa Ana office with a `tel:` link and the
+      ZIP-gate contact label; every one of the 539 members has a contact
+      link with a kind; a `not_returning` member shows the departing line
+      and a `left_office` member has no page, no sitemap entry and no whip
+      row while its positions still load.
 - [ ] `/sitemap.xml` lists every `/m/` and `/whip` page; `/robots.txt`
       disallows `/api/`.
 

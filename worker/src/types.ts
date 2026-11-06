@@ -21,6 +21,30 @@ export interface Member {
   money_url: string | null;
   district_office_address: string | null; // office-visits: empty until a data/ PR fills it
   district_office_city: string | null;
+  // roster-freshness §2/§4: how the contact link was obtained, and the transition flags.
+  contact_kind: ContactKind | null;
+  not_returning: number; // 1 = hand-set from election results; keeps every target slot
+  left_office: string | null; // ISO date set by the import once the member drops out of the roster (never before 2027-01-03)
+}
+
+export const CONTACT_KINDS = ['form', 'zip_gate', 'homepage'] as const;
+export type ContactKind = (typeof CONTACT_KINDS)[number];
+
+/** roster-freshness §1: one district office row from data/district_offices.csv (upstream legislators-district-offices.yaml). */
+export interface Office {
+  bioguide_id: string;
+  office_id: string;
+  city: string;
+  state: string;
+  zip: string | null;
+  address: string | null;
+  suite: string | null;
+  building: string | null;
+  phone: string | null;
+  fax: string | null;
+  hours: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export const HOLDINGS_STATUSES = ['held', 'none', 'unknown'] as const;
@@ -136,6 +160,8 @@ export interface Repo {
   goalById(id: number): Promise<Goal | null>;
   member(bioguideId: string): Promise<Member | null>;
   stateRow(state: string): Promise<StateRow | null>;
+  // roster-freshness §1: a member's district offices in file order (route.ts reads them for the district line).
+  offices(bioguideId: string): Promise<Office[]>;
   // §4 writes and counters (worker/src/generate.ts is the only caller)
   generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts>;
   recentShingles(actionId: number, limit: number): Promise<Uint32Array[]>;
