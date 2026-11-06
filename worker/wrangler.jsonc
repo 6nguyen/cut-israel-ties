@@ -8,7 +8,8 @@
   // §7.2 weekly digest (worker/src/digest.ts): Mondays 09:00 UTC.
   "triggers": { "crons": ["0 9 * * 1"] },
   // Cloudflare Email Routing. Enable Email Routing on the zone and add MAINTAINER_EMAIL as a
-  // verified destination; DIGEST_FROM must be an address on the zone.
+  // verified destination; DIGEST_FROM must be an address on the zone. MAINTAINER_EMAIL is a Worker
+  // secret (`npx wrangler secret put MAINTAINER_EMAIL`), not a var, so the address stays out of git.
   "send_email": [{ "name": "DIGEST_MAIL" }],
   // Production: `npm run deploy` renders wrangler.deploy.json (gitignored) from this file with the
   // real D1 id from $D1_DATABASE_ID and, when $SITE_DOMAIN is set, a `<domain>/api/*` route
@@ -27,8 +28,7 @@
     "MAX_GENERATIONS_PER_DAY": "500",
     "LLM_MONTHLY_BUDGET_USD": "15",
     "STRIPE_LINKS": "{}",
-    "MAINTAINER_EMAIL": "",
-    "DIGEST_FROM": "digest@example.org",
+    "DIGEST_FROM": "digest@cutthetiesmovement.org",
     "COUNT_THRESHOLD": "5",
     "VISITS_ENABLED": "1",
     // Geocoder vintage: ACS2025_Current = the 119th map the sitting members hold. Flip to

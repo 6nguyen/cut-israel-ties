@@ -15,12 +15,14 @@ Run from the repo root unless noted. `<domain>` is the apex domain
    GitHub). `wrangler.jsonc` keeps the zero placeholder for local dev.
 3. Create the schema once (drops every table; never re-run on a live
    database): `D1_DATABASE_ID=<id> npm run schema:remote -w worker`.
-4. Secrets: `cd worker && npx wrangler secret put TURNSTILE_SECRET` and
-   `npx wrangler secret put ANTHROPIC_API_KEY` (paste when prompted).
-   The Turnstile secret comes from step 9; put it after that step.
+4. Secrets, from `worker/`: `npx wrangler secret put <NAME>` for
+   `ANTHROPIC_API_KEY`, `IP_SALT` and `VISITS_REVIEW_SECRET` (any long
+   random string, e.g. `openssl rand -hex 32`), `MAINTAINER_EMAIL` (the
+   address the digest goes to; a secret so it stays out of the public
+   repo) and `TURNSTILE_SECRET` (from step 9; put it after that step).
 5. Worker vars in `worker/wrangler.jsonc` → `vars` (committed):
-   `MAINTAINER_EMAIL` (your address), `DIGEST_FROM`
-   (`digest@<domain>`), `MAX_GENERATIONS_PER_DAY`.
+   `DIGEST_FROM` (`digest@<domain>`; its domain is also the origin of
+   the digest's approve/reject links), `MAX_GENERATIONS_PER_DAY`.
 6. First Worker deploy, workers.dev only until the domain exists:
    `D1_DATABASE_ID=<id> npm run deploy -w worker`. Note the
    `https://cut-ties-api.<subdomain>.workers.dev` URL it prints.
