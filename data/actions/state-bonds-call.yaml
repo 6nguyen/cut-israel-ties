@@ -4,7 +4,7 @@ goal: state-bonds
 type: call
 target_scope: state
 order: 1
-ask_text: Ask {decider} whether the state holds Israel Bonds and when they will stop rolling them over.
+ask_text: Ask {decider} whether the state holds Israel Bonds and when they will stop renewing them.
 form_schema:
   fields:
     - {name: first_name, label: First name, max: 40, required: true}

@@ -41,7 +41,8 @@ documents, receipts and reports are in `personalised-documents.md`.
    skips the geocoder. A state/district with no members in `data/` returns
    404 `no_delegation`.
 5. **Results (`/results`).** Header `<STATE-NN> · change address`, H1
-   "Your two actions this week", one line naming the delegation, then
+   "Your two actions this week", one line naming the delegation ("Your
+   people in Congress for <where>: …"), then
    exactly two cards: category chip, title, decision date, summary, the
    targets for that goal (party, role, name, phone as `tel:`, position
    chip, prior-vote line, source link when a position is sourced), the

@@ -4,7 +4,7 @@ goal: ndaa-1217
 type: call
 target_scope: both
 order: 1
-ask_text: Ask your member to tell the conferees to drop the integration section, and to vote no on a report that keeps it.
+ask_text: Ask your member to get the Israel integration section taken out of the military bill, and to vote no on the bill if it stays in.
 form_schema:
   fields:
     - {name: first_name, label: First name, max: 40, required: true}

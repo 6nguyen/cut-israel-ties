@@ -4,7 +4,7 @@ import type { RecordLine } from '@worker/electoral';
 import { RESEARCH_URL } from '@worker/state-copy';
 import { BIOGUIDE, visitLine, visitsFor, type VisitPublic } from '../lib/visits';
 
-export const CATEGORY: Record<GoalCard['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
+export const CATEGORY: Record<GoalCard['category'], string> = { federal_vote: 'Vote in Congress', leadership: 'Who leads the Democrats', state: 'Your state', electoral: 'Election' };
 const POSITION: Record<TargetCard['position'], string> = { for: 'With us', uncommitted: 'Uncommitted', against: 'Against', unknown: 'No stated position' };
 const POSITION_CLASS: Record<TargetCard['position'], string> = { for: 'bg-acid', uncommitted: 'bg-hazard', against: 'bg-crimson text-paper', unknown: 'bg-newsprint' };
 

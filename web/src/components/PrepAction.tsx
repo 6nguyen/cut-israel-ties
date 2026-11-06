@@ -50,7 +50,7 @@ export default function PrepAction({ slug, actions }: { slug: string; actions: P
   );
   return (
     <div class="border-2 border-ink bg-paper">
-      <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets in {s.where} ({s.targets.length})</p>
+      <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call in {s.where} ({s.targets.length})</p>
       <ul class="px-3">
         {s.targets.map((t) => (
           <li class="border-t border-rule first:border-t-0 py-3">

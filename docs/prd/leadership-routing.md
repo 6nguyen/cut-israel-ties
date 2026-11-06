@@ -141,7 +141,9 @@ Relies on: `docs/research/leader-call-scripts.md`,
 
 ### 3. One ask for both chambers, with the leader named by a sourced row
 1. `house-caucus` becomes a leadership ask:
-   - **title:** "Get your House Democrat's leadership vote on the record";
+   - **title:** set by `plain-english-copy.md` ("Kick out Hakeem
+     Jeffries"), which also shipped the ask, `doc_format` and script-block
+     changes in this item; what remains of §3 is items 2–3;
    - **what_we_want / ask_text:** "Ask your representative to vote only
      for a leader who commits, in public, to stripping the integration
      section."

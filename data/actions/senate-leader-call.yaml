@@ -4,7 +4,7 @@ goal: senate-leader
 type: call
 target_scope: senate
 order: 1
-ask_text: Ask your senator to vote only for a leader who commits, in public, to stripping the integration section.
+ask_text: Ask your senator to vote for a new leader unless Chuck Schumer promises, in public, to take the Israel integration section out of the military bill.
 form_schema:
   fields:
     - {name: first_name, label: First name, max: 40, required: true}

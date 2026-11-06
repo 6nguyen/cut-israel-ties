@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 interface Props { title: string; description?: string; image?: string }
-const { title, description = 'Enter your address. We find your members of Congress and the two things you can do this week to cut US military ties with Israel.', image } = Astro.props;
+const { title, description = 'Enter your address. We find the people who represent you in Congress and the two things you can do this week to cut US military ties with Israel.', image } = Astro.props;
 const abs = (path: string) => (Astro.site ? new URL(path, Astro.site).href : path);
 const pageUrl = abs(Astro.url.pathname);
 const imageUrl = abs(image ?? '/card.png');

@@ -1,9 +1,9 @@
 id: 1
 slug: house-caucus
 category: leadership
-title: Put your House Democrat on the record before the caucus vote
-summary: The House Democratic caucus votes on leadership and on whether to whip against the integration section. Your member's position is set in private calls before the vote.
-what_we_want: Your representative states, on the record, that they will vote against any NDAA report that keeps the integration section.
+title: Kick out Hakeem Jeffries
+summary: Hakeem Jeffries runs the Democrats in the House. After the midterm wave, House Democrats vote on whether he keeps the job. If your representative is a Democrat, that vote is theirs to cast, and a call from you lands before they decide.
+what_we_want: Your representative votes for a new leader unless Jeffries promises, in public, to stop Israel's integration into the US military.
 status: active
 window_start: 2026-11-01
 window_end: 2027-01-31
@@ -11,53 +11,77 @@ decision_date: 2026-11-18   # placeholder: caucus meeting date
 priority: 2
 eligibility: {"house": {"party": "D"}}
 our_picks: []
-sources: []
-decider: The House Democratic caucus, after private calls with each member
-this_week: ""
-this_week_date: ""
-detail_md: ""
+sources:
+  - {title: "The New Republic: Calls to replace Jeffries and Schumer explode after Democratic wins (November 2026)", url: "https://newrepublic.com/post/217644/calls-replace-jeffries-schumer-explode-democratic-wins"}
+decider: House Democrats, in a private vote on who leads them
+this_week: Calls to replace Jeffries took off after the midterms. Members settle their vote in private before the meeting, so a call now lands while they are still deciding.
+this_week_date: 2026-11-06
+detail_md: |
+  **Who is Hakeem Jeffries?** He leads the Democrats in the House of
+  Representatives. After every election, House Democrats vote on who leads
+  them. If Democrats hold the majority in January, that leader becomes
+  Speaker of the House, the person who decides which bills get a vote at
+  all.
+
+  **Why does this matter for Israel?** The leader decides whether the party
+  fights a bill or waves it through. This year's military bill has a
+  section that ties US troops and weapons to Israel's military for the
+  long haul, and Jeffries has not promised to fight it. A leader who will
+  not fight it means the party never votes on it.
+
+  **What can you do?** Only House Democrats vote on their leader, and they
+  make up their minds in private calls before the meeting. If your
+  representative is a Democrat, call and ask them to vote for a new leader
+  unless Jeffries makes that promise in public. If your representative is
+  a Republican, this one is not yours; your senators or your state are.
 prep_md: |
   ## Where things stand
-  *As of 2026-11-04.* The House Democratic caucus votes on its leadership and
-  on whether to whip against the integration section of the NDAA (House §219
-  [VERIFY: section number against the enrolled text]). A member's position
-  is set in private calls with leadership before the vote, so a constituent
-  call lands while the position is still open. The caucus meeting date is a
-  placeholder, 2026-11-18 [VERIFY: caucus date].
+  *As of 2026-11-06.* Hakeem Jeffries leads House Democrats, and they vote
+  soon on whether he keeps the job. The date in our data is a placeholder,
+  2026-11-18 [VERIFY: caucus date]. Each member settles their vote in
+  private calls with leadership first, so a call from home lands while
+  they are still deciding. Since the midterms, calls to replace Jeffries
+  have spread fast and new members have declined to commit to him
+  (sources below).
 
   ## Timeline
   - 2026-11-01: our window opens.
-  - 2026-11-18: caucus meeting, placeholder date [VERIFY].
-  - 2026-12-10: NDAA conference report expected [VERIFY: placeholder; see
-    the NDAA goal].
+  - 2026-11-18: House Democrats vote on their leader, placeholder date
+    [VERIFY].
+  - 2026-12-10: the final military bill is expected [VERIFY: placeholder;
+    see the "Stop Israel's integration into the US military" goal].
+  - 2027-01-03: the new Congress is sworn in and the House picks a
+    Speaker.
   - 2027-01-31: our window closes.
 
   ## What to say in 30 seconds
-  "Hello, I'm a constituent from [your town]. Before the caucus votes,
-  I'm asking Representative [name] to say, on the record, that they will vote
-  against any NDAA conference report that keeps the Israel integration
-  section. Can you tell me where the Representative stands, or pass this to
-  the legislative staff?"
+  "Hi, I'm a constituent from [your town]. House Democrats are about to
+  vote on their leader. I'm asking Representative [name] to vote for a new
+  leader unless Hakeem Jeffries promises, in public, to take the Israel
+  integration section out of the military bill. Can you tell me where the
+  Representative stands, or pass this to the staff who handle it?"
 
   ## Likely pushback and answers
-  - **"The member doesn't discuss caucus matters."** The ask is a public
-    statement of the member's own vote, not a report on the caucus.
-  - **"The report doesn't exist yet."** The commitment is conditional: a no
-    vote if the section survives conference.
-  - **"The member already supports Israel's security."** The ask is about
-    one section, not about aid levels. Ask for a position on the section.
-  - **"Call the leadership instead."** Leadership counts its members' calls
-    first; a member who hears from their district is the one who carries it
-    into those private calls.
+  - **"The member doesn't discuss leadership votes."** You are not asking
+    how they vote in the room. You are asking what they will require of a
+    leader, and they can say that out loud.
+  - **"The leader has been good for the party."** The ask is one promise,
+    not a review of his record. Ask whether the Representative will
+    require it.
+  - **"The member supports Israel's security."** This is about one section
+    that ties US troops and weapons to Israel's military, not about aid.
+    Ask for a position on that section.
+  - **"Call Jeffries' office instead."** His office only counts calls from
+    his own district. Your representative is the one who carries your
+    district into those private calls.
 
   ## What counts as a win
-  Your representative states on the record that they will vote no on a
-  report that keeps the section. Smaller: they say they are undecided and
-  will tell you when they decide. Report what you hear; positions are
-  recorded from reports, with a source.
+  Your representative says, on the record, that they will require the
+  promise before voting for any leader. Smaller: they say they are
+  undecided and will tell you when they decide. Report what you hear; we
+  record positions from reports, with a source.
 
   ## Sources
-  This goal's source rows are added as the caucus calendar and the
-  member's statements are sourced. [VERIFY: caucus date and any statement
-  of position, from a primary source.]
+  Dated reporting behind this page is listed below. Everything marked
+  VERIFY above is waiting on a primary source.
 partner_url: ""

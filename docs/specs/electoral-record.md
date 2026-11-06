@@ -16,7 +16,7 @@ goal ranks below every open federal and state goal.
    and state goal and leads a delegation's cards only once those are closed
    or ineligible (then `topTwo` pads it with the state goal as usual).
 2. **Target.** Its one target is the seat's House member. The results card
-   and the goal page's "Your targets" add an "On the record" block: for
+   and the goal page's "Who to call" add an "On the record" block: for
    every goal this site tracked (active or closed, never upcoming or
    electoral) that named the member, one line with the goal title and
    decision date, the newest position chip with a "source · <date>" link

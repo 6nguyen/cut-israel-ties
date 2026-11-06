@@ -39,7 +39,7 @@ export function prepHtml(md: string): string {
   return markdown(md).replace(/\[VERIFY([^\]]*)\]/g, (_m, rest: string) => `<mark class="chip bg-hazard text-ink border-ink align-middle">VERIFY${rest.replace(/\s+/g, ' ')}</mark>`);
 }
 
-export const CATEGORY: Record<Goal['category'], string> = { federal_vote: 'Federal vote', leadership: 'Leadership vote', state: 'Your state', electoral: 'Election' };
+export const CATEGORY: Record<Goal['category'], string> = { federal_vote: 'Vote in Congress', leadership: 'Who leads the Democrats', state: 'Your state', electoral: 'Election' };
 export function fmtDate(d: string | null): string | null {
   if (!d) return null;
   const t = Date.parse(d + 'T00:00:00');
