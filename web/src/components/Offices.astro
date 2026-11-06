@@ -1,0 +1,23 @@
+---
+// roster-freshness §1/§4: the departing line and every district office of one member, as a static block under the hero.
+// Each office: city, phone as tel:, address, hours when present. No office at all: say so (the DC number sits in the hero).
+import { LEAVES_LINE, tel, type Member, type Office } from '../lib/members';
+const { member: m, offices } = Astro.props as { member: Member; offices: Office[] };
+const line = (o: Office) => [o.address, o.suite, o.building].filter(Boolean).join(', ') + (o.zip ? `, ${o.city}, ${o.state} ${o.zip}` : `, ${o.city}, ${o.state}`);
+---
+<section class="mx-auto max-w-[1360px] px-4 lg:px-10 pt-8" data-offices>
+  {m.not_returning ? <p class="font-semibold border-l-4 border-crimson pl-3 mb-6" data-leaving>{LEAVES_LINE}</p> : null}
+  <p class="label-code">District offices</p>
+  {offices.length === 0
+    ? <p class="mt-1 text-sm text-ink/70">No district office listed yet; the DC number above reaches the office.</p>
+    : <ul class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {offices.map((o) => (
+          <li class="card p-4 text-sm" data-office-id={o.office_id}>
+            <p class="font-syne font-extrabold">{o.city}</p>
+            {o.phone && <p class="mt-1"><a href={tel(o.phone)} class="underline font-semibold">{o.phone}</a></p>}
+            <p class="mt-1 text-ink/80">{line(o)}</p>
+            {o.hours && <p class="mt-1 text-ink/70">Hours: {o.hours}</p>}
+          </li>
+        ))}
+      </ul>}
+</section>

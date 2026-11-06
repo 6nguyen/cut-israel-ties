@@ -39,10 +39,13 @@ updates.
 6. **Where it shows.** Under the targets box on each `/results` card,
    under the "Your targets" list on `/goals/<slug>` (only when the list
    has targets) and in each goal block on `/m/<bioguide_id>`, which passes
-   the member's own state and, for a representative, district.
+   the member's own state and, for a representative, district. With
+   `echo` (the act page's receipt screen, `commitment-funnel.md` §10) the
+   same scope reads "You're one of <N> constituents in <where> who
+   <verb> this week" and an empty or failed response reads "Counted.".
 7. **Nothing before the response.** The island fetches once per mount and
    renders no placeholder, no "0" and no error; a failed or empty response
-   leaves the page as it was.
+   leaves the page as it was (`echo` excepted: "Counted.").
 8. **Receipt limits.** `POST /api/receipt` refuses, with 429 and without
    storing the row: the 11th receipt from one device hash in 24 h
    (`limit_day`), a second receipt for the same device, goal and action

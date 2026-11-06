@@ -14,6 +14,7 @@ export function whipTargets(goal: Goal, action: Action | undefined, members: Mem
   if (scope === 'state') return [];
   const seat = goal.category === 'electoral' ? electoralSeat(goal.eligibility) : null; // primary-2028 §1.1: one seat, never the chamber
   return members.filter((m) => {
+    if (m.left_office) return false; // roster-freshness §4: departed members leave the whip table; the row stays for positions
     if (scope === 'house' && m.chamber !== 'house') return false;
     if (scope === 'senate' && m.chamber !== 'senate') return false;
     if (goal.category === 'electoral' && (!seat || m.chamber !== 'house' || m.state !== seat.state || m.district !== seat.district)) return false;

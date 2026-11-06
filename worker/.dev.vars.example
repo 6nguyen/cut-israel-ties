@@ -1,7 +1,9 @@
 # Copy to worker/.dev.vars (gitignored) for `npm run dev`. Placeholders only; never commit real values.
-# Without ANTHROPIC_API_KEY, POST /api/generate answers 503 `unconfigured`.
+# Without ANTHROPIC_API_KEY, POST /api/generate streams the standard script (`reason: unconfigured`).
 ANTHROPIC_API_KEY=sk-ant-replace-me
 # Without TURNSTILE_SECRET the bot check is skipped (local dev only).
 TURNSTILE_SECRET=
-# Global daily generation cap (PRD §4.7); wrangler.jsonc sets the production default.
+# Hard ceiling on personalised documents per day (PRD §4.7); wrangler.jsonc sets the production default.
 MAX_GENERATIONS_PER_DAY=500
+# Monthly LLM budget in USD behind the daily cap (generation-cost §1); 0 = standard scripts only.
+LLM_MONTHLY_BUDGET_USD=15

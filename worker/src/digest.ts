@@ -2,9 +2,10 @@
 // from those counts, and any number it adds that is not in the counts throws the prose away.
 // Nothing in this file reads or writes `positions` (a report never changes a position).
 import { SCREEN_MODEL, callMessage } from './anthropic';
-import { digitRuns } from './generate';
+import { STANDARD_MODEL, costUsd, currentCap, documentCount, monthStart, parseBudget, usd } from './cost';
+import { DEFAULT_GLOBAL_CAP, digitRuns } from './generate';
 import { reviewSection } from './visits';
-import type { BlockRow, Env, Goal, Member, Repo, ReportOutcome, ReportRow, ScreeningRow } from './types';
+import type { Action, BlockRow, Env, Goal, Member, Repo, ReportOutcome, ReportRow, ScreeningRow, TokenSum } from './types';
 
 export const DIGEST_MODEL = SCREEN_MODEL; // claude-haiku-5-5
 const DAY = 86_400_000;
@@ -58,8 +59,64 @@ export function summariseAbuse(screenings: ScreeningRow[], blocks: BlockRow[]): 
   return { screenings: s, blocks };
 }
 
+// ---- generation-cost §2: LLM spend ----------------------------------------------------------
+export interface ActionSpend { slug: string; docs: number; redrafts: number; standard: number; fails: Record<string, number> }
+export interface Spend {
+  window: { docs: number; redrafts: number; standard: number; usd: number }; // since the last run
+  month: { usd: number; budget: number; pct: number }; // pct = whole-number share of the budget spent (0 when the budget is 0)
+  cap: number; // today's dailyCap(...)
+  actions: ActionSpend[]; // per action in the window, sorted by slug
+}
+/** Share of the budget to whole per cent; the 80% send compares the same arithmetic. */
+export const BUDGET_ALERT_SHARE = 0.8;
+export const redraftPct = (redrafts: number, docs: number): number => (docs > 0 ? Math.round((100 * redrafts) / docs) : 0);
+
+/** Arithmetic over the token sums; the model never sees anything but the rendered result. */
+export function buildSpend(window: TokenSum[], spentMonth: number, budget: number, cap: number, actions: Action[]): Spend {
+  const slug = new Map(actions.map((a) => [a.id, a.slug]));
+  const byAction = new Map<number, ActionSpend>();
+  for (const t of window) {
+    const a = byAction.get(t.action_id) ?? { slug: slug.get(t.action_id) ?? `action #${t.action_id}`, docs: 0, redrafts: 0, standard: 0, fails: {} };
+    if (t.model === STANDARD_MODEL) a.standard += t.count;
+    else {
+      a.docs += t.count;
+      a.redrafts += t.redrafts;
+      if (t.check_fail) a.fails[t.check_fail] = (a.fails[t.check_fail] ?? 0) + t.count;
+    }
+    byAction.set(t.action_id, a);
+  }
+  const standard = window.filter((t) => t.model === STANDARD_MODEL).reduce((n, t) => n + t.count, 0);
+  return {
+    window: { docs: documentCount(window), redrafts: window.reduce((n, t) => n + t.redrafts, 0), standard, usd: costUsd(window) },
+    month: { usd: spentMonth, budget, pct: budget > 0 ? Math.round((100 * spentMonth) / budget) : 0 },
+    cap,
+    actions: [...byAction.values()].sort((a, b) => a.slug.localeCompare(b.slug)),
+  };
+}
+
+export function spendTable(s: Spend): string {
+  const out = [
+    'LLM spend',
+    `  since last run: ${s.window.docs} documents, ${s.window.redrafts} redrafts, ${s.window.standard} standard scripts, ${usd(s.window.usd)}`,
+    `  month to date: ${usd(s.month.usd)} of ${usd(s.month.budget)} (${s.month.pct}%)`,
+    `  today's cap: ${s.cap} documents`,
+  ];
+  for (const a of s.actions) {
+    const fails = Object.entries(a.fails).sort().map(([k, v]) => `${k} ${v}`).join(', ');
+    out.push(`  ${a.slug}: ${a.docs} documents, redrafts ${redraftPct(a.redrafts, a.docs)}%${fails ? ` (${fails})` : ''}${a.standard ? `, ${a.standard} standard` : ''}`);
+  }
+  return out.join('\n');
+}
+
+function spendDigits(s: Spend): string[] {
+  const out = [s.window.docs, s.window.redrafts, s.window.standard, s.month.pct, s.cap].map(String);
+  for (const v of [s.window.usd, s.month.usd, s.month.budget]) out.push(...digitRuns(usd(v)));
+  for (const a of s.actions) out.push(String(a.docs), String(a.redrafts), String(a.standard), String(redraftPct(a.redrafts, a.docs)), ...Object.values(a.fails).map(String));
+  return out;
+}
+
 /** The deterministic text: a table a maintainer can read without the model. */
-export function digestTable(d: Digest, abuse: AbuseSummary): string {
+export function digestTable(d: Digest, abuse: AbuseSummary, spend?: Spend): string {
   const out = [`Reports ${d.since.slice(0, 10)} → ${d.now.slice(0, 10)}: ${d.total}`, ''];
   let member = '';
   for (const c of d.counts) {
@@ -69,12 +126,13 @@ export function digestTable(d: Digest, abuse: AbuseSummary): string {
   const sc = Object.entries(abuse.screenings).map(([k, v]) => `${k} ${v}`).join(', ') || 'none';
   out.push('', `Screened out: ${sc}`, `Blocked devices: ${abuse.blocks.length}`);
   for (const b of abuse.blocks) out.push(`  ${b.device_hash.slice(0, 12)}… until ${b.until}`);
+  if (spend) out.push('', spendTable(spend));
   return out.join('\n');
 }
 
-/** Every digit run the prose may use: the counts, totals and the window dates. */
-export function allowedDigits(d: Digest, abuse: AbuseSummary): Set<string> {
-  const s = new Set<string>([String(d.total), String(abuse.blocks.length), ...digitRuns(d.since.slice(0, 10)), ...digitRuns(d.now.slice(0, 10))]);
+/** Every digit run the prose may use: the counts, totals, the window dates and the spend block. */
+export function allowedDigits(d: Digest, abuse: AbuseSummary, spend?: Spend): Set<string> {
+  const s = new Set<string>([String(d.total), String(abuse.blocks.length), ...digitRuns(d.since.slice(0, 10)), ...digitRuns(d.now.slice(0, 10)), ...(spend ? spendDigits(spend) : [])]);
   for (const c of d.counts) s.add(String(c.n));
   for (const v of Object.values(abuse.screenings)) s.add(String(v));
   for (const c of d.counts) for (const x of [...digitRuns(c.goal_slug), ...digitRuns(c.goal_title)]) s.add(x);
@@ -87,8 +145,8 @@ Write 3–6 plain sentences for the maintainer: what moved, which members drew t
 Use only the numbers in the table you are given; never compute, estimate or introduce another number. No headings, no lists, no markdown.`;
 
 /** Haiku writes prose from the table. A reply with a number not in the counts, or any error, falls back to the table itself. */
-export async function digestProse(fetchImpl: typeof fetch, apiKey: string | undefined, d: Digest, abuse: AbuseSummary): Promise<{ text: string; model: string | null }> {
-  const table = digestTable(d, abuse);
+export async function digestProse(fetchImpl: typeof fetch, apiKey: string | undefined, d: Digest, abuse: AbuseSummary, spend?: Spend): Promise<{ text: string; model: string | null }> {
+  const table = digestTable(d, abuse, spend);
   if (!apiKey) return { text: table, model: null };
   try {
     const r = await callMessage(fetchImpl, apiKey, {
@@ -99,7 +157,7 @@ export async function digestProse(fetchImpl: typeof fetch, apiKey: string | unde
       output_config: { effort: 'low' },
     });
     const text = r.text.trim();
-    const ok = allowedDigits(d, abuse);
+    const ok = allowedDigits(d, abuse, spend);
     if (!text || digitRuns(text).some((n) => !ok.has(n))) return { text: table, model: null };
     return { text, model: DIGEST_MODEL };
   } catch {
@@ -161,7 +219,7 @@ export interface DigestDeps {
   send: (env: Env, mail: Mail, now: Date) => Promise<void>;
   log?: (line: string) => void;
 }
-export type DigestResult = { sent: false; reason: 'no_recipient' | 'no_reports'; since: string } | { sent: true; since: string; total: number; model: string | null };
+export type DigestResult = { sent: false; reason: 'no_recipient' | 'no_reports'; since: string } | { sent: true; since: string; total: number; model: string | null; alert: 'budget80' | null };
 
 /** The scheduled job: reports since the last run (or 24 h), abuse rows, prose, one email with the CSV attached. */
 export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResult> {
@@ -173,7 +231,14 @@ export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResul
   const reports = await deps.repo.reportsSince(since);
   // office-visits §1.3: pending listings ride along, and alone are enough to send the mail.
   const pending = await deps.repo.pendingVisits();
-  if (reports.length === 0 && pending.length === 0) {
+  // generation-cost §2: the spend block, and the one 80% send a month. "Crossed" is arithmetic over the
+  // same sums: the month's spend before the last run was under the share and the spend now is at or over it.
+  const budget = parseBudget(env.LLM_MONTHLY_BUDGET_USD);
+  const ceiling = Number(env.MAX_GENERATIONS_PER_DAY) > 0 ? Number(env.MAX_GENERATIONS_PER_DAY) : DEFAULT_GLOBAL_CAP;
+  const [windowSums, { cap, spent }] = await Promise.all([deps.repo.tokensSince(since.toISOString()), currentCap(deps.repo, now, budget, ceiling)]);
+  const spentBeforeRun = since.toISOString() >= monthStart(now) ? Math.max(0, spent - costUsd(windowSums)) : 0;
+  const alert = budget > 0 && spentBeforeRun < BUDGET_ALERT_SHARE * budget && spent >= BUDGET_ALERT_SHARE * budget ? 'budget80' : null;
+  if (reports.length === 0 && pending.length === 0 && !alert) {
     await deps.repo.recordDigestRun(now, 0);
     log(`digest: no reports since ${since.toISOString()}`);
     return { sent: false, reason: 'no_reports', since: since.toISOString() };
@@ -186,18 +251,24 @@ export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResul
   const members = (await Promise.all([...new Set(reports.map((r) => r.bioguide_id))].map((id) => deps.repo.member(id)))).filter((m): m is Member => m !== null);
   const digest = buildDigest(reports, members, goals, since, now);
   const abuse = summariseAbuse(screenings, blocks);
-  const prose = await digestProse(deps.fetch, env.ANTHROPIC_API_KEY, digest, abuse);
+  const spend = buildSpend(windowSums, spent, budget, cap, await deps.repo.actionsFor(goals.map((g) => g.id)));
+  // No reports and no listing (an 80%-only send) → the table alone, no model call.
+  const prose = reports.length || pending.length ? await digestProse(deps.fetch, env.ANTHROPIC_API_KEY, digest, abuse, spend) : { text: digestTable(digest, abuse, spend), model: null };
   const day = now.toISOString().slice(0, 10);
-  const text = prose.model ? `${prose.text}\n\n---\n${digestTable(digest, abuse)}` : prose.text;
-  const subjectVisits = pending.length ? ` · ${pending.length} visit listing${pending.length === 1 ? '' : 's'} to review` : '';
+  const text = prose.model ? `${prose.text}\n\n---\n${digestTable(digest, abuse, spend)}` : prose.text;
+  const parts = [
+    ...(digest.total || !alert ? [`${digest.total} report${digest.total === 1 ? '' : 's'}`] : []),
+    ...(pending.length ? [`${pending.length} visit listing${pending.length === 1 ? '' : 's'} to review`] : []),
+    ...(alert ? ['LLM budget 80%'] : []),
+  ];
   await deps.send(env, {
     from,
     to,
-    subject: `[cut-ties] ${digest.total} report${digest.total === 1 ? '' : 's'}${subjectVisits} · ${day}`,
+    subject: `[cut-ties] ${parts.join(' · ')} · ${day}`,
     text: `${text}${visitsText ? `\n\n---\n${visitsText}` : ''}\n\nRaw rows attached (reports-${day}.csv). Reports never change a position; paste sourced rows into data/positions/<goal>.csv.\n`,
     attachment: { filename: `reports-${day}.csv`, content: digest.csv },
   }, now);
   await deps.repo.recordDigestRun(now, digest.total); // after the send, so a failed send is retried by the next run
-  log(`digest: sent ${digest.total} reports to maintainer (${prose.model ?? 'table only'})`);
-  return { sent: true, since: since.toISOString(), total: digest.total, model: prose.model };
+  log(`digest: sent ${digest.total} reports to maintainer (${prose.model ?? 'table only'}${alert ? ', LLM budget 80%' : ''})`);
+  return { sent: true, since: since.toISOString(), total: digest.total, model: prose.model, alert };
 }

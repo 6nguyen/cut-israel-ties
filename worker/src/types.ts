@@ -21,6 +21,30 @@ export interface Member {
   money_url: string | null;
   district_office_address: string | null; // office-visits: empty until a data/ PR fills it
   district_office_city: string | null;
+  // roster-freshness §2/§4: how the contact link was obtained, and the transition flags.
+  contact_kind: ContactKind | null;
+  not_returning: number; // 1 = hand-set from election results; keeps every target slot
+  left_office: string | null; // ISO date set by the import once the member drops out of the roster (never before 2027-01-03)
+}
+
+export const CONTACT_KINDS = ['form', 'zip_gate', 'homepage'] as const;
+export type ContactKind = (typeof CONTACT_KINDS)[number];
+
+/** roster-freshness §1: one district office row from data/district_offices.csv (upstream legislators-district-offices.yaml). */
+export interface Office {
+  bioguide_id: string;
+  office_id: string;
+  city: string;
+  state: string;
+  zip: string | null;
+  address: string | null;
+  suite: string | null;
+  building: string | null;
+  phone: string | null;
+  fax: string | null;
+  hours: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export const HOLDINGS_STATUSES = ['held', 'none', 'unknown'] as const;
@@ -77,6 +101,8 @@ export interface Action {
   form_schema: string;
   prompt_template: string | null;
   doc_format: string;
+  /** generation-cost §4: plain text with {{placeholders}}, rendered by worker/src/standard.ts when no model runs. */
+  standard_template: string | null;
 }
 
 export interface Position {
@@ -106,8 +132,13 @@ export interface GenerationRow {
   ip_hash: string;
   input_tokens: number;
   output_tokens: number;
-  model: string;
+  model: string; // DOC_MODEL, or 'standard' for a code-built script (generation-cost §4)
+  attempt: number; // 1, or 2 when a redraft ran (generation-cost §3)
+  check_fail: string | null; // the failure class of attempt 1 when a redraft ran
 }
+
+/** generation-cost §1: per-(model, action, first-failure class) token sums since an instant; `costUsd` prices them. */
+export interface TokenSum { model: string; action_id: number; check_fail: string | null; input: number; output: number; count: number; redrafts: number }
 export type ReceiptKind = 'action' | 'captain-list'; // commitment-funnel §2.1: 'captain-list' rows have no action and no target
 export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind; ip_hash: string | null }
 /** district-counters §1: one COUNT per bucket; `calls|letters|comments` follow the action `type`, `captain_lists` the receipt kind. */
@@ -136,10 +167,14 @@ export interface Repo {
   goalById(id: number): Promise<Goal | null>;
   member(bioguideId: string): Promise<Member | null>;
   stateRow(state: string): Promise<StateRow | null>;
+  // roster-freshness §1: a member's district offices in file order (route.ts reads them for the district line).
+  offices(bioguideId: string): Promise<Office[]>;
   // §4 writes and counters (worker/src/generate.ts is the only caller)
   generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts>;
   recentShingles(actionId: number, limit: number): Promise<Uint32Array[]>;
   insertGeneration(row: GenerationRow): Promise<void>;
+  // generation-cost §1: one query behind the daily cap and the digest's spend block.
+  tokensSince(iso: string): Promise<TokenSum[]>;
   screenedOutCount(deviceHash: string, since: Date): Promise<number>;
   insertScreening(deviceHash: string, actionId: number, cls: ScreenClass, at: Date): Promise<void>;
   blockedUntil(deviceHash: string): Promise<Date | null>;
@@ -190,8 +225,12 @@ export interface Env {
   DB: D1Database;
   TURNSTILE_SECRET?: string;
   GEOCODER_URL?: string;
+  // district-vintage-rollover §1: geocoder vintage (ACS2025_Current = 119th map until 2027-01-03).
+  DISTRICT_VINTAGE?: string;
   ANTHROPIC_API_KEY?: string;
   MAX_GENERATIONS_PER_DAY?: string;
+  // generation-cost §1: the month's LLM budget in USD (default 15; "0" = standard scripts only).
+  LLM_MONTHLY_BUDGET_USD?: string;
   // §7.2 nightly digest: Email Routing binding, recipient and sender (an address on the zone).
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;

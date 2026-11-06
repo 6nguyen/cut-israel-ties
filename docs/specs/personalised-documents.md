@@ -20,14 +20,24 @@ stores identifies them. Address routing, goals and ranking are in
 2. **Generation.** `POST /api/generate` runs the §4.8 guardrails in
    order, all before any Opus call: request shape → action and goal
    active → target on file for the action's scope → field shape and
-   stripping (markup, URLs, emails, phones, control characters) → API
-   key present (else 503 `unconfigured`) → Turnstile → device block →
-   global daily cap → per-device and per-IP limits → `claude-haiku-5-5`
-   screen (`ok | off_topic | injection | harmful`, logged by device hash
-   and class only). Then `claude-opus-5-5` streams a JSON `{subject,
+   stripping (markup, URLs, emails, phones, control characters) →
+   Turnstile → device block → per-device and per-IP limits → standard
+   decision (Behavior 5: `LLM_MONTHLY_BUDGET_USD` 0, no
+   `ANTHROPIC_API_KEY`, or today's count ≥ `dailyCap(...)`) →
+   `claude-haiku-5-5` screen (`ok | off_topic | injection | harmful`,
+   logged by device hash and class only; a screen that throws falls
+   through to the standard script with `reason: upstream`). The global
+   daily cap is `dailyCap(spent, blended, today, budget, ceiling)` =
+   `clamp(floor((budget − spent) / daysLeftInMonth / blended), 20,
+   ceiling)` (`worker/src/cost.ts`): `spent` is the month's `costUsd`
+   over `generations` token sums, `blended` the trailing-7-day mean cost
+   per model-drafted document (0.025 while fewer than 20 exist), the
+   ceiling `MAX_GENERATIONS_PER_DAY`. Then `claude-opus-5-5` streams a JSON `{subject,
    body, facts_used}` built from a fixed system prompt (the only task,
    the exact section/vote wording and ask phrase from `doc_format`, the
-   action's `prompt_template`, cached prefix) plus a `<facts>` block
+   action's `prompt_template`, cached prefix; call scripts at
+   `output_config.effort: 'low'`, `max_tokens` 700, letters and comments
+   `'medium'`, 1500) plus a `<facts>` block
    assembled by code from D1 (target, committee role, stated position,
    prior vote, goal ask, decision date, window, our pick; treasurer
    actions: bonds held, campaign, next comment date) and the user's
@@ -44,37 +54,69 @@ stores identifies them. Address routing, goals and ranking are in
    body are compared with the last 200 for the action; Jaccard > 0.3
    regenerates once with a "different structure and opening"
    instruction, then the draft is shown. One `generations` row per
-   request (shingles, hashes, tokens; empty shingles on refusal). One
-   "Regenerate" button.
+   request (shingles, hashes, tokens, `attempt` 1|2 and `check_fail` =
+   the first attempt's failure class when a redraft ran; empty shingles
+   on refusal). Both attempts throwing on the model call gives `reset`
+   and the standard script with `reason: upstream`. One "Regenerate"
+   button.
 4. **Receipt, share, report.** The output screen offers copy, download
-   `.txt`, `tel:` links for every phone on file, the contact-form link
+   `.txt`, `tel:` links for every phone on file (each with the open/closed
+   chip of `web/src/lib/hours.ts`; when the DC office is closed the
+   district number is listed first with "DC office closed; district
+   office answers in office hours."), the contact-form link
    for letters and comments, and "I did it" → `POST /api/receipt`
    (goal, action, target, stored state/district, device hash). After a
    receipt, first the commitment line and the captain list
    (`commitment-funnel.md` §1–4; each skippable in one tap), and only
-   once both are answered or skipped: "Share" (device share sheet with
-   the goal deep link, clipboard fallback), the office-response picker
+   once both are answered or skipped: the next-office buttons and the
+   "You're one of <N>" line (`commitment-funnel.md` §10), then "Share"
+   (device share sheet with the goal deep link, clipboard fallback), the
+   office-response picker
    (`will_support · undecided · opposed · no_answer · other` + note
-   ≤140) → `POST /api/report`, a reflection line that never leaves the
-   page, and a link to `/donate`. Share is offered after a receipt or a
+   ≤140) → `POST /api/report` (`no_answer` also shows the voicemail line
+   and "Try again", `commitment-funnel.md` §9), a reflection line that
+   never leaves the page, and a link to `/donate`. Share is offered after a receipt or a
    completed captain list, never before. Reports never change a
    position row.
+5. **Standard script.** When no model may run — the day's cap is
+   reached (`reason: capacity`), `ANTHROPIC_API_KEY` is unset
+   (`unconfigured`), `LLM_MONTHLY_BUDGET_USD` is 0 (`budget`), or the
+   screen or both model attempts threw (`upstream`) — the route serves
+   the action's `standard_template` instead: `worker/src/standard.ts`
+   fills `{{target_name}} {{target_role}} {{ask}} {{mention}}
+   {{position_line}} {{prior_vote_line}} {{pick_line}} {{user_<field>}}`
+   from the same rows as the fact block and the stripped user fields,
+   shortens the longest user field word by word when the fill passes
+   `max_words`, and runs the Behavior 3 output check (a failed fill
+   returns `error {refused}`). Same SSE stream: `status {stage:
+   'standard', reason}`, one `delta`, `done {..., standard: true,
+   reason}`; no Anthropic request is made on that path. The act page
+   labels it "Standard script — not personalised today" with one line of
+   why; receipt, commitment, captain, share and report are unchanged.
+   The `generations` row has `model = 'standard'`, zero tokens and
+   `check_fail` null, so counts and limits see it and `costUsd` adds $0.
+   The loader (`checkStandardTemplates`) rejects an `active` goal's
+   action without a template, an unknown placeholder, a brace left in
+   the text, or a fill that fails the output check for any in-scope
+   target with the shortest or the longest valid fields.
 
 ## Data & contracts
 - `POST /api/generate` body `{action, target, fields, device,
   turnstile?}` (`device` 8–128 chars). Success is `text/event-stream`:
-  `status {stage: drafting|redrafting}`, `delta {text}`, `reset
-  {reason}`, `done {subject, body, facts_used, words, target: {id, name,
-  role, phones[], contact_form_url}}` or `error {error: refused |
-  upstream, message}`. Rejections are JSON `{error, message}`: 400
-  `bad_json | bad_request | no_action | no_target | bad_fields`, 403
-  `turnstile | blocked`, 422 `screened`, 429 `limit_hour | limit_day |
-  limit_action | limit_ip`, 503 `unconfigured | capacity`, 502
-  `upstream`. Limits (`LIMITS` in `worker/src/generate.ts`): 5 per
-  device per hour, 20 per day, 3 per device per action per day, 30 per
-  IP per day, `MAX_GENERATIONS_PER_DAY` (default 500) globally,
-  `max_tokens` 1500; three screened-out attempts in 24 h block the
-  device for 24 h.
+  `status {stage: drafting|redrafting|standard, reason?}`, `delta
+  {text}`, `reset {reason}`, `done {subject, body, facts_used, words,
+  standard, reason?, target: {id, name, role, phones[],
+  contact_form_url}}` or `error {error: refused | internal, message}`.
+  Rejections are JSON `{error, message}`: 400 `bad_json | bad_request |
+  no_action | no_target | bad_fields`, 403 `turnstile | blocked`, 422
+  `screened`, 429 `limit_hour | limit_day | limit_action | limit_ip`.
+  No 503 or 502 (the standard script replaces them). Limits (`LIMITS`
+  in `worker/src/generate.ts`): 5 per device per hour, 20 per day, 3
+  per device per action per day, 30 per IP per day, `dailyCap(...)`
+  globally with `MAX_GENERATIONS_PER_DAY` (default 500) as the ceiling
+  and 20 as the floor while the budget is above zero, `max_tokens` 700
+  for call scripts and 1500 otherwise; three screened-out attempts in
+  24 h block the device for 24 h.
 - `POST /api/receipt` `{goal, action, target, state?, district?,
   device}` → `{id}` (`action: 'captain-list'` with no target records a
   completed captain list, `commitment-funnel.md`); `POST /api/report` `{goal, target, outcome, note?,
@@ -83,19 +125,28 @@ stores identifies them. Address routing, goals and ranking are in
 - Anthropic is called through the injected `fetch` (raw Messages API,
   no SDK): `claude-opus-5-5` streaming with `output_config` JSON schema
   and `cache_control` on the system prefix; `claude-haiku-5-5`
-  non-streaming for the screen. `ANTHROPIC_API_KEY` and
-  `MAX_GENERATIONS_PER_DAY` come from `worker/.dev.vars` (template:
+  non-streaming for the screen. `ANTHROPIC_API_KEY`,
+  `MAX_GENERATIONS_PER_DAY` and `LLM_MONTHLY_BUDGET_USD` (default 15; 0
+  = standard scripts only) come from `worker/.dev.vars` (template:
   `worker/.dev.vars.example`).
+- `worker/src/cost.ts`: `PRICES` (USD per MTok by model id, read
+  `PRICES_READ`), `SCREEN_ALLOWANCE_USD` 0.0001 per model-drafted row,
+  `costUsd(rows)`, `blendedCost(rows)`, `dailyCap(...)`,
+  `currentCap(repo, now, budget, ceiling)` and `parseBudget`; pure
+  arithmetic over `Repo.tokensSince(iso)` sums (per model, action and
+  `check_fail`). `worker/src/standard.ts`: `standardScript`,
+  `fillStandard`, `fixtureFields`, `checkStandardTemplates`.
 - D1 tables added for §4 (`worker/schema.sql`): `generations`
   (action_id, target_id, shingles BLOB, device_hash, ip_hash, tokens,
-  model), `screenings` (device_hash, action_id, class), `blocks`
+  model, `attempt` INTEGER DEFAULT 1, `check_fail` TEXT), `screenings` (device_hash, action_id, class), `blocks`
   (device_hash, until), `receipts`, `reports` (outcome CHECK, `hidden`).
   No table holds user text or a document.
 - Action YAML (`data/actions/<slug>.yaml`): `form_schema.fields[]`
   (`name, label, max, required, multiline?, hint?`), `prompt_template`
-  (action guidance appended to the system prompt) and `doc_format`
-  (`kind, min_words, max_words, mentions[], ask`); `mentions` and `ask`
-  are the exact phrases the output check requires.
+  (action guidance appended to the system prompt), `doc_format`
+  (`kind, min_words, max_words, mentions[], ask`) and
+  `standard_template` (Behavior 5; required while the goal is active);
+  `mentions` and `ask` are the exact phrases the output check requires.
 - Receipt limits (`district-counters.md` §8–9): `POST /api/receipt`
   answers 429 `limit_day` after 10 receipts per device hash in 24 h,
   `limit_repeat` for a second receipt on the same device, goal and action
@@ -106,10 +157,18 @@ stores identifies them. Address routing, goals and ranking are in
 
 
 ## Invariants (regression checklist)
-- [ ] Without `ANTHROPIC_API_KEY`, `/api/generate` returns 503
-      `unconfigured` and makes no Anthropic call; every 400/403/429/503
+- [ ] Without `ANTHROPIC_API_KEY`, `/api/generate` streams the standard
+      script with `reason: unconfigured` and makes no Anthropic call;
+      so do a budget of 0 and a reached cap; every 400/403/429
       rejection and every screened-out input also makes no Opus call
       (`worker/test/generate.test.ts`).
+- [ ] No number in the digest or the cap comes from a model: `dailyCap`
+      and `costUsd` are arithmetic over stored token sums
+      (`worker/test/cost.test.ts`).
+- [ ] Every active action's `standard_template` passes the output check
+      for every in-scope target with the shortest and longest fixture
+      fields; `loadRows` names the action otherwise
+      (`worker/test/standard.test.ts`).
 - [ ] 40 abusive inputs (injection, threats, off-topic) produce zero
       documents; 20 benign inputs with unusual phrasing all pass; the
       third screened-out attempt blocks the device for 24 h; screenings
@@ -129,5 +188,8 @@ stores identifies them. Address routing, goals and ranking are in
 
 ## Performance budget
 Generation: first streamed token ≤3 s p95, complete ≤10 s p95;
-`max_tokens` 1500; ~1.2k cached input + ~400 output tokens per document.
-Infra cost excluding LLM and domain = $0/month.
+standard script complete ≤500 ms p95. ~900 uncached input tokens per
+document; output ≤700 (call script) or ≤1500 (letter); about $0.01 per
+call script and $0.025 per letter at November 2026 prices; the month's
+spend ≤ `LLM_MONTHLY_BUDGET_USD`. Infra cost excluding LLM and domain =
+$0/month.

@@ -110,9 +110,9 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
 - MODIFIED `docs/specs/deployment.md` §Behavior: `DISTRICT_VINTAGE` in the config table; the flip in the checklist.
 
 ## Acceptance criteria
-- [ ] With the pin, Austin resolves to TX-37 and downtown Kansas City to MO-5 through `/api/route`; the test asserts both vintages' answers from the recorded fixture.
-- [ ] `districts-120/manifest.json` records `congress: 120`, `overrides: {MO: ...}`, every state file ≤300 KB gzip (CA included, or its interval raised and recorded), `states.json` ≤150 KB gzip.
-- [ ] The probe prints zero mismatches for the cd119 set against `ACS2025_Current` and for the cd120 set against `Current_Current` (Missouri against `ACS2025_Current`); Georgia's two points are explained or the set is rebuilt.
+- [x] With the pin, Austin resolves to TX-37 and downtown Kansas City to MO-5 through `/api/route`; the test asserts both vintages' answers from the recorded fixture.
+- [x] `districts-120/manifest.json` records `congress: 120`, `overrides: {MO: ...}`, every state file ≤300 KB gzip (CA included, or its interval raised and recorded), `states.json` ≤150 KB gzip.
+- [x] The probe prints zero mismatches for the cd119 set against `ACS2025_Current` and for the cd120 set against `Current_Current` (Missouri against `ACS2025_Current`); Georgia's two points are explained or the set is rebuilt.
 - [ ] Flipping `ACTIVE_CONGRESS` and `DISTRICT_VINTAGE` in one PR changes every fixture-120 point and no cd119 test; reverting restores the old answers with no rebuild.
 - [ ] Landing ≤100 KB transferred: the active set loads only its own state file; the inactive directory is never requested. `/api/route` p95 ≤2 s including the Missouri re-query. Static hosting cost $0 with both sets (≈+1.25 MB gzip).
 - [ ] `scripts/quiet-check.sh test`, `test-web` and `build` green.
@@ -126,16 +126,16 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Pin the Worker to the sitting Congress
-  - [ ] 2. cd120 geometry with a Missouri override
-  - [ ] 3. Dated flip
-- Completed: none.
+  - [~] 1. Pin the Worker to the sitting Congress
+  - [~] 2. cd120 geometry with a Missouri override
+  - [!] 3. Dated flip
+- Completed: none merged. §1 and §2 built on `feat/district-vintage-rollover`; §3's switch (`ACTIVE_CONGRESS`, `SEATS_CONGRESS`, `DISTRICTS_DIR`) and the deploy-guide checklist (`docs/guides/deploy.md` §6) are in place with the constants at 119.
 - Folded: none.
-- Branch / open PRs: none.
-- Remaining: all; §1 half a day, §2 one day, §3 half a day on 2027-01-03.
-- Decisions since last update: none.
-- Known failures / blockers: §3 waits for roster-freshness §4 and the 2027-01-03 date; Georgia probe result open.
-- Next action: /implement-prd-section docs/prd/district-vintage-rollover.md §1.
+- Branch / open PRs: `feat/district-vintage-rollover` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
+- Remaining: §3 on 2027-01-03: set the three constants to 120 / `Current_Current`, flip the two `pip.test.ts` assertions, run the checklist; half a day.
+- Decisions since last update: see `## Changes` 2026-11-05.
+- Known failures / blockers: §3 `[!]` blocked: 2027-01-03 (and roster-freshness §4 merged first). Georgia closed (see Changes). Fixture dates read 2026-11-06 because recording ran after 00:00 UTC.
+- Next action: on 2027-01-03, /implement-prd-section docs/prd/district-vintage-rollover.md §3 following `docs/guides/deploy.md` §6.
 
 ## Open questions
 - Keep cd119 geometry after the flip for a "who voted in December" view?
@@ -146,3 +146,9 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## Changes
 - 2026-11-05: created from the district rollover research.
+- 2026-11-05: open questions closed by their proposals: no cd119 geometry after the flip; the Missouri override lives in code (`VINTAGE_OVERRIDES`), moved to `data/` only if a second court order lands.
+- 2026-11-05 (§2): `--out` already existed in `build-districts.ts`; added `--override` (repeatable), `--fixture` (default per Congress), `overrides` and per-file `source` in the manifest. cd120 built from TIGER2026 at interval 30 m with no gate raised: CA 101 KB gzip, TX 128 KB, states 35 KB, 3.6 MB raw; Missouri from `tl_2025_29_cd119.zip`.
+- 2026-11-05 (§2): fixture 120 recorded from the geocoder (57 points): only LA (capitol LA-6 → LA-2) and TX (Austin TX-37 → TX-10) change among the 52 capitol points; Kansas City MO-5 (override), Salt Lake City UT-1, Memphis TN-5, Toledo OH-9.
+- 2026-11-05 (§2): probe run: cd119 vs `ACS2025_Current` 510/510, cd120 vs `Current_Current` (MO vs `ACS2025_Current`) 510/510, zero mismatches. Georgia closed: 0 of 60 fresh seeded points differ between the two vintages and GA's 10 probe points agree on both sets; the research's 2/29 were TIGER2026 edge re-cuts (the GA file's bytes change between vintages like 39 other unchanged states), not a map change. No rebuild needed.
+- 2026-11-05 (§3 prep): `ACTIVE_CONGRESS` and `DISTRICTS_DIR` in `pip.ts`, `SEATS_CONGRESS` in `worker/src/districts.ts`, all at 119; `docs/guides/deploy.md` §6 holds the dated flip and rollback checklist. The results-header label waits for the flip PR.
+- 2026-11-05 (§1): geocoder answers recorded from `geographies/coordinates`: Austin (-97.7431, 30.2672) `Current_Current` = TX-10 (120th layer), `ACS2025_Current` = TX-37 (119th); downtown Kansas City (-94.5786, 39.0997) MO-4 vs MO-5. The Missouri re-query goes to `geographies/coordinates` with the match's coordinates, so the address is sent to Census once; `parseCensus` reads both response shapes.

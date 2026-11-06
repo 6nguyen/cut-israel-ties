@@ -3,9 +3,9 @@
 ## Purpose
 Turns a street address into the visitor's House district and senators and
 the two open goals where their call matters most this week. It stops at the
-two goal cards, then the goal overview, goal detail and prep pages,
-`/donate`, `/about` and `/privacy`. The act page, generated documents,
-receipts and reports are in `personalised-documents.md`.
+two goal cards. The goal overview, goal detail and prep pages, `/donate`,
+`/about` and `/privacy` are in `goal-pages.md`; the act page, generated
+documents, receipts and reports are in `personalised-documents.md`.
 
 ## Behavior
 1. **Landing (`/`).** One address field ("Street address, city, state"),
@@ -25,7 +25,9 @@ receipts and reports are in `personalised-documents.md`.
    calls the geocoder.
 3. **Lookup.** The Worker sends the address to the Census Geocoder
    (`geographies/onelineaddress`, benchmark `Public_AR_Current`, vintage
-   `Current_Current`) and reads the 119th Congressional District and state.
+   = Worker var `DISTRICT_VINTAGE`, `ACS2025_Current` = 119th map until
+   2027-01-03) and reads the district layer and state; `VINTAGE_OVERRIDES`
+   re-queries Missouri once by coordinates (`on-device-districts.md`).
    At-large districts (`00`, `98`) are district 0. The location path
    never reaches the geocoder: the browser resolves a one-time position
    against `/districts/*.json` and posts `{state, district, by_location:
@@ -57,92 +59,11 @@ receipts and reports are in `personalised-documents.md`.
    `sessionStorage` (`cut-ties:route`) for the immediate navigation only.
 7. **Targets per goal.** Federal goals target the representative and both
    senators; leadership goals target only Democratic members of the
-   relevant chamber; state goals target the state treasurer row. Role,
-   phone and position come from `data/` rows (phone falls back to the
-   Capitol switchboard until office numbers are sourced).
-8. **Goals overview (`/goals`).** Every `active` goal as a card in
-   priority order: category chip, "Priority n" chip, title, summary (≤60
-   words, enforced at seed), "We want" sentence, decision date or "not yet
-   scheduled", CTA to `/goals/<slug>`. Below, an "Outcomes" strip lists
-   every `completed` and `expired` goal with its `outcome_note` and
-   decision date (empty state: "No goal has closed yet"). Two columns at
-   ≥768 px.
-9. **Goal detail (`/goals/<slug>`).** Hero (category chip, status chip
-   when closed, title, summary, decision date); "The situation"
-   (`detail_md` rendered as markdown, else the summary); "What we want";
-   "Who decides and when" (`decider`, decision date, window end); "Our
-   pick" block when `our_picks` is non-empty (first pick: name, rationale,
-   source link, signal date); the goal's actions as buttons to
-   `/goals/<slug>/act/<action>`; partner campaign link when `partner_url`
-   is set; sources list (`sources` rows) or a "not yet sourced" line.
-   A "Where everyone stands →" link opens `/goals/<slug>/whip` for goals
-   that have a whip table (`member-pages.md`). The
-   sidebar's "Your targets" island reads the stored `{state, district}`
-   and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
-   "Enter your address" linking to `/`. A non-empty target list carries
-   the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
-   block instead of targets and actions. Every page carries Open Graph
-   and Twitter share metadata with a 1200×630 card at
-   `/goals/<slug>/card.png` (other pages use `/card.png`).
-10. **Goal lifecycle.** `upcoming → active → completed | expired`. An
-   `upcoming` goal has no page, is absent from `/api/goals` and from the
-   ranking. When the goal naming it in `successor_slug` is `completed` or
-   `expired`, the loader flips it to `active` on the next seed and build,
-   so retiring a goal is one YAML edit and no code change.
-11. **Prep page (`/goals/<slug>/prep`).** Built for every published goal
-   with a non-empty `prep_md` (never for `upcoming` goals); the goal page
-   links to it ("Prep: what to say"). Hero with a "Take action" anchor;
-   for a `leadership` goal the page leads with "Our picks": up to three
-   `our_picks` in order (name, rationale, source link, signal, signal date,
-   plus "as of" the latest signal date) and "The ask, same for every
-   caller" = `what_we_want` followed by "Our first pick: <name>." (just
-   `what_we_want` with no picks; a leadership goal with no picks says so
-   instead of naming anyone). Then the six `prep_md` sections as numbered
-   blocks (where things stand, timeline, what to say in 30 seconds, likely
-   pushback and answers, what counts as a win, sources; the goal's
-   `sources` rows are listed under Sources). `[VERIFY: …]` markers render
-   as visible chips. The "Take action" island reads the stored
-   `{state, district}`, calls `GET /api/goals/<slug>/targets` and links each
-   target to `/goals/<slug>/act/<action>?target=<bioguide_id>` for every
-   action of the goal (no `target` for a target without a bioguide id; no
-   stored place shows "Enter your address" plus a plain link to the first
-   action). A closed goal has no Take action block.
-12. **Donate (`/donate`).** States "This site is built and paid for by
-    George Nguyen, one person, not a PAC or organisation. Donations are not
-    tax-deductible and are not political contributions to any candidate.",
-    then "Running it costs about $N a month" (formatted by code from
-    `MONTHLY_COST_USD`, default $15) and four Stripe Payment Link buttons
-    (one-time $5 / $20 / $50, monthly $5) that open in a new tab with
-    `rel="noopener noreferrer"`. A link that is unset or not `https://`
-    renders a disabled button reading "link not configured". The header
-    carries a Donate button and the footer the self-funding line with a
-    Donate link on every page.
-13. **About and privacy.** `/about` says who runs the site (one person,
-    not a PAC), what it does, who pays and links to `/donate` and
-    `/privacy`. `/privacy` lists what is stored (district only in the
-    browser and on the server, never the address; receipts without
-    identity; shingle hashes, not document text) and what is sent where
-    (address → Census Geocoder through the Worker, not logged; form fields
-    → Anthropic, not retained by the site; Turnstile; Stripe handles
-    payments in its own tab). A "District-office visits" bullet names the
-    organiser's contact link as personal data they chose to share, handed
-    only to people who say they will come, deletable with the listing
-    (docs/specs/office-visits.md).
-14. **State goal copy.** The treasurer target (results card and the goal
-    page's "Your targets") carries one holdings line built by code from
-    the `states.csv` row's `holdings_status`: `held` → "Israel Bonds:
-    holds $<israel_bonds_usd> (as of <holdings_date>)" with a "source"
-    link to `holdings_source`; `none` → "Israel Bonds: holds none (as of
-    <holdings_date>)" with the same source link; `unknown` → "Israel
-    Bonds: not yet sourced" with a "help us find it" link to the research
-    file on GitHub (`RESEARCH_URL`). The state action's ask replaces
-    `{decider}` with the row's `decider` when set, else "your state
-    treasurer" (static pages, which have no state, always show the
-    fallback). `worker/src/state-copy.ts`: `holdingsLine`, `fillAsk`,
-    `moneyUsd`.
-15. **Electoral goal.** A `category: electoral` goal is a one-seat sourced
-    record ranked at priority 1 with an "On the record" block and
-    primary/filing-deadline dates; see `electoral-record.md`.
+   relevant chamber; state goals target the state treasurer row. A row
+   with `left_office` is never a target; `not_returning` keeps its slot.
+   Phone is the DC number, then the first in-state office from
+   `data/district_offices.csv` as `district_city`/`district_phone`
+   (a hand-filled phone has no city); the switchboard only otherwise.
 
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
@@ -153,11 +74,6 @@ receipts and reports are in `personalised-documents.md`.
   error body is `{error, message}`.
 - Turnstile is verified when `TURNSTILE_SECRET` is set and skipped
   otherwise (local dev). `GEOCODER_URL` overrides the Census base URL.
-- `GET /api/goals` lists active goals in rank order without eligibility
-  rules. `GET /api/goals/:slug/targets?state=XX&district=N` → `{targets:
-  TargetCard[]}` for one active goal, same rules as the results cards;
-  400 `missing`, 404 `no_goal` (unknown, upcoming or closed) or
-  `no_delegation`.
 - Ranking (`worker/src/ranking.ts`): eligibility rule JSON (`always`,
   `all`, `any`, `house{field: value}`, `senator{…}`, `state{nonempty:
   […]}`) evaluated against the delegation; score = priority × urgency
@@ -169,29 +85,8 @@ receipts and reports are in `personalised-documents.md`.
   (party `D|R|I`, flags `0|1`, text strings); `parseRule` rejects
   anything else, so the seed fails before a bad rule can silently
   exclude a goal. Grammar: `data/README.md`.
-- D1 tables `goals`, `actions`, `members`, `positions`, `states`
-  (`worker/schema.sql`) are regenerated from `data/` by
-  `npm run seed -w worker`; the seed validates slugs, categories,
-  priorities, summary length (≤60 words), `outcome_note` on closed goals,
-  `our_picks` (≤3 rows with name, rationale, source_url), `prep_md` (when
-  non-empty: exactly the six `##` headings of `worker/src/prep.ts` in
-  order, each non-empty, "Where things stand" carrying an ISO date),
-  `sources`
-  (`{title, url}` rows), `successor_slug` targets, and that every
-  position row carries a source. `goals.status` also allows `upcoming`;
-  `goals.decider` is the one-line "who decides".
-- The static site reads `data/` at build through the Worker's loader
-  (Vite alias `@worker` → `worker/src`, `web/src/lib/goals.ts`), so
-  pages and API agree on every row and on the lifecycle. Share cards are
-  rendered at build by `sharp` from an SVG template; absolute share URLs
-  need `SITE_URL` in the Pages build environment.
-- Donation config is read at build, not by the Worker (the pages are
-  static; this replaces the PRD's "Worker vars"): `MONTHLY_COST_USD`
-  (number, default 15 from the PRD estimate) and `STRIPE_LINKS` (JSON
-  `{once_5, once_20, once_50, monthly_5}` of Stripe Payment Link URLs,
-  default `{}`). Set both in the Pages build environment, like `SITE_URL`;
-  parsing is `web/src/lib/donate.ts`. Invalid values fall back to the
-  defaults.
+- Goal/action `id`s come from YAML and `data/ids.md`, never file order; a
+  missing, duplicate, retired or unregistered id fails the seed.
 - Browser storage: `localStorage` `cut-ties:place` = `{state, district}`;
   `sessionStorage` `cut-ties:route` = last route response;
   `localStorage` `cut-ties:device` = random per-browser id (the Worker
@@ -200,6 +95,11 @@ receipts and reports are in `personalised-documents.md`.
   Worker ignores unknown fields, so it is a metric placeholder until one
   reads it. No new storage key: the location path saves only the resolved
   `{state, district}`.
+
+- Goal pages, `GET /api/goals`, the goal lifecycle, seed validation of
+  goal rows and the donation config are in `goal-pages.md`; a `GoalCard`
+  and a `TargetCard` share the row shapes defined there.
+
 ## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
       request carrying it is the geocoder call, and the response body
@@ -218,28 +118,16 @@ receipts and reports are in `personalised-documents.md`.
       split city) resolve to the goals in `worker/test/fixtures.ts`.
 - [ ] A goal YAML whose rule names an unknown field, a wrong value type
       or an unknown key fails `npm run seed` and `parseRule`.
-- [ ] Flipping a goal to `completed`/`expired` in YAML moves its
-      `upcoming` successor to `active` on the next load, the ranking picks
-      it up, and a closed goal without `outcome_note` fails the seed
-      (`worker/test/goals.test.ts`).
-- [ ] An `upcoming` goal has no page, no act page and is absent from
-      `/api/goals`; `/api/goals/:slug/targets` returns Democrats only for
-      leadership goals and the treasurer row for state goals.
-- [ ] Every goal with `prep_md` has `/goals/<slug>/prep` with all six
-      sections and no `upcoming` goal has one; a `prep_md` missing a
-      heading, out of order, with an empty section or an undated "Where
-      things stand" fails the seed (`worker/test/prep.test.ts`); a
-      leadership goal with `our_picks` shows them in order before any
-      section, and the ask names the first pick; every date, count or name
-      in `prep_md` is a `data/` row or carries a `[VERIFY: …]` marker.
+- [ ] Adding, renaming or removing a goal/action file moves no other id
+      (`worker/test/ids.test.ts`).
 - [ ] No coordinate is ever sent or logged: during the location path the
       only requests are `GET /districts/<name>.json` (no query string) and
       `POST /api/route {state, district, by_location}`
       (`web/src/lib/pip.test.ts` asserts the loader names).
 
+
 ## Performance budget
 Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
-CSS and the page's JS chunks, fonts excluded; `/goals` 6 KB,
-`/goals/<slug>` 7 KB, `/goals/<slug>/prep` 4–5 KB, `/donate` 1.4 KB); LCP ≤1.5 s on a mid-range phone
+CSS and the page's JS chunks, fonts excluded); LCP ≤1.5 s on a mid-range phone
 over 4G; `/api/route` ≤2 s p95; infra cost excluding LLM and domain
 = $0/month.

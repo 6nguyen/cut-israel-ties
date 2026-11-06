@@ -7,8 +7,9 @@ number or a name that is not a row here.
 
 | File | Table | Notes |
 |---|---|---|
-| `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
-| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
+| `ids.md` | (registry) | `kind \| id \| slug \| status \| since`: every goal and action id ever published. Ids are assigned once, never changed, never reused after a file is removed (its row turns `retired`); the next id is the highest ever used plus one. The loader refuses a YAML id that is missing, duplicated, retired, unregistered or on another slug (stable-data-ids §1-2). |
+| `goals/<slug>.yaml` | `goals` | `id` from `ids.md`. `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
+| `actions/<slug>.yaml` | `actions` | One file per action; `id` from `ids.md`; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
@@ -44,22 +45,48 @@ the URLs to `docs/research/state-israel-bonds.md`. The loader rejects an
 amount without a source and date, a past `next_comment_date`, and a
 `campaign_url` without a `campaign_name`.
 
-## Provenance (2026-11-04)
+## Provenance (2026-11-05)
 `members.csv` holds every sitting member of the 119th Congress (539 rows:
 433 representatives, 6 delegates, 100 senators; vacant seats have no row),
-imported on 2026-11-04 from `unitedstates/congress-legislators`
-`legislators-current.yaml` (public domain) by
-`npm run import-members -w worker [path-to-yaml]` (downloads the file when
-no path is given). The dataset supplies
-`party`, `chamber`, `state`, `district`, `dc_phone` (the office number)
-and `contact_form_url`; `district_phone`, `money_url`,
-`district_office_address`, `district_office_city` and every flag
-column stay as they are in the file and are empty until sourced. The
-`name` column keeps the file's value for rows that already exist (common
-name, e.g. "Lou Correa"); new rows take the dataset's `official_full`.
-Re-running the import refreshes the dataset columns, adds new members and
-prints members no longer in the roster as `stale:`; it never deletes a
-row. Goal `decision_date` values are maintainer placeholders to be
+imported on 2026-11-05 from `unitedstates/congress-legislators`
+`legislators-current.yaml` (public domain, raw `main` at commit
+`97261713f5dcd1b846050130cea77eded642268b`) plus the Senate directory
+`https://www.senate.gov/general/contact_information/senators_cfm.xml`
+(fetched the same day) by
+`npm run import-members -w worker [path-to-yaml] [--senate-xml <path|url>]`
+(downloads the roster when no path is given). The dataset supplies
+`party`, `chamber`, `state`, `district`, `dc_phone` (the office number),
+`contact_form_url` and `contact_kind` (`form` from the roster or the
+Senate XML, `homepage` for the 14 senators whose office lists no form,
+`zip_gate` for `<house site>/contact`, which usually asks for a ZIP
+first); `money_url`, `district_office_address`, `district_office_city`,
+`not_returning` (hand-set from election results) and every flag column
+stay as they are in the file and are empty until sourced. `district_phone`
+is empty for every row and is derived at seed time from
+`district_offices.csv`; a hand-filled value wins. `left_office` is set by
+the import, never by hand, on or after 2027-01-03 when a member drops out
+of the roster. The `name` column keeps the file's value for rows that
+already exist (common name, e.g. "Lou Correa"); new rows take the
+dataset's `official_full`. Re-running the import refreshes the dataset
+columns, adds new members and prints members no longer in the roster as
+`stale:` (or `left:` once `left_office` is set); it never deletes a row.
+The weekly `roster` workflow (`.github/workflows/roster.yml`) runs both
+importers and opens a data PR when anything changed.
+
+`district_offices.csv` (1,306 rows, 535 of 539 members) is generated from
+`unitedstates/congress-legislators` `legislators-district-offices.yaml`
+(licence CC0-1.0; fetched 2026-11-05 from raw `main` at the same commit
+`97261713f5dcd1b846050130cea77eded642268b`, the file's own last change
+being `d0fa668f` of 2026-07-12) by `npm run import-offices -w worker
+[path-to-yaml]`. One row per office, sorted by `bioguide_id` then
+`office_id`; offices of people not in `members.csv` are dropped; phones
+are normalised to `NNN-NNN-NNNN` and cleared when not ten digits (none
+were). 253 offices carry `hours`. The four members without an office row
+(Gallagher CA, Wahab CA, Blair GA, Graham SC, all seated in 2026) need a
+hand-entered row sourced from the member's site; new members after
+2027-01-03 will likewise have no office rows for about two months.
+
+Goal `decision_date` values are maintainer placeholders to be
 replaced with sourced dates before launch.
 
 ## Goal status lifecycle (PRD §2)
@@ -138,7 +165,9 @@ links the clerk's roll-call page. Steps, all in one data/ PR:
    writes `goals/primary-<st>-<d>.yaml` (category `electoral`, status
    `upcoming`, priority 1, eligibility above) and
    `actions/primary-<st>-<d>-call.yaml` from the templates in
-   `worker/src/electoral.ts`. It refuses without steps 1 and 2.
+   `worker/src/electoral.ts`, each with the next free `id` from `ids.md`,
+   and appends both `live` rows to `ids.md`. It refuses without steps 1
+   and 2.
 4. `npm test -w worker` (loader, ranking and forbidden-phrase checks), then
    flip `status` to `active` in a later data/ PR when the federal goal it
    follows closes; priority 1 keeps it below every active federal and state

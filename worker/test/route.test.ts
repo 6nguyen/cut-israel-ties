@@ -3,9 +3,9 @@ import { join } from 'node:path';
 import { createApp } from '../src/index';
 import { loadRows } from '../src/load';
 import { MemoryRepo } from '../src/repo';
-import { classifyAddress, parseCensus } from '../src/geocode';
+import { DEFAULT_VINTAGE, VINTAGE_OVERRIDES, classifyAddress, parseCensus } from '../src/geocode';
 import type { RouteResponse } from '../src/route';
-import { ENV, FIXTURES, censusReply, fakeFetch } from './fixtures';
+import { ENV, FIXTURES, VINTAGE_POINTS, censusReply, fakeFetch, vintageCoordinatesReply } from './fixtures';
 
 const rows = loadRows(join(__dirname, '..', '..', 'data'), '2026-11-04T00:00:00Z');
 const TODAY = new Date('2026-11-04T12:00:00Z');
@@ -68,6 +68,54 @@ describe('POST /api/route — six fixture addresses (§1 acceptance)', () => {
     const body = (await (await post({ address: FIXTURES[2].address })).json()) as RouteResponse;
     expect(body.goals[1].slug).toBe('senate-leader');
     expect(body.goals[1].targets.every((t) => t.party === 'D' && t.role === 'Sen.')).toBe(true);
+  });
+});
+
+describe('POST /api/route — geocoder vintage pin (district-vintage-rollover §1)', () => {
+  const [austin, kc] = VINTAGE_POINTS;
+  const census = (calls: string[]) => calls.filter((u) => u.startsWith('https://geocoding.geo.census.gov/')).map((u) => new URL(u));
+
+  it('defaults to the sitting Congress: Austin → TX-37, one call with vintage ACS2025_Current', async () => {
+    const { post, calls } = app();
+    const body = (await (await post({ address: austin.address })).json()) as RouteResponse;
+    expect([body.state, body.district]).toEqual(['TX', austin.by.ACS2025_Current.district]);
+    expect(DEFAULT_VINTAGE).toBe('ACS2025_Current');
+    expect(census(calls).map((u) => u.searchParams.get('vintage'))).toEqual(['ACS2025_Current']);
+  });
+  it('DISTRICT_VINTAGE=Current_Current answers from the 120th map: Austin → TX-10, no second call', async () => {
+    const { post, calls } = app();
+    const body = (await (await post({ address: austin.address }, { ...ENV, DISTRICT_VINTAGE: 'Current_Current' })).json()) as RouteResponse;
+    expect([body.state, body.district]).toEqual(['TX', austin.by.Current_Current.district]);
+    expect(body.district).not.toBe(austin.by.ACS2025_Current.district);
+    expect(census(calls)).toHaveLength(1);
+  });
+  it('Kansas City → MO-5 on the default vintage with no re-query', async () => {
+    const { post, calls } = app();
+    const body = (await (await post({ address: kc.address })).json()) as RouteResponse;
+    expect([body.state, body.district]).toEqual(['MO', 5]);
+    expect(census(calls)).toHaveLength(1);
+  });
+  it('Missouri is re-queried by coordinates on the override vintage after the flip: still MO-5, address sent once', async () => {
+    expect(VINTAGE_OVERRIDES).toEqual({ MO: 'ACS2025_Current' });
+    const { post, calls } = app();
+    const body = (await (await post({ address: kc.address }, { ...ENV, DISTRICT_VINTAGE: 'Current_Current' })).json()) as RouteResponse;
+    expect([body.state, body.district]).toEqual(['MO', 5]);
+    const urls = census(calls);
+    expect(urls).toHaveLength(2);
+    expect(urls[0].pathname).toMatch(/onelineaddress$/);
+    expect(urls[0].searchParams.get('vintage')).toBe('Current_Current');
+    expect(urls[1].pathname).toMatch(/coordinates$/);
+    expect(urls[1].searchParams.get('vintage')).toBe('ACS2025_Current');
+    expect([urls[1].searchParams.get('x'), urls[1].searchParams.get('y')]).toEqual([String(kc.lon), String(kc.lat)]);
+    expect(urls[1].searchParams.has('address')).toBe(false);
+  });
+  it('the recorded fixture carries both vintages for both points', () => {
+    for (const p of VINTAGE_POINTS) {
+      expect(p.by.Current_Current.congress).toBe(120);
+      expect(p.by.ACS2025_Current.congress).toBe(119);
+      expect(p.by.Current_Current.district).not.toBe(p.by.ACS2025_Current.district);
+      expect(parseCensus(vintageCoordinatesReply(p, 'Current_Current'))).toEqual({ ok: true, state: p.state, district: p.by.Current_Current.district });
+    }
   });
 });
 

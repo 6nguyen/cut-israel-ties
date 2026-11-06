@@ -1,0 +1,406 @@
+{
+ "recorded": "2026-11-06",
+ "source": "Census Geocoder geographies/coordinates, benchmark Public_AR_Current, vintage Current_Current (MO from ACS2025_Current), layer 120th Congressional Districts (GEOID[2:])",
+ "note": "districts.fixture.json's points plus the redrawn-area points of docs/prd/district-vintage-rollover.md §2, answered for the 120th Congress. Re-record with scripts/probe-districts.ts --record; tests never call the network.",
+ "points": [
+  {
+   "label": "AL",
+   "lat": 32.3777,
+   "lon": -86.3006,
+   "state": "AL",
+   "district": 2
+  },
+  {
+   "label": "AK",
+   "lat": 58.3019,
+   "lon": -134.4197,
+   "state": "AK",
+   "district": 0
+  },
+  {
+   "label": "AZ",
+   "lat": 33.4484,
+   "lon": -112.097,
+   "state": "AZ",
+   "district": 3
+  },
+  {
+   "label": "AR",
+   "lat": 34.7465,
+   "lon": -92.2896,
+   "state": "AR",
+   "district": 2
+  },
+  {
+   "label": "CA",
+   "lat": 38.5767,
+   "lon": -121.4934,
+   "state": "CA",
+   "district": 7
+  },
+  {
+   "label": "CO",
+   "lat": 39.7392,
+   "lon": -104.9849,
+   "state": "CO",
+   "district": 1
+  },
+  {
+   "label": "CT",
+   "lat": 41.764,
+   "lon": -72.6822,
+   "state": "CT",
+   "district": 1
+  },
+  {
+   "label": "DE",
+   "lat": 39.1573,
+   "lon": -75.5197,
+   "state": "DE",
+   "district": 0
+  },
+  {
+   "label": "FL",
+   "lat": 30.4383,
+   "lon": -84.2815,
+   "state": "FL",
+   "district": 2
+  },
+  {
+   "label": "GA",
+   "lat": 33.749,
+   "lon": -84.388,
+   "state": "GA",
+   "district": 5
+  },
+  {
+   "label": "HI",
+   "lat": 21.307,
+   "lon": -157.8575,
+   "state": "HI",
+   "district": 1
+  },
+  {
+   "label": "ID",
+   "lat": 43.6178,
+   "lon": -116.1996,
+   "state": "ID",
+   "district": 2
+  },
+  {
+   "label": "IL",
+   "lat": 39.7983,
+   "lon": -89.6544,
+   "state": "IL",
+   "district": 13
+  },
+  {
+   "label": "IN",
+   "lat": 39.7684,
+   "lon": -86.1626,
+   "state": "IN",
+   "district": 7
+  },
+  {
+   "label": "IA",
+   "lat": 41.5912,
+   "lon": -93.6039,
+   "state": "IA",
+   "district": 3
+  },
+  {
+   "label": "KS",
+   "lat": 39.0481,
+   "lon": -95.678,
+   "state": "KS",
+   "district": 2
+  },
+  {
+   "label": "KY",
+   "lat": 38.1867,
+   "lon": -84.8753,
+   "state": "KY",
+   "district": 1
+  },
+  {
+   "label": "LA",
+   "lat": 30.4571,
+   "lon": -91.1874,
+   "state": "LA",
+   "district": 2
+  },
+  {
+   "label": "ME",
+   "lat": 44.3072,
+   "lon": -69.7817,
+   "state": "ME",
+   "district": 2
+  },
+  {
+   "label": "MD",
+   "lat": 38.9787,
+   "lon": -76.491,
+   "state": "MD",
+   "district": 3
+  },
+  {
+   "label": "MA",
+   "lat": 42.3588,
+   "lon": -71.0636,
+   "state": "MA",
+   "district": 8
+  },
+  {
+   "label": "MI",
+   "lat": 42.7336,
+   "lon": -84.5555,
+   "state": "MI",
+   "district": 7
+  },
+  {
+   "label": "MN",
+   "lat": 44.9553,
+   "lon": -93.1022,
+   "state": "MN",
+   "district": 4
+  },
+  {
+   "label": "MS",
+   "lat": 32.3037,
+   "lon": -90.182,
+   "state": "MS",
+   "district": 2
+  },
+  {
+   "label": "MO",
+   "lat": 38.5791,
+   "lon": -92.173,
+   "state": "MO",
+   "district": 3
+  },
+  {
+   "label": "MT",
+   "lat": 46.5857,
+   "lon": -112.0184,
+   "state": "MT",
+   "district": 2
+  },
+  {
+   "label": "NE",
+   "lat": 40.8081,
+   "lon": -96.6996,
+   "state": "NE",
+   "district": 1
+  },
+  {
+   "label": "NV",
+   "lat": 39.1638,
+   "lon": -119.7664,
+   "state": "NV",
+   "district": 2
+  },
+  {
+   "label": "NH",
+   "lat": 43.207,
+   "lon": -71.5381,
+   "state": "NH",
+   "district": 2
+  },
+  {
+   "label": "NJ",
+   "lat": 40.2206,
+   "lon": -74.7699,
+   "state": "NJ",
+   "district": 12
+  },
+  {
+   "label": "NM",
+   "lat": 35.6822,
+   "lon": -105.9398,
+   "state": "NM",
+   "district": 3
+  },
+  {
+   "label": "NY",
+   "lat": 42.6526,
+   "lon": -73.7573,
+   "state": "NY",
+   "district": 20
+  },
+  {
+   "label": "NC",
+   "lat": 35.7804,
+   "lon": -78.6391,
+   "state": "NC",
+   "district": 2
+  },
+  {
+   "label": "ND",
+   "lat": 46.8208,
+   "lon": -100.783,
+   "state": "ND",
+   "district": 0
+  },
+  {
+   "label": "OH",
+   "lat": 39.9612,
+   "lon": -82.9988,
+   "state": "OH",
+   "district": 15
+  },
+  {
+   "label": "OK",
+   "lat": 35.4922,
+   "lon": -97.5034,
+   "state": "OK",
+   "district": 5
+  },
+  {
+   "label": "OR",
+   "lat": 44.9385,
+   "lon": -123.0307,
+   "state": "OR",
+   "district": 6
+  },
+  {
+   "label": "PA",
+   "lat": 40.2644,
+   "lon": -76.8837,
+   "state": "PA",
+   "district": 10
+  },
+  {
+   "label": "RI",
+   "lat": 41.8309,
+   "lon": -71.4147,
+   "state": "RI",
+   "district": 1
+  },
+  {
+   "label": "SC",
+   "lat": 34.0007,
+   "lon": -81.0348,
+   "state": "SC",
+   "district": 6
+  },
+  {
+   "label": "SD",
+   "lat": 44.367,
+   "lon": -100.3464,
+   "state": "SD",
+   "district": 0
+  },
+  {
+   "label": "TN",
+   "lat": 36.1659,
+   "lon": -86.7844,
+   "state": "TN",
+   "district": 7
+  },
+  {
+   "label": "TX",
+   "lat": 30.2747,
+   "lon": -97.7404,
+   "state": "TX",
+   "district": 10
+  },
+  {
+   "label": "UT",
+   "lat": 40.7774,
+   "lon": -111.8882,
+   "state": "UT",
+   "district": 1
+  },
+  {
+   "label": "VT",
+   "lat": 44.2624,
+   "lon": -72.5805,
+   "state": "VT",
+   "district": 0
+  },
+  {
+   "label": "VA",
+   "lat": 37.5388,
+   "lon": -77.4336,
+   "state": "VA",
+   "district": 4
+  },
+  {
+   "label": "WA",
+   "lat": 47.0379,
+   "lon": -122.9007,
+   "state": "WA",
+   "district": 10
+  },
+  {
+   "label": "WV",
+   "lat": 38.3365,
+   "lon": -81.6123,
+   "state": "WV",
+   "district": 1
+  },
+  {
+   "label": "WI",
+   "lat": 43.0747,
+   "lon": -89.3842,
+   "state": "WI",
+   "district": 2
+  },
+  {
+   "label": "WY",
+   "lat": 41.14,
+   "lon": -104.8202,
+   "state": "WY",
+   "district": 0
+  },
+  {
+   "label": "DC",
+   "lat": 38.8899,
+   "lon": -77.0091,
+   "state": "DC",
+   "district": 0
+  },
+  {
+   "label": "PA-split",
+   "lat": 39.9535,
+   "lon": -75.165,
+   "state": "PA",
+   "district": 3
+  },
+  {
+   "label": "Austin",
+   "lat": 30.2672,
+   "lon": -97.7431,
+   "state": "TX",
+   "district": 10
+  },
+  {
+   "label": "Kansas City",
+   "lat": 39.0997,
+   "lon": -94.5786,
+   "state": "MO",
+   "district": 5
+  },
+  {
+   "label": "Salt Lake City",
+   "lat": 40.7608,
+   "lon": -111.891,
+   "state": "UT",
+   "district": 1
+  },
+  {
+   "label": "Memphis",
+   "lat": 35.1495,
+   "lon": -90.049,
+   "state": "TN",
+   "district": 5
+  },
+  {
+   "label": "Toledo",
+   "lat": 41.6528,
+   "lon": -83.5379,
+   "state": "OH",
+   "district": 9
+  }
+ ]
+}

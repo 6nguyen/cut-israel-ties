@@ -56,6 +56,11 @@ goal ranks below every open federal and state goal.
   empty, and no goal or action copy contains `vote for`, `vote against`,
   `support`, `oppose`, `elect`, `defeat` or `re-elect` (`FORBIDDEN`,
   word-bounded so "election" and "electoral" pass).
+- `make-primary-goal.ts` (body in `worker/src/make-primary-goal.ts`) takes
+  the next free goal and action `id` from `data/ids.md`, appends both
+  `live` rows there, then writes the YAML with `id` as its first line
+  (`goalYaml(id, …)`, `actionYaml(id, …)`); it refuses a slug the registry
+  already lists as live.
 - `Repo.trackedGoals()` returns every non-upcoming goal; `recordFor`
   builds `RecordLine {goal_slug, goal_title, goal_status, decision_date,
   position, source_url, source_date, vote}` newest decision first.

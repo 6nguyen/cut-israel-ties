@@ -25,11 +25,15 @@
   "vars": {
     "MONTHLY_COST_USD": "0",
     "MAX_GENERATIONS_PER_DAY": "500",
+    "LLM_MONTHLY_BUDGET_USD": "15",
     "STRIPE_LINKS": "{}",
     "MAINTAINER_EMAIL": "",
     "DIGEST_FROM": "digest@example.org",
     "COUNT_THRESHOLD": "5",
-    "VISITS_ENABLED": "1"
+    "VISITS_ENABLED": "1",
+    // Geocoder vintage: ACS2025_Current = the 119th map the sitting members hold. Flip to
+    // Current_Current on 2027-01-03 with ACTIVE_CONGRESS (docs/prd/district-vintage-rollover.md §3).
+    "DISTRICT_VINTAGE": "ACS2025_Current"
     // Secrets (wrangler secret put): TURNSTILE_SECRET, ANTHROPIC_API_KEY, IP_SALT, VISITS_REVIEW_SECRET.
     // Without TURNSTILE_SECRET the route endpoint skips the Turnstile check (local dev only).
   }

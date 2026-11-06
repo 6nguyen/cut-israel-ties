@@ -1,0 +1,135 @@
+name: roster
+
+# roster-freshness §3: weekly roster and district-office refresh as a PR the maintainer merges.
+# Mondays 09:00 UTC, daily inside DAILY_FROM..DAILY_TO (the week after the 120th Congress convenes),
+# and on demand. Fetches raw `main` of unitedstates/congress-legislators with If-None-Match from a
+# cached ETag; a 304 on both files ends the run; any other non-200 fails it (the ci failure path
+# uploads ops/logs). Runs import-members (roster + Senate XML) and import-offices, checks the rows
+# with the loader, and opens or updates one PR only when data/ changed. Never auto-merges; a PR open
+# for more than NAG_DAYS gets a reminder comment. Needs GITHUB_TOKEN with contents + pull-requests write.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # weekly, Monday 09:00 UTC
+    - cron: '0 9 * * *'  # daily; the `window` step lets it through only inside DAILY_FROM..DAILY_TO
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPSTREAM: https://raw.githubusercontent.com/unitedstates/congress-legislators/main
+  SENATE_XML: https://www.senate.gov/general/contact_information/senators_cfm.xml
+  DAILY_FROM: '2027-01-03'  # inclusive; move both when the transition date moves
+  DAILY_TO: '2027-01-10'
+  NAG_DAYS: '7'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: window
+        id: window
+        run: |
+          today=$(date -u +%F); dow=$(date -u +%u)
+          run=false
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then run=true
+          elif [ "$dow" = "1" ]; then run=true
+          elif [[ "$today" > "$DAILY_FROM" || "$today" == "$DAILY_FROM" ]] && [[ "$today" < "$DAILY_TO" || "$today" == "$DAILY_TO" ]]; then run=true
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"; echo "today=$today" >> "$GITHUB_OUTPUT"
+          echo "today=$today dow=$dow event=$GITHUB_EVENT_NAME run=$run"
+      - if: steps.window.outputs.run == 'true'
+        uses: actions/checkout@v4
+      - if: steps.window.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .cache/roster
+          key: roster-etags-${{ github.run_id }}
+          restore-keys: roster-etags-
+      - name: fetch upstream (If-None-Match)
+        if: steps.window.outputs.run == 'true'
+        id: fetch
+        run: |
+          set -u; mkdir -p .cache/roster upstream
+          get() { # name url -> prints status; 304 leaves no file
+            local n=$1 u=$2 code
+            code=$(curl -sS -o "upstream/$n" -w '%{http_code}' --etag-compare ".cache/roster/$n.etag" --etag-save ".cache/roster/$n.etag.new" "$u")
+            case "$code" in
+              200) mv ".cache/roster/$n.etag.new" ".cache/roster/$n.etag.pending";;
+              304) rm -f "upstream/$n" ".cache/roster/$n.etag.new";;
+              *) echo "::error::$u returned HTTP $code"; exit 1;;
+            esac
+            echo "$n $code $(stat -c %s "upstream/$n" 2>/dev/null || echo 0) bytes"; echo "$code"
+          }
+          r=$(get legislators-current.yaml "$UPSTREAM/legislators-current.yaml" | tee /dev/stderr | tail -1)
+          o=$(get legislators-district-offices.yaml "$UPSTREAM/legislators-district-offices.yaml" | tee /dev/stderr | tail -1)
+          if [ "$r" = 304 ] && [ "$o" = 304 ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; echo "both files unchanged upstream"; exit 0; fi
+          # A 304 on one file only: re-fetch it without the ETag so both importers see a full copy.
+          [ "$r" = 304 ] && curl -sSf -o upstream/legislators-current.yaml "$UPSTREAM/legislators-current.yaml"
+          [ "$o" = 304 ] && curl -sSf -o upstream/legislators-district-offices.yaml "$UPSTREAM/legislators-district-offices.yaml"
+          # The Senate directory is a second source for senators' forms; a bot wall on runner IPs must not stop the roster.
+          if ! curl -sSf -A 'Mozilla/5.0 (roster workflow)' -o upstream/senators_cfm.xml "$SENATE_XML"; then echo "::warning::Senate XML not fetched; senators keep their current contact link"; rm -f upstream/senators_cfm.xml; fi
+          sha=$(curl -sSf -H 'Accept: application/vnd.github.sha' https://api.github.com/repos/unitedstates/congress-legislators/commits/main || echo unknown)
+          bytes=$(cat upstream/*.yaml upstream/*.xml 2>/dev/null | wc -c | tr -d ' ')
+          echo "changed=true" >> "$GITHUB_OUTPUT"; echo "sha=$sha" >> "$GITHUB_OUTPUT"; echo "bytes=$bytes" >> "$GITHUB_OUTPUT"
+      - if: steps.fetch.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: package-lock.json }
+      - if: steps.fetch.outputs.changed == 'true'
+        run: npm ci
+      - name: import and check
+        if: steps.fetch.outputs.changed == 'true'
+        id: import
+        run: |
+          set -o pipefail
+          xml=; [ -f upstream/senators_cfm.xml ] && xml="--senate-xml upstream/senators_cfm.xml"
+          npm run import-members -w worker -- upstream/legislators-current.yaml $xml | tee import-members.log
+          npm run import-offices -w worker -- upstream/legislators-district-offices.yaml | tee import-offices.log
+          npm run check-data -w worker
+          if git diff --quiet -- data/; then echo "diff=false" >> "$GITHUB_OUTPUT"; echo "no data change";
+          else echo "diff=true" >> "$GITHUB_OUTPUT"; git diff --stat -- data/; fi
+      - name: PR body
+        if: steps.import.outputs.diff == 'true'
+        run: |
+          {
+            echo "Weekly roster refresh from \`unitedstates/congress-legislators\` at \`${{ steps.fetch.outputs.sha }}\` (${{ steps.fetch.outputs.bytes }} bytes fetched)."
+            echo; echo "## import-members"; echo '```'; grep -v '^changed:' import-members.log; echo '```'
+            n=$(grep -c '^changed:' import-members.log || true); echo "Changed rows: $n"; echo '```'; grep '^changed:' import-members.log | head -80; echo '```'
+            echo; echo "## import-offices"; echo '```'; cat import-offices.log; echo '```'
+            echo; echo "Review \`stale:\` and \`left:\` lines before merging (roster-freshness §4). This PR never auto-merges."
+          } > pr-body.md
+      - name: existing roster PR
+        if: steps.window.outputs.run == 'true'
+        id: existing
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          # One open roster PR at a time: a new diff updates it instead of opening a second one.
+          j=$(gh pr list --state open --json number,headRefName,createdAt --jq '[.[] | select(.headRefName | startswith("chore/roster-"))] | first // empty')
+          if [ -n "$j" ]; then
+            echo "branch=$(echo "$j" | jq -r .headRefName)" >> "$GITHUB_OUTPUT"; echo "number=$(echo "$j" | jq -r .number)" >> "$GITHUB_OUTPUT"
+            echo "created=$(echo "$j" | jq -r .createdAt)" >> "$GITHUB_OUTPUT"
+          else echo "branch=chore/roster-${{ steps.window.outputs.today }}" >> "$GITHUB_OUTPUT"; fi
+      - name: open or update the PR
+        if: steps.import.outputs.diff == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ${{ steps.existing.outputs.branch }}
+          add-paths: data/
+          commit-message: "Refresh roster and district offices from upstream ${{ steps.fetch.outputs.sha }}"
+          title: "chore: roster refresh ${{ steps.window.outputs.today }}"
+          body-path: pr-body.md
+          labels: data
+      - name: nag on a stale open PR
+        if: steps.window.outputs.run == 'true' && steps.existing.outputs.number != ''
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          age=$(( ( $(date -u +%s) - $(date -u -d '${{ steps.existing.outputs.created }}' +%s) ) / 86400 ))
+          if [ "$age" -ge "$NAG_DAYS" ]; then gh pr comment ${{ steps.existing.outputs.number }} --body "Open for $age days; the site still routes calls to the old roster until this merges."; fi
+      - name: keep the ETags only after a complete run
+        if: steps.fetch.outputs.changed == 'true'
+        run: for f in .cache/roster/*.pending; do [ -f "$f" ] && mv "$f" "${f%.pending}"; done; ls -la .cache/roster || true
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: roster-logs, path: ops/logs/ }

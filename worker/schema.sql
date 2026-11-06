@@ -48,7 +48,8 @@ CREATE TABLE actions (
   ask_text TEXT NOT NULL,
   form_schema TEXT NOT NULL,
   prompt_template TEXT,
-  doc_format TEXT NOT NULL
+  doc_format TEXT NOT NULL,
+  standard_template TEXT
 );
 
 CREATE TABLE members (
@@ -69,9 +70,30 @@ CREATE TABLE members (
   target_2028 INTEGER NOT NULL DEFAULT 0,
   money_url TEXT,
   district_office_address TEXT,
-  district_office_city TEXT
+  district_office_city TEXT,
+  contact_kind TEXT CHECK (contact_kind IN ('form','zip_gate','homepage')),
+  not_returning INTEGER NOT NULL DEFAULT 0,
+  left_office TEXT
 );
 CREATE INDEX members_state_district ON members(state, chamber, district);
+
+-- roster-freshness §1: district offices as rows (data/district_offices.csv); seeded with members.
+CREATE TABLE district_offices (
+  bioguide_id TEXT NOT NULL REFERENCES members(bioguide_id),
+  office_id TEXT PRIMARY KEY,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  zip TEXT,
+  address TEXT,
+  suite TEXT,
+  building TEXT,
+  phone TEXT,
+  fax TEXT,
+  hours TEXT,
+  lat REAL,
+  lng REAL
+);
+CREATE INDEX district_offices_member ON district_offices(bioguide_id);
 
 CREATE TABLE positions (
   id INTEGER PRIMARY KEY,
@@ -144,7 +166,9 @@ CREATE TABLE generations (
   ip_hash TEXT NOT NULL,
   input_tokens INTEGER NOT NULL DEFAULT 0,
   output_tokens INTEGER NOT NULL DEFAULT 0,
-  model TEXT NOT NULL
+  model TEXT NOT NULL,
+  attempt INTEGER NOT NULL DEFAULT 1,
+  check_fail TEXT
 );
 CREATE INDEX generations_device ON generations(device_hash, created_at);
 CREATE INDEX generations_ip ON generations(ip_hash, created_at);

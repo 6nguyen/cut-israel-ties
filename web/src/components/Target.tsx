@@ -28,6 +28,9 @@ export function Target({ t, partner }: { t: TargetCard; partner?: string | null 
           <a href={`tel:${t.phone.replace(/[^\d+]/g, '')}`} class="btn btn-ghost !py-2 !px-3 text-xs" aria-label={`Call ${t.name}`}>Call</a>
         )}
       </div>
+      {t.district_phone && (
+        <p class="mt-1 text-sm label-ticker" data-district-line>District: {t.district_city ? `${t.district_city} ` : ''}<a href={`tel:${t.district_phone.replace(/[^\d+]/g, '')}`} class="underline">{t.district_phone}</a></p>
+      )}
       <p class="mt-2 text-sm"><span class={`chip mr-2 ${POSITION_CLASS[t.position]}`}>{POSITION[t.position]}</span>
         {t.position_source_url && <a href={t.position_source_url} class="underline label-ticker" rel="noopener">source</a>}
       </p>

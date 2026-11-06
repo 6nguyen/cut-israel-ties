@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildIcs, fold, icsText } from './ics';
+import { buildFeed, buildIcs, fold, icsText } from './ics';
 
 /** A small RFC 5545 reader: CRLF lines, unfolds continuation lines, splits NAME[;params]:VALUE. */
 function parse(ics: string): { name: string; value: string }[] {
@@ -42,5 +42,30 @@ describe('.ics reminder (§1.4)', () => {
   });
   it('carries no name: only the title, the time and the goal link', () => {
     expect(ics).not.toMatch(/people|ATTENDEE|ORGANIZER|Ana|Ben/);
+  });
+});
+
+describe('decision-date feed (call-follow-through §5)', () => {
+  it('is a published calendar with a one-day refresh and one all-day event per goal, UIDs stable per goal', () => {
+    const stamp = new Date('2026-11-05T12:00:00Z');
+    const events = [
+      { uid: 'decision-ndaa-1217@cut-the-ties', date: '2026-12-10', title: 'Decision: Strip the section', url: 'https://example.org/goals/ndaa-1217' },
+      { uid: 'decision-mou-2028@cut-the-ties', date: '2026-12-31', title: 'Decision: Replace the MOU; keep nothing, commas too', url: 'https://example.org/goals/mou-2028' },
+    ];
+    const lines = parse(buildFeed(events, stamp));
+    const get = (name: string) => lines.filter((l) => l.name === name).map((l) => l.value);
+    expect(get('X-WR-CALNAME')).toEqual(['Cut the ties — decision dates']);
+    expect(get('REFRESH-INTERVAL')).toEqual(['P1D']);
+    expect(get('X-PUBLISHED-TTL')).toEqual(['P1D']);
+    expect(get('BEGIN')).toEqual(['VCALENDAR', 'VEVENT', 'VEVENT']);
+    expect(get('UID')).toEqual(['decision-ndaa-1217@cut-the-ties', 'decision-mou-2028@cut-the-ties']);
+    expect(get('DTSTART')).toEqual(['20261210', '20261231']);
+    expect(get('DTEND')).toEqual(['20261211', '20270101']);
+    expect(get('SUMMARY')).toEqual(['Decision: Strip the section', 'Decision: Replace the MOU\\; keep nothing\\, commas too']);
+    expect(get('URL')).toEqual(['https://example.org/goals/ndaa-1217', 'https://example.org/goals/mou-2028']);
+    expect(get('DESCRIPTION')).toEqual(get('URL'));
+    expect(buildFeed(events, stamp)).toContain('DTSTART;VALUE=DATE:20261210');
+    expect(buildFeed(events, stamp)).toBe(buildFeed(events, stamp)); // the same build input is byte-identical
+    expect(parse(buildFeed([], stamp)).map((l) => l.name)).not.toContain('VEVENT');
   });
 });

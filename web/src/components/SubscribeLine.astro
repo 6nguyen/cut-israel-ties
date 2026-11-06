@@ -1,0 +1,14 @@
+---
+// call-follow-through §5: the feed link on /goals and each goal page. No parameter, no identifier.
+// webcal:// needs a host, so it appears only when `site` is set; the https copy always does.
+const path = '/feeds/decisions.ics';
+const host = Astro.site?.host;
+const https = Astro.site ? `${Astro.site.origin}${path}` : path;
+const updated = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+---
+<p class="text-sm" data-subscribe>
+  {host
+    ? <><a href={`webcal://${host}${path}`} class="underline font-semibold">Subscribe to decision dates</a> (<a href={https} class="underline">https copy</a>).</>
+    : <a href={https} class="underline font-semibold">Subscribe to decision dates</a>}
+  {' '}Updated {updated}; Google Calendar may lag a day.
+</p>

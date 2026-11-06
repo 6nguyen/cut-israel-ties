@@ -167,20 +167,25 @@ Relies on: `docs/research/generation-cost.md`.
 
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Budget-derived daily cap
-  - [ ] 3. Cheaper call scripts
-  - [ ] 4. Standard script when capped or unconfigured
-  - [ ] 2. Cost telemetry in the digest
-- Completed: none.
+  - [~] 1. Budget-derived daily cap
+  - [~] 3. Cheaper call scripts
+  - [~] 4. Standard script when capped or unconfigured
+  - [~] 2. Cost telemetry in the digest
+- Completed: all four sections built and green on `feat/generation-cost`
+  (`cost.ts`, `standard.ts`, SSE standard path, five
+  `standard_template`s, act-page label, digest "LLM spend" block and
+  the 80% send; spec delta applied to personalised-documents.md,
+  deployment.md and maintainer-tooling.md). `[x]` once the integration
+  PR merges.
 - Folded: none.
-- Branch / open PRs: none.
-- Remaining: all four sections; §1 and §3 are small Worker changes, §4
-  adds a YAML field to five actions and a UI label, §2 extends the
-  digest.
-- Decisions since last update: none.
+- Branch / open PRs: `feat/generation-cost` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
+- Remaining: merge via the orchestrator's integration PR; then the
+  30-day measurements in Rollout & metrics.
+- Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: none; needs no owner provisioning
   (`LLM_MONTHLY_BUDGET_USD` has a code default).
-- Next action: /implement-prd-section docs/prd/generation-cost.md (§1).
+- Next action: merge; archive this PRD once the integration PR lands and
+  the spec files carry the delta (they do on this branch).
 
 ## Open questions
 1. Should call scripts move to `claude-sonnet-5-5` (about half the cost
@@ -194,3 +199,5 @@ Relies on: `docs/research/generation-cost.md`.
 
 ## Changes
 - 2026-11-05 — created; no blocking questions, so APPROVED (auto) at PR creation; proposals in Open questions are the decisions.
+- 2026-11-05 — §1/§3/§4 build decisions: `tokensSince` groups by (model, action, check_fail) so one query feeds the cap and the digest; `model='standard'` rows cost $0 and are excluded from the blended mean; blended uses the trailing 7 days; a budget ≤0 gives cap 0 (the clamp applies only above zero); when the standard decision is made before the screen, no Anthropic request is sent at all (the acceptance line wins over the §4 "screen still applies" sentence); a screen that throws, or both model attempts throwing, serve the standard script with `reason: upstream` (row `model='standard'` when nothing was billed, else the model with `check_fail='upstream'`); an extra `{{pick_line}}` placeholder; `fillStandard` trims the longest user field to fit `max_words`; the loader checks every in-scope target with the shortest and the longest valid fields; `checkOutput` returns a stable class (`cls`) for `check_fail`; a filled standard script that fails the check answers `error refused`; unexpected throws in the stream are `error internal` (502 `upstream` is gone); the blocklist pass exempts the target's own name (Rep. Lynch was unpassable before); electoral `actionYaml` emits a `standard_template` and `checkElectoral` scans it.
+- 2026-11-05 — §2 build decisions: the 80% crossing is detected without a new table — spend before the last run (month spend minus the window's spend, 0 when the last run was in an earlier month) < 80% ≤ spend now — so it fires once a month and a failed send retries; the spend block's window is "since last run" (the same window as the reports), with standard-script counts beside the documents; a spend-only mail is the table alone with no Haiku call; with reports and a crossing the subject carries both parts; per-action lines use the slugs of active goals' actions (`action #id` otherwise); `DigestResult` gains `alert`.

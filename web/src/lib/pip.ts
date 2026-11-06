@@ -1,9 +1,18 @@
 // On-device district lookup (docs/specs/on-device-districts.md).
 // Decodes the TopoJSON files written by scripts/build-districts.ts and
 // ray-casts a point against them. Coordinates never leave this module:
-// the only network traffic is GET /districts/<name>.json, no query string.
+// the only network traffic is GET <DISTRICTS_DIR>/<name>.json, no query string.
 
 export interface Place { state: string; district: number }
+
+/**
+ * Which district set the browser loads (docs/prd/district-vintage-rollover.md §3). 119 until the
+ * 120th Congress is sworn in on 2027-01-03; the flip PR sets 120 here and DISTRICT_VINTAGE =
+ * Current_Current in worker/wrangler.jsonc in the same commit, after the roster PR has merged.
+ */
+export const ACTIVE_CONGRESS: number = 119;
+/** Directory under web/public for the active set: `/districts` is cd119, `/districts-<n>` any later set. */
+export const DISTRICTS_DIR = ACTIVE_CONGRESS === 119 ? '/districts' : `/districts-${ACTIVE_CONGRESS}`;
 
 interface TopoGeometry {
   type: 'Polygon' | 'MultiPolygon';
@@ -86,8 +95,8 @@ export function locateAll<P>(shapes: Shape<P>[], lon: number, lat: number): P[] 
 }
 
 export const fetchLoader: Loader = async (name) => {
-  const res = await fetch(`/districts/${encodeURIComponent(name)}.json`);
-  if (!res.ok) throw new Error(`districts/${name}.json: ${res.status}`);
+  const res = await fetch(`${DISTRICTS_DIR}/${encodeURIComponent(name)}.json`);
+  if (!res.ok) throw new Error(`${DISTRICTS_DIR}/${name}.json: ${res.status}`);
   return (await res.json()) as Topology;
 };
 

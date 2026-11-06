@@ -168,18 +168,18 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
 
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 2. Office hours
-  - [ ] 1. Voicemail and busy follow-up
-  - [ ] 3. Next-office chain
-  - [ ] 4. "One of N" echo
-  - [ ] 5. Decision-date feed
-- Completed: none.
+  - [~] 2. Office hours
+  - [~] 1. Voicemail and busy follow-up
+  - [~] 3. Next-office chain
+  - [~] 4. "One of N" echo
+  - [~] 5. Decision-date feed
+- Completed: §1–§5 built on the branch, awaiting the integration PR: hours library, 10:00 default, open/closed chips; voicemail retry; next-office chain over a local receipt log; first-person counts echo; `/feeds/decisions.ics` with subscribe lines on `/goals` and goal pages.
 - Folded: none.
-- Branch / open PRs: none.
-- Remaining: all; two PRs, about three days.
-- Decisions since last update: none.
+- Branch / open PRs: `feat/call-follow-through` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
+- Remaining: nothing on this branch; district-office hours arrive with the roster PRD's `district_offices.csv`.
+- Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: district-office hours come from the roster PRD; §2 ships with the DC default alone if that PRD is not merged.
-- Next action: /implement-prd-section docs/prd/call-follow-through.md §2.
+- Next action: the orchestrator's integration PR; then archive this PRD once the spec deltas are folded (they already are in `docs/specs/`).
 
 ## Open questions
 - Should the retry default to the district office when the DC mailbox was
@@ -190,3 +190,11 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
 
 ## Changes
 - 2026-11-05: created from the action-conversion research.
+- 2026-11-05 (§2): every funnel time anchor (default, decision-date cap, 7-day cap, "New date" input) moves to one constant `DUE_HOUR = 10`; a 17:00 cap would have put a Pacific caller's decision-day reminder after DC closed. Stored commitments are untouched.
+- 2026-11-05 (§2): `hours.ts` ships with the DC default and a unit-tested parser (`Mon-Fri 9-5`, `9:00 AM - 5:00 PM`, day ranges, `;`/`,` segments, "closed" segments); `district_offices.csv` and its `hours` column come from the roster PRD. `hoursWarnings.unparseable` / `countUnparseable()` are the build-warning hooks for that build; nothing reads them yet.
+- 2026-11-05 (§2): the act page reorders the two Worker-listed numbers (DC, district) when DC is closed; the member page is static HTML, so its chips hydrate but the DC-first order stays. Results-card "Call" buttons (`Target.tsx`) get no chip: the PRD names the act and member pages.
+- 2026-11-05 (§1): the retry row stores `who` ("Rep. Correa") so "Your week" names the office without a roster lookup; the item links to the act page with `?target=`, where both numbers show DC first (the Proposal: no automatic switch). The retry is due at the DC office's next open slot ≥60 min ahead; the "Try again" button is rendered outside the report form so it survives "Send".
+- 2026-11-05 (§3): the local log is keyed by goal, action and target (two actions on one goal do not share receipts). The slot is empty for a goal with one target and reads "All of your targets called this week." for two; "All three called this week." only when the goal lists three.
+- 2026-11-05 (§4): the echo mounts after the private steps are answered or skipped (not the instant the receipt posts), so the line never competes with the commitment question; a failed or empty `/api/counts` reads "Counted." (the only place the island renders on a failure). State-scope goals query the state bucket alone.
+- 2026-11-05 (§5): the feed gets its own spec (`docs/specs/decision-feed.md`; `action-router.md` was at its size cap). The feed is an Astro endpoint emitted into `dist/feeds/decisions.ics` at build, not a committed `web/public/` file (nothing to keep in sync by hand). The `webcal://` link needs a host and shows only when `SITE_URL` is set; local builds get the https path alone. The build date is the build's UTC day.
+- 2026-11-05 (budget): the receipt-screen additions (retry, next office, counts echo) live in `ReceiptExtras.tsx`, imported once a receipt exists; statically they put the act page's chunk graph at +4.1 KB gzip against the 4 KB budget. Measured after the split: +3.85 KB gzip on the act page's static graph (ActForm 5.86→5.80, commitments 1.13→2.12 with the reminder builder and ics, hours 1.96, OpenChip 0.31, Vite preload helper 0.65); ReceiptExtras 0.88 + Counts 1.22 load after the receipt.

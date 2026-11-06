@@ -20,23 +20,51 @@ export const FIXTURES: Fixture[] = [
   { label: 'D/DR', address: '1400 John F Kennedy Blvd, Philadelphia, PA 19107', state: 'PA', district: 2, splitCity: true, expectGoals: ['ndaa-1217', 'house-caucus'] },
 ];
 
-const FIPS: Record<string, string> = { CA: '06', TX: '48', PA: '42' };
+const FIPS: Record<string, string> = { CA: '06', TX: '48', PA: '42', MO: '29' };
 
-export function censusReply(f: Fixture) {
+/**
+ * district-vintage-rollover §1: two points whose district differs by geocoder vintage, recorded
+ * 2026-11-05 from geographies/coordinates (benchmark Public_AR_Current). `Current_Current` returns
+ * the 120th-Congress layer, `ACS2025_Current` the 119th. The addresses are stand-ins for the fake
+ * fetch; the recorded answers are the coordinates'.
+ */
+export interface VintagePoint { label: string; address: string; state: string; lon: number; lat: number; by: Record<string, { congress: number; district: number }> }
+export const VINTAGE_POINTS: VintagePoint[] = [
+  { label: 'Austin', address: '600 Congress Ave, Austin, TX 78701', state: 'TX', lon: -97.7431, lat: 30.2672,
+    by: { Current_Current: { congress: 120, district: 10 }, ACS2025_Current: { congress: 119, district: 37 } } },
+  { label: 'Kansas City', address: '414 E 12th St, Kansas City, MO 64106', state: 'MO', lon: -94.5786, lat: 39.0997,
+    by: { Current_Current: { congress: 120, district: 4 }, ACS2025_Current: { congress: 119, district: 5 } } },
+];
+
+type Geographies = Record<string, Array<Record<string, string>>>;
+function geographies(state: string, congress: number, district: number): Geographies {
+  return {
+    States: [{ STUSAB: state, STATE: FIPS[state] }],
+    [`${congress}th Congressional Districts`]: [{ [`CD${congress}`]: String(district).padStart(2, '0'), STATE: FIPS[state] }],
+  };
+}
+function wrap(address: string, state: string, congress: number, district: number, coordinates?: { x: number; y: number }) {
   return {
     result: {
-      input: { address: { address: f.address } },
-      addressMatches: [
-        {
-          matchedAddress: f.address.toUpperCase(),
-          geographies: {
-            States: [{ STUSAB: f.state, STATE: FIPS[f.state] }],
-            '119th Congressional Districts': [{ CD119: String(f.district).padStart(2, '0'), STATE: FIPS[f.state] }],
-          },
-        },
-      ],
+      input: { address: { address } },
+      addressMatches: [{ matchedAddress: address.toUpperCase(), coordinates, geographies: geographies(state, congress, district) }],
     },
   };
+}
+
+export function censusReply(f: Fixture) {
+  return wrap(f.address, f.state, 119, f.district);
+}
+
+/** geographies/onelineaddress reply for a vintage point under `vintage`, with the match coordinates. */
+export function vintageAddressReply(p: VintagePoint, vintage: string) {
+  const a = p.by[vintage] ?? p.by.ACS2025_Current;
+  return wrap(p.address, p.state, a.congress, a.district, { x: p.lon, y: p.lat });
+}
+/** geographies/coordinates reply (no addressMatches: the geographies sit directly under result). */
+export function vintageCoordinatesReply(p: VintagePoint, vintage: string) {
+  const a = p.by[vintage] ?? p.by.ACS2025_Current;
+  return { result: { input: { location: { x: p.lon, y: p.lat } }, geographies: geographies(p.state, a.congress, a.district) } };
 }
 
 /** fetch stub: answers Census and Turnstile calls from fixtures; records every URL hit. */
@@ -49,7 +77,16 @@ export function fakeFetch(opts: { turnstileOk?: boolean } = {}) {
       return Response.json({ success: opts.turnstileOk ?? true });
     }
     if (url.startsWith('https://geocoding.geo.census.gov/')) {
-      const address = new URL(url).searchParams.get('address') ?? '';
+      const u = new URL(url);
+      const vintage = u.searchParams.get('vintage') ?? '';
+      if (u.pathname.endsWith('/coordinates')) {
+        const x = Number(u.searchParams.get('x')), y = Number(u.searchParams.get('y'));
+        const p = VINTAGE_POINTS.find((v) => v.lon === x && v.lat === y);
+        return Response.json(p ? vintageCoordinatesReply(p, vintage) : { result: { input: {}, geographies: {} } });
+      }
+      const address = u.searchParams.get('address') ?? '';
+      const v = VINTAGE_POINTS.find((x) => x.address === address);
+      if (v) return Response.json(vintageAddressReply(v, vintage));
       const f = FIXTURES.find((x) => x.address === address);
       if (!f) return Response.json({ result: { input: {}, addressMatches: [] } });
       return Response.json(censusReply(f));
