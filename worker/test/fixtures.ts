@@ -40,7 +40,8 @@ type Geographies = Record<string, Array<Record<string, string>>>;
 function geographies(state: string, congress: number, district: number): Geographies {
   return {
     States: [{ STUSAB: state, STATE: FIPS[state] }],
-    [`${congress}th Congressional Districts`]: [{ [`CD${congress}`]: String(district).padStart(2, '0'), STATE: FIPS[state] }],
+    // The shape Census ships as of 2026-11-06: BASENAME + GEOID + CDSESSN, no CD<nnn> field.
+    [`${congress}th Congressional Districts`]: [{ GEOID: FIPS[state] + String(district).padStart(2, '0'), BASENAME: String(district), CDSESSN: String(congress), STATE: FIPS[state] }],
   };
 }
 function wrap(address: string, state: string, congress: number, district: number, coordinates?: { x: number; y: number }) {

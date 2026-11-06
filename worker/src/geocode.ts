@@ -62,9 +62,12 @@ export function parseCensus(body: CensusResponse): GeocodeResult {
   const cdKey = Object.keys(geographies).find((k) => /Congressional Districts/i.test(k));
   const cd = cdKey ? geographies[cdKey]?.[0] : undefined;
   if (!cd) return { ok: false, reason: 'unresolved' };
+  // The district number: `CD<nnn>` where the layer still carries it, else `BASENAME` ("46", "1"), else the
+  // last two digits of `GEOID` ("0646"). Probed 2026-11-06: ACS2025_Current ships BASENAME + GEOID and no CD119,
+  // which made every address "unresolved" in production.
   const cdField = Object.keys(cd).find((k) => /^CD\d+$/.test(k));
-  const raw = cdField ? cd[cdField] : undefined;
-  if (raw === undefined) return { ok: false, reason: 'unresolved' };
+  const raw = (cdField ? cd[cdField] : undefined) ?? cd.BASENAME ?? (typeof cd.GEOID === 'string' && cd.GEOID.length >= 2 ? cd.GEOID.slice(-2) : undefined);
+  if (raw === undefined || raw === '') return { ok: false, reason: 'unresolved' };
   // "00" and "98" are at-large / delegate codes; stored as district 0.
   const district = raw === '98' ? 0 : Number.parseInt(raw, 10);
   if (Number.isNaN(district)) return { ok: false, reason: 'unresolved' };

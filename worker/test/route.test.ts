@@ -215,13 +215,22 @@ describe('geocoder parsing', () => {
     expect(classifyAddress('Philadelphia PA')).toBe('incomplete');
     expect(classifyAddress('1400 JFK Blvd, Philadelphia, PA')).toBe('ok');
   });
-  it('reads CD119 and STUSAB; at-large "00" and "98" → 0; no match → unresolved', () => {
+  it('reads BASENAME, GEOID or CD119 and STUSAB; at-large "00" and "98" → 0; no match → unresolved', () => {
     expect(parseCensus(censusReply(FIXTURES[0]))).toEqual({ ok: true, state: 'CA', district: 46 });
     const atLarge = censusReply({ ...FIXTURES[0], state: 'CA', district: 0 });
     expect(parseCensus(atLarge)).toEqual({ ok: true, state: 'CA', district: 0 });
     const delegate = JSON.parse(JSON.stringify(atLarge));
-    delegate.result.addressMatches[0].geographies['119th Congressional Districts'][0].CD119 = '98';
+    delegate.result.addressMatches[0].geographies['119th Congressional Districts'][0].BASENAME = '98';
     expect(parseCensus(delegate)).toEqual({ ok: true, state: 'CA', district: 0 });
+    // GEOID alone (no BASENAME) and the legacy CD119 field both still parse.
+    const geoidOnly = JSON.parse(JSON.stringify(censusReply(FIXTURES[0])));
+    const layer = geoidOnly.result.addressMatches[0].geographies['119th Congressional Districts'][0];
+    delete layer.BASENAME;
+    expect(parseCensus(geoidOnly)).toEqual({ ok: true, state: 'CA', district: 46 });
+    delete layer.GEOID;
+    expect(parseCensus(geoidOnly)).toEqual({ ok: false, reason: 'unresolved' });
+    layer.CD119 = '46';
+    expect(parseCensus(geoidOnly)).toEqual({ ok: true, state: 'CA', district: 46 });
     expect(parseCensus({ result: { addressMatches: [] } })).toEqual({ ok: false, reason: 'unresolved' });
     // State from FIPS when the States layer is missing.
     const noStates = JSON.parse(JSON.stringify(censusReply(FIXTURES[1])));

@@ -3,7 +3,7 @@ import { route } from '../lib/api';
 import { STATES, cacheRoute, loadPlace, savePlace } from '../lib/store';
 import { hasOpenItems } from '../lib/commitments';
 
-declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => void } } }
+declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string; reset: (id?: string) => void } } }
 
 interface Props { siteKey?: string }
 
@@ -16,6 +16,8 @@ export default function AddressForm({ siteKey }: Props) {
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
   const token = useRef<string | undefined>(undefined);
+  const widgetId = useRef<string | undefined>(undefined);
+  const waiting = useRef<((t: string | undefined) => void)[]>([]);
   const widget = useRef<HTMLDivElement>(null);
   const [hasGeo, setHasGeo] = useState(false);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -27,7 +29,10 @@ export default function AddressForm({ siteKey }: Props) {
       const s = document.createElement('script');
       s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
       s.async = true;
-      s.onload = () => widget.current && window.turnstile?.render(widget.current, { sitekey: siteKey, callback: (t) => { token.current = t; } });
+      s.onload = () => {
+        if (!widget.current) return;
+        widgetId.current = window.turnstile?.render(widget.current, { sitekey: siteKey, callback: (t) => { token.current = t; waiting.current.splice(0).forEach((w) => w(t)); } });
+      };
       document.head.appendChild(s);
     }
   }, [siteKey]);
@@ -35,15 +40,25 @@ export default function AddressForm({ siteKey }: Props) {
   // on-device-districts §2.1: the location control exists only where the browser can give a position.
   useEffect(() => { setHasGeo(typeof navigator !== 'undefined' && 'geolocation' in navigator); }, []);
 
+  /** The current Turnstile token, or the next one when a reset is still running (≤4 s). Tokens are single-use. */
+  function nextToken(): Promise<string | undefined> {
+    if (!siteKey || token.current) return Promise.resolve(token.current);
+    return new Promise((ok) => { waiting.current.push(ok); setTimeout(() => ok(undefined), 4000); });
+  }
+
   async function go(body: Parameters<typeof route>[0]) {
     setBusy(true); setError(null);
     try {
-      const r = await route({ ...body, turnstile: token.current });
+      const turnstile = await nextToken();
+      const r = await route({ ...body, turnstile });
       savePlace({ state: r.state, district: r.district });
       cacheRoute(r);
       location.assign('/results');
     } catch (e) {
       const err = e as { error?: string; message: string };
+      // A Turnstile token is consumed by the request it rode on; without a reset the retry fails as "Bot check failed".
+      token.current = undefined;
+      window.turnstile?.reset(widgetId.current);
       setError(err.message);
       if (err.error === 'unresolved' || err.error === 'upstream' || err.error === 'no_delegation') setPicker(true);
       setBusy(false);
