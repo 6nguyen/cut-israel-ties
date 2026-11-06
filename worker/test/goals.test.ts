@@ -75,6 +75,16 @@ describe('§2.3 goal lifecycle', () => {
     const src = (y: string) => y.replace(/^sources: .*$/m, 'sources: [{"title": "T"}]');
     expect(() => loadRows(dataWith({ 'state-bonds': src }))).toThrow(/sources\[0\] needs url/);
   });
+
+  it('reasons need an angle, 1–5 short points and no figures (personalised-documents §1)', () => {
+    const set = (v: string) => (y: string) => y.replace(/^reasons:[\s\S]*?(?=^[a-z_]+:|(?![\s\S]))/m, `reasons: ${v}\n`);
+    expect(() => loadRows(dataWith({ 'ndaa-1217': set('[{"points": ["a"]}]') }))).toThrow(/reasons\[0\] needs angle/);
+    expect(() => loadRows(dataWith({ 'ndaa-1217': set('[{"angle": "A", "points": []}]') }))).toThrow(/needs 1–5 points/);
+    expect(() => loadRows(dataWith({ 'ndaa-1217': set('[{"angle": "A", "points": ["It cost 3 billion."]}]') }))).toThrow(/holds a number/);
+    expect(() => loadRows(dataWith({ 'ndaa-1217': set(JSON.stringify(Array(7).fill({ angle: 'A', points: ['p'] }))) }))).toThrow(/max 6/);
+    const real = loadRows(DATA);
+    for (const g of real.goals.filter((x) => x.status !== 'upcoming')) expect(JSON.parse(g.reasons).length, g.slug).toBeGreaterThan(0);
+  });
 });
 
 describe('GET /api/goals and /api/goals/:slug/targets (§2)', () => {

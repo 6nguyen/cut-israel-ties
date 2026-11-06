@@ -4,8 +4,7 @@ import { STATES, cacheRoute, loadPlace, savePlace } from '../lib/store';
 import { hasOpenItems } from '../lib/commitments';
 import { ATTRIBUTION, stepHighlight, suggest, suggestLoop } from '../lib/suggest';
 import type { Loop, Provider, Suggester, Suggestion, Timings } from '../lib/suggest';
-
-declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string; reset: (id?: string) => void } } }
+import { useTurnstile } from '../lib/turnstile';
 
 interface Props {
   siteKey?: string;
@@ -25,10 +24,7 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
   const [picker, setPicker] = useState(false);
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
-  const token = useRef<string | undefined>(undefined);
-  const widgetId = useRef<string | undefined>(undefined);
-  const waiting = useRef<((t: string | undefined) => void)[]>([]);
-  const widget = useRef<HTMLDivElement>(null);
+  const ts = useTurnstile(siteKey);
   const [hasGeo, setHasGeo] = useState(false);
   const addressRef = useRef<HTMLInputElement>(null);
   const suggesting = provider !== 'none';
@@ -39,18 +35,8 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
 
   useEffect(() => {
     // §1.6 return visit: skip the field, unless an open commitment or captain list puts "Your week" on this page (commitment-funnel §2.1).
-    if (loadPlace() && !hasOpenItems()) { location.replace('/results'); return; }
-    if (siteKey && widget.current) {
-      const s = document.createElement('script');
-      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      s.async = true;
-      s.onload = () => {
-        if (!widget.current) return;
-        widgetId.current = window.turnstile?.render(widget.current, { sitekey: siteKey, callback: (t) => { token.current = t; waiting.current.splice(0).forEach((w) => w(t)); } });
-      };
-      document.head.appendChild(s);
-    }
-  }, [siteKey]);
+    if (loadPlace() && !hasOpenItems()) location.replace('/results');
+  }, []);
 
   // on-device-districts §2.1: the location control exists only where the browser can give a position.
   useEffect(() => { setHasGeo(typeof navigator !== 'undefined' && 'geolocation' in navigator); }, []);
@@ -83,16 +69,10 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
     setActive(next);
   }
 
-  /** The current Turnstile token, or the next one when a reset is still running (≤4 s). Tokens are single-use. */
-  function nextToken(): Promise<string | undefined> {
-    if (!siteKey || token.current) return Promise.resolve(token.current);
-    return new Promise((ok) => { waiting.current.push(ok); setTimeout(() => ok(undefined), 4000); });
-  }
-
   async function go(body: Parameters<typeof route>[0]) {
     setBusy(true); setError(null);
     try {
-      const turnstile = await nextToken();
+      const turnstile = await ts.nextToken();
       const r = await route({ ...body, turnstile });
       savePlace({ state: r.state, district: r.district });
       cacheRoute(r);
@@ -100,8 +80,7 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
     } catch (e) {
       const err = e as { error?: string; message: string };
       // A Turnstile token is consumed by the request it rode on; without a reset the retry fails as "Bot check failed".
-      token.current = undefined;
-      window.turnstile?.reset(widgetId.current);
+      ts.reset();
       setError(err.message);
       if (err.error === 'unresolved' || err.error === 'upstream' || err.error === 'no_delegation') setPicker(true);
       setBusy(false);
@@ -154,7 +133,7 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
         )}
         <button type="submit" class="btn btn-primary whitespace-nowrap" disabled={busy}>{busy ? 'Finding…' : 'Find my actions →'}</button>
       </form>
-      <div ref={widget} class="mt-2" />
+      <div ref={ts.mount} class="mt-2" />
       {hasGeo && <button type="button" class="btn btn-ghost mt-3 text-sm" disabled={busy} onClick={() => void locate()}>Use my location instead</button>}
       <p class="mt-3 text-sm text-newsprint-muted"><span class="chip bg-acid text-ink mr-2">✓</span>Full street address, or use your location: nothing is stored.</p>
       {error && <p role="alert" class="mt-4 card border-crimson bg-newsprint text-ink px-4 py-3 text-sm font-semibold">{error}</p>}

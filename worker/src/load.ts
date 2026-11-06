@@ -71,6 +71,22 @@ function checkJsonList(slug: string, field: string, raw: string, required: strin
   });
 }
 
+/** personalised-documents §1: `reasons` is ≤6 angles, each a non-empty `angle` with 1–5 `points` of ≤160 chars, no digits (numbers come from sourced rows, never from a framing). */
+function checkReasons(slug: string, raw: string): void {
+  const list = JSON.parse(raw) as unknown;
+  if (!Array.isArray(list)) throw new Error(`goal ${slug}: reasons must be a list`);
+  if (list.length > 6) throw new Error(`goal ${slug}: reasons holds ${list.length} angles, max 6`);
+  list.forEach((r, i) => {
+    const e = r as { angle?: unknown; points?: unknown };
+    if (typeof e?.angle !== 'string' || e.angle === '') throw new Error(`goal ${slug}: reasons[${i}] needs angle`);
+    if (!Array.isArray(e.points) || e.points.length < 1 || e.points.length > 5) throw new Error(`goal ${slug}: reasons[${i}] needs 1–5 points`);
+    e.points.forEach((p, j) => {
+      if (typeof p !== 'string' || p.trim() === '' || p.length > 160) throw new Error(`goal ${slug}: reasons[${i}].points[${j}] must be 1–160 chars`);
+      if (/\d/.test(p)) throw new Error(`goal ${slug}: reasons[${i}].points[${j}] holds a number; framings carry no figures`);
+    });
+  });
+}
+
 /**
  * §2.3 lifecycle: a goal authored as `upcoming` stays hidden from the overview
  * and the ranking until the goal naming it as `successor_slug` is completed or
@@ -205,6 +221,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
         eligibility,
         our_picks: json(y.our_picks ?? []),
         sources: json(y.sources ?? []),
+        reasons: json(y.reasons ?? []),
         decider: str(y.decider),
         successor_slug: str(y.successor_slug),
         this_week: str(y.this_week),
@@ -222,6 +239,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
       if ((g.status === 'completed' || g.status === 'expired') && !g.outcome_note) throw new Error(`goal ${g.slug}: a ${g.status} goal needs outcome_note (§2.1)`);
       checkJsonList(g.slug, 'our_picks', g.our_picks, ['name', 'rationale', 'source_url'], 3);
       checkJsonList(g.slug, 'sources', g.sources, ['title', 'url']);
+      checkReasons(g.slug, g.reasons);
       checkPrep(g.slug, g.prep_md);
       return g;
     });
