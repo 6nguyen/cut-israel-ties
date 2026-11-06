@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import { cardSvg } from './goals/[slug]/card.png';
 import type { Goal } from '../lib/goals';
 
-const SITE = { category: 'federal_vote', title: 'Find the two things you can do this week', what_we_want: 'End US aid, military partnership and integration with Israel. Enter your address; we find your members of Congress.' } as Goal;
+const SITE = { category: 'federal_vote', title: 'Find the two things you can do this week', what_we_want: 'End US aid to Israel and get the US military out of its wars. Enter your address; we find the people who represent you in Congress.' } as Goal;
 
 export const GET: APIRoute = async () => {
   const png = await sharp(Buffer.from(cardSvg(SITE).replace('FEDERAL VOTE · ', 'CONSTITUENT ACTION · '))).png().toBuffer();

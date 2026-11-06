@@ -38,7 +38,7 @@ export default function GoalTargets({ slug }: { slug: string }) {
   );
   return (
     <div class="border-2 border-ink bg-paper">
-      <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets in {s.where} ({s.targets.length}) · <a href="/results" class="underline">your two actions</a></p>
+      <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call in {s.where} ({s.targets.length}) · <a href="/results" class="underline">your two actions</a></p>
       {s.targets.length === 0
         ? <p class="px-3 py-3 text-sm">No one in your delegation decides this goal.</p>
         : <ul class="px-3">{s.targets.map((t) => <Target t={t} />)}</ul>}

@@ -19,16 +19,16 @@ there.
    ≥768 px. The footer, and each goal page's aside, carry the
    decision-date feed link (`decision-feed.md`).
 2. **Goal detail (`/goals/<slug>`).** Hero (category chip, status chip
-   when closed, title, summary, decision date); "The situation"
-   (`detail_md` rendered as markdown, else the summary); "What we want";
-   "Who decides and when" (`decider`, decision date, window end); "Our
-   pick" block when `our_picks` is non-empty (first pick: name, rationale,
+   when closed, title, summary, decision date); "The basics / What is
+   going on" (`detail_md` rendered as markdown, else the summary); "What
+   we are asking for"; "Who makes the call, and when" (`decider`, decision
+   date, window end); "Who we would back instead" block when `our_picks` is non-empty (first pick: name, rationale,
    source link, signal date); the goal's actions as buttons to
    `/goals/<slug>/act/<action>`; partner campaign link when `partner_url`
    is set; sources list (`sources` rows) or a "not yet sourced" line.
    A "Where everyone stands →" link opens `/goals/<slug>/whip` for goals
    that have a whip table (`member-pages.md`). The
-   sidebar's "Your targets" island reads the stored `{state, district}`
+   sidebar's "Who to call" island reads the stored `{state, district}`
    and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
    "Enter your address" linking to `/`. A non-empty target list carries
    the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
@@ -43,10 +43,11 @@ there.
 4. **Prep page (`/goals/<slug>/prep`).** Built for every published goal
    with a non-empty `prep_md` (never for `upcoming` goals); the goal page
    links to it ("Prep: what to say"). Hero with a "Take action" anchor;
-   for a `leadership` goal the page leads with "Our picks": up to three
+   for a `leadership` goal the page leads with "Our picks / Who we would
+   back instead": up to three
    `our_picks` in order (name, rationale, source link, signal, signal date,
-   plus "as of" the latest signal date) and "The ask, same for every
-   caller" = `what_we_want` followed by "Our first pick: <name>." (just
+   plus "as of" the latest signal date) and "What to ask for, in one
+   line" = `what_we_want` followed by "Our first pick: <name>." (just
    `what_we_want` with no picks; a leadership goal with no picks says so
    instead of naming anyone). Then the six `prep_md` sections as numbered
    blocks (where things stand, timeline, what to say in 30 seconds, likely
@@ -80,7 +81,7 @@ there.
     only to people who say they will come, deletable with the listing
     (docs/specs/office-visits.md).
 7. **State goal copy.** The treasurer target (results card and the goal
-    page's "Your targets") carries one holdings line built by code from
+    page's "Who to call") carries one holdings line built by code from
     the `states.csv` row's `holdings_status`: `held` → "Israel Bonds:
     holds $<israel_bonds_usd> (as of <holdings_date>)" with a "source"
     link to `holdings_source`; `none` → "Israel Bonds: holds none (as of
@@ -146,4 +147,4 @@ there.
 CSS and JS chunks, fonts excluded; `/goals/<slug>` 7 KB,
 `/goals/<slug>/prep` 4–5 KB, `/donate` 1.4 KB); LCP ≤1.5 s on a mid-range
 phone over 4G; every page is static, so no Worker call is on the render
-path except the "Your targets" and "Take action" islands.
+path except the "Who to call" and "Take action" islands.

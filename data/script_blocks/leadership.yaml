@@ -22,13 +22,13 @@ slots:
     variants:
       - id: cx1
         when: {chamber: house}
-        text: "I am calling about the caucus leadership election. It happens once, and it is close."
+        text: "I am calling about the vote on who leads House Democrats. It happens once, and it is close."
       - id: cx2
         when: {chamber: house}
         text: "I am calling before House Democrats choose their leader, because that choice decides who controls the floor."
       - id: cx3
         when: {chamber: senate}
-        text: "I am calling about the Senate Democratic leadership election. It happens once, and it is close."
+        text: "I am calling about the vote on who leads Senate Democrats. It happens once, and it is close."
       - id: cx4
         when: {chamber: senate}
         text: "I am calling before Senate Democrats pick their leader, because the leader decides what reaches the floor."
@@ -37,7 +37,7 @@ slots:
       - id: cx6
         text: "I am calling about the leadership vote. I am calling, not signing a petition, so this gets logged."
       - id: cx7
-        text: "I am calling about who leads the caucus next, which matters more to me than any single bill."
+        text: "I am calling about who leads the party next, which matters more to me than any single bill."
   - name: argument
     variants:
       - id: ar1
@@ -87,25 +87,25 @@ slots:
     variants:
       - id: askh1
         when: {chamber: house, self: false}
-        text: "I am asking {{target_role}} {{target_name}} to say on the record that they will vote against any NDAA report that keeps the integration section. {{pick_line}}"
+        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{pick_line}}"
       - id: askh2
         when: {chamber: house, self: false}
-        text: "Will {{target_role}} {{target_name}} go on the record, yes or no, against any NDAA report that keeps the integration section? {{pick_line}}"
+        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{pick_line}}"
       - id: askh3
         when: {chamber: house, self: false}
-        text: "My ask is a statement on the record that {{target_role}} {{target_name}} will vote no on any NDAA report with the integration section in it. {{pick_line}}"
+        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section, and say so before the vote. {{pick_line}}"
       - id: askh4
         when: {chamber: house, self: false}
-        text: "Please tell me whether {{target_role}} {{target_name}} will say on the record that the integration section is a dealbreaker for the NDAA report, and when. {{pick_line}}"
+        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section, and who that is. {{pick_line}}"
       - id: askhs1
         when: {chamber: house, self: true}
-        text: "I am asking {{target_name}}, as leader, to say on the record that the caucus will whip against any NDAA report that keeps the integration section, or to step aside. {{pick_line}}"
+        text: "I am asking {{target_name}} to commit in public, before the vote, to stripping the integration section, or to step aside. Members should vote only for a leader who does. {{pick_line}}"
       - id: askhs2
         when: {chamber: house, self: true}
-        text: "I am asking {{target_name}} to put on the record that no NDAA report keeping the integration section gets caucus support, or to let someone else lead. {{pick_line}}"
+        text: "Will {{target_name}} say publicly that the integration section comes out? If not, step aside, because I am asking every member to vote only for a leader who will. {{pick_line}}"
       - id: askhs3
         when: {chamber: house, self: true}
-        text: "Will {{target_name}} commit on the record that the integration section comes out of the NDAA, or make room for a leader who will? Yes or no. {{pick_line}}"
+        text: "{{target_name}} can keep this job by committing in public to strip the integration section. Without that, I am asking members to vote only for a leader who will. {{pick_line}}"
       - id: asks1
         when: {chamber: senate, self: false}
         text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{pick_line}}"

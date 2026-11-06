@@ -15,6 +15,17 @@ documents, receipts and reports are in `personalised-documents.md`.
    `/goals/<slug>`. Under the field, only when the browser offers
    `navigator.geolocation`, the control "Use my location instead"
    (`on-device-districts.md`).
+   When the Pages build sets `PUBLIC_SUGGEST_PROVIDER` (`mapbox` or
+   `geoapify`, with `PUBLIC_SUGGEST_TOKEN`), the field is a combobox
+   (`role="combobox"`, `aria-expanded`, `aria-controls`,
+   `aria-activedescendant`, `autocomplete="off"`, a polite live count):
+   three or more typed characters followed by 250 ms idle request up to
+   five US street addresses; the open list shows the provider's
+   attribution under it; ArrowDown/ArrowUp move the highlight, Enter
+   picks it, Escape or blur closes. A new keystroke aborts the request in
+   flight; a failure, a 429 or a 2 s timeout closes the list with no
+   message. With `none` (the default, also a provider without a token,
+   which the build warns about) the plain field renders unchanged.
    A return visitor with a stored district and an open
    commitment or captain list sees the "Your week" card above the field
    (`commitment-funnel.md` §5) instead of the redirect in §6.
@@ -22,7 +33,8 @@ documents, receipts and reports are in `personalised-documents.md`.
    before any lookup with "A ZIP code is not enough: many cities are split
    between districts. Enter your street address." Input shorter than eight
    characters or without a house number is refused as incomplete. Neither
-   calls the geocoder.
+   calls the geocoder. A bare ZIP or text under three characters also
+   never triggers a suggestion request.
 3. **Lookup.** The Worker sends the address to the Census Geocoder
    (`geographies/onelineaddress`, benchmark `Public_AR_Current`, vintage
    = Worker var `DISTRICT_VINTAGE`, `ACS2025_Current` = 119th map until
@@ -41,7 +53,8 @@ documents, receipts and reports are in `personalised-documents.md`.
    skips the geocoder. A state/district with no members in `data/` returns
    404 `no_delegation`.
 5. **Results (`/results`).** Header `<STATE-NN> · change address`, H1
-   "Your two actions this week", one line naming the delegation, then
+   "Your two actions this week", one line naming the delegation ("Your
+   people in Congress for <where>: …"), then
    exactly two cards: category chip, title, decision date, summary, the
    targets for that goal (party, role, name, phone as `tel:`, position
    chip, prior-vote line, source link when a position is sourced), the
@@ -95,6 +108,16 @@ documents, receipts and reports are in `personalised-documents.md`.
   Worker ignores unknown fields, so it is a metric placeholder until one
   reads it. No new storage key: the location path saves only the resolved
   `{state, district}`.
+- Pages build env: `PUBLIC_SUGGEST_PROVIDER` = `none | mapbox | geoapify`
+  (default `none`), `PUBLIC_SUGGEST_TOKEN` = the provider's public,
+  URL-restricted token. `web/src/lib/suggest.ts`: `configuredProvider()`
+  (read once in `index.astro`, warns and yields `none` on an unknown value
+  or a missing token), `shouldSuggest(q)`, `suggestLoop(suggester,
+  onResult, timings)` (debounce, abort, timeout, failure → `[]`) and
+  `suggest(q, signal): Promise<Suggestion[]>`, `Suggestion = {label, state,
+  lon, lat}`. The provider adapters are not built yet
+  (address-autocomplete §2): `suggest()` returns `[]`, so a provider flag
+  today renders the combobox without a list.
 
 - Goal pages, `GET /api/goals`, the goal lifecycle, seed validation of
   goal rows and the donation config are in `goal-pages.md`; a `GoalCard`
@@ -129,10 +152,17 @@ documents, receipts and reports are in `personalised-documents.md`.
       only requests are `GET /districts/<name>.json` (no query string) and
       `POST /api/route {state, district, by_location}`
       (`web/src/lib/pip.test.ts` asserts the loader names).
+- [ ] Suggestion requests never fire for a bare ZIP, text under three
+      characters, or when the provider flag is `none`; a failed suggestion
+      request never shows an error or blocks a submit
+      (`web/src/lib/suggest.test.ts`,
+      `web/src/components/AddressForm.test.tsx`).
 
 
 ## Performance budget
-Landing ≤100 KB transferred (measured 2026-11-04: 7 KB gzip for HTML,
-CSS and the page's JS chunks, fonts excluded); LCP ≤1.5 s on a mid-range phone
-over 4G; `/api/route` ≤2 s p95; infra cost excluding LLM and domain
-= $0/month.
+Landing ≤100 KB transferred including the combobox (measured 2026-11-06:
+33.3 KB gzip for HTML, CSS and every JS chunk the page reaches, fonts
+excluded; the combobox added 1.4 KB gzip and no third-party script);
+LCP ≤1.5 s on a mid-range phone over 4G; `/api/route` ≤2 s p95;
+suggestions ≤800 ms p95 from the browser; infra cost excluding LLM and
+domain = $0/month.

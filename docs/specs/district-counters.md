@@ -37,7 +37,7 @@ updates.
    `organised`; ties go to the earlier bucket in that order). At-large
    districts read "VT at large".
 6. **Where it shows.** Under the targets box on each `/results` card,
-   under the "Your targets" list on `/goals/<slug>` (only when the list
+   under the "Who to call" list on `/goals/<slug>` (only when the list
    has targets) and in each goal block on `/m/<bioguide_id>`, which passes
    the member's own state and, for a representative, district. With
    `echo` (the act page's receipt screen, `commitment-funnel.md` §10) the
