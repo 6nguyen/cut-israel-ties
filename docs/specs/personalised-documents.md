@@ -87,7 +87,9 @@ stores identifies them. Address routing, goals and ranking are in
    `reason: upstream`. One "Regenerate" button.
 4. **Receipt, share, report.** The output screen offers copy, download
    `.txt`, `tel:` links for every phone on file (each with the open/closed
-   chip of `web/src/lib/hours.ts`; when the DC office is closed the
+   chip of `web/src/lib/hours.ts`; with two numbers each button names its
+   office, "DC office" / "District office", under a one-line note that
+   either works and both log the call; when the DC office is closed the
    district number is listed first with "DC office closed; district
    office answers in office hours."), the contact-form link
    for letters and comments, and "I did it" → `POST /api/receipt`

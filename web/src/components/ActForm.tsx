@@ -35,10 +35,15 @@ const STANDARD_WHY: Record<string, string> = {
 };
 const OUTCOMES: [string, string][] = [['will_support', 'Will support'], ['undecided', 'Undecided'], ['opposed', 'Opposed'], ['no_answer', 'No answer'], ['other', 'Other']];
 
-/** call-follow-through §2: the Worker lists the DC number first, the district number second; when DC is closed the district office (no sourced hours yet) goes first. */
-export function phoneOrder(phones: string[], now: Date = new Date()): { phone: string; district: boolean }[] {
-  const list = phones.map((phone, i) => ({ phone, district: phones.length > 1 && i === 1 }));
-  return list.length > 1 && !isOpen(now) ? [list[1], list[0]] : list;
+/**
+ * call-follow-through §2: the Worker lists the DC number first, the district number second; when DC is closed the
+ * district office (no sourced hours yet) goes first. With two numbers each button names its office ("DC office" /
+ * "District office", the member page's wording); a lone number (member-elect, treasurer) carries no office label.
+ */
+export function phoneOrder(phones: string[], now: Date = new Date()): { phone: string; district: boolean; label: string | null }[] {
+  const two = phones.length > 1;
+  const list = phones.map((phone, i) => ({ phone, district: two && i === 1, label: two ? (i === 1 ? 'District office' : 'DC office') : null }));
+  return two && !isOpen(now) ? [list[1], list[0]] : list;
 }
 
 /** Parses the Worker's SSE body (`event:` + `data:` lines, blank-line separated). */
@@ -281,13 +286,14 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             <button type="button" class="btn btn-ghost" onClick={() => void generate()}>{phase.doc.standard && phase.doc.variant ? 'Another version' : 'Regenerate'}</button>
           </div>
           <div class="flex flex-wrap gap-2 items-center">
-            {phoneOrder(phase.doc.target.phones).map(({ phone, district }) => (
+            {phoneOrder(phase.doc.target.phones).map(({ phone, district, label }) => (
               <span class="flex items-center gap-2">
-                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="btn btn-primary" data-office={district ? 'district' : 'dc'}>Call {phase.doc.target.role} {phase.doc.target.name} · {phone}</a>
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="btn btn-primary" data-office={district ? 'district' : 'dc'}>Call {phase.doc.target.role} {phase.doc.target.name} · {label ? `${label} · ` : ''}{phone}</a>
                 <OpenChip state={district ? place?.state : undefined} />
               </span>
             ))}
             {phoneOrder(phase.doc.target.phones)[0]?.district && <p class="text-sm w-full" data-dc-closed>DC office closed; district office answers in office hours.</p>}
+            {phase.doc.target.phones.length > 1 && <p class="text-sm w-full" data-two-offices>Either number works and both log your call. The DC office is where the legislative staff sit; the district office is the local one.</p>}
             {type !== 'call' && phase.doc.target.contact_form_url && (
               <a href={phase.doc.target.contact_form_url} class="btn btn-primary" rel="noopener" target="_blank">Open the contact form ↗</a>
             )}
