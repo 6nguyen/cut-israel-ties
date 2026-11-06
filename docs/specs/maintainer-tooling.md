@@ -82,6 +82,26 @@ and nothing here writes to `data/` or to `positions`.
    unreadable reply) prints `# no sourced holding: <reason>` and no row.
    Exit codes: 64 usage, 65 not a two-letter state code, 78 no
    `ANTHROPIC_API_KEY`.
+6. **Weekly roster PR** — `.github/workflows/roster.yml` runs Mondays
+   09:00 UTC, daily from `DAILY_FROM` to `DAILY_TO` inclusive (constants
+   in the workflow, `2027-01-03..2027-01-10`, the week after the 120th
+   Congress convenes) and on `workflow_dispatch`. It fetches
+   `legislators-current.yaml` and `legislators-district-offices.yaml` from
+   raw `main` of `unitedstates/congress-legislators` with `If-None-Match`
+   from an ETag kept in `actions/cache`; a 304 on both ends the run with no
+   PR, any other non-200 fails it. The Senate directory XML is fetched as
+   the second `import-members` source and only warns when it cannot be
+   (runner IPs may be walled). It then runs `import-members`,
+   `import-offices` and `npm run check-data -w worker` (`seed.ts --check`:
+   the loader and its seed checks, no write) and, only when `git diff --
+   data/` is non-empty, opens or updates one PR on `chore/roster-<date>`
+   (reusing the open roster PR's branch when there is one) whose body
+   lists the importer output (`changed:`, `stale:`, `left:`), the upstream
+   commit SHA and the bytes fetched. The PR never auto-merges; when a
+   roster PR has been open for `NAG_DAYS` (7) the run comments on it. The
+   ETags are kept only after a complete run, so a failed run retries the
+   same upstream next time. Needs `GITHUB_TOKEN` with `contents: write`
+   and `pull-requests: write`; on failure the logs upload as `roster-logs`.
 
 ## Data & contracts
 - `worker/scripts/draft-position.ts` (CLI) → `worker/src/draft-position.ts`

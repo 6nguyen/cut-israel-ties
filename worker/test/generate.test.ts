@@ -116,7 +116,7 @@ describe('POST /api/generate — happy path', () => {
     expect(done.body).toContain('Correa');
     expect(done.words).toBe(wordCount(done.body));
     expect(done.target.name).toBe('Lou Correa');
-    expect(done.target.phones).toEqual(['202-225-2965']);
+    expect(done.target.phones).toEqual(['202-225-2965', '714-559-6190']); // DC, then the district_phone the loader derives from district_offices.csv (roster-freshness §1)
     expect(calls.haiku).toBe(1);
     expect(calls.opus).toBe(1);
     expect(repo.generations).toHaveLength(1);

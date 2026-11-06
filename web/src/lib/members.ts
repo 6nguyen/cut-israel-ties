@@ -4,18 +4,27 @@ import { join } from 'node:path';
 import { loadRows } from '@worker/load';
 import { isDelegate } from '@worker/districts';
 import { applyFilters, latestPosition, updatedAt, whipCounts, whipRows, whipTargets, POSITIONS, type WhipRow } from '@worker/whip';
-import type { Action, Goal, Member, Position } from '@worker/types';
+import type { Action, Goal, Member, Office, Position } from '@worker/types';
 import { actionsFor, activeGoals, publishedGoals } from './goals';
 
-export type { Member, Position, WhipRow };
+export type { Member, Office, Position, WhipRow };
 export { applyFilters, isDelegate, latestPosition, updatedAt, whipCounts, whipRows, whipTargets, POSITIONS };
 
 let cache: ReturnType<typeof loadRows> | null = null;
 const rows = () => (cache ??= loadRows(join(process.cwd(), '..', 'data')));
 
-export function members(): Member[] { return rows().members; }
+/** Sitting members only: a row with `left_office` is not built, listed or counted (roster-freshness §4); its row stays in data/ for positions and receipts. */
+export function members(): Member[] { return rows().members.filter((m) => !m.left_office); }
 export function positions(): Position[] { return rows().positions; }
-export function member(id: string): Member | null { return rows().members.find((m) => m.bioguide_id === id) ?? null; }
+export function member(id: string): Member | null { return members().find((m) => m.bioguide_id === id) ?? null; }
+/** roster-freshness §1: a member's district offices in file order (data/district_offices.csv). */
+export function officesFor(m: Member): Office[] { return rows().offices.filter((o) => o.bioguide_id === m.bioguide_id); }
+
+/** roster-freshness §2: the contact link's label by kind; a link without a kind is never shown. */
+export const CONTACT_LABEL: Record<NonNullable<Member['contact_kind']>, string> = { form: 'Contact form', zip_gate: 'Contact form (asks for your ZIP)', homepage: 'Office website' };
+export const contactLabel = (m: Member): string | null => (m.contact_form_url && m.contact_kind ? CONTACT_LABEL[m.contact_kind] : null);
+/** roster-freshness §4: the one line under the hero for a member who is not returning; the date is the 120th Congress's first day. */
+export const LEAVES_LINE = 'Leaves office 2027-01-03. Votes on the NDAA and the funding bill until then.';
 
 /** First action's scope decides who a goal targets (the same rule as the result cards). */
 export const firstAction = (g: Goal): Action | undefined => actionsFor(g)[0];

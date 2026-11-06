@@ -1,4 +1,5 @@
 // Render data/ into worker/seed.sql. Apply with `npm run seed` (local) or `seed:remote`.
+// `--check` (roster-freshness §3) runs the loader and its seed checks, prints the counts and writes nothing.
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,6 +7,10 @@ import { loadRows } from '../src/load';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const rows = loadRows(join(here, '..', '..', 'data'));
+if (process.argv.includes('--check')) {
+  console.log(`data/ ok: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);
+  process.exit(0);
+}
 
 const q = (v: unknown): string => (v === null || v === undefined ? 'NULL' : typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
 const insert = (table: string, objs: Record<string, unknown>[]): string[] =>
@@ -17,13 +22,14 @@ const sql = [
   // Production rows in receipts/reports/generations reference goals and actions; deferring the FK
   // checks to the end of the batch lets the delete + re-insert (same ids) pass under D1's enforced FKs.
   'PRAGMA defer_foreign_keys = true;',
-  'DELETE FROM positions; DELETE FROM actions; DELETE FROM goals; DELETE FROM members; DELETE FROM states;',
+  'DELETE FROM positions; DELETE FROM district_offices; DELETE FROM actions; DELETE FROM goals; DELETE FROM members; DELETE FROM states;',
   ...insert('goals', rows.goals as unknown as Record<string, unknown>[]),
   ...insert('actions', rows.actions as unknown as Record<string, unknown>[]),
   ...insert('members', rows.members as unknown as Record<string, unknown>[]),
+  ...insert('district_offices', rows.offices as unknown as Record<string, unknown>[]),
   ...insert('positions', rows.positions.map((p) => ({ ...p, changed_by: 'seed', changed_at: now }))),
   ...insert('states', rows.states as unknown as Record<string, unknown>[]),
 ].join('\n');
 
 writeFileSync(join(here, '..', 'seed.sql'), sql + '\n');
-console.log(`seed.sql: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.positions.length} positions, ${rows.states.length} states`);
+console.log(`seed.sql: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);

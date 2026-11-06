@@ -59,9 +59,11 @@ receipts and reports are in `personalised-documents.md`.
    `sessionStorage` (`cut-ties:route`) for the immediate navigation only.
 7. **Targets per goal.** Federal goals target the representative and both
    senators; leadership goals target only Democratic members of the
-   relevant chamber; state goals target the state treasurer row. Role,
-   phone and position come from `data/` rows (phone falls back to the
-   Capitol switchboard until office numbers are sourced).
+   relevant chamber; state goals target the state treasurer row. A row
+   with `left_office` is never a target; `not_returning` keeps its slot.
+   Phone is the DC number, then the first in-state office from
+   `data/district_offices.csv` as `district_city`/`district_phone`
+   (a hand-filled phone has no city); the switchboard only otherwise.
 8. **Goals overview (`/goals`).** Every `active` goal as a card in
    priority order: category chip, "Priority n" chip, title, summary (≤60
    words, enforced at seed), "We want" sentence, decision date or "not yet

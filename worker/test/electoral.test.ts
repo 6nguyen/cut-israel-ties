@@ -23,6 +23,7 @@ const ROY: Member = {
   bioguide_id: 'R000614', name: 'Chip Roy', party: 'R', chamber: 'house', state: 'TX', district: 21,
   dc_phone: '202-225-4236', district_phone: null, contact_form_url: 'https://roy.house.gov/contact', hasc: 0, conferee: 0,
   rc243: 'yes', jrd_april_2026: null, btb_cosponsor: 0, target_2028: 1, money_url: null, district_office_address: null, district_office_city: null,
+  contact_kind: 'zip_gate', not_returning: 0, left_office: null,
 };
 const ELECTION: ElectionRow = { state: 'TX', district: 21, primary_date: '2028-03-07', filing_deadline: '2027-12-13', source_url: 'https://www.sos.state.tx.us/elections/' };
 const SLUG = primarySlug('TX', 21);

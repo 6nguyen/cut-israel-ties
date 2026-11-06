@@ -10,6 +10,8 @@
     "draft-position": "tsx scripts/draft-position.ts",
     "draft-holding": "tsx scripts/draft-holding.ts",
     "import-members": "tsx scripts/import-members.ts",
+    "import-offices": "tsx scripts/import-offices.ts",
+    "check-data": "tsx scripts/seed.ts --check",
     "seed": "tsx scripts/seed.ts && wrangler d1 execute cut_ties --local --file=schema.sql && wrangler d1 execute cut_ties --local --file=seed.sql",
     "seed:remote": "npm run deploy:config && tsx scripts/seed.ts && wrangler d1 execute cut_ties --remote --config wrangler.deploy.json --file=seed.sql",
     "deploy:config": "tsx scripts/render-deploy-config.ts",

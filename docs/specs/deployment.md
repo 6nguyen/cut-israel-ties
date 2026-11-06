@@ -55,6 +55,12 @@ monitoring, no schema migrations (the schema is created once by hand).
    the dated checklist for the 2027-01-03 district flip
    (`ACTIVE_CONGRESS=120`, `DISTRICT_VINTAGE=Current_Current`, one PR,
    rollback = revert; both district sets stay deployed).
+8. **Roster workflow.** Beside `ci` and `deploy`,
+   `.github/workflows/roster.yml` (maintainer-tooling §6) refreshes
+   `data/members.csv` and `data/district_offices.csv` from upstream on a
+   schedule and opens a data PR; merging that PR is what deploys it, by
+   the same merge → seed → site path as any data change. It deploys
+   nothing itself and needs no Cloudflare secret.
 
 ## Data & contracts
 | Name | Set in | Read by | Without it |
