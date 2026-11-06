@@ -24,6 +24,9 @@ env:
   MONTHLY_COST_USD: ${{ vars.MONTHLY_COST_USD }}
   STRIPE_LINKS: ${{ vars.STRIPE_LINKS }}
   PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+  # address-autocomplete: both must be set for the landing combobox; the build warns and keeps the plain field otherwise.
+  PUBLIC_SUGGEST_PROVIDER: ${{ vars.PUBLIC_SUGGEST_PROVIDER }}
+  PUBLIC_SUGGEST_TOKEN: ${{ secrets.PUBLIC_SUGGEST_TOKEN }}
 
 jobs:
   production:

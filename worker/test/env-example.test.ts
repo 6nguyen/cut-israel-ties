@@ -34,7 +34,7 @@ describe('.env.example', () => {
   });
   it('every env.X read in worker/src and every process/import.meta env in web/ is listed', () => {
     const workerReads = walk('worker/src').flatMap((f) => [...read(f).matchAll(/\benv\.([A-Z_][A-Z0-9_]+)/g)].map((m) => m[1]));
-    const webReads = [...walk('web/src'), 'web/astro.config.mjs'].flatMap((f) => [...read(f).matchAll(/(?:process\.env|import\.meta\.env)\.([A-Z_][A-Z0-9_]+)/g)].map((m) => m[1]));
+    const webReads = [...walk('web/src'), 'web/astro.config.mjs'].flatMap((f) => [...read(f).matchAll(/(?:process\.env|import\.meta\.env|\benv)\.((?:PUBLIC_)?[A-Z_][A-Z0-9_]+)/g)].map((m) => m[1]));
     for (const n of new Set([...workerReads, ...webReads])) if (!BINDINGS.has(n)) expect(names, n).toContain(n);
   });
 });
