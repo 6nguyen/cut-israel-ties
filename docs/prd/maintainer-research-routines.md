@@ -1,5 +1,5 @@
 # Maintainer research routines — PRD
-Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-04
+Status: APPROVED 2026-11-04 (auto) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 Every number and date the site shows between now and 2026-12-19 comes from
@@ -217,24 +217,32 @@ rows merged per run, `## VERIFY` items per run (should fall as sources
 land), days between a decision and its date reaching `main` (target: one
 run). After 2026-12-19 the shipping PR records the counts and the spend.
 
-## State (updated 2026-11-04)
+## State (updated 2026-11-06)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Prompt files and the output contract
+  - [~] 1. Prompt files and the output contract · feat/maintainer-research-routines-prompt
   - [ ] 5. Roll-call import
   - [ ] 2. Federal positions and dates
   - [ ] 3. Senate leader candidate signals
   - [ ] 4. State holdings batch
-- Completed: none.
-- Folded: none.
-- Branch / open PRs: none.
-- Remaining: all. §1 and §5 are builds; §2–§4 are the schedules plus
-  their first runs.
-- Decisions since last update: none.
-- Known failures / blockers: none (`draft-holding` shipped with
-  `state-holdings-sweep` §1).
-- Next action: /implement-prd-section
-  docs/prd/maintainer-research-routines.md (§1).
-
+- Completed: none merged.
+- Folded: §1 (routines parts of the delta: Behavior item 7, Data &
+  contracts, Invariants, Performance budget; `import-rollcall` parts wait
+  for §5).
+- Branch / open PRs: feat/maintainer-research-routines-prompt.
+- Files changed (file:line map): `.claude/routines/federal-positions.md`,
+  `senate-leader-signals.md`, `state-holdings.md` (shared `## Output
+  contract`, then `## Steps`, `## Cadence`); `worker/test/routines.test.ts`
+  (contract identical across files, caps and PR sections present);
+  `docs/specs/maintainer-tooling.md` (item 7, contracts, invariant, budget).
+- Tests run + result: quiet-check test PASS (vitest, 4 new cases).
+- Remaining: §5 build; §2–§4 are the schedules plus their first runs.
+- Decisions since last update: contract `User-Agent` contact is the
+  repo's issues page (no public address exists); routines run `check-data`
+  before opening the PR; batch two of state holdings is CA, OH, GA, NJ, VA,
+  AZ, MA, TN, IN, MO (2020 Census order after batch one).
+- Known failures / blockers: none.
+- Next action: merge the §1 PR, then /implement-prd-section
+  docs/prd/maintainer-research-routines.md (§5).
 ## Open questions
 1. Where the routine runs. Proposal: the account's Claude Code scheduled
    routines (cloud), because they already have repository access and a
@@ -254,3 +262,10 @@ run). After 2026-12-19 the shipping PR records the counts and the spend.
 - 2026-11-04 — created; APPROVED (auto): no blocking questions, proposals
   stand as decisions. Replaces `## Next` row 1 (Senate leader candidate
   scan).
+- 2026-11-06 — §1 built: `.claude/routines/` prompt files with one shared
+  output contract, `worker/test/routines.test.ts`, spec fold. Deviations:
+  the spec's Behavior list already had six items, so research routines
+  are item 7 and roll-call import will be item 8; the contract adds a
+  `check-data` gate before the PR and names the repo's issues page as the
+  `User-Agent` contact; §4 batch two is spelled out (CA, OH, GA, NJ, VA,
+  AZ, MA, TN, IN, MO).
