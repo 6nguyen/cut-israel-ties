@@ -69,9 +69,9 @@ monitoring, no schema migrations (the schema is created once by hand).
 | `MONTHLY_COST_USD`, `STRIPE_LINKS` | GitHub Actions variables → build env | `web/src/lib/donate.ts` | `/donate` shows $0 / "link not configured" |
 | `PUBLIC_TURNSTILE_SITE_KEY` | GitHub Actions variable → build env | landing and act pages | no widget; `/api/route` refused once the secret is set |
 | `API_ORIGIN` | dev shell; Pages Preview variable | dev proxy; `web/functions/api/[[path]].ts` | dev → `localhost:8787`; previews answer 503 on `/api/*` |
-| `MAX_GENERATIONS_PER_DAY`, `MAINTAINER_EMAIL`, `DIGEST_FROM`, `GEOCODER_URL` | `worker/wrangler.jsonc` `vars` | Worker | code defaults; digest logs and exits |
+| `MAX_GENERATIONS_PER_DAY`, `LLM_MONTHLY_BUDGET_USD`, `MAINTAINER_EMAIL`, `DIGEST_FROM`, `GEOCODER_URL` | `worker/wrangler.jsonc` `vars` | Worker | code defaults (budget 15); digest logs and exits |
 | `DISTRICT_VINTAGE` | `worker/wrangler.jsonc` `vars` | Worker (`geocode.ts`) | code default `ACS2025_Current` (119th map); `Current_Current` from 2027-01-03 with `ACTIVE_CONGRESS` |
-| `TURNSTILE_SECRET`, `ANTHROPIC_API_KEY` | `wrangler secret put` | Worker | Turnstile skipped (dev only); generation 503 |
+| `TURNSTILE_SECRET`, `ANTHROPIC_API_KEY` | `wrangler secret put` | Worker | Turnstile skipped (dev only); generation serves the standard script |
 | `VISITS_ENABLED` | `worker/wrangler.jsonc` `vars` | Worker (`/api/visits*`) | on; `"0"` pauses listings (POST 503, lists empty) |
 | `VISITS_REVIEW_SECRET` | `wrangler secret put` | Worker (digest review links) | digest lists pending visits without links; `/api/visits/review` 503 |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `D1_DATABASE_ID` | GitHub Actions secrets | `deploy.yml` → wrangler, renderer | every deploy step fails / renderer refuses |

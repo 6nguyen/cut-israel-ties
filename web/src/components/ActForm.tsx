@@ -20,6 +20,13 @@ interface Props {
 
 interface Choice { id: string; label: string }
 type Phase = { kind: 'form' } | { kind: 'generating'; stage: string } | { kind: 'output'; doc: GenerateDone } | { kind: 'refused'; message: string };
+/** generation-cost §4: the one line of why under a standard script. */
+const STANDARD_WHY: Record<string, string> = {
+  capacity: "Today's personalised drafts are used up, so this one is built from our template with your lines dropped in.",
+  budget: "This month's drafting budget is spent, so this one is built from our template with your lines dropped in.",
+  unconfigured: 'Drafting is not configured on this server, so this one is built from our template with your lines dropped in.',
+  upstream: 'The drafting service is not answering, so this one is built from our template with your lines dropped in.',
+};
 const OUTCOMES: [string, string][] = [['will_support', 'Will support'], ['undecided', 'Undecided'], ['opposed', 'Opposed'], ['no_answer', 'No answer'], ['other', 'Other']];
 
 /** Parses the Worker's SSE body (`event:` + `data:` lines, blank-line separated). */
@@ -113,7 +120,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
       let final: GenerateDone | null = null;
       let refused: string | null = null;
       await readSse(res.body, (event, data) => {
-        if (event === 'status') setPhase({ kind: 'generating', stage: data.stage === 'redrafting' ? 'Redrafting…' : 'Drafting…' });
+        if (event === 'status') setPhase({ kind: 'generating', stage: data.stage === 'redrafting' ? 'Redrafting…' : data.stage === 'standard' ? 'Building the standard script…' : 'Drafting…' });
         else if (event === 'delta') { buf += String(data.text ?? ''); setText(buf); }
         else if (event === 'reset') { buf = ''; setText(''); }
         else if (event === 'done') final = data as unknown as GenerateDone;
@@ -207,7 +214,8 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
 
       {(generating || phase.kind === 'output') && (
         <div class="card p-4">
-          <p class="label-code" aria-live="polite">{generating ? phase.stage : `Your ${kind} · ${phase.kind === 'output' ? phase.doc.words : 0} words`}</p>
+          <p class="label-code" aria-live="polite">{generating ? phase.stage : phase.kind === 'output' && phase.doc.standard ? `Standard script — not personalised today · ${phase.doc.words} words` : `Your ${kind} · ${phase.kind === 'output' ? phase.doc.words : 0} words`}</p>
+          {phase.kind === 'output' && phase.doc.standard && <p class="text-xs text-ink/70 mt-1">{STANDARD_WHY[phase.doc.reason ?? 'capacity'] ?? STANDARD_WHY.capacity}</p>}
           {phase.kind === 'output' && phase.doc.subject && <p class="font-syne font-extrabold mt-3">{phase.doc.subject}</p>}
           <pre class="whitespace-pre-wrap font-sans text-base leading-relaxed mt-3 min-h-[8rem]">{text}{generating && <span class="animate-pulse">▍</span>}</pre>
         </div>

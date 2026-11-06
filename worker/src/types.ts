@@ -101,6 +101,8 @@ export interface Action {
   form_schema: string;
   prompt_template: string | null;
   doc_format: string;
+  /** generation-cost §4: plain text with {{placeholders}}, rendered by worker/src/standard.ts when no model runs. */
+  standard_template: string | null;
 }
 
 export interface Position {
@@ -130,8 +132,13 @@ export interface GenerationRow {
   ip_hash: string;
   input_tokens: number;
   output_tokens: number;
-  model: string;
+  model: string; // DOC_MODEL, or 'standard' for a code-built script (generation-cost §4)
+  attempt: number; // 1, or 2 when a redraft ran (generation-cost §3)
+  check_fail: string | null; // the failure class of attempt 1 when a redraft ran
 }
+
+/** generation-cost §1: per-(model, action, first-failure class) token sums since an instant; `costUsd` prices them. */
+export interface TokenSum { model: string; action_id: number; check_fail: string | null; input: number; output: number; count: number; redrafts: number }
 export type ReceiptKind = 'action' | 'captain-list'; // commitment-funnel §2.1: 'captain-list' rows have no action and no target
 export interface ReceiptRow { goal_id: number; action_id: number | null; target_id: string | null; state: string | null; district: number | null; created_at: string; device_hash: string; kind: ReceiptKind; ip_hash: string | null }
 /** district-counters §1: one COUNT per bucket; `calls|letters|comments` follow the action `type`, `captain_lists` the receipt kind. */
@@ -166,6 +173,8 @@ export interface Repo {
   generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts>;
   recentShingles(actionId: number, limit: number): Promise<Uint32Array[]>;
   insertGeneration(row: GenerationRow): Promise<void>;
+  // generation-cost §1: one query behind the daily cap and the digest's spend block.
+  tokensSince(iso: string): Promise<TokenSum[]>;
   screenedOutCount(deviceHash: string, since: Date): Promise<number>;
   insertScreening(deviceHash: string, actionId: number, cls: ScreenClass, at: Date): Promise<void>;
   blockedUntil(deviceHash: string): Promise<Date | null>;
@@ -220,6 +229,8 @@ export interface Env {
   DISTRICT_VINTAGE?: string;
   ANTHROPIC_API_KEY?: string;
   MAX_GENERATIONS_PER_DAY?: string;
+  // generation-cost §1: the month's LLM budget in USD (default 15; "0" = standard scripts only).
+  LLM_MONTHLY_BUDGET_USD?: string;
   // §7.2 nightly digest: Email Routing binding, recipient and sender (an address on the zone).
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;

@@ -16,3 +16,8 @@ prompt_template: |
   leader who commits in public to stripping the integration section from the NDAA. If the facts name our pick, name
   that senator as the leader to back. Close by asking who the senator will support.
 doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "leader"], "ask": "vote only for a leader"}
+standard_template: |
+  Hi, my name is {{user_first_name}} and I live in {{user_city}}. I am a constituent of {{target_role}} {{target_name}}.
+  I am calling about the caucus leadership vote. I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{prior_vote_line}} {{position_line}}
+  {{user_why}}
+  Can you tell me who {{target_role}} {{target_name}} will back, and whether that candidate has made that commitment in public? Thank you for your time.
