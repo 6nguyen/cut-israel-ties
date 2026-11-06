@@ -105,6 +105,11 @@ documents, receipts and reports are in `personalised-documents.md`.
       request carrying it is the geocoder call, and the response body
       does not contain it (`worker/test/route.test.ts`).
 - [ ] A ZIP-only submission never reaches the geocoder.
+- [ ] The district parser reads the number from `BASENAME`, then `GEOID`,
+      then a legacy `CD<nnn>` field, so a Census field rename never turns
+      every address into `unresolved` (`worker/test/route.test.ts`).
+- [ ] A failed submit resets the Turnstile widget, so the retry carries
+      a fresh token instead of the consumed one.
 - [ ] Exactly two cards for a resolved district, each with ≥1 target;
       an all-Republican delegation gets the NDAA goal plus the state goal.
 - [ ] Leadership-goal targets are Democrats only.
