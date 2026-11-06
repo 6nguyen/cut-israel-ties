@@ -1,5 +1,5 @@
 # Address autocomplete — PRD
-Status: APPROVED 2026-11-06 (auto) · Owner: George Nguyen · Last updated: 2026-11-06
+Status: SHIPPED 2026-11-06 (PR #50) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 The landing field takes a free-text street address and gives no feedback
