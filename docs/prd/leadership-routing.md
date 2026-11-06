@@ -248,9 +248,9 @@ Relies on: `docs/research/leader-call-scripts.md`,
 - **Measure:** the share of leadership-card views with ≥2 targets, and
   call receipts per leadership card, against before.
 
-## State (updated 2026-11-06, PR pending)
+## State (updated 2026-11-06, PR #48 open)
 - Sections:
-  - [~] 1. Caucus and incoming-member data · feat/leadership-routing-caucus-data
+  - [~] 1. Caucus and incoming-member data · feat/leadership-routing-caucus-data · PR #48
   - [ ] 2. Router: one leadership slot, the incoming caucus
   - [ ] 3. One ask for both chambers, with the leader named by a sourced row
 - Completed: PRD.
@@ -273,7 +273,7 @@ Relies on: `docs/research/leader-call-scripts.md`,
   row for seats without a departing same-number member (TX-35, UT-1, CA-6 under
   Prop 50), for uncalled races, or for IL-2 (no https contact URL). Phones empty.
 - Known failures / blockers: none.
-- Next action: open PR for §1, then `/implement-prd-section docs/prd/leadership-routing.md` §2.
+- Next action: merge PR #48, then `/implement-prd-section docs/prd/leadership-routing.md` (next: §2. Router: one leadership slot, the incoming caucus).
 ## Open questions
 1. Name Jeffries and Schumer to every Democratic office, and how?
    Answered by the owner on 2026-11-06: conditional. The leader is named
