@@ -1,5 +1,5 @@
 # Call follow-through — PRD
-Status: APPROVED 2026-11-05 (auto) · Owner: George Nguyen · Last updated: 2026-11-05
+Status: SHIPPED 2026-11-06 (PR #32) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 The funnel ends at one receipt. The office-response picker has
@@ -166,20 +166,21 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
 - Stop rule: if receipts per device per goal do not rise within four
   weeks, keep the hours work and remove the chain copy.
 
-## State (updated 2026-11-05)
+## State (updated 2026-11-06)
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 2. Office hours
-  - [~] 1. Voicemail and busy follow-up
-  - [~] 3. Next-office chain
-  - [~] 4. "One of N" echo
-  - [~] 5. Decision-date feed
-- Completed: §1–§5 built on the branch, awaiting the integration PR: hours library, 10:00 default, open/closed chips; voicemail retry; next-office chain over a local receipt log; first-person counts echo; `/feeds/decisions.ics` with subscribe lines on `/goals` and goal pages.
-- Folded: none.
-- Branch / open PRs: `feat/call-follow-through` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
-- Remaining: nothing on this branch; district-office hours arrive with the roster PRD's `district_offices.csv`.
+  - [x] 2. Office hours · PR #32
+  - [x] 1. Voicemail and busy follow-up · PR #32
+  - [x] 3. Next-office chain · PR #32
+  - [x] 4. "One of N" echo · PR #32
+  - [x] 5. Decision-date feed · PR #32
+- Completed: §1–5 merged to main via PR #32 (integration of `feat/call-follow-through`): hours library, 10:00 default, open/closed chips with district-office hours from `data/district_offices.csv`; voicemail retry; next-office chain over a local receipt log; first-person counts echo; `/feeds/decisions.ics` with subscribe lines on `/goals` and goal pages.
+- Folded: spec delta in `docs/specs/personalised-documents.md`, `member-pages.md` and `goal-pages.md`.
+- Branch / open PRs: none (integration PR #32, https://github.com/6nguyen/cut-the-ties/pull/32, merged 2026-11-06).
+- Remaining: none.
 - Decisions since last update: see `## Changes` 2026-11-05.
-- Known failures / blockers: district-office hours come from the roster PRD; §2 ships with the DC default alone if that PRD is not merged.
-- Next action: the orchestrator's integration PR; then archive this PRD once the spec deltas are folded (they already are in `docs/specs/`).
+- Known failures / blockers: none.
+- Next action: none; archived.
 
 ## Open questions
 - Should the retry default to the district office when the DC mailbox was

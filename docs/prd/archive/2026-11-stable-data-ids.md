@@ -1,5 +1,5 @@
 # Stable goal and action ids — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-05
+Status: SHIPPED 2026-11-06 (PR #32) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 `loadRows` in `worker/src/load.ts` numbers goals and actions by their
@@ -98,19 +98,19 @@ the point after which it cannot be fixed without a data migration.
 - Metric: zero loader id failures in CI after merge; the deploy PRD's
   known-bug line is removed in the same PR.
 
-## State (updated 2026-11-05)
+## State (updated 2026-11-06)
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Explicit ids in goal and action YAML
-  - [~] 2. Loader guards
-  - [~] 3. Frozen registry test
-  (all three built on `feat/stable-data-ids`, awaiting the integration PR)
-- Completed: §1–3 built and green on `feat/stable-data-ids` (tsc, test 205 passed / 18 new in `worker/test/ids.test.ts`, prd-lint, doc-lint); the Spec delta is applied; `deploy.md`'s known-bug line is dropped.
-- Folded: the Spec delta's four MODIFIED lines are applied in the specs; archive this PRD when the integration PR merges.
-- Branch / open PRs: `feat/stable-data-ids` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
-- Remaining: flip §1–3 to `[x]`, archive to `docs/prd/archive/`, and run `scripts/features.sh .` when the integration PR merges. Must land before the first production seed (`deploy.md` §3).
+  - [x] 1. Explicit ids in goal and action YAML · PR #32
+  - [x] 2. Loader guards · PR #32
+  - [x] 3. Frozen registry test · PR #32
+- Completed: §1–3 merged to main via PR #32 (integration of `feat/stable-data-ids`): explicit ids in goal and action YAML, `data/ids.md` registry, loader guards, `worker/test/ids.test.ts`.
+- Folded: the Spec delta's four MODIFIED lines are in `docs/specs/action-router.md`, `maintainer-tooling.md` and `data/README.md`.
+- Branch / open PRs: none (integration PR #32, https://github.com/6nguyen/cut-the-ties/pull/32, merged 2026-11-06).
+- Remaining: none. Landed before the first production seed (`deploy.md` §3), as required.
 - Decisions since last update: see `## Changes` 2026-11-05 (registry module, retired-id reading, lenient live-row-without-file, script body moved under `src/`).
 - Known failures / blockers: none.
-- Next action: orchestrator opens the integration PR; owner merges; then the archive step above.
+- Next action: none; archived.
 
 ## Open questions
 1. Should `positions/*.csv` and `elections.csv` also carry goal ids

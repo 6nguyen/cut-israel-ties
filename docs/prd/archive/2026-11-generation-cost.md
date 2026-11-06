@@ -1,5 +1,5 @@
 # Generation cost and the standard script — PRD
-Status: APPROVED 2026-11-05 (auto) · Owner: George Nguyen · Last updated: 2026-11-05
+Status: SHIPPED 2026-11-06 (PR #32) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 One generated call script costs about $0.02 on `claude-opus-5-5` and the
@@ -165,27 +165,20 @@ Relies on: `docs/research/generation-cost.md`.
   split, receipt rate after standard vs generated scripts. These answer
   Open question 1.
 
-## State (updated 2026-11-05)
+## State (updated 2026-11-06)
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Budget-derived daily cap
-  - [~] 3. Cheaper call scripts
-  - [~] 4. Standard script when capped or unconfigured
-  - [~] 2. Cost telemetry in the digest
-- Completed: all four sections built and green on `feat/generation-cost`
-  (`cost.ts`, `standard.ts`, SSE standard path, five
-  `standard_template`s, act-page label, digest "LLM spend" block and
-  the 80% send; spec delta applied to personalised-documents.md,
-  deployment.md and maintainer-tooling.md). `[x]` once the integration
-  PR merges.
-- Folded: none.
-- Branch / open PRs: `feat/generation-cost` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
-- Remaining: merge via the orchestrator's integration PR; then the
-  30-day measurements in Rollout & metrics.
+  - [x] 1. Budget-derived daily cap · PR #32
+  - [x] 3. Cheaper call scripts · PR #32
+  - [x] 4. Standard script when capped or unconfigured · PR #32
+  - [x] 2. Cost telemetry in the digest · PR #32
+- Completed: §1–4 merged to main via PR #32 (integration of `feat/generation-cost`): `worker/src/cost.ts`, `standard.ts`, SSE standard path, five `standard_template`s, act-page label, digest "LLM spend" block and the 80% send.
+- Folded: spec delta in `docs/specs/personalised-documents.md`, `deployment.md` and `maintainer-tooling.md`.
+- Branch / open PRs: none (integration PR #32, https://github.com/6nguyen/cut-the-ties/pull/32, merged 2026-11-06).
+- Remaining: owner follow-ups, not code: `npm run schema:remote -w worker` in production so `generations` carries `standard_template`, `attempt` and `check_fail` (deploy §3 step); the 30-day measurements in Rollout & metrics once the site is live.
 - Decisions since last update: see `## Changes` 2026-11-05.
-- Known failures / blockers: none; needs no owner provisioning
-  (`LLM_MONTHLY_BUDGET_USD` has a code default).
-- Next action: merge; archive this PRD once the integration PR lands and
-  the spec files carry the delta (they do on this branch).
+- Known failures / blockers: none.
+- Next action: none; archived.
 
 ## Open questions
 1. Should call scripts move to `claude-sonnet-5-5` (about half the cost

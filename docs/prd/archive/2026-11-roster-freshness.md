@@ -1,5 +1,5 @@
 # Roster freshness and district offices — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-05
+Status: SHIPPED 2026-11-06 (PR #32) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 `data/members.csv` is refreshed only when a maintainer runs
@@ -156,21 +156,20 @@ and the roster paragraphs of [data-ingestion](../research/data-ingestion.md).
   run sets `left_office` on departed members and the next deploy drops
   them from routing.
 
-## State (updated 2026-11-05)
+## State (updated 2026-11-06)
+- Status: SHIPPED
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. District offices as rows
-  - [~] 2. Contact-form fallback
-  - [~] 3. Weekly roster diff
-  - [~] 4. Departing members
-- Completed: none merged; all four sections built on `feat/roster-freshness`, awaiting the integration PR.
-- Folded: spec delta applied in `docs/specs/member-pages.md`,
-  `action-router.md` §7, `maintainer-tooling.md` §6, `deployment.md` §8
-  (same branch; the final integration PR archives this file).
-- Branch / open PRs: `feat/roster-freshness` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
-- Remaining: first scheduled run of `roster.yml`; hand-entered office rows for the 4 members with none (Gallagher, Wahab, Blair, Graham).
+  - [x] 1. District offices as rows · PR #32
+  - [x] 2. Contact-form fallback · PR #32
+  - [x] 3. Weekly roster diff · PR #32
+  - [x] 4. Departing members · PR #32
+- Completed: §1–4 merged to main via PR #32 (integration of `feat/roster-freshness`): `data/district_offices.csv` (1306 rows), contact-form fallback, `.github/workflows/roster.yml`, `not_returning` / `left_office` columns and seed checks.
+- Folded: spec delta in `docs/specs/member-pages.md`, `action-router.md` §7, `maintainer-tooling.md` §6, `deployment.md` §8.
+- Branch / open PRs: none (integration PR #32, https://github.com/6nguyen/cut-the-ties/pull/32, merged 2026-11-06).
+- Remaining: owner follow-ups, not code: `workflow_dispatch` `roster.yml` once from GitHub Actions and merge its first data PR (Senate XML was only verified from a residential IP; the workflow warns, never fails, when it is refused); hand-enter office rows for the 4 members with none (G000607 Gallagher, W000832 Wahab, B001328 Blair, G000608 Graham).
 - Decisions since last update: see `## Changes` 2026-11-05.
-- Known failures / blockers: Senate XML must be re-tested from a GitHub Actions runner (200 observed only from a residential IP; the workflow only warns when it fails). The member page is 4.7 KB gzip, over the 2.7 KB figure measured on 2026-11-04 before other features landed; budget is the landing page's, not this one's.
-- Next action: integration PR; then `workflow_dispatch` the roster workflow once and merge its first data PR.
+- Known failures / blockers: none blocking. The member page is 4.7 KB gzip, over the 2.7 KB measured 2026-11-04 before other features landed; the budget is the landing page's, not this one's.
+- Next action: none; archived. Owner follow-ups are tracked in `docs/guides/deploy.md` §5.
 
 ## Open questions
 - Should the results card show the district number first for users whose
