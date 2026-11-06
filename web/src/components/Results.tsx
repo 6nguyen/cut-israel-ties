@@ -1,11 +1,37 @@
 import { useEffect, useState } from 'preact/hooks';
 import { districtLabel, route, type GoalCard, type RouteResponse } from '../lib/api';
+import type { Chamber } from '@worker/types';
 import { clearPlace, loadPlace, takeRoute } from '../lib/store';
 import { CATEGORY, Target, fmtDate } from './Target';
 import Counts from './Counts';
 
-function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string; district: number }) {
+const CHAMBER: Record<Chamber, string> = { house: 'House', senate: 'Senate' };
+
+/** The targets box, counter line, ask and CTA of one goal; a leadership card renders one per chamber block. */
+function Block({ g, state, district, label }: { g: GoalCard; state: string; district: number; label?: string }) {
   const date = fmtDate(g.decision_date);
+  return (
+    <div class="flex flex-col gap-4" data-block={g.chamber ?? g.slug}>
+      {label && <p class="label-code">{label}{date ? ` · Decision: ${date}` : ''}</p>}
+      <div class="border-2 border-ink">
+        <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call ({g.targets.length})</p>
+        <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
+        <Counts goal={g.slug} state={state} district={district} />
+      </div>
+      <p class="font-semibold">{g.ask_text}</p>
+      <a href={g.action_href} class="btn btn-primary self-start">Get my script →</a>
+    </div>
+  );
+}
+
+/**
+ * leadership-routing §2.3–2.5: a leadership card holds the House block, then the Senate block (`also` carries the
+ * second goal); a seat whose race is not called shows one line in place of a block. Other cards are one block.
+ */
+export function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string; district: number }) {
+  const date = fmtDate(g.decision_date);
+  const split = g.chamber !== undefined && (g.also !== undefined || (g.uncalled?.length ?? 0) > 0);
+  const chambers: Chamber[] = ['house', 'senate'];
   return (
     <article class="card-lg flex flex-col">
       <div class="relative hero-gradient text-newsprint p-5 min-h-[180px] flex flex-col justify-end">
@@ -15,7 +41,7 @@ function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string
           <span class="chip bg-ink text-newsprint border-newsprint">Action {n}</span>
         </div>
         <h2 class="relative headline-lg">{g.title}</h2>
-        {date && <p class="relative label-code mt-2 text-hazard">{g.election ? 'Primary' : 'Decision'}: {date}</p>}
+        {date && !split && <p class="relative label-code mt-2 text-hazard">{g.election ? 'Primary' : 'Decision'}: {date}</p>}
         {g.election && (
           <p class="relative label-code mt-1 text-hazard">Filing deadline: {fmtDate(g.election.filing_deadline) ?? 'not yet sourced'}
             {g.election.source_url && <> · <a href={g.election.source_url} class="underline" rel="noopener noreferrer">source</a></>}
@@ -24,13 +50,14 @@ function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string
       </div>
       <div class="p-5 flex flex-col gap-4 flex-1">
         <p class="text-base">{g.summary}</p>
-        <div class="border-2 border-ink">
-          <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call ({g.targets.length})</p>
-          <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
-          <Counts goal={g.slug} state={state} district={district} />
-        </div>
-        <p class="font-semibold">{g.ask_text}</p>
-        <a href={g.action_href} class="btn btn-primary mt-auto self-start">Get my script →</a>
+        {split
+          ? chambers.map((c) => {
+              const block = [g, g.also].find((x) => x?.chamber === c);
+              if (block) return <Block g={block} state={state} district={district} label={CHAMBER[c]} />;
+              if (g.uncalled?.includes(c)) return <p class="label-code" data-uncalled={c}>{CHAMBER[c]} seat: race not called yet.</p>;
+              return null;
+            })
+          : <Block g={g} state={state} district={district} />}
       </div>
     </article>
   );

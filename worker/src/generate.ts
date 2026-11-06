@@ -1,6 +1,6 @@
 // §4 personalised documents: input shape, Haiku screen, prompt, Opus stream, deterministic output
 // check, shingle uniqueness and the limits. Every number the page shows comes from this file, not the model.
-import type { Action, Goal, Member, Position, Repo, ScreenClass, StateRow } from './types';
+import { TAKES_OFFICE, type Action, type Chamber, type Goal, type Member, type MemberElect, type Position, type Repo, type ScreenClass, type StateRow } from './types';
 import { DOC_MODEL, SCREEN_MODEL, callMessage, streamMessage } from './anthropic';
 import { priorVote } from './route';
 import { fillAsk } from './state-copy';
@@ -74,30 +74,89 @@ export function shapeFields(schema: FormField[], raw: unknown): Shape {
 }
 
 // ---- targets -----------------------------------------------------------------------------
+/** leadership-routing §3.2: the incumbent leader of the target's chamber and their sourced position row on this goal (null row = nothing on file). */
+export interface LeaderRow { name: string; position: Position | null }
 export type Target =
-  | { kind: 'member'; id: string; member: Member; position: Position | null; prior_vote: string }
+  | { kind: 'member'; id: string; member: Member; position: Position | null; prior_vote: string; leader?: LeaderRow | null }
+  // leadership-routing §2.6: a member-elect (id is the elect_id); leadership goals only.
+  | { kind: 'elect'; id: string; elect: MemberElect; replaces_name: string; leader?: LeaderRow | null }
   | { kind: 'state'; id: string; state: string; row: StateRow };
 
 const STATE_RE = /^[A-Z]{2}$/;
+const BIOGUIDE_RE = /^[A-Z]\d{6}$/;
+const ELECT_RE = /^[A-Z]{2}-[A-Za-z0-9-]{1,40}$/;
+const NO_VOTE = 'No recorded vote yet';
+const DEPARTING = 'the departing member';
+const ELECT_ROLE: Record<Chamber, string> = { house: 'Representative-elect', senate: 'Senator-elect' };
 
-/** State-scope actions take a state code; member scopes a bioguide id whose chamber matches. */
+/** The `incumbents` of an action's script blocks (leader-call-scripts §2); empty for a template-only action. */
+export function incumbentIds(action: Action): string[] {
+  if (!action.script_blocks) return [];
+  const raw = JSON.parse(action.script_blocks) as { incumbents?: unknown };
+  return Array.isArray(raw.incumbents) ? raw.incumbents.filter((x): x is string => typeof x === 'string') : [];
+}
+
+/** §3.2: the leader row for one target; null for the leader themself (the self asks need none) and when no incumbent sits in that chamber. */
+export function pickLeader(incumbents: string[], chamber: Chamber, targetId: string, members: Member[], positions: Position[], goalId: number): LeaderRow | null {
+  if (incumbents.includes(targetId)) return null;
+  const leader = members.find((m) => incumbents.includes(m.bioguide_id) && m.chamber === chamber);
+  if (!leader) return null;
+  return { name: leader.name, position: positions.find((p) => p.bioguide_id === leader.bioguide_id && p.goal_id === goalId) ?? null };
+}
+
+async function leaderFor(repo: Repo, action: Action, goal: Goal, chamber: Chamber, targetId: string): Promise<LeaderRow | null> {
+  if (goal.category !== 'leadership') return null;
+  const ids = incumbentIds(action);
+  if (ids.length === 0 || ids.includes(targetId)) return null;
+  const members = (await Promise.all(ids.map((id) => repo.member(id)))).filter((m): m is Member => m !== null);
+  const positions = await repo.positionsFor(members.map((m) => m.bioguide_id), [goal.id]);
+  return pickLeader(ids, chamber, targetId, members, positions, goal.id);
+}
+
+/**
+ * §3.3: one code-built sentence on the incumbent leader's public commitment, in the caller's voice. `for` = the leader
+ * has committed; any other sourced row = has not; no row = has not said so in public. Never written by the model.
+ */
+export function leaderLine(leader: LeaderRow): string {
+  const p = leader.position?.position;
+  if (p === 'for') return `${leader.name} has made that commitment in public.`;
+  if (p === 'against' || p === 'uncommitted') return `${leader.name} has not made that commitment. Until that changes, the vote should go to someone else.`;
+  return `${leader.name} has not said so in public. Until that changes, the vote should go to someone else.`;
+}
+
+/**
+ * State-scope actions take a state code; member scopes a bioguide id whose chamber matches, or (leadership-routing §2.6)
+ * an elect_id on a leadership goal. Leadership targets must caucus with the Democrats.
+ */
 export async function resolveTarget(repo: Repo, action: Action, goal: Goal, id: unknown): Promise<Target | null> {
-  if (typeof id !== 'string' || id === '' || id.length > 10) return null;
+  if (typeof id !== 'string' || id === '' || id.length > 40) return null;
   if (action.target_scope === 'state') {
     if (!STATE_RE.test(id)) return null;
     const row = await repo.stateRow(id);
     return row ? { kind: 'state', id, state: id, row } : null;
   }
-  const member = await repo.member(id);
-  if (!member) return null;
-  if (action.target_scope !== 'both' && member.chamber !== action.target_scope) return null;
-  if (goal.category === 'leadership' && member.party !== 'D') return null;
-  const [position] = await repo.positionsFor([member.bioguide_id], [goal.id]);
-  return { kind: 'member', id, member, position: position ?? null, prior_vote: priorVote(member, goal) };
+  if (BIOGUIDE_RE.test(id)) {
+    const member = await repo.member(id);
+    if (!member) return null;
+    if (action.target_scope !== 'both' && member.chamber !== action.target_scope) return null;
+    if (goal.category === 'leadership' && member.caucus !== 'D') return null;
+    const [position] = await repo.positionsFor([member.bioguide_id], [goal.id]);
+    const leader = await leaderFor(repo, action, goal, member.chamber, id);
+    return { kind: 'member', id, member, position: position ?? null, prior_vote: priorVote(member, goal), leader };
+  }
+  if (goal.category !== 'leadership' || !ELECT_RE.test(id)) return null;
+  const elect = (await repo.membersElect(id.slice(0, 2))).find((e) => e.elect_id === id);
+  if (!elect || elect.caucus !== 'D') return null;
+  if (action.target_scope !== 'both' && elect.chamber !== action.target_scope) return null;
+  const replaced = await repo.member(elect.replaces);
+  const leader = await leaderFor(repo, action, goal, elect.chamber, id);
+  return { kind: 'elect', id, elect, replaces_name: replaced?.name ?? DEPARTING, leader };
 }
 
 export function targetName(t: Target): string {
-  return t.kind === 'member' ? t.member.name : t.row.treasurer_name || `${t.state} State Treasurer`;
+  if (t.kind === 'member') return t.member.name;
+  if (t.kind === 'elect') return t.elect.name;
+  return t.row.treasurer_name || `${t.state} State Treasurer`;
 }
 
 export interface TargetContact { id: string; name: string; role: string; phones: string[]; contact_form_url: string | null }
@@ -105,6 +164,10 @@ export function targetContact(t: Target): TargetContact {
   if (t.kind === 'member') {
     const m = t.member;
     return { id: t.id, name: m.name, role: m.chamber === 'house' ? 'Rep.' : 'Sen.', phones: [m.dc_phone, m.district_phone].filter((p): p is string => !!p), contact_form_url: m.contact_form_url };
+  }
+  if (t.kind === 'elect') {
+    const e = t.elect;
+    return { id: t.id, name: e.name, role: ELECT_ROLE[e.chamber], phones: e.phone ? [e.phone] : [], contact_form_url: e.contact_url };
   }
   return { id: t.id, name: targetName(t), role: 'Treasurer', phones: t.row.treasurer_phone ? [t.row.treasurer_phone] : [], contact_form_url: t.row.campaign_url };
 }
@@ -135,6 +198,11 @@ export function factBlock(goal: Goal, action: Action, fmt: DocFormat, t: Target)
     if (roles.length) L.push(`Committee role: ${roles.join(', ')}`);
     L.push(`Stated position on this goal: ${t.position ? `${t.position.position} (source dated ${t.position.source_date})` : 'no stated position on record'}`);
     L.push(`Prior vote: ${t.prior_vote}`);
+  } else if (t.kind === 'elect') {
+    const e = t.elect;
+    L.push(`Target: ${ELECT_ROLE[e.chamber]} ${e.name} (${e.party}, ${e.chamber === 'house' ? `${e.state}-${e.district}` : e.state})`);
+    L.push(`Takes office ${TAKES_OFFICE}, replacing ${t.replaces_name}`);
+    L.push(`Prior vote: ${NO_VOTE}`);
   } else {
     L.push(`Target: ${targetName(t)}, State Treasurer of ${t.state}`);
     if (t.row.decider) L.push(`Who decides: ${t.row.decider}`);
@@ -142,6 +210,8 @@ export function factBlock(goal: Goal, action: Action, fmt: DocFormat, t: Target)
     if (t.row.campaign_name) L.push(`Local campaign: ${t.row.campaign_name}`);
     if (t.row.next_comment_date) L.push(`Next public comment date: ${t.row.next_comment_date}`);
   }
+  // leadership-routing §3.3: the incumbent leader's commitment, as the one sentence the script may say about it.
+  if (t.kind !== 'state' && t.leader) L.push(`Incumbent leader: ${leaderLine(t.leader)}`);
   L.push(`Goal: ${goal.title}`);
   L.push(`What we want: ${goal.what_we_want}`);
   if (goal.this_week) L.push(`This week: ${goal.this_week}`);

@@ -13,7 +13,7 @@ import { Target } from './Target';
 
 const CSV = join(process.cwd(), '..', 'data', 'states.csv');
 const stateGoal = { id: 9, slug: 'state-bonds', category: 'state', status: 'active' } as unknown as Goal;
-const delegation = (row: StateRow): Delegation => ({ state: row.state, district: 1, house: null, senators: [], state_row: row });
+const delegation = (row: StateRow): Delegation => ({ state: row.state, district: 1, house: null, senators: [], state_row: row, incoming: { house: null, senators: [], uncalled: [] } });
 const cell = (r: Record<string, string>): StateRow => ({
   state: r.state, treasurer_name: r.treasurer_name || null, treasurer_phone: r.treasurer_phone || null, decider: r.decider || null,
   israel_bonds_usd: r.israel_bonds_usd ? Number(r.israel_bonds_usd) : null, holdings_date: r.holdings_date || null, holdings_source: r.holdings_source || null,
@@ -76,7 +76,7 @@ describe('member target district line', () => {
   } as const;
   const office = { bioguide_id: 'C001110', office_id: 'C001110-santa_ana', city: 'Santa Ana', state: 'CA', zip: null, address: null, suite: null, building: null, phone: '714-559-6190', fax: null, hours: null, lat: null, lng: null };
   const goal = { id: 1, slug: 'ndaa-1217', category: 'federal_vote', status: 'active' } as unknown as Goal;
-  const d: Delegation = { state: 'CA', district: 46, house: { ...member }, senators: [], state_row: null };
+  const d: Delegation = { state: 'CA', district: 46, house: { ...member }, senators: [], state_row: null, incoming: { house: { ...member }, senators: [], uncalled: [] } };
   it('with an office: DC call button, then the district line', () => {
     const out = render(h(Target, { t: targetsFor(goal, undefined, d, [], [office])[0] }));
     expect(out).toContain('href="tel:2022252965"');

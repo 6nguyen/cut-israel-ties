@@ -99,8 +99,11 @@ describe('GET /api/goals and /api/goals/:slug/targets (§2)', () => {
   });
 
   it('leadership goal targets are Democrats only; a state goal targets the treasurer', async () => {
-    const senate = (await (await get('/api/goals/senate-leader/targets?state=TX&district=21')).json()) as { targets: { party: string | null }[] };
-    expect(senate.targets).toEqual([]);
+    // TX's sitting senators are both Republicans; the incoming Democrat (Talarico, replacing Cornyn) is the only target.
+    const senate = (await (await get('/api/goals/senate-leader/targets?state=TX&district=21')).json()) as { targets: { party: string | null; bioguide_id: string }[] };
+    expect(senate.targets.map((t) => t.bioguide_id)).toEqual(['TX-S-talarico']);
+    const none = (await (await get('/api/goals/senate-leader/targets?state=WV&district=2')).json()) as { targets: unknown[] };
+    expect(none.targets).toEqual([]);
     const house = (await (await get('/api/goals/house-caucus/targets?state=PA&district=2')).json()) as { targets: { party: string | null }[] };
     expect(house.targets.map((t) => t.party)).toEqual(['D']);
     const state = (await (await get('/api/goals/state-bonds/targets?state=CA&district=46')).json()) as { targets: { role: string }[] };

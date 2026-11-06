@@ -91,7 +91,8 @@ stores identifies them. Address routing, goals and ranking are in
    screen or both model attempts threw (`upstream`) — the route serves
    the action's standard script instead: `worker/src/standard.ts`
    fills `{{target_name}} {{target_role}} {{ask}} {{mention}}
-   {{position_line}} {{prior_vote_line}} {{pick_line}} {{user_<field>}}`
+   {{position_line}} {{prior_vote_line}} {{pick_line}} {{leader_line}}
+   {{user_<field>}}`
    from the same rows as the fact block and the stripped user fields,
    shortens the longest user field word by word when the fill passes
    `max_words`, and runs the Behavior 3 output check (a failed fill
@@ -118,8 +119,21 @@ stores identifies them. Address routing, goals and ranking are in
    random), so one seed always gives one script and the next seed a
    different one; `done.variant` names the chosen block ids joined by
    `.`. Only an incumbent gets the self asks (commit in public or step
-   aside); every other target gets the vote-only asks; every ask carries
-   the action's `ask` phrase and a mention. For such an action the act
+   aside); every other target gets the vote-only asks, each ending in
+   `{{leader_line}}`: one code-built sentence (`leaderLine`,
+   `worker/src/generate.ts`) on the incumbent leader of the target's
+   chamber (the file's `incumbents`), from that leader's row in the
+   goal's positions file — `for`: "<Leader> has made that commitment in
+   public."; `against`/`uncommitted`: "<Leader> has not made that
+   commitment. Until that changes, the vote should go to someone else.";
+   no row: "<Leader> has not said so in public. Until that changes, the
+   vote should go to someone else." It is empty for the incumbents
+   themselves and for state targets, has no digits and names no source.
+   A leadership action's target may also be a member-elect (`elect_id`;
+   leadership-routing §2.6): role "Representative-elect"/"Senator-elect",
+   fact block "Takes office 2027-01-03, replacing <name>" and "Prior
+   vote: No recorded vote yet", contact from the elect row. Every ask
+   carries the action's `ask` phrase and a mention. For such an action the act
    page's regenerate button reads "Another version" and resends with a
    new seed. The leadership actions (`house-caucus-call`,
    `senate-leader-call`) use `leadership.yaml`; the NDAA action keeps a

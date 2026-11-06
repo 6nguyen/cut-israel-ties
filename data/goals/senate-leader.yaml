@@ -9,7 +9,7 @@ window_start: 2026-11-01
 window_end: 2027-01-31
 decision_date: 2027-01-05   # placeholder: caucus leadership election date
 priority: 2
-eligibility: {"senator": {"party": "D"}}
+eligibility: {"senator": {"caucus": "D"}}
 our_picks: []
 sources:
   - {title: "Democracy Now: Incoming senators call for new leadership to replace Schumer (2026-11-06)", url: "https://www.democracynow.org/2026/11/6/headlines/incoming_freshman_senators_call_for_new_leadership_to_replace_top_democrat_chuck_schumer"}

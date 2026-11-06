@@ -1,13 +1,13 @@
 // generation-cost §4: the code-built standard script. Rendered from an action's `standard_template`
 // and the same facts the model would see, when no model may run (cap, budget 0, no key, upstream down).
 // No LLM touches it; it passes the same output check as a generated draft, and the seed proves it can.
-import type { Action, Goal, Member, Position, StateRow } from './types';
-import { BLOCKLIST, checkOutput, digitRuns, factBlock, firstPick, parseFormat, parseSchema, targetContact, targetName, wordCount, type Check, type DocFormat, type FormField, type Target } from './generate';
+import type { Action, Chamber, Goal, Member, MemberElect, Position, StateRow } from './types';
+import { BLOCKLIST, checkOutput, digitRuns, factBlock, firstPick, incumbentIds, leaderLine, parseFormat, parseSchema, pickLeader, targetContact, targetName, wordCount, type Check, type DocFormat, type FormField, type Target } from './generate';
 import { combinations, compose, eligibleVariants, parseBlocks, type ComposeTarget, type ScriptBlocks } from './compose';
 import { priorVote } from './route';
 import { fillAsk } from './state-copy';
 
-export const FIXED_PLACEHOLDERS = ['target_name', 'target_role', 'ask', 'mention', 'position_line', 'prior_vote_line', 'pick_line'] as const;
+export const FIXED_PLACEHOLDERS = ['target_name', 'target_role', 'ask', 'mention', 'position_line', 'prior_vote_line', 'pick_line', 'leader_line'] as const;
 export type StandardFacts = Record<(typeof FIXED_PLACEHOLDERS)[number], string>;
 const PLACEHOLDER_RE = /\{\{\s*([a-z0-9_]+)\s*\}\}/g;
 const NO_VOTE = 'No recorded vote yet';
@@ -42,6 +42,8 @@ export function standardFacts(goal: Goal, action: Action, fmt: DocFormat, t: Tar
     position_line: t.kind === 'member' && t.position ? POSITION_LINE[t.position.position] : '',
     prior_vote_line: t.kind === 'member' && t.prior_vote && t.prior_vote !== NO_VOTE ? `You are on the record (${t.prior_vote}).` : '',
     pick_line: pick ? `Our pick for that job is ${pick.name}.` : '',
+    // leadership-routing §3.3: empty for the leader themself, for non-leadership goals and for state targets.
+    leader_line: t.kind !== 'state' && t.leader ? leaderLine(t.leader) : '',
   };
 }
 
@@ -89,7 +91,7 @@ export function actionBlocks(action: Action): ScriptBlocks | null {
 export function composeTarget(t: Target, facts: StandardFacts, fields: Record<string, string>): ComposeTarget {
   return {
     id: t.id,
-    chamber: t.kind === 'member' ? t.member.chamber : null,
+    chamber: t.kind === 'member' ? t.member.chamber : t.kind === 'elect' ? t.elect.chamber : null,
     present: (name) => resolvePlaceholder(name, facts, fields).trim() !== '',
   };
 }
@@ -127,22 +129,36 @@ export function fixtureFields(schema: FormField[]): Record<string, string>[] {
   const longest: Record<string, string> = {};
   for (const f of schema) {
     if (f.required) shortest[f.name] = 'Sample';
-    longest[f.name] = Array.from({ length: f.max }, (_, i) => (i % 5 === 4 && i !== f.max - 1 ? ' ' : 'w')).join('');
+    // 'x', not 'w': a trimmed field can end "xxxx.." and "www.." would read as a URL to the output check.
+    longest[f.name] = Array.from({ length: f.max }, (_, i) => (i % 5 === 4 && i !== f.max - 1 ? ' ' : 'x')).join('');
   }
   return [shortest, longest];
 }
 
-function targetsFor(action: Action, goal: Goal, members: Member[], positions: Position[], states: StateRow[]): Target[] {
+/** Every target the seed must prove a script for; leadership goals add every D-caucus member-elect in scope (leadership-routing §2.6, §3). */
+function targetsFor(action: Action, goal: Goal, members: Member[], positions: Position[], states: StateRow[], membersElect: MemberElect[] = []): Target[] {
   if (action.target_scope === 'state') return states.map((row) => ({ kind: 'state', id: row.state, state: row.state, row }));
-  return members
-    .filter((m) => (action.target_scope === 'both' || m.chamber === action.target_scope) && (goal.category !== 'leadership' || m.party === 'D'))
+  const leadership = goal.category === 'leadership';
+  const inScope = (chamber: Chamber): boolean => action.target_scope === 'both' || chamber === action.target_scope;
+  const incumbents = leadership ? incumbentIds(action) : [];
+  const leader = (chamber: Chamber, id: string) => (leadership ? pickLeader(incumbents, chamber, id, members, positions, goal.id) : null);
+  const out: Target[] = members
+    .filter((m) => inScope(m.chamber) && (!leadership || m.caucus === 'D'))
     .map((member) => ({
       kind: 'member',
       id: member.bioguide_id,
       member,
       position: positions.find((p) => p.bioguide_id === member.bioguide_id && p.goal_id === goal.id) ?? null,
       prior_vote: priorVote(member, goal),
+      leader: leader(member.chamber, member.bioguide_id),
     }));
+  if (leadership) {
+    for (const e of membersElect) {
+      if (!inScope(e.chamber) || e.caucus !== 'D') continue;
+      out.push({ kind: 'elect', id: e.elect_id, elect: e, replaces_name: members.find((m) => m.bioguide_id === e.replaces)?.name ?? 'the departing member', leader: leader(e.chamber, e.elect_id) });
+    }
+  }
+  return out;
 }
 
 const SEEDS = [0, 1, 2];
@@ -178,6 +194,7 @@ function checkBlocksFor(goal: Goal, a: Action, blocks: ScriptBlocks, fmt: DocFor
   const ct = composeTarget(t, facts, fields);
   let min = 0;
   let max = 0;
+  const longest: string[] = [];
   for (const slot of blocks.slots) {
     const pool = eligibleVariants(blocks, slot, ct);
     if (pool.length < slot.pick) throw new Error(`${where}: slot ${slot.name} has ${pool.length} eligible variants, needs ${slot.pick}`);
@@ -186,12 +203,13 @@ function checkBlocksFor(goal: Goal, a: Action, blocks: ScriptBlocks, fmt: DocFor
       if (slot.carries.includes('ask') && fmt.ask && !low.includes(fmt.ask.toLowerCase())) throw new Error(`${where}: ${slot.name}/${v.id} lacks the ask phrase "${fmt.ask}"`);
       if (slot.carries.includes('mention') && fmt.mentions.length && !fmt.mentions.some((m) => low.includes(m.toLowerCase()))) throw new Error(`${where}: ${slot.name}/${v.id} lacks a mention phrase`);
     }
-    const counts = pool.map((v) => wordCount(render(v.text, facts, fields))).sort((x, y) => x - y);
-    min += counts.slice(0, slot.pick).reduce((n, c) => n + c, 0);
-    max += counts.slice(-slot.pick).reduce((n, c) => n + c, 0);
+    const sized = pool.map((v) => ({ id: v.id, n: wordCount(render(v.text, facts, fields)) })).sort((x, y) => x.n - y.n);
+    min += sized.slice(0, slot.pick).reduce((n, c) => n + c.n, 0);
+    max += sized.slice(-slot.pick).reduce((n, c) => n + c.n, 0);
+    longest.push(...sized.slice(-slot.pick).map((c) => `${c.id} ${c.n}`));
   }
   if (bounds && min < fmt.min_words) throw new Error(`${where}: the shortest combination is ${min} words, below min_words ${fmt.min_words}`);
-  if (bounds && max > fmt.max_words) throw new Error(`${where}: the longest combination is ${max} words, above max_words ${fmt.max_words}`);
+  if (bounds && max > fmt.max_words) throw new Error(`${where}: the longest combination is ${max} words, above max_words ${fmt.max_words} (${longest.join(', ')})`);
   for (const seed of SEEDS) {
     const { body, check } = standardScript(goal, a, fmt, t, fields, seed);
     if (/\{\{|\}\}/.test(body)) throw new Error(`${where}: a block leaves a brace in the text`);
@@ -199,7 +217,7 @@ function checkBlocksFor(goal: Goal, a: Action, blocks: ScriptBlocks, fmt: DocFor
   }
 }
 
-export function checkScriptBlocks(goal: Goal, a: Action, members: Member[], positions: Position[], states: StateRow[]): void {
+export function checkScriptBlocks(goal: Goal, a: Action, members: Member[], positions: Position[], states: StateRow[], membersElect: MemberElect[] = []): void {
   const blocks = actionBlocks(a);
   if (!blocks) return;
   const schema = parseSchema(a);
@@ -209,7 +227,7 @@ export function checkScriptBlocks(goal: Goal, a: Action, members: Member[], posi
   const [shortest, longest] = fixtureFields(schema);
   // Every field one word: what the longest valid submission trims down to, and the set where every optional field is present.
   const oneWord = Object.fromEntries(schema.map((f) => [f.name, 'w']));
-  for (const t of targetsFor(a, goal, members, positions, states)) {
+  for (const t of targetsFor(a, goal, members, positions, states, membersElect)) {
     checkBlocksFor(goal, a, blocks, fmt, t, shortest, true);
     checkBlocksFor(goal, a, blocks, fmt, t, oneWord, true);
     checkBlocksFor(goal, a, blocks, fmt, t, longest, false);
@@ -221,13 +239,13 @@ export function checkScriptBlocks(goal: Goal, a: Action, members: Member[], posi
  * passes the output check for every target in scope, with the shortest and the longest valid fields;
  * an action with `script_blocks` is checked by `checkScriptBlocks` instead (leader-call-scripts §4).
  */
-export function checkStandardTemplates(goals: Goal[], actions: Action[], members: Member[], positions: Position[], states: StateRow[]): void {
+export function checkStandardTemplates(goals: Goal[], actions: Action[], members: Member[], positions: Position[], states: StateRow[], membersElect: MemberElect[] = []): void {
   for (const a of actions) {
     const goal = goals.find((g) => g.id === a.goal_id);
     if (!goal) continue;
     const schema = parseSchema(a);
     if (a.script_blocks !== null) {
-      checkScriptBlocks(goal, a, members, positions, states);
+      checkScriptBlocks(goal, a, members, positions, states, membersElect);
       continue;
     }
     if (a.standard_template === null) {
@@ -238,7 +256,7 @@ export function checkStandardTemplates(goals: Goal[], actions: Action[], members
     if (unknown.length) throw new Error(`action ${a.slug}: standard_template has unknown placeholder ${unknown.map((p) => `{{${p}}}`).join(', ')}`);
     if (goal.status !== 'active') continue;
     const fmt = parseFormat(a);
-    for (const t of targetsFor(a, goal, members, positions, states)) {
+    for (const t of targetsFor(a, goal, members, positions, states, membersElect)) {
       for (const fields of fixtureFields(schema)) {
         const { body, check } = standardScript(goal, a, fmt, t, fields);
         if (/\{\{|\}\}/.test(body)) throw new Error(`action ${a.slug}: standard_template leaves a brace in the text`);

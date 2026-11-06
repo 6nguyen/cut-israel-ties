@@ -48,6 +48,15 @@ export interface MemberElect {
   source_date: string;
 }
 
+/** leadership-routing §2.1: a member-elect standing in for the departing member of one seat. */
+export type ElectSeat = MemberElect & { elect: true; replaces_name: string };
+export type IncomingSeat = Member | ElectSeat;
+/** A departing seat with no called race yet; the line shows only when `caucus` is D (§2.5). */
+export interface UncalledSeat { chamber: Chamber; caucus: Caucus; replaces_name: string }
+/** The delegation as it votes in January: leadership goals are ranked and targeted on this view (§2.2). */
+export interface Incoming { house: IncomingSeat | null; senators: IncomingSeat[]; uncalled: UncalledSeat[] }
+export const TAKES_OFFICE = '2027-01-03';
+
 export const CONTACT_KINDS = ['form', 'zip_gate', 'homepage'] as const;
 export type ContactKind = (typeof CONTACT_KINDS)[number];
 
@@ -143,6 +152,7 @@ export interface Delegation {
   house: Member | null;
   senators: Member[];
   state_row: StateRow | null;
+  incoming: Incoming;
 }
 
 /** §4 write-side rows. None holds document text, an address or a user field. */

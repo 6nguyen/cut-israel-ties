@@ -186,7 +186,9 @@ export function createApp(deps: Deps) {
     const repo = deps.repo(c.env);
     const goal = await repo.goalBySlug(body.goal);
     if (!goal) return c.json({ error: 'no_goal', message: 'No goal by that name.' }, 400);
-    const known = STATE.test(body.target) ? await repo.stateRow(body.target) : await repo.member(body.target);
+    // leadership-routing §2.6: a member-elect (elect_id) is a target too.
+    const target = body.target;
+    const known = STATE.test(target) ? await repo.stateRow(target) : (await repo.member(target)) ?? (await repo.membersElect(target.slice(0, 2))).find((e) => e.elect_id === target) ?? null;
     if (!known) return c.json({ error: 'no_target', message: 'That target is not on file.' }, 400);
     const note = typeof body.note === 'string' ? sanitize(body.note, LIMITS.note_max) : '';
     const id = await repo.insertReport({

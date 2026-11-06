@@ -55,10 +55,20 @@ documents, receipts and reports are in `personalised-documents.md`.
 5. **Results (`/results`).** Header `<STATE-NN> · change address`, H1
    "Your two actions this week", one line naming the delegation ("Your
    people in Congress for <where>: …"), then
-   exactly two cards: category chip, title, decision date, summary, the
+   two slots: category chip, title, decision date, summary, the
    targets for that goal (party, role, name, phone as `tel:`, position
    chip, prior-vote line, source link when a position is sourced), the
-   ask text and a CTA to `/goals/<goal>/act/<action>`. Zero eligible goals
+   ask text and a CTA to `/goals/<goal>/act/<action>`. When both
+   leadership goals are eligible they share one slot: the higher-scoring
+   goal is the card and the other rides on it as `also`; the card shows a
+   "House" block, then a "Senate" block, each with that goal's decision
+   date, targets, counter line, ask and CTA (`web/src/components/Results.tsx`
+   `Card`). A Democratic-caucus seat whose race is not called shows
+   "<Chamber> seat: race not called yet." in place of its block. A
+   member-elect target shows the role "Representative-elect" or
+   "Senator-elect", the line "Takes office <date>, replaces <name>" and a
+   "Contact" link to `contact_url` when it has no phone (never a `tel:`
+   or the switchboard). Zero eligible goals
    shows a message and a link to `/goals`. One column at 390 px, two at
    ≥1024 px. "Change address" clears the stored district and returns to
    `/`. Under each card's targets box the `Counts` island adds one line
@@ -71,9 +81,15 @@ documents, receipts and reports are in `personalised-documents.md`.
    list keeps the visitor on `/` (§1). The last route response is cached in
    `sessionStorage` (`cut-ties:route`) for the immediate navigation only.
 7. **Targets per goal.** Federal goals target the representative and both
-   senators; leadership goals target only Democratic members of the
-   relevant chamber; state goals target the state treasurer row. A row
-   with `left_office` is never a target; `not_returning` keeps its slot.
+   senators; state goals target the state treasurer row. Leadership goals
+   are ranked and targeted on the *incoming* delegation
+   (`Delegation.incoming`, `worker/src/repo.ts`): per seat, the sitting
+   member unless `not_returning`, else the `members_elect.csv` row whose
+   `replaces` is that member, else an uncalled seat; the targets are the
+   `caucus = D` seats of the relevant chamber, so a member-elect replaces a
+   departing member and a seat flipped to the other caucus shows nothing.
+   A row with `left_office` is never a target; `not_returning` keeps its
+   slot for federal goals only.
    Phone is the DC number, then the first in-state office from
    `data/district_offices.csv` as `district_city`/`district_phone`
    (a hand-filled phone has no city); the switchboard only otherwise.
@@ -81,7 +97,17 @@ documents, receipts and reports are in `personalised-documents.md`.
 ## Data & contracts
 - `POST /api/route` body `{address, turnstile?}` or `{state, district,
   turnstile?}`. 200 `{state, district, house, senators, state_row, goals}`
-  where `goals` is at most two `GoalCard`s (`worker/src/route.ts`).
+  where `goals` is at most two `GoalCard`s (`worker/src/route.ts`). A
+  leadership `GoalCard` carries `chamber`, `uncalled: Chamber[]` (the
+  Democratic-caucus seats with no called result) and, when both goals
+  share the slot, `also: GoalCard` for the second chamber. A `TargetCard`
+  for a member-elect has `bioguide_id` = its `elect_id` (e.g.
+  `CA-11-wiener`), role "Representative-elect"/"Senator-elect", position
+  `unknown`, prior vote "No recorded vote yet", `phone` from the elect
+  row (null, never the switchboard) and `elect: {replaces_name,
+  takes_office: '2027-01-03', contact_url}`. Receipts, reports and the
+  counts line take that `elect_id` as the target id (`target_id` is free
+  text). `GET /api/goals/:slug/targets` follows the same rules.
   Errors: 400 `bad_json | zip_only | incomplete | missing`, 403
   `turnstile`, 404 `unresolved | no_delegation`, 502 `upstream`; every
   error body is `{error, message}`.
@@ -92,10 +118,14 @@ documents, receipts and reports are in `personalised-documents.md`.
   […]}`) evaluated against the delegation; score = priority × urgency
   (2 when the decision is ≤14 days away, 1.5 when ≤45, else 1; past or
   empty date = 1); ties by earlier decision date then slug. One eligible
-  goal is padded with the state goal. A rule may test only the §5.1
-  inputs (house: party, hasc, conferee, rc243, btb_cosponsor; senator:
-  party, jrd_april_2026; state: any column but `state`) with typed values
-  (party `D|R|I`, flags `0|1`, text strings); `parseRule` rejects
+  goal is padded with the state goal. Two eligible leadership goals fold
+  into one slot (`slots`): the higher-ranked is the slot's goal, the other
+  its `also`. A rule may test only the §5.1
+  inputs (house: party, caucus, hasc, conferee, rc243, btb_cosponsor;
+  senator: party, caucus, jrd_april_2026; state: any column but `state`)
+  with typed values (party `D|R|I`, caucus `D|R`, flags `0|1`, text
+  strings); leadership rules see the incoming delegation (`ruleInput`),
+  every other rule the sitting one. `parseRule` rejects
   anything else, so the seed fails before a bad rule can silently
   exclude a goal. Grammar: `data/README.md`.
 - Goal/action `id`s come from YAML and `data/ids.md`, never file order; a
@@ -133,9 +163,13 @@ documents, receipts and reports are in `personalised-documents.md`.
       every address into `unresolved` (`worker/test/route.test.ts`).
 - [ ] A failed submit resets the Turnstile widget, so the retry carries
       a fresh token instead of the consumed one.
-- [ ] Exactly two cards for a resolved district, each with ≥1 target;
-      an all-Republican delegation gets the NDAA goal plus the state goal.
-- [ ] Leadership-goal targets are Democrats only.
+- [ ] Two slots for a resolved district, each with ≥1 target; an
+      all-Republican delegation with no incoming change gets the NDAA
+      goal plus the state goal.
+- [ ] Leadership-goal targets caucus with the Democrats and come from the
+      incoming delegation: a departing member's elect replaces them, an
+      uncalled seat is a line, a flipped seat is nothing
+      (`worker/test/leadership.test.ts`).
 - [ ] Every number and name on a card traces to a `data/` row; nothing is
       computed by an LLM. Every dollar amount a state target shows equals
       the `states.csv` cell (`web/src/components/Target.test.ts`); a
