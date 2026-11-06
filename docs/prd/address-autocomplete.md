@@ -230,16 +230,16 @@ Unchanged
   `unresolved` rate before and after (expected to fall toward the free-text
   share only); provider monthly requests against the free tier (console).
 
-## State (updated 2026-11-06, PR TBD)
+## State (updated 2026-11-06, PR #44)
 - Sections: (build order)
-  - [~] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path · `feat/address-autocomplete-field`
+  - [~] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path · `feat/address-autocomplete-field` · PR #44
   - [ ] 2. Suggesting · `web/src/lib/suggest.ts` with the Mapbox and Geoapify adapters and tests
   - [ ] 3. Picking · on-device resolve, `by_suggestion`, no-polygon fallthrough
   - [ ] 4. Free text · message copy, spec fold
   - [ ] 6. Privacy copy · `/privacy` paragraph keyed on the flag, `goal-pages.md` fold
 - Completed: —
 - Folded: §1 Field
-- Branch / open PRs: `feat/address-autocomplete-field` (§1)
+- Branch / open PRs: `feat/address-autocomplete-field` (§1, PR #44)
 - Files changed: `web/src/lib/suggest.ts` (new), `web/src/components/AddressForm.tsx`,
   `web/src/pages/index.astro`, `web/src/lib/suggest.test.ts`,
   `web/src/components/AddressForm.test.tsx`, `docs/specs/action-router.md`
@@ -254,7 +254,7 @@ Unchanged
   closes the list, §3 adds the on-device resolve; `AddressForm` takes
   `suggester`/`timings` props as the test seam
 - Known failures / blockers: none
-- Next action: open PR for §1, then `/implement-prd-section
+- Next action: merge PR #44, then `/implement-prd-section
   docs/prd/address-autocomplete.md` (next: §2. Suggesting)
 ## Open questions
 1. Provider terms for on-device use of temporary results. Mapbox forbids
