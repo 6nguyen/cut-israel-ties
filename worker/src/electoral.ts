@@ -115,7 +115,7 @@ export function checkElectoral(goals: Goal[], actions: Action[], members: Member
     if (bad.length) throw new Error(`goal ${g.slug}: electoral copy must not say ${bad.join(', ')} (primary-2028 Open question 1)`);
     if (JSON.parse(g.our_picks).length) throw new Error(`goal ${g.slug}: our_picks must stay empty until primary-2028 §2 is unblocked`);
     for (const a of actions.filter((x) => x.goal_id === g.id)) {
-      const abad = forbiddenPhrases([a.ask_text, a.prompt_template ?? '', a.doc_format].join('\n'));
+      const abad = forbiddenPhrases([a.ask_text, a.prompt_template ?? '', a.doc_format, a.standard_template ?? ''].join('\n'));
       if (abad.length) throw new Error(`action ${a.slug}: electoral copy must not say ${abad.join(', ')} (primary-2028 Open question 1)`);
     }
   }
@@ -213,6 +213,12 @@ export function actionYaml(m: Member): string {
     '  caller is asking. Close by asking for the candidate filing deadline. Name no candidate and do not say how anyone should',
     '  vote.',
     'doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["primary"], "ask": "who is running against"}',
+    // generation-cost §4: the code-built script when no model may run; same placeholders as data/actions/*.yaml.
+    'standard_template: |',
+    "  Hi, my name is {{user_first_name}} and I live in {{user_city}}, in {{target_role}} {{target_name}}'s district. {{prior_vote_line}}",
+    '  I am calling to ask who is running against {{target_role}} {{target_name}} in the next primary, and who has filed so far.',
+    '  {{user_why}}',
+    '  Can you also tell me the candidate filing deadline, and whether the office can send me a written answer? I will share what I hear with my neighbors. Thank you for your time.',
     '',
   ].join('\n');
 }

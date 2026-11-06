@@ -7,6 +7,7 @@ import { parseRule } from './ranking';
 import { checkPrep } from './prep';
 import { districtError } from './districts';
 import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
+import { checkStandardTemplates } from './standard';
 
 export interface Rows {
   goals: Goal[];
@@ -161,6 +162,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
         form_schema: json(y.form_schema ?? { fields: [] }),
         prompt_template: str(y.prompt_template),
         doc_format: json(y.doc_format),
+        standard_template: str(y.standard_template),
       };
       if (!['house', 'senate', 'both', 'state'].includes(a.target_scope)) throw new Error(`action ${a.slug}: bad target_scope`);
       return a;
@@ -217,6 +219,8 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   checkElections(elections);
   applyElections(goals, elections);
   checkElectoral(goals, actions, members);
+  // generation-cost §4: every active action's standard script fills and passes the output check for every target.
+  checkStandardTemplates(goals, actions, members, positions, states);
 
   return { goals, actions, members, positions, states, elections };
 }

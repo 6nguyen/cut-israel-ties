@@ -4,6 +4,8 @@ import type { Action, Goal, Member, Position, Repo, ScreenClass, StateRow } from
 import { DOC_MODEL, SCREEN_MODEL, callMessage, streamMessage } from './anthropic';
 import { priorVote } from './route';
 import { fillAsk } from './state-copy';
+import { STANDARD_MODEL, currentCap } from './cost';
+import { standardScript } from './standard';
 
 export interface FormField { name: string; label: string; max: number; required: boolean; multiline?: boolean; hint?: string }
 export interface DocFormat { kind: 'call_script' | 'letter' | 'public_comment'; min_words: number; max_words: number; mentions: string[]; ask: string }
@@ -11,7 +13,7 @@ export interface DocFormat { kind: 'call_script' | 'letter' | 'public_comment'; 
 /** §4.7 numbers. */
 export const LIMITS = {
   device_hour: 5, device_day: 20, device_action_day: 3, ip_day: 30,
-  max_tokens: 1500, recent: 200, overlap: 0.3, block_after: 3, block_hours: 24, note_max: 140,
+  max_tokens: 1500, call_max_tokens: 700, recent: 200, overlap: 0.3, block_after: 3, block_hours: 24, note_max: 140,
 } as const;
 
 const HOUR = 3_600_000;
@@ -211,10 +213,11 @@ const DOC_SCHEMA = {
 export function docRequest(ctx: GenerateContext, extra: string | null): Record<string, unknown> {
   return {
     model: DOC_MODEL,
-    max_tokens: LIMITS.max_tokens,
+    // generation-cost §3: a 60–120-word call script needs neither 1500 tokens nor medium effort.
+    max_tokens: ctx.fmt.kind === 'call_script' ? LIMITS.call_max_tokens : LIMITS.max_tokens,
     system: [{ type: 'text', text: systemPrompt(ctx.goal, ctx.action, ctx.fmt), cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: userMessage(ctx.facts, ctx.fields, ctx.schema, extra) }],
-    output_config: { effort: 'medium', format: { type: 'json_schema', schema: DOC_SCHEMA } },
+    output_config: { effort: ctx.fmt.kind === 'call_script' ? 'low' : 'medium', format: { type: 'json_schema', schema: DOC_SCHEMA } },
   };
 }
 
@@ -273,22 +276,26 @@ export const BLOCKLIST = [
 
 export interface Doc { subject: string; body: string; facts_used: string[] }
 export interface CheckContext { targetName: string; fmt: DocFormat; allowedDigits: Set<string>; pickName: string | null }
-export type Check = { ok: true; words: number } | { ok: false; reason: string };
+/** Stable failure classes; `generations.check_fail` stores one (generation-cost §3) and the digest counts them. */
+export type CheckClass = 'word_count' | 'target' | 'mention' | 'ask' | 'pick' | 'end_aid' | 'digit' | 'contact' | 'blocked';
+export type Check = { ok: true; words: number } | { ok: false; reason: string; cls: CheckClass };
 
 export function checkOutput(doc: Doc, ctx: CheckContext): Check {
   const text = `${doc.subject}\n${doc.body}`;
   const low = text.toLowerCase();
-  const fail = (reason: string): Check => ({ ok: false, reason });
+  const fail = (cls: CheckClass, reason: string): Check => ({ ok: false, reason, cls });
   const words = wordCount(doc.body);
-  if (words < ctx.fmt.min_words || words > ctx.fmt.max_words) return fail(`word count ${words} is outside ${ctx.fmt.min_words}–${ctx.fmt.max_words}`);
-  if (!low.includes(lastWord(ctx.targetName).toLowerCase())) return fail('does not name the target');
-  if (ctx.fmt.mentions.length && !ctx.fmt.mentions.some((m) => low.includes(m.toLowerCase()))) return fail('does not name the section or vote');
-  if (ctx.fmt.ask && !low.includes(ctx.fmt.ask.toLowerCase())) return fail('ask wording missing');
-  if (ctx.pickName && !low.includes(lastWord(ctx.pickName).toLowerCase())) return fail('does not name our pick');
-  if (/\bend aid\b/i.test(text)) return fail('contains "end aid"');
-  for (const d of digitRuns(text)) if (!ctx.allowedDigits.has(d)) return fail(`number ${d} is not in the fact block`);
-  if (text.match(URL_RE) || text.match(EMAIL_RE) || text.match(PHONE_RE)) return fail('contains a URL, email address or phone number');
-  for (const term of BLOCKLIST) if (low.includes(term)) return fail('contains a blocked term');
+  if (words < ctx.fmt.min_words || words > ctx.fmt.max_words) return fail('word_count', `word count ${words} is outside ${ctx.fmt.min_words}–${ctx.fmt.max_words}`);
+  if (!low.includes(lastWord(ctx.targetName).toLowerCase())) return fail('target', 'does not name the target');
+  if (ctx.fmt.mentions.length && !ctx.fmt.mentions.some((m) => low.includes(m.toLowerCase()))) return fail('mention', 'does not name the section or vote');
+  if (ctx.fmt.ask && !low.includes(ctx.fmt.ask.toLowerCase())) return fail('ask', 'ask wording missing');
+  if (ctx.pickName && !low.includes(lastWord(ctx.pickName).toLowerCase())) return fail('pick', 'does not name our pick');
+  if (/\bend aid\b/i.test(text)) return fail('end_aid', 'contains "end aid"');
+  for (const d of digitRuns(text)) if (!ctx.allowedDigits.has(d)) return fail('digit', `number ${d} is not in the fact block`);
+  if (text.match(URL_RE) || text.match(EMAIL_RE) || text.match(PHONE_RE)) return fail('contact', 'contains a URL, email address or phone number');
+  // The target's own name is never a blocked term (Rep. Lynch must be nameable); the seed check found this.
+  const scrubbed = low.split(ctx.targetName.toLowerCase()).join(' ').split(lastWord(ctx.targetName).toLowerCase()).join(' ');
+  for (const term of BLOCKLIST) if (scrubbed.includes(term)) return fail('blocked', 'contains a blocked term');
   return { ok: true, words };
 }
 
@@ -376,12 +383,15 @@ export async function sha256Hex(s: string): Promise<string> {
 }
 
 // ---- orchestration -------------------------------------------------------------------------
-export interface GenerateDeps { repo: Repo; fetch: typeof fetch; now: () => Date; apiKey: string | undefined; globalCap: number }
+/** `globalCap` is the hard ceiling (`MAX_GENERATIONS_PER_DAY`); the day's cap is derived from `budgetUsd` (generation-cost §1). */
+export interface GenerateDeps { repo: Repo; fetch: typeof fetch; now: () => Date; apiKey: string | undefined; globalCap: number; budgetUsd: number }
 export interface GenerateInput { action: unknown; target: unknown; fields: unknown; device: unknown; ip: string | undefined; verify: () => Promise<boolean> }
-export interface Reject { status: 400 | 403 | 422 | 429 | 503; error: string; message: string }
+export interface Reject { status: 400 | 403 | 422 | 429; error: string; message: string }
+/** Why a request gets the code-built standard script instead of a model draft (generation-cost §4). */
+export type StandardReason = 'capacity' | 'unconfigured' | 'upstream' | 'budget';
 export interface GenerateContext {
   action: Action; goal: Goal; fmt: DocFormat; schema: FormField[]; target: Target; fields: Record<string, string>;
-  deviceHash: string; ipHash: string; facts: string; check: CheckContext;
+  deviceHash: string; ipHash: string; facts: string; check: CheckContext; standard: StandardReason | null;
 }
 export type Prepared = { ok: true; ctx: GenerateContext } | { ok: false; reject: Reject };
 
@@ -402,7 +412,6 @@ export async function prepare(deps: GenerateDeps, input: GenerateInput): Promise
   const schema = parseSchema(action);
   const shaped = shapeFields(schema, input.fields);
   if (!shaped.ok) return reject(400, 'bad_fields', shaped.message);
-  if (!deps.apiKey) return reject(503, 'unconfigured', 'Drafting is not configured on this server: set ANTHROPIC_API_KEY (see worker/.dev.vars.example).');
   if (!(await input.verify())) return reject(403, 'turnstile', 'Bot check failed. Reload and try again.');
 
   const [deviceHash, ipHash] = await Promise.all([sha256Hex(input.device), sha256Hex(input.ip ?? 'unknown')]);
@@ -410,20 +419,33 @@ export async function prepare(deps: GenerateDeps, input: GenerateInput): Promise
   if (until && until.getTime() > now.getTime()) return reject(403, 'blocked', 'Drafting is paused on this device for 24 hours after repeated misuse.');
 
   const counts = await repo.generationCounts(deviceHash, ipHash, action.id, now);
-  if (counts.global_day >= deps.globalCap) return reject(503, 'capacity', "Today's drafting budget is used up. Come back tomorrow.");
   if (counts.device_hour >= LIMITS.device_hour) return reject(429, 'limit_hour', `You have drafted ${LIMITS.device_hour} times this hour. Use one of them, or try again later.`);
   if (counts.device_day >= LIMITS.device_day) return reject(429, 'limit_day', `You have drafted ${LIMITS.device_day} times today. Come back tomorrow.`);
   if (counts.device_action_day >= LIMITS.device_action_day) return reject(429, 'limit_action', `Three drafts per action per day. Use one of today's.`);
   if (counts.ip_day >= LIMITS.ip_day) return reject(429, 'limit_ip', 'Too many drafts from this network today. Come back tomorrow.');
 
   const fmt = parseFormat(action);
-  const screen = await screenFields(deps.fetch, deps.apiKey, goal, fmt, schema, shaped.fields);
-  if (screen.cls !== 'ok') {
-    await repo.insertScreening(deviceHash, action.id, screen.cls, now);
-    const n = await repo.screenedOutCount(deviceHash, new Date(now.getTime() - DAY));
-    if (n >= LIMITS.block_after) await repo.block(deviceHash, new Date(now.getTime() + LIMITS.block_hours * HOUR));
-    const label = { off_topic: 'Off topic', injection: 'Not usable', harmful: 'Not acceptable' }[screen.cls];
-    return reject(422, 'screened', `${label}: ${screen.reason || 'rewrite your lines about this goal and why it matters to you.'}`);
+  // generation-cost §1/§4: no key, a zero budget or a used-up day means the standard script and no Anthropic call at all.
+  let standard: StandardReason | null = null;
+  if (!(deps.budgetUsd > 0)) standard = 'budget';
+  else if (!deps.apiKey) standard = 'unconfigured';
+  else if (counts.global_day >= (await currentCap(repo, now, deps.budgetUsd, deps.globalCap)).cap) standard = 'capacity';
+
+  if (standard === null) {
+    let screen: Awaited<ReturnType<typeof screenFields>> | null = null;
+    try {
+      screen = await screenFields(deps.fetch, deps.apiKey ?? '', goal, fmt, schema, shaped.fields);
+    } catch (e) {
+      console.error('generate: screen failed', (e as Error).message);
+      standard = 'upstream';
+    }
+    if (screen && screen.cls !== 'ok') {
+      await repo.insertScreening(deviceHash, action.id, screen.cls, now);
+      const n = await repo.screenedOutCount(deviceHash, new Date(now.getTime() - DAY));
+      if (n >= LIMITS.block_after) await repo.block(deviceHash, new Date(now.getTime() + LIMITS.block_hours * HOUR));
+      const label = { off_topic: 'Off topic', injection: 'Not usable', harmful: 'Not acceptable' }[screen.cls];
+      return reject(422, 'screened', `${label}: ${screen.reason || 'rewrite your lines about this goal and why it matters to you.'}`);
+    }
   }
 
   const facts = factBlock(goal, action, fmt, target);
@@ -432,49 +454,87 @@ export async function prepare(deps: GenerateDeps, input: GenerateInput): Promise
   return {
     ok: true,
     ctx: {
-      action, goal, fmt, schema, target, fields: shaped.fields, deviceHash, ipHash, facts,
+      action, goal, fmt, schema, target, fields: shaped.fields, deviceHash, ipHash, facts, standard,
       check: { targetName: targetName(target), fmt, allowedDigits, pickName: pick?.name ?? null },
     },
   };
 }
 
-export interface GenerateDone { subject: string; body: string; facts_used: string[]; words: number; target: TargetContact }
+export interface GenerateDone { subject: string; body: string; facts_used: string[]; words: number; target: TargetContact; standard: boolean; reason?: StandardReason }
 export type Emit = (event: 'status' | 'delta' | 'reset' | 'done' | 'error', data: unknown) => Promise<void> | void;
+
+/** generation-cost §4: the code-built script, streamed through the same events. Returns the check class when the fill is refused. */
+async function serveStandard(ctx: GenerateContext, emit: Emit, reason: StandardReason): Promise<string | null> {
+  await emit('status', { stage: 'standard', reason });
+  const { body, check } = standardScript(ctx.goal, ctx.action, ctx.fmt, ctx.target, ctx.fields);
+  if (!check.ok) {
+    await emit('error', { error: 'refused', message: `We could not produce a script that passed our checks (${check.reason}). Try different wording.` });
+    return check.cls;
+  }
+  await emit('delta', { text: body });
+  const done: GenerateDone = { subject: '', body, facts_used: [], words: check.words, target: targetContact(ctx.target), standard: true, reason };
+  await emit('done', done);
+  return null;
+}
 
 /** The Opus call(s), the output check, the uniqueness check and the one `generations` row per request. */
 export async function run(deps: GenerateDeps, ctx: GenerateContext, emit: Emit): Promise<void> {
+  const base = { action_id: ctx.action.id, target_id: ctx.target.id, device_hash: ctx.deviceHash, ip_hash: ctx.ipHash };
+  if (ctx.standard) {
+    const cls = await serveStandard(ctx, emit, ctx.standard);
+    await deps.repo.insertGeneration({ ...base, shingles: new Uint32Array(0), created_at: deps.now().toISOString(), input_tokens: 0, output_tokens: 0, model: STANDARD_MODEL, attempt: 1, check_fail: cls });
+    return;
+  }
   const usage = { input_tokens: 0, output_tokens: 0 };
   const recent = await deps.repo.recentShingles(ctx.action.id, LIMITS.recent);
   let extra: string | null = null;
   let final: { doc: Doc; words: number; sh: Uint32Array } | null = null;
   let failed: string | null = null;
+  let firstFail: string | null = null; // the class attempt 1 failed on, when a redraft ran (§3 check_fail)
+  let attempts = 0;
+  let upstream = false; // the last attempt threw (5xx, network): the standard script takes over (§4)
   try {
     for (let attempt = 0; attempt < 2; attempt++) {
       if (attempt > 0) await emit('reset', { reason: extra });
       await emit('status', { stage: attempt === 0 ? 'drafting' : 'redrafting' });
+      attempts++;
       const ex = new BodyExtractor();
       let all = '';
-      const r = await streamMessage(deps.fetch, deps.apiKey ?? '', docRequest(ctx, extra), (t) => {
-        all += t;
-        const fresh = ex.next(all);
-        if (fresh) void emit('delta', { text: fresh });
-      });
+      let r: Awaited<ReturnType<typeof streamMessage>>;
+      try {
+        r = await streamMessage(deps.fetch, deps.apiKey ?? '', docRequest(ctx, extra), (t) => {
+          all += t;
+          const fresh = ex.next(all);
+          if (fresh) void emit('delta', { text: fresh });
+        });
+      } catch (e) {
+        console.error('generate: upstream failed', (e as Error).message);
+        upstream = true;
+        failed = 'upstream';
+        firstFail ??= 'upstream';
+        extra = null;
+        continue;
+      }
+      upstream = false;
       usage.input_tokens += r.usage.input_tokens;
       usage.output_tokens += r.usage.output_tokens;
       const doc = parseDoc(r.text);
       if (!doc) {
         failed = 'unreadable draft';
+        firstFail ??= 'unreadable';
         extra = 'The previous draft was not valid JSON. Return exactly the JSON object described.';
         continue;
       }
       const check = checkOutput(doc, ctx.check);
       if (!check.ok) {
         failed = check.reason;
+        firstFail ??= check.cls;
         extra = `The previous draft failed a check: ${check.reason}. Write a new draft that follows every rule in the system prompt.`;
         continue;
       }
       const sh = shingles(doc.body);
       if (attempt === 0 && recent.some((s) => overlap(s, sh) > LIMITS.overlap)) {
+        firstFail ??= 'overlap';
         extra = 'Write it again with a different structure and a different opening sentence; do not reuse phrasing a typical draft would use.';
         continue;
       }
@@ -482,15 +542,22 @@ export async function run(deps: GenerateDeps, ctx: GenerateContext, emit: Emit):
       break;
     }
   } finally {
+    const billed = usage.input_tokens + usage.output_tokens > 0;
     await deps.repo.insertGeneration({
-      action_id: ctx.action.id, target_id: ctx.target.id, shingles: final?.sh ?? new Uint32Array(0), created_at: deps.now().toISOString(),
-      device_hash: ctx.deviceHash, ip_hash: ctx.ipHash, input_tokens: usage.input_tokens, output_tokens: usage.output_tokens, model: DOC_MODEL,
+      ...base, shingles: final?.sh ?? new Uint32Array(0), created_at: deps.now().toISOString(),
+      input_tokens: usage.input_tokens, output_tokens: usage.output_tokens, model: !final && upstream && !billed ? STANDARD_MODEL : DOC_MODEL,
+      attempt: attempts, check_fail: attempts > 1 ? firstFail : null,
     });
+  }
+  if (!final && upstream) {
+    await emit('reset', { reason: 'upstream' });
+    await serveStandard(ctx, emit, 'upstream');
+    return;
   }
   if (!final) {
     await emit('error', { error: 'refused', message: `We could not produce a draft that passed our checks (${failed ?? 'no draft'}). Try different wording.` });
     return;
   }
-  const done: GenerateDone = { subject: final.doc.subject, body: final.doc.body, facts_used: final.doc.facts_used, words: final.words, target: targetContact(ctx.target) };
+  const done: GenerateDone = { subject: final.doc.subject, body: final.doc.body, facts_used: final.doc.facts_used, words: final.words, target: targetContact(ctx.target), standard: false };
   await emit('done', done);
 }

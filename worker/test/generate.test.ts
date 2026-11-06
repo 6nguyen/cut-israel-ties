@@ -6,7 +6,7 @@ import { createApp } from '../src/index';
 import { loadRows } from '../src/load';
 import { MemoryRepo } from '../src/repo';
 import { ANTHROPIC_URL, DOC_MODEL, SCREEN_MODEL, encodeSse, sseEvents } from '../src/anthropic';
-import { BodyExtractor, checkOutput, overlap, parseFormat, sanitize, shapeFields, shingles, wordCount, type Doc } from '../src/generate';
+import { BodyExtractor, checkOutput, docRequest, overlap, parseFormat, parseSchema, sanitize, shapeFields, shingles, wordCount, type Doc, type GenerateContext } from '../src/generate';
 import type { GenerationRow, ScreenClass } from '../src/types';
 import { ENV, fakeFetch } from './fixtures';
 import { ABUSIVE, BENIGN } from './fixtures.screen';
@@ -37,6 +37,9 @@ interface StubOpts {
   turnstileOk?: boolean;
   screen?: (content: string) => { class: 'ok' | ScreenClass; reason: string };
   doc?: (req: Record<string, unknown>, opusCall: number) => Doc | string;
+  /** HTTP status every Opus / Haiku call answers with instead of a body (generation-cost §4 upstream path). */
+  opusStatus?: number;
+  haikuStatus?: number;
 }
 function stubFetch(opts: StubOpts = {}) {
   const base = fakeFetch({ turnstileOk: opts.turnstileOk });
@@ -49,11 +52,13 @@ function stubFetch(opts: StubOpts = {}) {
     const content = String((req.messages as { content: string }[])[0].content);
     if (req.model === SCREEN_MODEL) {
       calls.haiku++;
+      if (opts.haikuStatus) return new Response('overloaded', { status: opts.haikuStatus });
       const verdict = opts.screen ? opts.screen(content) : { class: 'ok', reason: '' };
       return Response.json({ content: [{ type: 'text', text: JSON.stringify(verdict) }], usage: { input_tokens: 50, output_tokens: 10 } });
     }
     expect(req.model).toBe(DOC_MODEL);
     calls.opus++;
+    if (opts.opusStatus) return new Response('overloaded', { status: opts.opusStatus });
     const fieldsBlock = content.split('<user_fields>')[1] ?? '';
     const f = Object.fromEntries(['First name', 'City', 'Why this matters to you'].map((l, i) => [['first_name', 'city', 'why'][i], (fieldsBlock.match(new RegExp(`${l}: (.*)`)) ?? [, ''])[1]]));
     const seed = [...f.why].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7) % 100_000;
@@ -91,10 +96,10 @@ async function events(res: Response): Promise<Ev[]> {
   for await (const e of sseEvents(res.body!)) out.push({ event: e.event, data: JSON.parse(e.data) as Record<string, unknown> });
   return out;
 }
-const doneOf = (evs: Ev[]) => evs.find((e) => e.event === 'done')?.data as { body: string; subject: string; words: number; target: { name: string; phones: string[] } } | undefined;
+const doneOf = (evs: Ev[]) => evs.find((e) => e.event === 'done')?.data as { body: string; subject: string; words: number; target: { name: string; phones: string[] }; standard: boolean; reason?: string } | undefined;
 
 function genRow(over: Partial<GenerationRow>): GenerationRow {
-  return { action_id: 2, target_id: CORREA, shingles: new Uint32Array(0), created_at: new Date(TODAY.getTime() - 60_000).toISOString(), device_hash: 'x', ip_hash: 'y', input_tokens: 0, output_tokens: 0, model: DOC_MODEL, ...over };
+  return { action_id: 2, target_id: CORREA, shingles: new Uint32Array(0), created_at: new Date(TODAY.getTime() - 60_000).toISOString(), device_hash: 'x', ip_hash: 'y', input_tokens: 0, output_tokens: 0, model: DOC_MODEL, attempt: 1, check_fail: null, ...over };
 }
 const sha = async (s: string) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, '0')).join('');
 
@@ -126,15 +131,19 @@ describe('POST /api/generate — happy path', () => {
     expect(row.device_hash).not.toBe(DEVICE);
     expect(row.input_tokens).toBe(900);
     expect(row.output_tokens).toBe(200);
+    expect(row.model).toBe(DOC_MODEL);
+    expect([row.attempt, row.check_fail]).toEqual([1, null]);
+    expect(done.standard).toBe(false);
     expect(JSON.stringify(row)).not.toContain(FIELDS.why);
     expect(sink.join('\n')).not.toContain(FIELDS.why);
   });
 
-  it('sends the stable prefix with cache_control, the untrusted blocks last, max_tokens 1500 and the JSON schema', async () => {
+  it('sends the stable prefix with cache_control, the untrusted blocks last, max_tokens 700 at low effort for a call script, and the JSON schema', async () => {
     const { generate, calls } = app();
     await events(await generate());
     const opus = calls.bodies.find((b) => b.model === DOC_MODEL)!;
-    expect(opus.max_tokens).toBe(1500);
+    expect(opus.max_tokens).toBe(700); // generation-cost §3
+    expect((opus.output_config as { effort: string }).effort).toBe('low');
     expect(opus.stream).toBe(true);
     expect(opus.fallbacks).toBe('default');
     const sys = opus.system as { text: string; cache_control: unknown }[];
@@ -160,11 +169,10 @@ describe('POST /api/generate — happy path', () => {
 });
 
 describe('POST /api/generate — rejections before any Anthropic call', () => {
-  it('503 unconfigured without ANTHROPIC_API_KEY', async () => {
-    const { generate, calls } = app();
-    const res = await generate({}, ENV as unknown as Record<string, unknown>);
-    expect(res.status).toBe(503);
-    expect(((await res.json()) as { error: string; message: string }).error).toBe('unconfigured');
+  it('400 on bad JSON first: shape is checked before the key', async () => {
+    const { post, calls } = app();
+    const res = await post('/api/generate', { action: 'ndaa-1217-call', device: 'short' }, ENV as unknown as Record<string, unknown>);
+    expect(res.status).toBe(400);
     expect(calls.opus + calls.haiku).toBe(0);
   });
 
@@ -204,13 +212,18 @@ describe('POST /api/generate — rejections before any Anthropic call', () => {
     expect(calls.opus + calls.haiku).toBe(0);
   });
 
-  it('503 past the global daily cap', async () => {
-    const { generate, repo, calls } = app();
-    repo.generations.push(genRow({}), genRow({}));
-    const res = await generate({}, { ...KEYED, MAX_GENERATIONS_PER_DAY: '2' });
-    expect(res.status).toBe(503);
-    expect(((await res.json()) as { error: string; message: string }).message).toMatch(/tomorrow/);
-    expect(calls.opus + calls.haiku).toBe(0);
+  it('guards reject before the standard script: a blocked device and the hourly limit with no key (generation-cost §4)', async () => {
+    const blocked = app();
+    await blocked.repo.block(await sha(DEVICE), new Date(TODAY.getTime() + 3_600_000));
+    const res = await blocked.generate({}, ENV as unknown as Record<string, unknown>);
+    expect(res.status).toBe(403);
+    const limited = app();
+    const dh = await sha(DEVICE);
+    limited.repo.generations.push(...Array.from({ length: 5 }, (_, i) => genRow({ device_hash: dh, action_id: 9, created_at: new Date(TODAY.getTime() - (i + 1) * 60_000).toISOString() })));
+    const r2 = await limited.generate({}, ENV as unknown as Record<string, unknown>);
+    expect(r2.status).toBe(429);
+    expect(((await r2.json()) as { error: string }).error).toBe('limit_hour');
+    expect(blocked.calls.opus + blocked.calls.haiku + limited.calls.opus + limited.calls.haiku).toBe(0);
   });
 
   it('429 past 5/hour, 20/day, 3/action/day and 30/IP/day', async () => {
@@ -286,6 +299,88 @@ describe('POST /api/generate — screen (§4.8.2) and abuse response (§4.8.5)',
   });
 });
 
+describe('POST /api/generate — standard script (generation-cost §4)', () => {
+  const NOKEY = ENV as unknown as Record<string, unknown>;
+  /** The §4 stream: status standard, exactly one delta, done {standard: true}, a 60–120-word body that passes the check. */
+  async function expectStandard(res: Response, reason: string) {
+    const evs = await events(res);
+    expect(evs[0]).toEqual({ event: 'status', data: { stage: 'standard', reason } });
+    const deltas = evs.filter((e) => e.event === 'delta');
+    expect(deltas).toHaveLength(1);
+    const done = doneOf(evs)!;
+    expect(done.standard).toBe(true);
+    expect(done.reason).toBe(reason);
+    expect(done.body).toBe(deltas[0].data.text);
+    expect(done.body).toContain('Correa');
+    expect(done.body).toContain('integration section');
+    expect(done.body).toContain('drop the integration section');
+    expect(done.body).toContain(FIELDS.first_name);
+    expect(done.body).toContain(FIELDS.why);
+    expect(done.body).not.toMatch(/\{\{|\}\}/);
+    expect(done.words).toBe(wordCount(done.body));
+    expect(done.words).toBeGreaterThanOrEqual(60);
+    expect(done.words).toBeLessThanOrEqual(120);
+    expect(done.target.name).toBe('Lou Correa');
+    return done;
+  }
+
+  it('unconfigured: no key → the standard script, no Anthropic call, a model=standard row with zero tokens', async () => {
+    const { generate, repo, calls } = app();
+    await expectStandard(await generate({}, NOKEY), 'unconfigured');
+    expect(calls.opus + calls.haiku).toBe(0);
+    expect(repo.generations).toHaveLength(1);
+    expect(repo.generations[0]).toMatchObject({ model: 'standard', input_tokens: 0, output_tokens: 0, attempt: 1, check_fail: null });
+    expect(repo.generations[0].shingles.length).toBe(0);
+  });
+
+  it('budget: LLM_MONTHLY_BUDGET_USD=0 → standard even with a key, and no screen call either', async () => {
+    const { generate, calls } = app();
+    await expectStandard(await generate({}, { ...KEYED, LLM_MONTHLY_BUDGET_USD: '0' }), 'budget');
+    expect(calls.opus + calls.haiku).toBe(0);
+  });
+
+  it("capacity: the day's cap reached → standard; the cap floor is 20, so MAX_GENERATIONS_PER_DAY below it does not bite", async () => {
+    const floor = app();
+    floor.repo.generations.push(...Array.from({ length: 19 }, () => genRow({})));
+    const evs = await events(await floor.generate({}, { ...KEYED, MAX_GENERATIONS_PER_DAY: '2' }));
+    expect(evs[0]).toEqual({ event: 'status', data: { stage: 'drafting' } });
+    expect(floor.calls.opus).toBe(1);
+    const capped = app();
+    capped.repo.generations.push(...Array.from({ length: 20 }, () => genRow({ input_tokens: 900, output_tokens: 200 }))); // 20 × $0.0077: blended is measured, the cap is 4 → floor 20
+    await expectStandard(await capped.generate({}, { ...KEYED, LLM_MONTHLY_BUDGET_USD: '1' }), 'capacity');
+    expect(capped.calls.opus + capped.calls.haiku).toBe(0);
+    expect(capped.repo.generations).toHaveLength(21);
+    expect(capped.repo.generations[20].model).toBe('standard');
+  });
+
+  it('upstream: two 5xx replies from Opus → reset, then the standard script; the row says attempt 2, check_fail upstream', async () => {
+    const { generate, repo, calls } = app({ opusStatus: 529 });
+    const res = await generate();
+    const evs = await events(res);
+    expect(calls.opus).toBe(2);
+    expect(evs.filter((e) => e.event === 'status').map((e) => e.data.stage)).toEqual(['drafting', 'redrafting', 'standard']);
+    expect(evs.some((e) => e.event === 'reset')).toBe(true);
+    const done = doneOf(evs)!;
+    expect(done).toMatchObject({ standard: true, reason: 'upstream' });
+    expect(done.body).toContain('Correa');
+    expect(repo.generations).toHaveLength(1);
+    expect(repo.generations[0]).toMatchObject({ model: 'standard', attempt: 2, check_fail: 'upstream' });
+  });
+
+  it('upstream: a dead screen service falls through to the standard script instead of a 502', async () => {
+    const { generate, calls } = app({ haikuStatus: 503 });
+    await expectStandard(await generate(), 'upstream');
+    expect(calls.haiku).toBe(1);
+    expect(calls.opus).toBe(0);
+  });
+
+  it('a screened-out field still returns 422 when a model draft would have run', async () => {
+    const { generate } = app({ screen: () => ({ class: 'off_topic', reason: 'not about this goal' }) });
+    const res = await generate();
+    expect(res.status).toBe(422);
+  });
+});
+
 describe('POST /api/generate — output check (§4.8.4) and uniqueness (§4.4)', () => {
   const badDoc = (): Doc => ({ subject: '', body: `${validDoc(FIELDS, 1).body} Read more at https://example.com and call 555-867-5309 about the 48 million.`, facts_used: [] });
 
@@ -302,6 +397,7 @@ describe('POST /api/generate — output check (§4.8.4) and uniqueness (§4.4)',
     expect(repo.generations).toHaveLength(1);
     expect(repo.generations[0].shingles.length).toBe(0);
     expect(repo.generations[0].input_tokens).toBe(1800);
+    expect([repo.generations[0].attempt, repo.generations[0].check_fail]).toEqual([2, 'digit']); // generation-cost §3
   });
 
   it('a failed first draft followed by a clean second one is shown after a reset', async () => {
@@ -354,8 +450,19 @@ describe('checkOutput, sanitize, shapeFields, BodyExtractor (unit)', () => {
   const ctx = { targetName: 'Lou Correa', fmt, allowedDigits: new Set(['46', '1217', '219', '2026', '12', '10']), pickName: null as string | null };
   const ok = validDoc(FIELDS, 11);
 
+  it('a letter request keeps medium effort and 1500 tokens (generation-cost §3)', () => {
+    const action = rows.actions.find((a) => a.slug === 'ndaa-1217-call')!;
+    const goal = rows.goals.find((g) => g.id === action.goal_id)!;
+    const base = { action, goal, schema: parseSchema(action), fields: FIELDS, facts: 'Target: Rep. Lou Correa (D, CA-46)' } as unknown as GenerateContext;
+    const letter = docRequest({ ...base, fmt: { ...fmt, kind: 'letter' } }, null);
+    expect([letter.max_tokens, (letter.output_config as { effort: string }).effort]).toEqual([1500, 'medium']);
+    const call = docRequest({ ...base, fmt }, null);
+    expect([call.max_tokens, (call.output_config as { effort: string }).effort]).toEqual([700, 'low']);
+  });
+
   it('accepts a clean script and names each failure', () => {
     expect(checkOutput(ok, ctx)).toEqual({ ok: true, words: wordCount(ok.body) });
+    expect(checkOutput({ ...ok, body: `${ok.body} Email me at a@b.org.` }, ctx)).toMatchObject({ ok: false, cls: 'contact' });
     expect(checkOutput({ ...ok, body: ok.body.replace('Correa', 'Congressman') }, ctx)).toMatchObject({ ok: false, reason: 'does not name the target' });
     expect(checkOutput({ ...ok, body: ok.body.replace('integration section, section 1217', 'that bill') }, ctx)).toMatchObject({ ok: false, reason: 'does not name the section or vote' });
     expect(checkOutput({ ...ok, body: ok.body.replace('drop the integration section', 'remove the integration section') }, ctx)).toMatchObject({ ok: false, reason: 'ask wording missing' });
@@ -363,6 +470,9 @@ describe('checkOutput, sanitize, shapeFields, BodyExtractor (unit)', () => {
     expect(checkOutput({ ...ok, body: `${ok.body} Roll call 243 said so.` }, ctx)).toMatchObject({ ok: false, reason: 'number 243 is not in the fact block' });
     expect(checkOutput({ ...ok, body: `${ok.body} Email me at a@b.org.` }, ctx)).toMatchObject({ ok: false, reason: 'contains a URL, email address or phone number' });
     expect(checkOutput({ ...ok, body: `${ok.body} We will find you.` }, ctx)).toMatchObject({ ok: false, reason: 'contains a blocked term' });
+    const lynch = { ...ctx, targetName: 'Stephen F. Lynch' };
+    expect(checkOutput({ ...ok, body: ok.body.replace('Rep. Correa', 'Rep. Lynch') }, lynch)).toMatchObject({ ok: true }); // the surname is not a blocked term
+    expect(checkOutput({ ...ok, body: `${ok.body.replace('Rep. Correa', 'Rep. Lynch')} We will find you.` }, lynch)).toMatchObject({ ok: false, cls: 'blocked' });
     expect(checkOutput({ ...ok, body: `${ok.body} ${filler(5, 40)}` }, ctx)).toMatchObject({ ok: false, reason: expect.stringMatching(/word count \d+ is outside 60–120/) });
     expect(checkOutput({ ...ok, body: 'Rep. Correa drop the integration section' }, ctx)).toMatchObject({ ok: false, reason: 'word count 6 is outside 60–120' });
     expect(checkOutput(ok, { ...ctx, pickName: 'Chris Murphy' })).toMatchObject({ ok: false, reason: 'does not name our pick' });

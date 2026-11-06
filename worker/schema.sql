@@ -48,7 +48,8 @@ CREATE TABLE actions (
   ask_text TEXT NOT NULL,
   form_schema TEXT NOT NULL,
   prompt_template TEXT,
-  doc_format TEXT NOT NULL
+  doc_format TEXT NOT NULL,
+  standard_template TEXT
 );
 
 CREATE TABLE members (
@@ -144,7 +145,9 @@ CREATE TABLE generations (
   ip_hash TEXT NOT NULL,
   input_tokens INTEGER NOT NULL DEFAULT 0,
   output_tokens INTEGER NOT NULL DEFAULT 0,
-  model TEXT NOT NULL
+  model TEXT NOT NULL,
+  attempt INTEGER NOT NULL DEFAULT 1,
+  check_fail TEXT
 );
 CREATE INDEX generations_device ON generations(device_hash, created_at);
 CREATE INDEX generations_ip ON generations(ip_hash, created_at);

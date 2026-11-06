@@ -1,7 +1,19 @@
 import type {
   Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
-  LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, Visit, VisitRequestRow, VisitRow, VisitStatus,
+  LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, TokenSum, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
+
+/** generation-cost §1: group rows by (model, action, first-failure class); the MemoryRepo's `tokensSince` and tests share it. */
+export function sumTokens(rows: GenerationRow[]): TokenSum[] {
+  const out = new Map<string, TokenSum>();
+  for (const g of rows) {
+    const k = `${g.model}\u0000${g.action_id}\u0000${g.check_fail ?? ''}`;
+    const t = out.get(k) ?? { model: g.model, action_id: g.action_id, check_fail: g.check_fail, input: 0, output: 0, count: 0, redrafts: 0 };
+    t.input += g.input_tokens; t.output += g.output_tokens; t.count++; if (g.attempt > 1) t.redrafts++;
+    out.set(k, t);
+  }
+  return [...out.values()];
+}
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -105,11 +117,21 @@ export class D1Repo implements Repo {
   async insertGeneration(row: GenerationRow): Promise<void> {
     await this.db
       .prepare(
-        `INSERT INTO generations (action_id, target_id, shingles, created_at, device_hash, ip_hash, input_tokens, output_tokens, model)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO generations (action_id, target_id, shingles, created_at, device_hash, ip_hash, input_tokens, output_tokens, model, attempt, check_fail)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .bind(row.action_id, row.target_id, row.shingles.buffer, row.created_at, row.device_hash, row.ip_hash, row.input_tokens, row.output_tokens, row.model)
+      .bind(row.action_id, row.target_id, row.shingles.buffer, row.created_at, row.device_hash, row.ip_hash, row.input_tokens, row.output_tokens, row.model, row.attempt, row.check_fail)
       .run();
+  }
+  async tokensSince(sinceIso: string): Promise<TokenSum[]> {
+    const { results } = await this.db
+      .prepare(
+        `SELECT model, action_id, check_fail, SUM(input_tokens) AS input, SUM(output_tokens) AS output, COUNT(*) AS count, SUM(attempt > 1) AS redrafts
+         FROM generations WHERE created_at >= ? GROUP BY model, action_id, check_fail`,
+      )
+      .bind(sinceIso)
+      .all<TokenSum>();
+    return results.map((r) => ({ ...r, input: r.input ?? 0, output: r.output ?? 0, count: r.count ?? 0, redrafts: r.redrafts ?? 0 }));
   }
   async screenedOutCount(deviceHash: string, since: Date): Promise<number> {
     const row = await this.db
@@ -340,6 +362,7 @@ export class MemoryRepo implements Repo {
     return this.generations.filter((g) => g.action_id === actionId).slice(-limit).reverse().map((g) => g.shingles);
   }
   async insertGeneration(row: GenerationRow): Promise<void> { this.generations.push(row); }
+  async tokensSince(sinceIso: string): Promise<TokenSum[]> { return sumTokens(this.generations.filter((g) => g.created_at >= sinceIso)); }
   async screenedOutCount(deviceHash: string, since: Date): Promise<number> {
     const s = iso(since);
     return this.screenings.filter((x) => x.device_hash === deviceHash && x.created_at >= s).length;

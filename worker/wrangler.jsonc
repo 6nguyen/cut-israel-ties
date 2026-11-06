@@ -25,6 +25,7 @@
   "vars": {
     "MONTHLY_COST_USD": "0",
     "MAX_GENERATIONS_PER_DAY": "500",
+    "LLM_MONTHLY_BUDGET_USD": "15",
     "STRIPE_LINKS": "{}",
     "MAINTAINER_EMAIL": "",
     "DIGEST_FROM": "digest@example.org",

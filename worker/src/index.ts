@@ -9,6 +9,7 @@ import { verifyTurnstile } from './turnstile';
 import { VISIT_LIMITS, expired, officeCity, personalData, publicVisit, validContact, verifyReview, visitWindow } from './visits';
 import { buildRoute, goalTargets } from './route';
 import { DEFAULT_GLOBAL_CAP, LIMITS, prepare, resolveTarget, run, sanitize, sha256Hex } from './generate';
+import { parseBudget } from './cost';
 import { COUNT_CACHE_SECONDS, RECEIPT_LIMITS, counts, receiptIpHash, thresholdFrom } from './counts';
 
 export interface Deps {
@@ -115,17 +116,13 @@ export function createApp(deps: Deps) {
     const gdeps = {
       repo: deps.repo(c.env), fetch: deps.fetch, now: deps.now, apiKey: c.env.ANTHROPIC_API_KEY,
       globalCap: Number(c.env.MAX_GENERATIONS_PER_DAY) > 0 ? Number(c.env.MAX_GENERATIONS_PER_DAY) : DEFAULT_GLOBAL_CAP,
+      budgetUsd: parseBudget(c.env.LLM_MONTHLY_BUDGET_USD), // generation-cost §1
     };
-    let prepared;
-    try {
-      prepared = await prepare(gdeps, {
-        action: body.action, target: body.target, fields: body.fields, device: body.device, ip,
-        verify: () => verifyTurnstile(typeof body.turnstile === 'string' ? body.turnstile : undefined, c.env.TURNSTILE_SECRET, ip, deps.fetch),
-      });
-    } catch (e) {
-      console.error('generate: screen failed', (e as Error).message);
-      return c.json({ error: 'upstream', message: 'The drafting service is not answering. Try again in a minute.' }, 502);
-    }
+    // generation-cost §4: a dead screen or drafting service is no longer a 502/503; `prepare` and `run` fall through to the standard script.
+    const prepared = await prepare(gdeps, {
+      action: body.action, target: body.target, fields: body.fields, device: body.device, ip,
+      verify: () => verifyTurnstile(typeof body.turnstile === 'string' ? body.turnstile : undefined, c.env.TURNSTILE_SECRET, ip, deps.fetch),
+    });
     if (!prepared.ok) return c.json({ error: prepared.reject.error, message: prepared.reject.message }, prepared.reject.status);
     const ctx = prepared.ctx;
     return streamSSE(c, async (stream) => {
@@ -133,8 +130,8 @@ export function createApp(deps: Deps) {
       try {
         await run(gdeps, ctx, emit);
       } catch (e) {
-        console.error('generate: upstream failed', (e as Error).message);
-        await emit('error', { error: 'upstream', message: 'The drafting service dropped the connection. Try again.' });
+        console.error('generate: failed', (e as Error).message);
+        await emit('error', { error: 'internal', message: 'Something broke on our side. Try again.' });
       }
     });
   });

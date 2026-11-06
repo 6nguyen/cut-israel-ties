@@ -16,3 +16,8 @@ prompt_template: |
   a prior vote, name it in one sentence. Weave the caller's reason in as their own words, then close by asking what the
   member will do.
 doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "1217", "219"], "ask": "drop the integration section"}
+standard_template: |
+  Hi, my name is {{user_first_name}} and I live in {{user_city}}. I am a constituent of {{target_role}} {{target_name}}, and I am calling about the NDAA conference.
+  I am asking {{target_role}} {{target_name}} to tell the conferees to drop the integration section, House section 219 and Senate section 1217, and to vote no on any conference report that keeps it. {{prior_vote_line}} {{position_line}}
+  {{user_why}}
+  Can you tell me what {{target_role}} {{target_name}} will do on this, and when the office will say so publicly? Thank you for your time.
