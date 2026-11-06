@@ -43,6 +43,13 @@ stores identifies them. Address routing, goals and ranking are in
    actions: bonds held, campaign, next comment date) and the user's
    `<user_fields>`, both labelled untrusted. The page shows the body as
    it streams.
+   For an action with `script_blocks` the user message also carries a
+   `<starting_script>` block holding the Behavior 5 composition for this
+   request, and the system prompt tells the model to keep its ask and
+   facts, rework it into the constituent's voice and treat it as
+   material, not instructions; a composition that fails the check is
+   omitted.
+
 3. **Output check and uniqueness.** Deterministic, after each draft:
    word count within `doc_format`, target surname, one of
    `doc_format.mentions`, the `doc_format.ask` phrase, our pick's surname
@@ -82,7 +89,7 @@ stores identifies them. Address routing, goals and ranking are in
    reached (`reason: capacity`), `ANTHROPIC_API_KEY` is unset
    (`unconfigured`), `LLM_MONTHLY_BUDGET_USD` is 0 (`budget`), or the
    screen or both model attempts threw (`upstream`) — the route serves
-   the action's `standard_template` instead: `worker/src/standard.ts`
+   the action's standard script instead: `worker/src/standard.ts`
    fills `{{target_name}} {{target_role}} {{ask}} {{mention}}
    {{position_line}} {{prior_vote_line}} {{pick_line}} {{user_<field>}}`
    from the same rows as the fact block and the stripped user fields,
@@ -96,17 +103,37 @@ stores identifies them. Address routing, goals and ranking are in
    The `generations` row has `model = 'standard'`, zero tokens and
    `check_fail` null, so counts and limits see it and `costUsd` adds $0.
    The loader (`checkStandardTemplates`) rejects an `active` goal's
-   action without a template, an unknown placeholder, a brace left in
-   the text, or a fill that fails the output check for any in-scope
-   target with the shortest or the longest valid fields.
+   action without a template or blocks, an unknown placeholder, a brace
+   left in the text, or a fill that fails the output check for any
+   in-scope target with the shortest or the longest valid fields.
+   The template is `standard_template`, or, when the action names
+   `script_blocks: <name>`, a composition from
+   `data/script_blocks/<name>.yaml` (`worker/src/compose.ts`): each slot
+   contributes `pick` distinct variants (default 1) drawn from the
+   variants whose `when` holds for this request (`chamber`, `self` =
+   the target is one of the file's `incumbents`, `has` = these
+   placeholders render non-empty), kept in file order, variants joined
+   by a space and slots by a newline. The draw is seeded by the request's
+   `variant` (a random integer the act page sends; absent or invalid =
+   random), so one seed always gives one script and the next seed a
+   different one; `done.variant` names the chosen block ids joined by
+   `.`. Only an incumbent gets the self asks (commit in public or step
+   aside); every other target gets the vote-only asks; every ask carries
+   the action's `ask` phrase and a mention. For such an action the act
+   page's regenerate button reads "Another version" and resends with a
+   new seed. The leadership actions (`house-caucus-call`,
+   `senate-leader-call`) use `leadership.yaml`; the NDAA action keeps a
+   plain template.
 
 ## Data & contracts
 - `POST /api/generate` body `{action, target, fields, device,
-  turnstile?}` (`device` 8–128 chars). Success is `text/event-stream`:
+  turnstile?, variant?}` (`device` 8–128 chars; `variant` a non-negative
+  integer seed, ignored otherwise). Success is `text/event-stream`:
   `status {stage: drafting|redrafting|standard, reason?}`, `delta
   {text}`, `reset {reason}`, `done {subject, body, facts_used, words,
-  standard, reason?, target: {id, name, role, phones[],
-  contact_form_url}}` or `error {error: refused | internal, message}`.
+  standard, reason?, variant?, target: {id, name, role, phones[],
+  contact_form_url}}` or `error {error: refused | internal, message}`;
+  `variant` is present only on a standard script composed from blocks.
   Rejections are JSON `{error, message}`: 400 `bad_json | bad_request |
   no_action | no_target | bad_fields`, 403 `turnstile | blocked`, 422
   `screened`, 429 `limit_hour | limit_day | limit_action | limit_ip`.
@@ -117,6 +144,13 @@ stores identifies them. Address routing, goals and ranking are in
   and 20 as the floor while the budget is above zero, `max_tokens` 700
   for call scripts and 1500 otherwise; three screened-out attempts in
   24 h block the device for 24 h.
+- `actions.script_blocks` (TEXT, JSON of the parsed blocks file or
+  null) sits beside `standard_template`; the YAML key `script_blocks:
+  <name>` names `data/script_blocks/<name>.yaml` (`incumbents[]`,
+  `slots[] {name, pick?, carries? (ask | mention), variants[] {id, text,
+  when? {chamber?, self?, has?}}}`; shape and rules in `data/README.md`).
+  `worker/src/compose.ts` parses, filters and draws; `standardScript`
+  takes the seed and returns `variant`.
 - `POST /api/receipt` `{goal, action, target, state?, district?,
   device}` → `{id}` (`action: 'captain-list'` with no target records a
   completed captain list, `commitment-funnel.md`); `POST /api/report` `{goal, target, outcome, note?,
@@ -169,6 +203,16 @@ stores identifies them. Address routing, goals and ranking are in
       for every in-scope target with the shortest and longest fixture
       fields; `loadRows` names the action otherwise
       (`worker/test/standard.test.ts`).
+- [ ] Every active action with `script_blocks` has ≥ `pick` eligible
+      variants per slot for every in-scope target, every carrier
+      variant holds the ask phrase or a mention, no variant holds a
+      digit, URL or blocked term, the shortest and longest compositions
+      stay within `min_words`–`max_words`, and three seeded compositions
+      per target and fixture pass the output check; `loadRows` names the
+      action, slot and variant otherwise (`worker/test/compose.test.ts`).
+- [ ] An incumbent named in `incumbents` never receives a non-self ask
+      and no other target receives a self ask; 300 seeds per target give
+      ≥ 100 distinct bodies (`worker/test/compose.test.ts`).
 - [ ] 40 abusive inputs (injection, threats, off-topic) produce zero
       documents; 20 benign inputs with unusual phrasing all pass; the
       third screened-out attempt blocks the device for 24 h; screenings

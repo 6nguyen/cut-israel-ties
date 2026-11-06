@@ -1,0 +1,141 @@
+# leader-call-scripts §1: reusable blocks for the leadership goals (house-caucus-call, senate-leader-call).
+# A script is one variant per slot, picked by the caller's seed, filled with the same facts as any standard script.
+# Rules the seed enforces: known placeholders only, no digits, URLs or blocked terms, every combination inside the
+# action's word range for every target, and every eligible ask variant carries the action's ask and a mention phrase.
+# `when`: chamber (house | senate), self (the target is one of `incumbents`), has (placeholders that must be non-empty).
+incumbents: [J000294, S000148]
+slots:
+  - name: opener
+    variants:
+      - id: op1
+        text: "Hi, my name is {{user_first_name}} and I live in {{user_city}}. I am a constituent of {{target_role}} {{target_name}}."
+      - id: op2
+        text: "Good morning. This is {{user_first_name}}, calling from {{user_city}}. {{target_role}} {{target_name}} represents me."
+      - id: op3
+        text: "Hello, my name is {{user_first_name}}. I live in {{user_city}}, and I am one of {{target_role}} {{target_name}}'s constituents."
+      - id: op4
+        when: {has: [user_affiliation]}
+        text: "Hi, this is {{user_first_name}} from {{user_city}}, calling as {{user_affiliation}} and as a constituent of {{target_role}} {{target_name}}."
+      - id: op5
+        text: "Hi, I am {{user_first_name}}, a constituent in {{user_city}}, calling for {{target_role}} {{target_name}}'s office."
+  - name: context
+    variants:
+      - id: cx1
+        when: {chamber: house}
+        text: "I am calling about the caucus leadership election. It happens once, and it is close."
+      - id: cx2
+        when: {chamber: house}
+        text: "I am calling before House Democrats choose their leader, because that choice decides who controls the floor."
+      - id: cx3
+        when: {chamber: senate}
+        text: "I am calling about the Senate Democratic leadership election. It happens once, and it is close."
+      - id: cx4
+        when: {chamber: senate}
+        text: "I am calling before Senate Democrats pick their leader, because the leader decides what reaches the floor."
+      - id: cx5
+        text: "I am calling about the leadership vote, the first test of whether anything changes after this election."
+      - id: cx6
+        text: "I am calling about the leadership vote. I am calling, not signing a petition, so this gets logged."
+      - id: cx7
+        text: "I am calling about who leads the caucus next, which matters more to me than any single bill."
+  - name: argument
+    variants:
+      - id: ar1
+        text: "One leadership vote is worth more than any single seat, because the leader sets the floor agenda."
+      - id: ar2
+        text: "A leader who will not strip the integration section will never let the caucus vote on it."
+      - id: ar3
+        text: "That commitment should come from constituents like me, not from the groups that fund campaigns on this."
+      - id: ar4
+        when: {self: false}
+        text: "A secret ballot is still a choice, and I want to know what condition comes with it."
+      - id: ar5
+        text: "This is a condition, not a threat: support in exchange for a commitment made in public."
+      - id: ar6
+        text: "Every member gets one vote here, new or returning, and each should hear this from home first."
+      - id: ar7
+        when: {chamber: house, self: false}
+        text: "I do not want my representative's vote traded quietly; I want it tied to a public condition."
+      - id: ar8
+        when: {chamber: senate, self: false}
+        text: "I do not want my senator's vote traded quietly; I want it tied to a public condition."
+      - id: ar9
+        when: {chamber: house, self: true}
+        text: "As caucus leader, {{target_name}} sets the terms here, and those terms should be public."
+      - id: ar10
+        when: {chamber: senate, self: true}
+        text: "As leader, {{target_name}} decides what the caucus accepts, and that should happen in the open."
+      - id: ar11
+        when: {self: true}
+        text: "{{target_name}} answers to constituents first, not donors, and this vote shows whether that holds."
+  - name: record
+    variants:
+      - id: rec
+        text: "{{prior_vote_line}} {{position_line}}"
+  - name: why
+    variants:
+      - id: why1
+        text: "{{user_why}}"
+      - id: why2
+        text: "Why it matters to me: {{user_why}}"
+      - id: why3
+        text: "Personally: {{user_why}}"
+      - id: why4
+        text: "My reason: {{user_why}}"
+  - name: ask
+    carries: [ask, mention]
+    variants:
+      - id: askh1
+        when: {chamber: house, self: false}
+        text: "I am asking {{target_role}} {{target_name}} to say on the record that they will vote against any NDAA report that keeps the integration section. {{pick_line}}"
+      - id: askh2
+        when: {chamber: house, self: false}
+        text: "Will {{target_role}} {{target_name}} go on the record, yes or no, against any NDAA report that keeps the integration section? {{pick_line}}"
+      - id: askh3
+        when: {chamber: house, self: false}
+        text: "My ask is a statement on the record that {{target_role}} {{target_name}} will vote no on any NDAA report with the integration section in it. {{pick_line}}"
+      - id: askh4
+        when: {chamber: house, self: false}
+        text: "Please tell me whether {{target_role}} {{target_name}} will say on the record that the integration section is a dealbreaker for the NDAA report, and when. {{pick_line}}"
+      - id: askhs1
+        when: {chamber: house, self: true}
+        text: "I am asking {{target_name}}, as leader, to say on the record that the caucus will whip against any NDAA report that keeps the integration section, or to step aside. {{pick_line}}"
+      - id: askhs2
+        when: {chamber: house, self: true}
+        text: "I am asking {{target_name}} to put on the record that no NDAA report keeping the integration section gets caucus support, or to let someone else lead. {{pick_line}}"
+      - id: askhs3
+        when: {chamber: house, self: true}
+        text: "Will {{target_name}} commit on the record that the integration section comes out of the NDAA, or make room for a leader who will? Yes or no. {{pick_line}}"
+      - id: asks1
+        when: {chamber: senate, self: false}
+        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{pick_line}}"
+      - id: asks2
+        when: {chamber: senate, self: false}
+        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{pick_line}}"
+      - id: asks3
+        when: {chamber: senate, self: false}
+        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section, and say so before the vote. {{pick_line}}"
+      - id: asks4
+        when: {chamber: senate, self: false}
+        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section, and who that is. {{pick_line}}"
+      - id: askss1
+        when: {chamber: senate, self: true}
+        text: "I am asking {{target_name}} to commit in public, before the vote, to stripping the integration section, or to step aside. Senators should vote only for a leader who does. {{pick_line}}"
+      - id: askss2
+        when: {chamber: senate, self: true}
+        text: "Will {{target_name}} say publicly that the integration section comes out? If not, step aside, because I am asking every senator to vote only for a leader who will. {{pick_line}}"
+      - id: askss3
+        when: {chamber: senate, self: true}
+        text: "{{target_name}} can keep this job by committing in public to strip the integration section. Without that, I am asking senators to vote only for a leader who will. {{pick_line}}"
+  - name: close
+    variants:
+      - id: cl1
+        text: "Please log this call and the answer. Thank you for your time."
+      - id: cl2
+        text: "Please log my call for legislative staff. I will call again next week."
+      - id: cl3
+        text: "Please note my call, and tell me when the office will answer publicly."
+      - id: cl4
+        text: "I will call the local office too and call back tomorrow. Thank you."
+      - id: cl5
+        text: "Thank you for taking this. Please record my position; I will check back."

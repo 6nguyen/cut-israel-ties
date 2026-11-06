@@ -49,7 +49,8 @@ CREATE TABLE actions (
   form_schema TEXT NOT NULL,
   prompt_template TEXT,
   doc_format TEXT NOT NULL,
-  standard_template TEXT
+  standard_template TEXT,
+  script_blocks TEXT
 );
 
 CREATE TABLE members (

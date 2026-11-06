@@ -13,7 +13,7 @@
 | maintainer-tooling | BUILDING | Draft a sourced position row, nightly report digest by emai… | [spec](specs/maintainer-tooling.md) | [generation-cost](prd/generation-cost.md) 0/4 +4 | 2026-11-05 |
 | member-pages | BUILDING | Roster import, member page with contact and position, whip… | [spec](specs/member-pages.md) | [call-follow-through](prd/call-follow-through.md) 0/5 +2 | 2026-11-05 |
 | on-device-districts | BUILDING | Browser location → district on the device, per-state TopoJS… | [spec](specs/on-device-districts.md) | [district-vintage-rollover](prd/district-vintage-rollover.md) 0/3 | 2026-11-05 |
-| personalised-documents | BUILDING | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | [call-follow-through](prd/call-follow-through.md) 0/5 +1 | 2026-11-05 |
+| personalised-documents | BUILDING | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | [call-follow-through](prd/call-follow-through.md) 0/5 +2 | 2026-11-06 |
 | decision-feed | SHIPPED | Public `.ics` feed of decision dates, subscribe line on `/g… | [spec](specs/decision-feed.md) | - | 2026-11-05 |
 | goal-pages | SHIPPED | Goals overview, goal detail and prep pages, goal lifecycle,… | [spec](specs/goal-pages.md) | - | 2026-11-05 |
 | office-visits | SHIPPED | List a district-office visit, maintainer approval from the… | [spec](specs/office-visits.md) | - | 2026-11-04 |

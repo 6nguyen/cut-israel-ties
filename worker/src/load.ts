@@ -1,5 +1,5 @@
 // Node-only: read data/ into row objects. Shared by scripts/seed.ts and the tests.
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { CONTACT_KINDS, HOLDINGS_STATUSES, type Action, type Goal, type Member, type Office, type Position, type StateRow } from './types';
@@ -9,6 +9,7 @@ import { HOUSE_SEATS, districtError } from './districts';
 import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
 import { checkId, readIds } from './ids';
 import { checkStandardTemplates } from './standard';
+import { parseBlocks } from './compose';
 
 export interface Rows {
   goals: Goal[];
@@ -199,7 +200,16 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
         prompt_template: str(y.prompt_template),
         doc_format: json(y.doc_format),
         standard_template: str(y.standard_template),
+        script_blocks: null,
       };
+      if (y.script_blocks !== undefined) {
+        // leader-call-scripts §1: the blocks file is inlined as JSON so D1 and MemoryRepo carry it with the action.
+        const name = String(y.script_blocks);
+        if (!/^[a-z0-9-]+$/.test(name)) throw new Error(`action ${a.slug}: script_blocks must name a file in data/script_blocks/`);
+        const file = join(dataDir, 'script_blocks', `${name}.yaml`);
+        if (!existsSync(file)) throw new Error(`action ${a.slug}: data/script_blocks/${name}.yaml does not exist`);
+        a.script_blocks = JSON.stringify(parseBlocks(parseYaml(readFileSync(file, 'utf8')), `action ${a.slug} (script_blocks/${name}.yaml)`));
+      }
       if (!['house', 'senate', 'both', 'state'].includes(a.target_scope)) throw new Error(`action ${a.slug}: bad target_scope`);
       return a;
     });
@@ -277,7 +287,8 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   checkElections(elections);
   applyElections(goals, elections);
   checkElectoral(goals, actions, members);
-  // generation-cost §4: every active action's standard script fills and passes the output check for every target.
+  // generation-cost §4 / leader-call-scripts §4: every active action's standard script (template or composed blocks)
+  // fills and passes the output check for every target.
   checkStandardTemplates(goals, actions, members, positions, states);
 
   return { goals, actions, members, offices, positions, states, elections };

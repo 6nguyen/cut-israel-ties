@@ -2,7 +2,8 @@
 // and the same facts the model would see, when no model may run (cap, budget 0, no key, upstream down).
 // No LLM touches it; it passes the same output check as a generated draft, and the seed proves it can.
 import type { Action, Goal, Member, Position, StateRow } from './types';
-import { checkOutput, digitRuns, factBlock, firstPick, parseFormat, parseSchema, targetContact, targetName, wordCount, type Check, type DocFormat, type FormField, type Target } from './generate';
+import { BLOCKLIST, checkOutput, digitRuns, factBlock, firstPick, parseFormat, parseSchema, targetContact, targetName, wordCount, type Check, type DocFormat, type FormField, type Target } from './generate';
+import { combinations, compose, eligibleVariants, parseBlocks, type ComposeTarget, type ScriptBlocks } from './compose';
 import { priorVote } from './route';
 import { fillAsk } from './state-copy';
 
@@ -44,11 +45,14 @@ export function standardFacts(goal: Goal, action: Action, fmt: DocFormat, t: Tar
   };
 }
 
-function render(template: string, facts: StandardFacts, fields: Record<string, string>): string {
-  const text = template.replace(PLACEHOLDER_RE, (_m, name: string) => {
-    if (name.startsWith('user_')) return fields[name.slice(5)] ?? '';
-    return facts[name as keyof StandardFacts] ?? '';
-  });
+/** One placeholder's value: `user_<field>` from the fields, anything else from the facts; '' when unknown. */
+export function resolvePlaceholder(name: string, facts: StandardFacts, fields: Record<string, string>): string {
+  if (name.startsWith('user_')) return fields[name.slice(5)] ?? '';
+  return facts[name as keyof StandardFacts] ?? '';
+}
+
+export function render(template: string, facts: StandardFacts, fields: Record<string, string>): string {
+  const text = template.replace(PLACEHOLDER_RE, (_m, name: string) => resolvePlaceholder(name, facts, fields));
   return text
     .split('\n')
     .map((l) => l.replace(/[ \t]+/g, ' ').replace(/ ([,.;:!?])/g, '$1').trim())
@@ -76,13 +80,44 @@ export function fillStandard(template: string, facts: StandardFacts, fields: Rec
   }
 }
 
-/** A standard script for one request: the fill plus the §4.8.4 output check. */
-export function standardScript(goal: Goal, action: Action, fmt: DocFormat, t: Target, fields: Record<string, string>): { body: string; check: Check } {
-  const template = action.standard_template ?? '';
-  const body = fillStandard(template, standardFacts(goal, action, fmt, t), fields, fmt.max_words);
+// ---- script blocks (leader-call-scripts §2) ----------------------------------------------------
+export function actionBlocks(action: Action): ScriptBlocks | null {
+  return action.script_blocks ? parseBlocks(JSON.parse(action.script_blocks), `action ${action.slug}`) : null;
+}
+
+/** The eligibility view of one request: target id and chamber, plus which placeholders render non-empty. */
+export function composeTarget(t: Target, facts: StandardFacts, fields: Record<string, string>): ComposeTarget {
+  return {
+    id: t.id,
+    chamber: t.kind === 'member' ? t.member.chamber : null,
+    present: (name) => resolvePlaceholder(name, facts, fields).trim() !== '',
+  };
+}
+
+/**
+ * A standard script for one request: the fill plus the §4.8.4 output check. With script blocks the template is
+ * composed for this target from `seed` and `variant` names the chosen blocks; otherwise it is `standard_template`.
+ */
+export function standardScript(goal: Goal, action: Action, fmt: DocFormat, t: Target, fields: Record<string, string>, seed = 0): { body: string; check: Check; variant?: string } {
+  const facts = standardFacts(goal, action, fmt, t);
+  const blocks = actionBlocks(action);
+  let template = action.standard_template ?? '';
+  let variant: string | undefined;
+  if (blocks) {
+    const c = compose(blocks, composeTarget(t, facts, fields), seed);
+    template = c.template;
+    variant = c.ids.join('.');
+  }
+  const body = fillStandard(template, facts, fields, fmt.max_words);
   const allowedDigits = new Set<string>([...digitRuns(factBlock(goal, action, fmt, t)), ...Object.values(fields).flatMap(digitRuns)]);
   const check = checkOutput({ subject: '', body, facts_used: [] }, { targetName: targetName(t), fmt, allowedDigits, pickName: firstPick(goal)?.name ?? null });
-  return { body, check };
+  return variant === undefined ? { body, check } : { body, check, variant };
+}
+
+/** How many distinct scripts this target can get for this request (1 for a template-only action). */
+export function scriptCombinations(goal: Goal, action: Action, fmt: DocFormat, t: Target, fields: Record<string, string>): number {
+  const blocks = actionBlocks(action);
+  return blocks ? combinations(blocks, composeTarget(t, standardFacts(goal, action, fmt, t), fields)) : 1;
 }
 
 // ---- seed checks ---------------------------------------------------------------------------
@@ -110,17 +145,93 @@ function targetsFor(action: Action, goal: Goal, members: Member[], positions: Po
     }));
 }
 
+const SEEDS = [0, 1, 2];
+const CONTACT_RE = /https?:\/\/|www\.|@/i;
+
+/** The static part of the blocks check: placeholders, digits, contact details, blocked terms, incumbents. */
+function checkBlockText(a: Action, blocks: ScriptBlocks, schema: FormField[], members: Member[]): void {
+  const where = `action ${a.slug}: script_blocks`;
+  for (const id of blocks.incumbents) if (!members.some((m) => m.bioguide_id === id)) throw new Error(`${where}: incumbent ${id} is not in members.csv`);
+  for (const slot of blocks.slots) {
+    for (const v of slot.variants) {
+      const at = `${where} ${slot.name}/${v.id}`;
+      const unknown = unknownPlaceholders(v.text, schema);
+      if (unknown.length) throw new Error(`${at}: unknown placeholder ${unknown.map((p) => `{{${p}}}`).join(', ')}`);
+      if (v.when.has) for (const h of v.when.has) if (unknownPlaceholders(`{{${h}}}`, schema).length) throw new Error(`${at}: when.has names unknown placeholder ${h}`);
+      if (/\d/.test(v.text)) throw new Error(`${at}: digits are not allowed in a block (the output check rejects numbers outside the facts)`);
+      if (CONTACT_RE.test(v.text)) throw new Error(`${at}: no URLs, email addresses or handles in a block`);
+      if (/\bend aid\b/i.test(v.text)) throw new Error(`${at}: contains "end aid"`);
+      const low = v.text.toLowerCase();
+      for (const term of BLOCKLIST) if (low.includes(term)) throw new Error(`${at}: contains a blocked term`);
+    }
+  }
+}
+
+/**
+ * leader-call-scripts §4: for one target and one field set, every slot has enough eligible variants, every eligible
+ * variant of a carrying slot holds the ask or a mention, the sum of the shortest picks reaches `min_words` and the
+ * sum of the longest stays under `max_words`, and seeded compositions pass the output check.
+ */
+function checkBlocksFor(goal: Goal, a: Action, blocks: ScriptBlocks, fmt: DocFormat, t: Target, fields: Record<string, string>, bounds: boolean): void {
+  const where = `action ${a.slug}: script_blocks for ${t.id}`;
+  const facts = standardFacts(goal, a, fmt, t);
+  const ct = composeTarget(t, facts, fields);
+  let min = 0;
+  let max = 0;
+  for (const slot of blocks.slots) {
+    const pool = eligibleVariants(blocks, slot, ct);
+    if (pool.length < slot.pick) throw new Error(`${where}: slot ${slot.name} has ${pool.length} eligible variants, needs ${slot.pick}`);
+    for (const v of pool) {
+      const low = v.text.toLowerCase();
+      if (slot.carries.includes('ask') && fmt.ask && !low.includes(fmt.ask.toLowerCase())) throw new Error(`${where}: ${slot.name}/${v.id} lacks the ask phrase "${fmt.ask}"`);
+      if (slot.carries.includes('mention') && fmt.mentions.length && !fmt.mentions.some((m) => low.includes(m.toLowerCase()))) throw new Error(`${where}: ${slot.name}/${v.id} lacks a mention phrase`);
+    }
+    const counts = pool.map((v) => wordCount(render(v.text, facts, fields))).sort((x, y) => x - y);
+    min += counts.slice(0, slot.pick).reduce((n, c) => n + c, 0);
+    max += counts.slice(-slot.pick).reduce((n, c) => n + c, 0);
+  }
+  if (bounds && min < fmt.min_words) throw new Error(`${where}: the shortest combination is ${min} words, below min_words ${fmt.min_words}`);
+  if (bounds && max > fmt.max_words) throw new Error(`${where}: the longest combination is ${max} words, above max_words ${fmt.max_words}`);
+  for (const seed of SEEDS) {
+    const { body, check } = standardScript(goal, a, fmt, t, fields, seed);
+    if (/\{\{|\}\}/.test(body)) throw new Error(`${where}: a block leaves a brace in the text`);
+    if (!check.ok) throw new Error(`${where}: composition fails the output check (${check.reason})`);
+  }
+}
+
+export function checkScriptBlocks(goal: Goal, a: Action, members: Member[], positions: Position[], states: StateRow[]): void {
+  const blocks = actionBlocks(a);
+  if (!blocks) return;
+  const schema = parseSchema(a);
+  checkBlockText(a, blocks, schema, members);
+  if (goal.status !== 'active') return;
+  const fmt = parseFormat(a);
+  const [shortest, longest] = fixtureFields(schema);
+  // Every field one word: what the longest valid submission trims down to, and the set where every optional field is present.
+  const oneWord = Object.fromEntries(schema.map((f) => [f.name, 'w']));
+  for (const t of targetsFor(a, goal, members, positions, states)) {
+    checkBlocksFor(goal, a, blocks, fmt, t, shortest, true);
+    checkBlocksFor(goal, a, blocks, fmt, t, oneWord, true);
+    checkBlocksFor(goal, a, blocks, fmt, t, longest, false);
+  }
+}
+
 /**
  * Every action on an `active` goal has a `standard_template` with only known placeholders whose fill
- * passes the output check for every target in scope, with the shortest and the longest valid fields.
+ * passes the output check for every target in scope, with the shortest and the longest valid fields;
+ * an action with `script_blocks` is checked by `checkScriptBlocks` instead (leader-call-scripts §4).
  */
 export function checkStandardTemplates(goals: Goal[], actions: Action[], members: Member[], positions: Position[], states: StateRow[]): void {
   for (const a of actions) {
     const goal = goals.find((g) => g.id === a.goal_id);
     if (!goal) continue;
     const schema = parseSchema(a);
+    if (a.script_blocks !== null) {
+      checkScriptBlocks(goal, a, members, positions, states);
+      continue;
+    }
     if (a.standard_template === null) {
-      if (goal.status === 'active') throw new Error(`action ${a.slug}: standard_template is required while goal ${goal.slug} is active (generation-cost §4)`);
+      if (goal.status === 'active') throw new Error(`action ${a.slug}: standard_template or script_blocks is required while goal ${goal.slug} is active (generation-cost §4)`);
       continue;
     }
     const unknown = unknownPlaceholders(a.standard_template, schema);

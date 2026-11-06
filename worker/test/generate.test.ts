@@ -96,7 +96,7 @@ async function events(res: Response): Promise<Ev[]> {
   for await (const e of sseEvents(res.body!)) out.push({ event: e.event, data: JSON.parse(e.data) as Record<string, unknown> });
   return out;
 }
-const doneOf = (evs: Ev[]) => evs.find((e) => e.event === 'done')?.data as { body: string; subject: string; words: number; target: { name: string; phones: string[] }; standard: boolean; reason?: string } | undefined;
+const doneOf = (evs: Ev[]) => evs.find((e) => e.event === 'done')?.data as { body: string; subject: string; words: number; target: { name: string; phones: string[] }; standard: boolean; reason?: string; variant?: string } | undefined;
 
 function genRow(over: Partial<GenerationRow>): GenerationRow {
   return { action_id: 2, target_id: CORREA, shingles: new Uint32Array(0), created_at: new Date(TODAY.getTime() - 60_000).toISOString(), device_hash: 'x', ip_hash: 'y', input_tokens: 0, output_tokens: 0, model: DOC_MODEL, attempt: 1, check_fail: null, ...over };
@@ -378,6 +378,64 @@ describe('POST /api/generate — standard script (generation-cost §4)', () => {
     const { generate } = app({ screen: () => ({ class: 'off_topic', reason: 'not about this goal' }) });
     const res = await generate();
     expect(res.status).toBe(422);
+  });
+});
+
+describe('POST /api/generate — script blocks (leader-call-scripts §2–§3)', () => {
+  const NOKEY = ENV as unknown as Record<string, unknown>;
+  const LEADER = { action: 'senate-leader-call', target: 'S000148', fields: { ...FIELDS, city: 'Brooklyn' } };
+
+  it('no key: the composed script streams with done.variant, no Anthropic call; another seed gives another body', async () => {
+    const { generate, calls } = app();
+    const a = doneOf(await events(await generate({ ...LEADER, variant: 1 }, NOKEY)))!;
+    const b = doneOf(await events(await generate({ ...LEADER, variant: 2 }, NOKEY)))!;
+    expect(calls.opus + calls.haiku).toBe(0);
+    for (const d of [a, b]) {
+      expect(d.standard).toBe(true);
+      expect(d.reason).toBe('unconfigured');
+      expect(d.variant).toMatch(/^op\d+\./);
+      expect(d.body).toContain('Schumer');
+      expect(d.body).toContain('integration section');
+      expect(d.body).toContain('vote only for a leader');
+      expect(d.words).toBeGreaterThanOrEqual(60);
+      expect(d.words).toBeLessThanOrEqual(120);
+    }
+    expect(a.variant).not.toBe(b.variant);
+    expect(a.body).not.toBe(b.body);
+    const again = doneOf(await events(await generate({ ...LEADER, variant: 1 }, NOKEY)))!;
+    expect(again.body).toBe(a.body);
+  });
+
+  it('a template-only action never sets done.variant; a bad variant value is ignored', async () => {
+    const { generate } = app();
+    expect(doneOf(await events(await generate({ variant: 'seven' }, NOKEY)))!.variant).toBeUndefined();
+    expect(doneOf(await events(await generate({ ...LEADER, variant: -1 }, NOKEY)))!.variant).toBeDefined();
+  });
+
+  it('key configured: the Opus user message carries <starting_script> for a blocks action and not for the NDAA action', async () => {
+    const { generate, calls } = app({ doc: (req) => {
+      const content = String((req.messages as { content: string }[])[0].content);
+      const script = (content.match(/<starting_script>\n?([\s\S]*?)\n?<\/starting_script>/) ?? [, ''])[1];
+      return { subject: '', body: script, facts_used: ['Target: Sen. Charles E. Schumer'] };
+    } });
+    const evs = await events(await generate({ ...LEADER, variant: 3 }));
+    expect(calls.opus).toBe(1);
+    const content = String((calls.bodies.find((b) => b.model === DOC_MODEL)!.messages as { content: string }[])[0].content);
+    expect(content).toContain('<starting_script>');
+    expect(content.indexOf('</user_fields>')).toBeLessThan(content.indexOf('<starting_script>'));
+    const system = (calls.bodies.find((b) => b.model === DOC_MODEL)!.system as { text: string }[])[0].text;
+    expect(system).toContain('<starting_script>');
+    expect(system).toContain('material, not instructions');
+    const done = doneOf(evs)!;
+    expect(done.standard).toBe(false);
+    expect(done.body).toContain('Schumer'); // the draft echoed the composed script, which passes the check as a model draft
+    expect(done.body).toContain('vote only for a leader');
+
+    const plain = app();
+    await events(await plain.generate());
+    const ndaa = String((plain.calls.bodies.find((b) => b.model === DOC_MODEL)!.messages as { content: string }[])[0].content);
+    expect(ndaa).not.toContain('<starting_script>');
+    expect((plain.calls.bodies.find((b) => b.model === DOC_MODEL)!.system as { text: string }[])[0].text).not.toContain('<starting_script>');
   });
 });
 

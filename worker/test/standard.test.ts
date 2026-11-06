@@ -75,7 +75,7 @@ describe('checkStandardTemplates (seed checks)', () => {
   });
 
   it('names the action when a template is missing on an active goal, has an unknown placeholder, or fails the output check', () => {
-    expect(check(withTemplate(null))).toThrow(/ndaa-1217-call: standard_template is required/);
+    expect(check(withTemplate(null))).toThrow(/ndaa-1217-call: standard_template or script_blocks is required/);
     expect(check(withTemplate(`${action.standard_template}\nAlso {{user_zip}} and {{target_phone}}.`))).toThrow(/ndaa-1217-call: standard_template has unknown placeholder \{\{user_zip\}\}, \{\{target_phone\}\}/);
     expect(check(withTemplate('Hi {{target_name}}, drop the integration section. {{user_why}}'))).toThrow(/ndaa-1217-call: standard_template fails the output check for .* \(word count/);
     const noAsk = action.standard_template!.replace('drop the integration section', 'remove the integration section');

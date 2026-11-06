@@ -16,8 +16,4 @@ prompt_template: |
   any NDAA report that keeps the integration section, so the caucus whip count reflects it. Name the prior vote if the
   facts list one. Close by asking for a yes or no and when the office will say so publicly.
 doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "NDAA"], "ask": "on the record"}
-standard_template: |
-  Hi, my name is {{user_first_name}} and I live in {{user_city}}, in {{target_role}} {{target_name}}'s district.
-  I am calling about the NDAA conference report. I am asking {{target_role}} {{target_name}} to say on the record that they will vote against any NDAA report that keeps the integration section. {{prior_vote_line}} {{position_line}}
-  {{user_why}}
-  Is {{target_role}} {{target_name}} willing to say that publicly, yes or no, and when will the office say so? Thank you for your time.
+script_blocks: leadership
