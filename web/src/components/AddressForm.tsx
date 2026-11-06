@@ -2,13 +2,23 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { route } from '../lib/api';
 import { STATES, cacheRoute, loadPlace, savePlace } from '../lib/store';
 import { hasOpenItems } from '../lib/commitments';
+import { ATTRIBUTION, stepHighlight, suggest, suggestLoop } from '../lib/suggest';
+import type { Loop, Provider, Suggester, Suggestion, Timings } from '../lib/suggest';
 
 declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string; reset: (id?: string) => void } } }
 
-interface Props { siteKey?: string }
+interface Props {
+  siteKey?: string;
+  /** address-autocomplete §1: `none` (default) renders the plain field; a provider turns it into a combobox. */
+  provider?: Provider;
+  /** Test seam: replaces the provider call. */
+  suggester?: Suggester;
+  /** Test seam: debounce and timeout in ms. */
+  timings?: Timings;
+}
 
 /** §1.1–§1.5: the address field, refusals, retry + manual picker, return-visit skip. */
-export default function AddressForm({ siteKey }: Props) {
+export default function AddressForm({ siteKey, provider = 'none', suggester, timings }: Props) {
   const [address, setAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -21,6 +31,11 @@ export default function AddressForm({ siteKey }: Props) {
   const widget = useRef<HTMLDivElement>(null);
   const [hasGeo, setHasGeo] = useState(false);
   const addressRef = useRef<HTMLInputElement>(null);
+  const suggesting = provider !== 'none';
+  const [options, setOptions] = useState<Suggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const loop = useRef<Loop | null>(null);
 
   useEffect(() => {
     // §1.6 return visit: skip the field, unless an open commitment or captain list puts "Your week" on this page (commitment-funnel §2.1).
@@ -39,6 +54,34 @@ export default function AddressForm({ siteKey }: Props) {
 
   // on-device-districts §2.1: the location control exists only where the browser can give a position.
   useEffect(() => { setHasGeo(typeof navigator !== 'undefined' && 'geolocation' in navigator); }, []);
+
+  // address-autocomplete §1: one debounced, abortable request per edit; a failure or timeout just closes the list.
+  useEffect(() => {
+    if (!suggesting) return;
+    const ask: Suggester = suggester ?? ((q, signal) => suggest(q, signal, provider));
+    const l = suggestLoop(ask, (s) => { setOptions(s); setActive(-1); setOpen(s.length > 0); }, timings);
+    loop.current = l;
+    return () => { l.cancel(); loop.current = null; };
+  }, [suggesting, provider, suggester]);
+
+  function closeList() { setOpen(false); setActive(-1); }
+
+  /** §1 pick: the label fills the field and the list closes (§3 resolves the point on the device). */
+  function pick(s: Suggestion) {
+    loop.current?.cancel();
+    setAddress(s.label); closeList(); addressRef.current?.focus();
+  }
+
+  function onKey(e: KeyboardEvent) {
+    if (!suggesting) return;
+    if (e.key === 'Escape') { if (open) { e.preventDefault(); closeList(); } return; }
+    if (e.key === 'Enter') { if (open && active >= 0 && options[active]) { e.preventDefault(); pick(options[active]); } return; }
+    const next = stepHighlight(e.key, active, options.length);
+    if (next === null) return;
+    e.preventDefault();
+    if (!open) setOpen(true);
+    setActive(next);
+  }
 
   /** The current Turnstile token, or the next one when a reset is still running (≤4 s). Tokens are single-use. */
   function nextToken(): Promise<string | undefined> {
@@ -84,8 +127,31 @@ export default function AddressForm({ siteKey }: Props) {
     <div class="w-full">
       <form class="flex flex-col sm:flex-row gap-3" onSubmit={(e) => { e.preventDefault(); void go({ address }); }}>
         <label class="sr-only" for="address">Street address</label>
-        <input id="address" name="address" type="text" autocomplete="street-address" required class="input-field flex-1 text-base" ref={addressRef}
-          placeholder="Street address, city, state" value={address} onInput={(e) => setAddress((e.target as HTMLInputElement).value)} />
+        {suggesting ? (
+          <div class="relative flex-1">
+            <input id="address" name="address" type="text" autocomplete="off" required class="input-field text-base" ref={addressRef}
+              role="combobox" aria-autocomplete="list" aria-expanded={open} aria-controls="address-suggestions" aria-haspopup="listbox"
+              aria-activedescendant={open && active >= 0 ? `address-option-${active}` : undefined}
+              placeholder="Street address, city, state" value={address}
+              onInput={(e) => { const v = (e.target as HTMLInputElement).value; setAddress(v); loop.current?.input(v); }}
+              onKeyDown={onKey} onBlur={closeList} />
+            {open && (
+              <div class="absolute left-0 right-0 top-full z-20 mt-1 card text-ink text-left">
+                <ul role="listbox" id="address-suggestions" aria-label="Address suggestions">
+                  {options.map((s, i) => (
+                    <li role="option" id={`address-option-${i}`} aria-selected={i === active} class={`cursor-pointer px-4 py-2 text-base ${i === active ? 'bg-acid' : ''}`}
+                      onMouseDown={(e) => e.preventDefault()} onClick={() => pick(s)}>{s.label}</li>
+                  ))}
+                </ul>
+                <p class="border-t border-rule px-4 py-1 text-xs"><a href={ATTRIBUTION[provider].href} target="_blank" rel="noopener">{ATTRIBUTION[provider].text}</a></p>
+              </div>
+            )}
+            <p class="sr-only" aria-live="polite">{open ? `${options.length} ${options.length === 1 ? 'suggestion' : 'suggestions'} available. Use the arrow keys, then Enter.` : ''}</p>
+          </div>
+        ) : (
+          <input id="address" name="address" type="text" autocomplete="street-address" required class="input-field flex-1 text-base" ref={addressRef}
+            placeholder="Street address, city, state" value={address} onInput={(e) => setAddress((e.target as HTMLInputElement).value)} />
+        )}
         <button type="submit" class="btn btn-primary whitespace-nowrap" disabled={busy}>{busy ? 'Finding…' : 'Find my actions →'}</button>
       </form>
       <div ref={widget} class="mt-2" />
