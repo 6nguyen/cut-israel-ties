@@ -12,7 +12,8 @@ the source of truth; a change to one updates the other in the same PR.
 
 1. **Propose.** Read `docs/FEATURES.md` first (what exists, is building or
    is queued). `docs/prd/<change>.md` from the template below, including
-   `## Spec delta`; delete the `## Next` row it replaces in the same commit. A brand-new capability's delta is ADDED: the whole spec
+   `## Spec delta`; delete the `## Next` row it replaces in the same commit. Add its row to the index below at its priority (rules under
+   `## Index`). A brand-new capability's delta is ADDED: the whole spec
    file (template in `docs/specs/README.md`).
 2. **Build.** `/implement-prd-section` loads the PRD range plus only the spec
    sections the delta names. State is read and written only through
@@ -38,18 +39,27 @@ the fix PR and gives the reason in the commit body (a PRD only if the owner
 asks). `archive/` is history only: archived PRDs are never edited and agents
 never load them.
 
-## Index (open changes only, in build order)
-Rows are the build order; `Needs` names the PRDs that must merge first.
-A PRD with no `Needs` entry can run in parallel with the row above it.
+## Index (open changes only, in priority order)
+This table is the one state holder for every open PRD. Row 1 is the next
+PRD to build; `Needs` names the PRDs that must merge first, and a row with
+no `Needs` entry can run in parallel with the row above it. Rules:
+- Creating a PRD inserts its row at its priority and renumbers the rest;
+  rows are never appended by default. Buildable rows rank above rows
+  blocked on the owner, counsel or a date.
+- `Status` mirrors the PRD's `Status:` line, with the blocked or
+  in-progress section and its reason in parentheses; the same commit that
+  changes a PRD's Status or State block updates its row.
+- A PRD that ships, is superseded or is dropped loses its row in the
+  commit that archives it (Lifecycle 4–5); completed work never stays here.
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
-| 1 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
-| 2 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
-| 3 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
-| 4 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
-| 5 | [district-vintage-rollover.md](district-vintage-rollover.md) | BUILDING (§3 blocked until 2027-01-03) | — (§3 date-gated 2027-01-03) | §1–2 shipped (PR #32); §3 dated flip on 2027-01-03 per `docs/guides/deploy.md` §6 |
-| 6 | [leadership-routing.md](leadership-routing.md) | APPROVED | — | `caucus` column, `members_elect.csv`, one leadership slot on `/results` with House + Senate calls, `{{leader_line}}` naming the incumbent leader from a sourced row; deadline the House caucus vote |
-| 7 | [address-autocomplete.md](address-autocomplete.md) | APPROVED | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
+| 1 | [address-autocomplete.md](address-autocomplete.md) | APPROVED | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
+| 2 | [leadership-routing.md](leadership-routing.md) | APPROVED | — | `caucus` column, `members_elect.csv`, one leadership slot on `/results` with House + Senate calls, `{{leader_line}}` naming the incumbent leader from a sourced row; deadline the House caucus vote |
+| 3 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
+| 4 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
+| 5 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
+| 6 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
+| 7 | [district-vintage-rollover.md](district-vintage-rollover.md) | BUILDING (§3 blocked until 2027-01-03) | — (§3 date-gated 2027-01-03) | §1–2 shipped (PR #32); §3 dated flip on 2027-01-03 per `docs/guides/deploy.md` §6 |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
