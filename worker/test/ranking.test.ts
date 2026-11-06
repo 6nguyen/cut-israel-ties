@@ -14,7 +14,7 @@ const member = (o: Partial<Member>): Member => ({
   bioguide_id: 'X', name: 'X', party: 'D', chamber: 'house', state: 'XX', district: 1,
   dc_phone: null, district_phone: null, contact_form_url: null, hasc: 0, conferee: 0,
   rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null, district_office_address: null, district_office_city: null,
-  contact_kind: null, not_returning: 0, left_office: null, ...o,
+  contact_kind: null, not_returning: 0, left_office: null, caucus: 'D', ...o,
 });
 const delegation = (house: 'D' | 'R' | null, sens: ('D' | 'R')[]): Delegation => ({
   state: 'XX', district: 1,

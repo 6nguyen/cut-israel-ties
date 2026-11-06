@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { CONTACT_KINDS, HOLDINGS_STATUSES, type Action, type Goal, type Member, type Office, type Position, type StateRow } from './types';
+import { CAUCUSES, CONTACT_KINDS, HOLDINGS_STATUSES, type Action, type Caucus, type Chamber, type Goal, type Member, type MemberElect, type Office, type Party, type Position, type StateRow } from './types';
 import { parseRule } from './ranking';
 import { checkPrep } from './prep';
 import { HOUSE_SEATS, districtError } from './districts';
@@ -16,6 +16,7 @@ export interface Rows {
   actions: Action[];
   members: Member[];
   offices: Office[]; // roster-freshness §1: data/district_offices.csv, file order
+  membersElect: MemberElect[]; // leadership-routing §1.3: data/members_elect.csv, file order
   positions: Position[];
   states: StateRow[];
   elections: ElectionRow[]; // primary-2028 §1: folded into the electoral goals' dates and sources, not a D1 table
@@ -99,6 +100,54 @@ export function checkMembers(rows: Record<string, string>[]): void {
     if (r.contact_kind && !(CONTACT_KINDS as readonly string[]).includes(r.contact_kind)) throw new Error(`members.csv: ${r.bioguide_id}: unknown contact_kind ${r.contact_kind}`);
     if (r.contact_form_url && !r.contact_kind) throw new Error(`members.csv: ${r.bioguide_id}: contact_form_url without contact_kind`);
     if (r.left_office && !/^\d{4}-\d{2}-\d{2}$/.test(r.left_office)) throw new Error(`members.csv: ${r.bioguide_id}: left_office is not an ISO date (${r.left_office})`);
+    // leadership-routing §1.1: D/R derive their caucus; an independent must say, so a new one can't drop out of leadership routing.
+    if (r.caucus && !(CAUCUSES as readonly string[]).includes(r.caucus)) throw new Error(`members.csv: ${r.bioguide_id}: caucus must be D or R, not ${r.caucus}`);
+    if (!r.caucus && r.party !== 'D' && r.party !== 'R') throw new Error(`members.csv: ${r.bioguide_id} ${r.name} (${r.party}) has no caucus; an independent needs D or R`);
+  }
+}
+
+/** leadership-routing §1.1: the caucus a row votes with; empty derives from a D or R party (checkMembers rejects the rest). */
+export function caucusOf(r: Record<string, string>): Caucus {
+  return (r.caucus || r.party) as Caucus;
+}
+
+/** leadership-routing §1.3: the last day a members_elect.csv row may exist; from then on the roster import carries the 120th Congress. */
+export const ELECT_EXPIRY = '2027-01-10';
+const ELECT_ID = /^[A-Z]{2}-(\d{1,2}|S)-[a-z0-9]+(-[a-z0-9]+)*$/;
+
+/** members_elect.csv seed checks (leadership-routing §1.3). `today` is an ISO date; any row after ELECT_EXPIRY fails. */
+export function checkMembersElect(rows: Record<string, string>[], members: Pick<Member, 'bioguide_id' | 'chamber' | 'state' | 'district' | 'not_returning' | 'left_office'>[], today: string): void {
+  const byId = new Map(members.map((m) => [m.bioguide_id, m]));
+  const seen = new Set<string>();
+  const seats = new Map<string, string>();
+  for (const r of rows) {
+    const where = `members_elect.csv: ${r.elect_id || '(no elect_id)'}:`;
+    if (today > ELECT_EXPIRY) throw new Error(`${where} still present after ${ELECT_EXPIRY}; the roster import carries members-elect now, delete the row`);
+    if (!ELECT_ID.test(r.elect_id)) throw new Error(`${where} elect_id must be <STATE>-<district | S>-<surname-kebab>`);
+    if (seen.has(r.elect_id)) throw new Error(`${where} duplicate elect_id`);
+    seen.add(r.elect_id);
+    if (!r.name) throw new Error(`${where} needs a name`);
+    if (!['D', 'R', 'I'].includes(r.party)) throw new Error(`${where} party must be D, R or I, not ${r.party}`);
+    if (r.caucus && !(CAUCUSES as readonly string[]).includes(r.caucus)) throw new Error(`${where} caucus must be D or R, not ${r.caucus}`);
+    if (!r.caucus && r.party === 'I') throw new Error(`${where} an independent needs a caucus`);
+    if (r.chamber !== 'house' && r.chamber !== 'senate') throw new Error(`${where} bad chamber ${r.chamber}`);
+    if (r.chamber === 'senate' && r.district !== '') throw new Error(`${where} a senator-elect has no district`);
+    if (r.chamber === 'house') {
+      const err = districtError(r.state, int(r.district));
+      if (err) throw new Error(`${where} ${err}`);
+    }
+    const [idState, idSeat] = r.elect_id.split('-');
+    if (idState !== r.state || idSeat !== (r.chamber === 'senate' ? 'S' : String(int(r.district)))) throw new Error(`${where} elect_id does not match ${r.state} ${r.chamber} ${r.district}`);
+    const old = byId.get(r.replaces);
+    if (!old) throw new Error(`${where} replaces unknown member ${r.replaces}`);
+    if (old.chamber !== r.chamber || old.state !== r.state || (r.chamber === 'house' && old.district !== int(r.district))) throw new Error(`${where} replaces ${r.replaces}, who holds a different seat (${old.state} ${old.chamber} ${old.district ?? ''})`);
+    if (!old.not_returning && !old.left_office) throw new Error(`${where} replaces ${r.replaces}, who is returning (set not_returning first)`);
+    if (seats.has(r.replaces)) throw new Error(`${where} second row for ${r.replaces} (first: ${seats.get(r.replaces)})`);
+    seats.set(r.replaces, r.elect_id);
+    if (!/^https:\/\/[^\s]+$/.test(r.contact_url)) throw new Error(`${where} contact_url must be an https URL`);
+    if (r.phone && !tenDigitPhone(r.phone)) throw new Error(`${where} phone ${r.phone} is not ten digits`);
+    if (!/^https?:\/\/[^\s]+$/.test(r.source_url)) throw new Error(`${where} source_url must be a URL`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(r.source_date)) throw new Error(`${where} source_date must be YYYY-MM-DD`);
   }
 }
 
@@ -236,8 +285,26 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
     contact_kind: str(r.contact_kind) as Member['contact_kind'],
     not_returning: int(r.not_returning),
     left_office: str(r.left_office),
+    caucus: caucusOf(r),
   }));
   checkMembers(parseCsv(readFileSync(join(dataDir, 'members.csv'), 'utf8')));
+
+  const electRows = parseCsv(readFileSync(join(dataDir, 'members_elect.csv'), 'utf8'));
+  checkMembersElect(electRows, members, updatedAt.slice(0, 10));
+  const membersElect: MemberElect[] = electRows.map((r) => ({
+    elect_id: r.elect_id,
+    name: r.name,
+    party: r.party as Party,
+    caucus: caucusOf(r),
+    chamber: r.chamber as Chamber,
+    state: r.state,
+    district: r.chamber === 'house' ? int(r.district) : null,
+    replaces: r.replaces,
+    contact_url: r.contact_url,
+    phone: tenDigitPhone(r.phone),
+    source_url: r.source_url,
+    source_date: r.source_date,
+  }));
 
   const officeRows = parseCsv(readFileSync(join(dataDir, 'district_offices.csv'), 'utf8'));
   checkOffices(officeRows, new Set(members.map((m) => m.bioguide_id)));
@@ -291,7 +358,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   // fills and passes the output check for every target.
   checkStandardTemplates(goals, actions, members, positions, states);
 
-  return { goals, actions, members, offices, positions, states, elections };
+  return { goals, actions, members, membersElect, offices, positions, states, elections };
 }
 
 /** states.csv seed checks (state-holdings-sweep §1.2): no number without a source, no stale comment date. */

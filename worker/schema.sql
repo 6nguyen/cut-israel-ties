@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS positions;
 DROP TABLE IF EXISTS actions;
 DROP TABLE IF EXISTS goals;
 DROP TABLE IF EXISTS district_offices;
+DROP TABLE IF EXISTS members_elect;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS visit_requests;
@@ -76,7 +77,8 @@ CREATE TABLE members (
   district_office_city TEXT,
   contact_kind TEXT CHECK (contact_kind IN ('form','zip_gate','homepage')),
   not_returning INTEGER NOT NULL DEFAULT 0,
-  left_office TEXT
+  left_office TEXT,
+  caucus TEXT NOT NULL CHECK (caucus IN ('D','R'))
 );
 CREATE INDEX members_state_district ON members(state, chamber, district);
 
@@ -97,6 +99,23 @@ CREATE TABLE district_offices (
   lng REAL
 );
 CREATE INDEX district_offices_member ON district_offices(bioguide_id);
+
+-- leadership-routing §1.3: members-elect of called races (data/members_elect.csv); seeded with members, empty after 2027-01-10.
+CREATE TABLE members_elect (
+  elect_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  party TEXT NOT NULL,
+  caucus TEXT NOT NULL CHECK (caucus IN ('D','R')),
+  chamber TEXT NOT NULL CHECK (chamber IN ('house','senate')),
+  state TEXT NOT NULL,
+  district INTEGER,
+  replaces TEXT NOT NULL UNIQUE REFERENCES members(bioguide_id),
+  contact_url TEXT NOT NULL,
+  phone TEXT,
+  source_url TEXT NOT NULL,
+  source_date TEXT NOT NULL
+);
+CREATE INDEX members_elect_state ON members_elect(state);
 
 CREATE TABLE positions (
   id INTEGER PRIMARY KEY,

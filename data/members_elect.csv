@@ -1,0 +1,77 @@
+elect_id,name,party,caucus,chamber,state,district,replaces,contact_url,phone,source_url,source_date
+AZ-1-shah,Amish Shah,D,D,house,AZ,1,S001183,https://www.amishforarizona.com/,,https://apnews.com/projects/elections-2026/arizona-us-house-results/#1,2026-11-05
+AZ-6-mendoza,JoAnna Mendoza,D,D,house,AZ,6,C001133,https://www.joannamendoza.com/,,https://apnews.com/projects/elections-2026/arizona-us-house-results/#6,2026-11-05
+CA-1-mcguire,Mike McGuire,D,D,house,CA,1,G000607,https://www.votemikemcguire.com/,,https://apnews.com/projects/elections-2026/california-us-house-results/#1,2026-11-03
+CA-11-wiener,Scott Wiener,D,D,house,CA,11,P000197,https://sd11.senate.ca.gov/,,https://apnews.com/projects/elections-2026/california-us-house-results/#11,2026-11-06
+CA-22-villegas,Randy Villegas,D,D,house,CA,22,V000129,https://www.villegasforcongress.com/,,https://apnews.com/projects/elections-2026/california-us-house-results/#22,2026-11-04
+CA-26-irwin,Jacqui Irwin,D,D,house,CA,26,B001285,https://jacquiirwin.com/,,https://apnews.com/projects/elections-2026/california-us-house-results/#26,2026-11-03
+CA-34-gonzales-torres,Angela Gonzales-Torres,D,D,house,CA,34,G000585,https://www.angela4congress.com/,,https://apnews.com/projects/elections-2026/california-us-house-results/#34,2026-11-04
+CA-48-von-wilpert,Marni von Wilpert,D,D,house,CA,48,I000056,https://www.marnivonwilpert.com/,,https://apnews.com/projects/elections-2026/california-us-house-results/#48,2026-11-04
+CO-1-kiros,Melat Kiros,D,D,house,CO,1,D000197,https://kirosforco.com/,,https://apnews.com/projects/elections-2026/colorado-us-house-results/#1,2026-11-03
+CO-5-killin,Jessica Killin,D,D,house,CO,5,C001137,https://killinforcolorado.com/,,https://apnews.com/projects/elections-2026/colorado-us-house-results/#5,2026-11-05
+CO-8-rutinel,Manny Rutinel,D,D,house,CO,8,E000300,https://www.mannyforcolorado.com/,,https://apnews.com/projects/elections-2026/colorado-us-house-results/#8,2026-11-03
+CT-1-bronin,Luke Bronin,D,D,house,CT,1,L000557,https://broninforcongress.com/,,https://apnews.com/projects/elections-2026/connecticut-us-house-results/#1,2026-11-03
+FL-24-gilbert,Oliver G. Gilbert III,D,D,house,FL,24,W000808,https://olivergilbert.vote/,,https://apnews.com/projects/elections-2026/florida-us-house-results/#24,2026-11-03
+GA-13-clark,Jasmine Clark,D,D,house,GA,13,B001328,https://jasmine4ga.com/,,https://apnews.com/projects/elections-2026/georgia-us-house-results/#13,2026-11-03
+IA-S-turek,Josh Turek,D,D,senate,IA,,E000295,https://turek4iowa.com/,,https://apnews.com/projects/elections-2026/iowa-us-senate-results/,2026-11-03
+IA-1-bohannan,Christina Bohannan,D,D,house,IA,1,M001215,https://bohannanforcongress.com/,,https://apnews.com/projects/elections-2026/iowa-us-house-results/#1,2026-11-03
+IA-2-james,Lindsay James,D,D,house,IA,2,H001091,https://www.lindsayforiowa.com/,,https://apnews.com/projects/elections-2026/iowa-us-house-results/#2,2026-11-03
+IA-3-trone-garriott,Sarah Trone Garriott,D,D,house,IA,3,N000193,https://sarahforiowa.com/,,https://apnews.com/projects/elections-2026/iowa-us-house-results/#3,2026-11-03
+IL-S-stratton,Juliana Stratton,D,D,senate,IL,,D000563,https://www.julianastratton.com/,,https://apnews.com/projects/elections-2026/illinois-us-senate-results/,2026-11-03
+IL-4-garcia,Patty Garcia,D,D,house,IL,4,G000586,https://pattyforillinois.com/,,https://apnews.com/projects/elections-2026/illinois-us-house-results/#4,2026-11-03
+IL-7-ford,La Shawn K. Ford,D,D,house,IL,7,D000096,https://fordforcongress.com/,,https://apnews.com/projects/elections-2026/illinois-us-house-results/#7,2026-11-03
+IL-8-bean,Melissa L. Bean,D,D,house,IL,8,K000391,https://melissabeanforillinois.com/,,https://apnews.com/projects/elections-2026/illinois-us-house-results/#8,2026-11-03
+IL-9-biss,Daniel Biss,D,D,house,IL,9,S001145,https://www.danielbiss.com/,,https://apnews.com/projects/elections-2026/illinois-us-house-results/#9,2026-11-03
+IN-5-ford,J.D. Ford,D,D,house,IN,5,S000929,https://www.electjdford.com/,,https://apnews.com/projects/elections-2026/indiana-us-house-results/#5,2026-11-03
+KS-S-hamilton,Adam Hamilton,D,D,senate,KS,,M001198,https://www.hamiltonforkansas.com/,,https://apnews.com/projects/elections-2026/kansas-us-senate-results/,2026-11-03
+KY-6-dembo,Zach Dembo,D,D,house,KY,6,B001282,https://zachdembo.com/,,https://apnews.com/projects/elections-2026/kentucky-us-house-results/#6,2026-11-03
+MA-6-koh,Dan Koh,D,D,house,MA,6,M001196,https://www.kohforcongress.com/,,https://apnews.com/projects/elections-2026/massachusetts-us-house-results/#6,2026-11-03
+MD-5-boafo,Adrian Boafo,D,D,house,MD,5,H000874,https://www.adrianboafo.com/,,https://apnews.com/projects/elections-2026/maryland-us-house-results/#5,2026-11-03
+ME-S-jackson,Troy D. Jackson,D,D,senate,ME,,C001035,https://jacksonformaine.com/,,https://apnews.com/projects/elections-2026/maine-us-senate-results/,2026-11-03
+MI-S-el-sayed,Abdul El-Sayed,D,D,senate,MI,,P000595,https://abdulforsenate.com/,,https://apnews.com/projects/elections-2026/michigan-us-senate-results/,2026-11-03
+MI-4-mccann,Sean McCann,D,D,house,MI,4,H001058,https://seanmccannforcongress.com/,,https://apnews.com/projects/elections-2026/michigan-us-house-results/#4,2026-11-04
+MI-7-lawrence,William Lawrence,D,D,house,MI,7,B001321,https://wewill2026.com/,,https://apnews.com/projects/elections-2026/michigan-us-house-results/#7,2026-11-04
+MI-10-hines,Christina Bertrand Hines,D,D,house,MI,10,J000307,https://www.christinahinesforcongress.com/,,https://apnews.com/projects/elections-2026/michigan-us-house-results/#10,2026-11-04
+MI-11-moss,Jeremy Moss,D,D,house,MI,11,S001215,https://votejeremymoss.com/,,https://apnews.com/projects/elections-2026/michigan-us-house-results/#11,2026-11-03
+MI-13-mckinney,Donavan McKinney,D,D,house,MI,13,T000488,https://www.donavanforcongress.com/,,https://apnews.com/projects/elections-2026/michigan-us-house-results/#13,2026-11-03
+MN-S-flanagan,Peggy Flanagan,D,D,senate,MN,,S001203,https://peggyflanagan.com/,,https://apnews.com/projects/elections-2026/minnesota-us-senate-results/,2026-11-03
+MN-2-little,Matt Little,D,D,house,MN,2,C001119,https://littleforcongress.com/,,https://apnews.com/projects/elections-2026/minnesota-us-house-results/#2,2026-11-03
+MO-2-wellman,Fred Wellman,D,D,house,MO,2,W000812,https://www.wellmanformo.com/,,https://www.thegreenpapers.com/G26/MO,2026-11-06
+MT-1-forstag,Sam Forstag,D,D,house,MT,1,Z000018,https://www.samformontana.com/,,https://www.270towin.com/2026-election-results-live/state/montana/,2026-11-06
+NC-S-cooper,Roy Cooper,D,D,senate,NC,,T000476,https://roycooper.com/,,https://apnews.com/projects/elections-2026/north-carolina-us-senate-results/,2026-11-03
+NC-6-jefferson,Cyril Jefferson,D,D,house,NC,6,M001240,https://www.cyrilforcongress.com/,,https://www.thegreenpapers.com/G26/NC,2026-11-06
+NC-9-ojeda,Richard Ojeda,D,D,house,NC,9,H001067,https://www.ojedafornc.com/,,https://www.thegreenpapers.com/G26/NC,2026-11-06
+NC-11-ager,Jamie Ager,D,D,house,NC,11,E000246,https://www.agerforcongress.com/,,https://www.thegreenpapers.com/G26/NC,2026-11-06
+NC-13-barringer,Paul Barringer,D,D,house,NC,13,K000405,https://www.paulbarringer.com/,,https://www.thegreenpapers.com/G26/NC,2026-11-06
+NC-14-womack,LaKesha Womack,D,D,house,NC,14,M001236,https://www.womack4nc14.com/,,https://www.thegreenpapers.com/G26/NC,2026-11-06
+NE-2-powell,Denise Powell,D,D,house,NE,2,B001298,https://www.deniseforcongress.org/,,https://www.270towin.com/2026-election-results-live/state/nebraska/,2026-11-06
+NH-S-pappas,Chris Pappas,D,D,senate,NH,,S001181,https://chrispappas.org/,,https://apnews.com/projects/elections-2026/new-hampshire-us-senate-results/,2026-11-03
+NH-1-shaheen,Stefany Shaheen,D,D,house,NH,1,P000614,https://www.stefanyshaheen.com/,,https://www.270towin.com/2026-election-results-live/state/new-hampshire/,2026-11-06
+NJ-2-mullock,Zack Mullock,D,D,house,NJ,2,V000133,https://www.mullockforcongress.com/,,https://www.thegreenpapers.com/G26/NJ,2026-11-06
+NJ-7-bennett,Rebecca Bennett,D,D,house,NJ,7,K000398,https://www.rebeccabennettforcongress.com/,,https://www.thegreenpapers.com/G26/NJ,2026-11-06
+NJ-12-hamawy,Adam Hamawy,D,D,house,NJ,12,W000822,https://www.hamawyfornj.com/,,https://www.thegreenpapers.com/G26/NJ,2026-11-06
+NV-2-benitez-thompson,Teresa Benitez-Thompson,D,D,house,NV,2,A000369,https://www.electteresa.com/,,https://www.270towin.com/2026-election-results-live/state/nevada/,2026-11-06
+NY-7-valdez,Claire Valdez,D,D,house,NY,7,V000081,https://www.claireforqueens.com/,,https://www.thegreenpapers.com/G26/NY,2026-11-06
+NY-10-lander,Brad Lander,D,D,house,NY,10,G000599,https://www.bradlanderforcongress.com/,,https://www.thegreenpapers.com/G26/NY,2026-11-06
+NY-12-lasher,Micah Lasher,D,D,house,NY,12,N000002,https://www.micahlasher.com/,,https://www.thegreenpapers.com/G26/NY,2026-11-06
+NY-13-avila-chevalier,Darializa Avila Chevalier,D,D,house,NY,13,E000297,https://www.darializaforcongress.com/,,https://www.thegreenpapers.com/G26/NY,2026-11-06
+NY-17-conley,Cait Conley,D,D,house,NY,17,L000599,https://www.caitconley.com/,,https://www.thegreenpapers.com/G26/NY,2026-11-06
+OH-S-brown,Sherrod Brown,D,D,senate,OH,,H001104,https://www.sherrodbrown.com/,,https://apnews.com/projects/elections-2026/ohio-us-senate-results/,2026-11-03
+OH-7-poindexter,Brian Poindexter,D,D,house,OH,7,M001222,https://poindexterforcongress.com/,,https://www.thegreenpapers.com/G26/OH,2026-11-06
+OH-10-knickerbocker,Kristina Knickerbocker,D,D,house,OH,10,T000463,https://www.kristinaknickerbocker.com/,,https://www.thegreenpapers.com/G26/OH,2026-11-06
+OH-15-leonard,Don Leonard,D,D,house,OH,15,C001126,https://www.donleonard.net/,,https://www.thegreenpapers.com/G26/OH,2026-11-06
+PA-1-harvie,Bob Harvie,D,D,house,PA,1,F000466,https://www.bobharvieforcongress.com/,,https://www.thegreenpapers.com/G26/PA,2026-11-06
+PA-3-rabb,Chris Rabb,D,D,house,PA,3,E000296,https://www.chrisrabb.com/,,https://www.thegreenpapers.com/G26/PA,2026-11-06
+PA-7-brooks,Bob Brooks,D,D,house,PA,7,M001230,https://www.brooksforcongress.com/,,https://www.thegreenpapers.com/G26/PA,2026-11-06
+PA-8-cognetti,Paige Cognetti,D,D,house,PA,8,B001327,https://www.paigeforpa.com/,,https://www.thegreenpapers.com/G26/PA,2026-11-06
+PA-10-stelson,Janelle Stelson,D,D,house,PA,10,P000605,https://www.janellestelson.com/,,https://www.thegreenpapers.com/G26/PA,2026-11-06
+SC-S-andrews,Annie Andrews,D,D,senate,SC,,G000608,https://drannieandrews.com/,,https://apnews.com/projects/elections-2026/south-carolina-us-senate-results/,2026-11-03
+TX-S-talarico,James Talarico,D,D,senate,TX,,C001056,https://jamestalarico.com/,,https://apnews.com/projects/elections-2026/texas-us-senate-results/,2026-11-03
+TX-9-gutierrez,Leticia Gutierrez,D,D,house,TX,9,G000553,https://www.leticiaforcongress.com/,,https://www.thegreenpapers.com/G26/TX,2026-11-06
+TX-15-pulido,Bobby Pulido,D,D,house,TX,15,D000594,https://www.bobbypulidofortexas.com/,,https://www.thegreenpapers.com/G26/TX,2026-11-06
+TX-30-haynes,Frederick D. Haynes III,D,D,house,TX,30,C001130,https://www.haynesforcongress.com/,,https://www.thegreenpapers.com/G26/TX,2026-11-06
+TX-33-allred,Colin Allred,D,D,house,TX,33,V000131,https://www.colinallred.com/,,https://www.thegreenpapers.com/G26/TX,2026-11-06
+VA-1-taylor,Shannon Taylor,D,D,house,VA,1,W000804,https://www.shannontaylorva.com/,,https://www.thegreenpapers.com/G26/VA,2026-11-06
+VA-2-luria,Elaine Luria,D,D,house,VA,2,K000399,https://www.elaineforcongress.com/,,https://www.thegreenpapers.com/G26/VA,2026-11-06
+WI-1-berman,Mitchell Berman,D,D,house,WI,1,S001213,https://www.bermanforcongress.com/,,https://www.270towin.com/2026-election-results-live/state/wisconsin/,2026-11-06
+WI-3-cooke,Rebecca Cooke,D,D,house,WI,3,V000135,https://www.cookeforwisconsin.com/,,https://www.270towin.com/2026-election-results-live/state/wisconsin/,2026-11-06

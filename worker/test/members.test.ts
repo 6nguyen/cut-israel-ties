@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { checkMembers, loadRows, parseCsv } from '../src/load';
+import { caucusOf, checkMembers, checkMembersElect, loadRows, parseCsv } from '../src/load';
 import { districtError, isDelegate } from '../src/districts';
 import { applyFilters, isMovable, latestPosition, updatedAt, whipCounts, whipRows, whipTargets } from '../src/whip';
 import { merge, rosterRows, toCsv } from '../scripts/import-members';
@@ -118,5 +118,69 @@ describe('GET /api/members/:id/reports (member-pages §2.2)', () => {
     expect((await app.request('/api/members/NOPE/reports?goal=ndaa-1217', {}, ENV)).status).toBe(404);
     expect((await app.request('/api/members/C001110/reports?goal=nope', {}, ENV)).status).toBe(404);
     expect((await app.request('/api/members/C001110/reports', {}, ENV)).status).toBe(400);
+  });
+});
+
+describe('caucus column and members_elect.csv seed checks (leadership-routing §1)', () => {
+  const ok = { bioguide_id: 'X000001', name: 'A', party: 'D', chamber: 'house', state: 'TX', district: '21', caucus: '' };
+  it('derives caucus from a D or R party and keeps a hand-set value', () => {
+    expect(caucusOf({ party: 'D', caucus: '' })).toBe('D');
+    expect(caucusOf({ party: 'R', caucus: '' })).toBe('R');
+    expect(caucusOf({ party: 'I', caucus: 'D' })).toBe('D');
+    expect(rows.members.find((m) => m.bioguide_id === 'K000383')?.caucus).toBe('D'); // King
+    expect(rows.members.find((m) => m.bioguide_id === 'S000033')?.caucus).toBe('D'); // Sanders
+    expect(rows.members.every((m) => m.caucus === 'D' || m.caucus === 'R')).toBe(true);
+  });
+  it('rejects an independent without a caucus, naming the member, and a caucus outside D | R', () => {
+    expect(() => checkMembers([{ ...ok, party: 'I', name: 'New Independent' }])).toThrow(/X000001 New Independent \(I\) has no caucus/);
+    expect(() => checkMembers([{ ...ok, party: 'I', caucus: 'D' }])).not.toThrow();
+    expect(() => checkMembers([{ ...ok, caucus: 'I' }])).toThrow(/caucus must be D or R, not I/);
+  });
+
+  const gone = { bioguide_id: 'G000001', chamber: 'house' as const, state: 'TX', district: 21, not_returning: 1, left_office: null };
+  const stays = { bioguide_id: 'S000001', chamber: 'house' as const, state: 'TX', district: 22, not_returning: 0, left_office: null };
+  const sen = { bioguide_id: 'N000001', chamber: 'senate' as const, state: 'TX', district: null, not_returning: 0, left_office: '2027-01-03' };
+  const members = [gone, stays, sen];
+  const elect = {
+    elect_id: 'TX-21-new', name: 'New Member', party: 'D', caucus: '', chamber: 'house', state: 'TX', district: '21', replaces: 'G000001',
+    contact_url: 'https://newmember.com', phone: '', source_url: 'https://apnews.com/race', source_date: '2026-11-04',
+  };
+  const check = (rs: Record<string, string>[], today = '2026-11-06') => () => checkMembersElect(rs, members, today);
+  it('passes the committed file and a valid row (house, senate, I with caucus, ten-digit phone)', () => {
+    expect(check([elect])).not.toThrow();
+    expect(check([{ ...elect, elect_id: 'TX-S-new', chamber: 'senate', district: '', replaces: 'N000001', party: 'I', caucus: 'D', phone: '(512) 555-0100' }])).not.toThrow();
+    expect(() => checkMembersElect(parseCsv(readFileSync(join(DATA, 'members_elect.csv'), 'utf8')), rows.members, '2026-11-06')).not.toThrow();
+  });
+  it('rejects a duplicate elect_id and an id that does not match the seat', () => {
+    expect(check([elect, { ...elect, name: 'Other' }])).toThrow(/TX-21-new: duplicate elect_id/);
+    expect(check([{ ...elect, elect_id: 'TX-22-new' }])).toThrow(/elect_id does not match TX house 21/);
+    expect(check([{ ...elect, elect_id: 'tx-21-New' }])).toThrow(/elect_id must be/);
+  });
+  it('rejects a replaces that is unknown, in another seat, or returning, and two rows for one seat', () => {
+    expect(check([{ ...elect, replaces: 'Z000000' }])).toThrow(/replaces unknown member Z000000/);
+    expect(check([{ ...elect, elect_id: 'TX-22-new', district: '22', replaces: 'G000001' }])).toThrow(/holds a different seat/);
+    expect(check([{ ...elect, elect_id: 'TX-22-new', district: '22', replaces: 'S000001' }])).toThrow(/S000001, who is returning/);
+    expect(check([elect, { ...elect, elect_id: 'TX-21-other' }])).toThrow(/TX-21-other: second row for G000001 \(first: TX-21-new\)/);
+  });
+  it('rejects a bad phone, URL or date', () => {
+    expect(check([{ ...elect, phone: '555-0100' }])).toThrow(/phone 555-0100 is not ten digits/);
+    expect(check([{ ...elect, contact_url: 'http://newmember.com' }])).toThrow(/contact_url must be an https URL/);
+    expect(check([{ ...elect, source_url: 'apnews.com' }])).toThrow(/source_url must be a URL/);
+    expect(check([{ ...elect, source_date: '11/04/2026' }])).toThrow(/source_date must be YYYY-MM-DD/);
+  });
+  it('rejects any row after 2027-01-10 and accepts an empty file then', () => {
+    expect(check([elect], '2027-01-11')).toThrow(/TX-21-new: still present after 2027-01-10/);
+    expect(check([elect], '2027-01-10')).not.toThrow();
+    expect(check([], '2027-06-01')).not.toThrow();
+  });
+  it('MemoryRepo.membersElect returns a state\'s rows in file order', async () => {
+    const e = { ...elect, caucus: 'D' as const, party: 'D' as const, chamber: 'house' as const, district: 21, phone: null };
+    const repo = new MemoryRepo({ ...rows, membersElect: [e, { ...e, elect_id: 'CA-3-x', state: 'CA', district: 3 }] });
+    expect((await repo.membersElect('TX')).map((x) => x.elect_id)).toEqual(['TX-21-new']);
+    expect(await repo.membersElect('WY')).toEqual([]);
+  });
+  it('the import keeps caucus as the last column', () => {
+    expect(toCsv([{ bioguide_id: 'K000383', name: 'King', caucus: 'D' }]).split('\n')[0].endsWith(',left_office,caucus')).toBe(true);
+    expect(toCsv([{ bioguide_id: 'K000383', name: 'King', caucus: 'D' }]).split('\n')[1].endsWith(',D')).toBe(true);
   });
 });
