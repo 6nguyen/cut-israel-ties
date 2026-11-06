@@ -46,7 +46,13 @@ address path, routing and results stay in `action-router.md`.
    multipolygon, bbox pre-check). A point on a shared border returns the
    first match in file order; a point in no polygon returns `null`, as do
    non-finite coordinates. Decoded files are kept in memory for the page
-   lifetime. The default loader is `GET <DISTRICTS_DIR>/<name>.json`
+   lifetime. `resolveInState(state, lon, lat, load?)` serves a picked
+   address suggestion (`action-router.md` §3): the suggestion already
+   names its state, so only that state's file is loaded, never `states`;
+   a point outside every district of that state, a name that is not two
+   capital letters or a non-finite coordinate returns `null`, and the
+   caller falls back to the Census path. The default loader is `GET
+   <DISTRICTS_DIR>/<name>.json`
    with no query string, where `ACTIVE_CONGRESS` (build-time constant in
    `pip.ts`, `119` today) picks `/districts` for 119 and
    `/districts-<n>` for any later set; the inactive set is never
@@ -133,9 +139,10 @@ address path, routing and results stay in `action-router.md`.
       directory is never fetched (`pip.test.ts` asserts the URL).
 - [ ] The lookup loads `states` first, then one state file, and never a
       name carrying a coordinate (`pip.test.ts` asserts the loader names).
-- [ ] No request during the location path carries latitude, longitude
-      or an address: only `GET /districts/<name>.json` and `POST
-      /api/route {state, district, by_location}`.
+- [ ] No request during the location path or a suggestion pick carries
+      latitude, longitude or an address: only `GET /districts/<name>.json`
+      and `POST /api/route {state, district, by_location | by_suggestion}`
+      (`web/src/lib/pip.test.ts`, `web/src/components/AddressForm.test.tsx`).
 - [ ] Open water, a point abroad and `NaN` return `null`; the page shows
       "We couldn't place that point. Enter an address." and the picker.
 - [ ] Denying permission shows "No location shared. Enter an address

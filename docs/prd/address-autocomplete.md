@@ -230,32 +230,38 @@ Unchanged
   `unresolved` rate before and after (expected to fall toward the free-text
   share only); provider monthly requests against the free tier (console).
 
-## State (updated 2026-11-06, PR #44)
+## State (updated 2026-11-06, feat/address-autocomplete-complete)
 - Sections: (build order)
-  - [~] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path · `feat/address-autocomplete-field` · PR #44
-  - [ ] 2. Suggesting · `web/src/lib/suggest.ts` with the Mapbox and Geoapify adapters and tests
-  - [ ] 3. Picking · on-device resolve, `by_suggestion`, no-polygon fallthrough
-  - [ ] 4. Free text · message copy, spec fold
-  - [ ] 6. Privacy copy · `/privacy` paragraph keyed on the flag, `goal-pages.md` fold
-- Completed: —
-- Folded: §1 Field
-- Branch / open PRs: `feat/address-autocomplete-field` (§1, PR #44)
-- Files changed: `web/src/lib/suggest.ts` (new), `web/src/components/AddressForm.tsx`,
-  `web/src/pages/index.astro`, `web/src/lib/suggest.test.ts`,
-  `web/src/components/AddressForm.test.tsx`, `docs/specs/action-router.md`
-- Tests run + result: `quiet-check test-web` PASS (77 passed, 2 skipped; 8 new
-  in suggest.test.ts, 5 in AddressForm.test.tsx); `quiet-check build` PASS;
-  landing 33.3 KB gzip (HTML + CSS + reached JS), combobox +1.4 KB gzip
-- Remaining: §2, §3, §4, §6; manual: provider account, token restriction,
-  Pages variables, flag flip PR
-- Decisions since last update: `none` renders today's input untouched (no
-  combobox role) so street-address autofill keeps working; the combobox
-  attributes appear only with a provider; a §1 pick fills the field and
-  closes the list, §3 adds the on-device resolve; `AddressForm` takes
-  `suggester`/`timings` props as the test seam
+  - [x] 1. Field · combobox, debounce, abort, keyboard, attribution, flag `none` path · PR #44 merged
+  - [~] 2. Suggesting · Mapbox and Geoapify adapters, `shortLabel`, tests · `feat/address-autocomplete-complete`
+  - [~] 3. Picking · `resolveInState`, `by_suggestion`, no-polygon fallthrough · `feat/address-autocomplete-complete`
+  - [~] 4. Free text · `UNRESOLVED_WITH_SUGGESTIONS` copy, spec fold · `feat/address-autocomplete-complete`
+  - [~] 6. Privacy copy · `/privacy` bullet keyed on the flag, `goal-pages.md` fold · `feat/address-autocomplete-complete`
+- Completed: §1 Field (PR #44)
+- Folded: §1 Field, §2 Suggesting, §3 Picking, §4 Free text, §6 Privacy copy
+- Branch / open PRs: `feat/address-autocomplete-complete` (§2, §3, §4, §6 in
+  one PR at the owner's request: "complete the entire PRD")
+- Files changed: `web/src/lib/suggest.ts`, `web/src/lib/pip.ts`,
+  `web/src/lib/api.ts`, `web/src/components/AddressForm.tsx`,
+  `web/src/pages/privacy.astro`, `web/src/lib/suggest.test.ts`,
+  `web/src/lib/pip.test.ts`, `web/src/components/AddressForm.test.tsx`,
+  `worker/test/route.test.ts`, `docs/specs/action-router.md`,
+  `docs/specs/on-device-districts.md`, `docs/specs/goal-pages.md`
+- Tests run + result: `quiet-check test-web` PASS (84 passed, 2 skipped);
+  `quiet-check test` PASS; `quiet-check tsc` PASS; `quiet-check build` PASS
+  for `none` and for `geoapify`; landing 29.2 KB gzip eager (HTML + CSS +
+  JS), `pip` chunk 1.0 KB gzip loaded only on a pick or location tap
+- Remaining: none in code; manual: provider account, token restriction,
+  Pages variables, flag flip PR (`PUBLIC_SUGGEST_PROVIDER=geoapify`)
+- Decisions since last update: open question 1 answered — Mapbox's
+  geocoding terms allow responses only with a Mapbox map and forbid
+  retaining temporary results, so the launch provider is Geoapify; both
+  adapters ship behind the flag, which stays `none`. Labels follow open
+  question 4 (structured fields, drop incomplete results). A pick resolves
+  on-device and posts `{state, district, by_suggestion: true}`; a point in
+  no district of its state falls through to the Census path with the label.
 - Known failures / blockers: none
-- Next action: merge PR #44, then `/implement-prd-section
-  docs/prd/address-autocomplete.md` (next: §2. Suggesting)
+- Next action: merge the PR, then archive (Remaining: none)
 ## Open questions
 1. Provider terms for on-device use of temporary results. Mapbox forbids
    caching temporary geocoding results; this design uses each result once,
@@ -284,3 +290,13 @@ Unchanged
   `AddressForm.tsx`, `index.astro` reads the flag at build. `none` keeps
   today's input byte-for-byte (no combobox role, so browser street-address
   autofill still works). Spec folded. Landing 33.3 KB gzip, +1.4 KB.
+- 2026-11-06 — §2 Suggesting, §3 Picking, §4 Free text, §6 Privacy copy
+  built in one PR at the owner's request. Mapbox and Geoapify adapters in
+  `suggest.ts` with "street, city, ST ZIP" labels from structured fields;
+  a pick runs `resolveInState` on-device (only `/districts/<STATE>.json`)
+  and posts `{state, district, by_suggestion: true}`, no-polygon falls
+  through to the Census path; unresolved copy names the suggestions when a
+  provider is set; `/privacy` names the provider and the three paths.
+  Open question 1 answered: Mapbox terms tie geocoding responses to a
+  Mapbox map, so the launch provider is Geoapify; flag still `none`.
+  Specs folded. Landing 29.2 KB gzip eager, `pip` chunk 1.0 KB on demand.

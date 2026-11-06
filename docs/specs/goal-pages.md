@@ -74,7 +74,13 @@ there.
     `/privacy`. `/privacy` lists what is stored (district only in the
     browser and on the server, never the address; receipts without
     identity; shingle hashes, not document text) and what is sent where
-    (address → Census Geocoder through the Worker, not logged; form fields
+    (address → Census Geocoder through the Worker, not logged; when
+    `PUBLIC_SUGGEST_PROVIDER` is set, that bullet instead names the
+    provider and the three paths: the characters typed go from the
+    browser to the provider to suggest addresses, a picked address stays
+    in the browser, which sends only state and district, and a submit
+    without a pick goes to the Census geocoder through the Worker as
+    before; `none` keeps today's bullet; form fields
     → Anthropic, not retained by the site; Turnstile; Stripe handles
     payments in its own tab). A "District-office visits" bullet names the
     organiser's contact link as personal data they chose to share, handed

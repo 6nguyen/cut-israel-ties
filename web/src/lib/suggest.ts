@@ -1,6 +1,7 @@
-// address-autocomplete §1: the provider flag, the request gate and the debounce/abort loop the
-// landing combobox drives. The provider adapters (§2) fill ADAPTERS; until then suggest() yields
-// nothing and the field behaves as free text.
+// address-autocomplete §1–§2: the provider flag, the request gate, the debounce/abort loop the
+// landing combobox drives, and one adapter per provider. Each adapter maps the provider's response
+// to `Suggestion`s and drops anything that is not a US street address with a house number, a city,
+// a two-letter state and a ZIP (open question 4: the label is built from structured fields).
 
 export type Provider = 'none' | 'mapbox' | 'geoapify';
 export interface Suggestion { label: string; state: string; lon: number; lat: number }
@@ -25,6 +26,9 @@ export function configuredProvider(env: Env = import.meta.env as Env, warn: (m: 
   return p;
 }
 
+/** The provider as `/privacy` names it. */
+export const PROVIDER_NAME: Record<Exclude<Provider, 'none'>, string> = { mapbox: 'Mapbox', geoapify: 'Geoapify' };
+
 /** Attribution under the open list, as each provider's terms require. */
 export const ATTRIBUTION: Record<Exclude<Provider, 'none'>, { text: string; href: string }> = {
   mapbox: { text: '© Mapbox', href: 'https://www.mapbox.com/about/maps/' },
@@ -48,7 +52,59 @@ export function stepHighlight(key: string, active: number, count: number): numbe
 }
 
 type Adapter = (q: string, token: string, signal: AbortSignal) => Promise<Suggestion[]>;
-const ADAPTERS: Partial<Record<Provider, Adapter>> = {}; // §2 adds mapbox and geoapify
+
+const STATE_CODE = /^[A-Z]{2}$/;
+const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
+const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+
+/** "street, city, ST ZIP" from structured fields; null when any part is missing (the result is dropped). */
+export function shortLabel(parts: { number: unknown; street: unknown; city: unknown; state: unknown; zip: unknown }): { label: string; state: string } | null {
+  const number = str(parts.number), street = str(parts.street), city = str(parts.city), zip = str(parts.zip);
+  const state = str(parts.state).toUpperCase();
+  if (!number || !street || !city || !zip || !STATE_CODE.test(state)) return null;
+  return { label: `${number} ${street}, ${city}, ${state} ${zip}`, state };
+}
+
+async function getJson(url: string, signal: AbortSignal): Promise<unknown> {
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`suggest: ${res.status}`); // 429 and 5xx land here; the loop closes the list
+  return res.json();
+}
+
+type Obj = Record<string, unknown>;
+const obj = (v: unknown): Obj => (v && typeof v === 'object' ? (v as Obj) : {});
+const features = (body: unknown): Obj[] => { const f = obj(body).features; return Array.isArray(f) ? f.map(obj) : []; };
+
+/** Mapbox Geocoding v6 forward, `types=address`; state from `context.region.region_code`, point from `geometry.coordinates`. */
+const mapbox: Adapter = async (q, token, signal) => {
+  const u = new URL('https://api.mapbox.com/search/geocode/v6/forward');
+  u.search = new URLSearchParams({ q, autocomplete: 'true', country: 'us', types: 'address', limit: String(LIMIT), proximity: 'ip', access_token: token }).toString();
+  const out: Suggestion[] = [];
+  for (const f of features(await getJson(u.toString(), signal))) {
+    const p = obj(f.properties), ctx = obj(p.context), address = obj(ctx.address);
+    const coords = obj(f.geometry).coordinates;
+    const lon = Array.isArray(coords) ? num(coords[0]) : null, lat = Array.isArray(coords) ? num(coords[1]) : null;
+    const l = shortLabel({ number: address.address_number, street: address.street_name ?? obj(ctx.street).name, city: obj(ctx.place).name, state: obj(ctx.region).region_code, zip: obj(ctx.postcode).name });
+    if (l && lon !== null && lat !== null) out.push({ ...l, lon, lat });
+  }
+  return out.slice(0, LIMIT);
+};
+
+/** Geoapify autocomplete, `filter=countrycode:us`; keeps features with `housenumber`, state from `state_code`, point from `lon`/`lat`. */
+const geoapify: Adapter = async (q, token, signal) => {
+  const u = new URL('https://api.geoapify.com/v1/geocode/autocomplete');
+  u.search = new URLSearchParams({ text: q, filter: 'countrycode:us', limit: String(LIMIT), apiKey: token }).toString();
+  const out: Suggestion[] = [];
+  for (const f of features(await getJson(u.toString(), signal))) {
+    const p = obj(f.properties);
+    const lon = num(p.lon), lat = num(p.lat);
+    const l = shortLabel({ number: p.housenumber, street: p.street, city: p.city, state: p.state_code, zip: p.postcode });
+    if (l && lon !== null && lat !== null) out.push({ ...l, lon, lat });
+  }
+  return out.slice(0, LIMIT);
+};
+
+const ADAPTERS: Partial<Record<Provider, Adapter>> = { mapbox, geoapify };
 
 /** Up to LIMIT US street addresses for `q` from the configured provider; `[]` when no adapter or token. */
 export async function suggest(q: string, signal: AbortSignal, provider: Provider = configuredProvider(), token: string | undefined = (import.meta.env as Env).PUBLIC_SUGGEST_TOKEN): Promise<Suggestion[]> {

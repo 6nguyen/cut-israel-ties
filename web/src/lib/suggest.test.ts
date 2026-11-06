@@ -1,7 +1,7 @@
-// address-autocomplete §1: the flag, the request gate and the debounce/abort loop under fake timers.
-// §2 adds the provider adapters below.
+// address-autocomplete §1–§2: the flag, the request gate and the debounce/abort loop under fake timers,
+// then the Mapbox and Geoapify adapters against a stubbed fetch (URL, token, mapping, dropped rows, errors).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { configuredProvider, shouldSuggest, stepHighlight, suggest, suggestLoop } from './suggest';
+import { configuredProvider, shortLabel, shouldSuggest, stepHighlight, suggest, suggestLoop } from './suggest';
 import type { Suggestion } from './suggest';
 
 const S = (label: string): Suggestion => ({ label, state: 'CA', lon: -117.86, lat: 33.75 });
@@ -41,11 +41,101 @@ describe('stepHighlight', () => {
   });
 });
 
-describe('suggest without an adapter (§1)', () => {
-  it('yields nothing for none and for a provider whose adapter is not built yet', async () => {
+describe('suggest gate (§1)', () => {
+  it('yields nothing, and makes no request, for none or a missing token', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
     const c = new AbortController();
     expect(await suggest('1000 N Main', c.signal, 'none', 'k')).toEqual([]);
     expect(await suggest('1000 N Main', c.signal, 'mapbox', undefined)).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('shortLabel (open question 4)', () => {
+  it('builds "street, city, ST ZIP" from structured fields and drops a result missing any', () => {
+    expect(shortLabel({ number: '1000', street: 'N Main St', city: 'Santa Ana', state: 'ca', zip: '92701' })).toEqual({ label: '1000 N Main St, Santa Ana, CA 92701', state: 'CA' });
+    expect(shortLabel({ number: 1000, street: 'N Main St', city: 'Santa Ana', state: 'CA', zip: 92701 })?.label).toBe('1000 N Main St, Santa Ana, CA 92701');
+    expect(shortLabel({ number: undefined, street: 'N Main St', city: 'Santa Ana', state: 'CA', zip: '92701' })).toBeNull();
+    expect(shortLabel({ number: '1000', street: 'N Main St', city: 'Santa Ana', state: 'California', zip: '92701' })).toBeNull();
+    expect(shortLabel({ number: '1000', street: 'N Main St', city: '', state: 'CA', zip: '92701' })).toBeNull();
+    expect(shortLabel({ number: '1000', street: 'N Main St', city: 'Santa Ana', state: 'CA', zip: null })).toBeNull();
+  });
+});
+
+const mapboxFeature = (o: { number?: string; street?: string; city?: string; region?: string; zip?: string; coords?: unknown }) => ({
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates: 'coords' in o ? o.coords : [-117.8678, 33.7542] },
+  properties: {
+    feature_type: 'address', full_address: 'ignored, the label is built from context',
+    context: {
+      address: { address_number: o.number ?? '1000', street_name: o.street ?? 'North Main Street' },
+      street: { name: o.street ?? 'North Main Street' },
+      place: { name: o.city ?? 'Santa Ana' },
+      region: { name: 'California', region_code: o.region ?? 'CA' },
+      postcode: { name: o.zip ?? '92701' },
+      country: { country_code: 'US' },
+    },
+  },
+});
+const geoapifyFeature = (o: Record<string, unknown>) => ({
+  type: 'Feature',
+  properties: { housenumber: '1000', street: 'North Main Street', city: 'Santa Ana', state: 'California', state_code: 'CA', postcode: '92701', country_code: 'us', lon: -117.8678, lat: 33.7542, formatted: 'ignored', ...o },
+});
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+
+describe('provider adapters (§2)', () => {
+  let fetchMock: ReturnType<typeof vi.fn>;
+  beforeEach(() => { fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock); });
+  afterEach(() => { vi.unstubAllGlobals(); });
+  const url = () => new URL(String(fetchMock.mock.calls[0][0]));
+
+  it('mapbox: v6 forward with the contract parameters, the token and the abort signal; maps context + coordinates', async () => {
+    fetchMock.mockResolvedValue(json({ type: 'FeatureCollection', features: [mapboxFeature({}), mapboxFeature({ city: 'Santa Monica', zip: '90401', coords: [-118.49, 34.02] })] }));
+    const c = new AbortController();
+    const got = await suggest('1000 N Main St, Santa', c.signal, 'mapbox', 'pk.test');
+    const u = url();
+    expect(u.origin + u.pathname).toBe('https://api.mapbox.com/search/geocode/v6/forward');
+    expect(Object.fromEntries(u.searchParams)).toEqual({ q: '1000 N Main St, Santa', autocomplete: 'true', country: 'us', types: 'address', limit: '5', proximity: 'ip', access_token: 'pk.test' });
+    expect(fetchMock.mock.calls[0][1]).toEqual({ signal: c.signal });
+    expect(got).toEqual([
+      { label: '1000 North Main Street, Santa Ana, CA 92701', state: 'CA', lon: -117.8678, lat: 33.7542 },
+      { label: '1000 North Main Street, Santa Monica, CA 90401', state: 'CA', lon: -118.49, lat: 34.02 },
+    ]);
+  });
+
+  it('mapbox: drops results without a house number, a two-letter state, a ZIP or a point', async () => {
+    fetchMock.mockResolvedValue(json({ features: [
+      mapboxFeature({ number: '' }), mapboxFeature({ region: 'California' }), mapboxFeature({ zip: '' }), mapboxFeature({ coords: null }), mapboxFeature({ city: 'Orange' }),
+    ] }));
+    const got = await suggest('1000 N Main', new AbortController().signal, 'mapbox', 'pk.test');
+    expect(got.map((s) => s.label)).toEqual(['1000 North Main Street, Orange, CA 92701']);
+  });
+
+  it('geoapify: autocomplete with the contract parameters; keeps housenumber features, state_code and lon/lat', async () => {
+    fetchMock.mockResolvedValue(json({ type: 'FeatureCollection', features: [
+      geoapifyFeature({}), geoapifyFeature({ housenumber: undefined, street: 'Main Street' }), geoapifyFeature({ state_code: undefined }), geoapifyFeature({ city: 'Orange', postcode: '92866', lon: -117.85, lat: 33.79 }),
+    ] }));
+    const c = new AbortController();
+    const got = await suggest('1000 N Main St, Santa', c.signal, 'geoapify', 'k.test');
+    const u = url();
+    expect(u.origin + u.pathname).toBe('https://api.geoapify.com/v1/geocode/autocomplete');
+    expect(Object.fromEntries(u.searchParams)).toEqual({ text: '1000 N Main St, Santa', filter: 'countrycode:us', limit: '5', apiKey: 'k.test' });
+    expect(fetchMock.mock.calls[0][1]).toEqual({ signal: c.signal });
+    expect(got).toEqual([
+      { label: '1000 North Main Street, Santa Ana, CA 92701', state: 'CA', lon: -117.8678, lat: 33.7542 },
+      { label: '1000 North Main Street, Orange, CA 92866', state: 'CA', lon: -117.85, lat: 33.79 },
+    ]);
+  });
+
+  it('caps at five and rejects on a 429 or a malformed body so the loop closes the list', async () => {
+    fetchMock.mockResolvedValueOnce(json({ features: Array.from({ length: 8 }, (_, i) => geoapifyFeature({ housenumber: String(i + 1) })) }));
+    expect(await suggest('1 Main St', new AbortController().signal, 'geoapify', 'k')).toHaveLength(5);
+    fetchMock.mockResolvedValueOnce(json({ message: 'Too Many Requests' }, 429));
+    await expect(suggest('1 Main St', new AbortController().signal, 'mapbox', 'k')).rejects.toThrow('429');
+    fetchMock.mockResolvedValueOnce(json('not a collection'));
+    expect(await suggest('1 Main St', new AbortController().signal, 'mapbox', 'k')).toEqual([]);
   });
 });
 

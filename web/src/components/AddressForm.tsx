@@ -5,6 +5,9 @@ import { hasOpenItems } from '../lib/commitments';
 import { ATTRIBUTION, stepHighlight, suggest, suggestLoop } from '../lib/suggest';
 import type { Loop, Provider, Suggester, Suggestion, Timings } from '../lib/suggest';
 
+/** §4 unresolved copy when a provider is set (the Worker's message serves the `none` build). */
+export const UNRESOLVED_WITH_SUGGESTIONS = 'We could not place that address. Pick one of the suggestions, check the address, or pick your state and district.';
+
 declare global { interface Window { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string; reset: (id?: string) => void } } }
 
 interface Props {
@@ -66,10 +69,23 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
 
   function closeList() { setOpen(false); setActive(-1); }
 
-  /** §1 pick: the label fills the field and the list closes (§3 resolves the point on the device). */
+  /**
+   * address-autocomplete §3 pick: the label fills the field, the list closes and the route starts on the
+   * device: only the suggestion's state file is loaded, the point is placed in it, and the Worker gets
+   * `{state, district, by_suggestion}`. A point in no district falls through to the Census path (§4)
+   * with the label as the address. The suggestion and its coordinates live only in this closure.
+   */
   function pick(s: Suggestion) {
     loop.current?.cancel();
     setAddress(s.label); closeList(); addressRef.current?.focus();
+    void resolvePick(s);
+  }
+  async function resolvePick(s: Suggestion) {
+    setBusy(true); setError(null);
+    const { resolveInState } = await import('../lib/pip');
+    const place = await resolveInState(s.state, s.lon, s.lat).catch(() => null);
+    if (place) await go({ state: place.state, district: place.district, by_suggestion: true });
+    else await go({ address: s.label });
   }
 
   function onKey(e: KeyboardEvent) {
@@ -102,7 +118,8 @@ export default function AddressForm({ siteKey, provider = 'none', suggester, tim
       // A Turnstile token is consumed by the request it rode on; without a reset the retry fails as "Bot check failed".
       token.current = undefined;
       window.turnstile?.reset(widgetId.current);
-      setError(err.message);
+      // §4: with suggestions on, the unresolved message points at the list first; `none` keeps the Worker's text.
+      setError(err.error === 'unresolved' && suggesting ? UNRESOLVED_WITH_SUGGESTIONS : err.message);
       if (err.error === 'unresolved' || err.error === 'upstream' || err.error === 'no_delegation') setPicker(true);
       setBusy(false);
     }
