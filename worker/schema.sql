@@ -7,10 +7,12 @@ DROP TABLE IF EXISTS blocks;
 DROP TABLE IF EXISTS positions;
 DROP TABLE IF EXISTS actions;
 DROP TABLE IF EXISTS goals;
+DROP TABLE IF EXISTS district_offices;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS visit_requests;
 DROP TABLE IF EXISTS visits;
+DROP TABLE IF EXISTS digest_runs;
 
 CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
@@ -189,7 +191,7 @@ CREATE TABLE blocks (
   until TEXT NOT NULL
 );
 
--- §7.2: one row per nightly digest run; the next run reads reports newer than MAX(ran_at).
+-- §7.2: one row per weekly digest run; the next run reads reports newer than MAX(ran_at).
 CREATE TABLE digest_runs (
   ran_at TEXT PRIMARY KEY,
   report_count INTEGER NOT NULL DEFAULT 0

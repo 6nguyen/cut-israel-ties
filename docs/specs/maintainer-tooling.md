@@ -2,7 +2,7 @@
 
 ## Purpose
 Keeps `data/` the only source of truth while a single maintainer runs the
-site: a CLI that drafts a sourced position row from a web page, a nightly
+site: a CLI that drafts a sourced position row from a web page, a weekly
 digest that tells the maintainer what constituents reported, and a seed
 that pushes every data file into D1. The model proposes; code verifies
 and counts; the maintainer approves by committing. There is no admin UI
@@ -33,8 +33,8 @@ and nothing here writes to `data/` or to `positions`.
    needs source and date), a `next_comment_date` before the seed date, or
    a `campaign_url` without a `campaign_name`. An empty `holdings_status`
    cell reads as `unknown`.
-3. **Nightly digest** — a Worker cron (`0 9 * * *` UTC) runs `runDigest`:
-   reports created after the last recorded run (first run: the past 24 h),
+3. **Weekly digest** — a Worker cron (`0 9 * * 1`, Mondays 09:00 UTC) runs `runDigest`:
+   reports created after the last recorded run (first run: the past 7 days),
    screenings in the same window, devices blocked at run time and every
    `pending` visit listing (office-visits), and the `generations` token
    sums since the last run and since the 1st of the month. With no new
@@ -56,7 +56,7 @@ and nothing here writes to `data/` or to `positions`.
    `tokensSince` sums), then `---` and the
    pending listings, each with signed approve / reject / hide / delete
    links to `https://<DIGEST_FROM domain>/api/visits/review?token=…`
-   (7-day HMAC tokens from `VISITS_REVIEW_SECRET`; unset → the block
+   (14-day HMAC tokens from `VISITS_REVIEW_SECRET`, so links outlive the next digest; unset → the block
    names the listings and says to set it); attachment
    `reports-YYYY-MM-DD.csv` with the raw rows. The prose is dropped for the table alone when the model
    reply contains any digit run not present in the counts, on any API
@@ -144,9 +144,9 @@ and nothing here writes to `data/` or to `positions`.
   with the daily cap), `activeBlocks(now)` (`until > now`),
   `lastDigestRun()`, `recordDigestRun(at, count)`; D1 table
   `digest_runs(ran_at TEXT PRIMARY KEY, report_count INTEGER)`. The run
-  is recorded after a successful send, so a failed send is retried next
-  night with the same window.
-- `wrangler.jsonc`: `triggers.crons = ["0 9 * * *"]`, `send_email`
+  is recorded after a successful send, so a failed send is retried the
+  next week with the same window.
+- `wrangler.jsonc`: `triggers.crons = ["0 9 * * 1"]`, `send_email`
   binding `DIGEST_MAIL`, var `DIGEST_FROM` (a sender on the zone) and the
   Worker secret `MAINTAINER_EMAIL` (unset = digest off; a secret so the
   address stays out of the public repo). `cloudflare:email` is
@@ -188,6 +188,6 @@ and nothing here writes to `data/` or to `positions`.
 
 ## Performance budget
 Infra cost excluding LLM and domain stays $0/month: one cron invocation
-and at most one Email Routing message per day, one Haiku call per digest
+and at most one Email Routing message per week, one Haiku call per digest
 and one per `draft-position` or `draft-holding` run (Haiku, ≤60k characters
 of page text, about $0.01 per run).

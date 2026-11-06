@@ -233,7 +233,7 @@ export interface Env {
   MAX_GENERATIONS_PER_DAY?: string;
   // generation-cost §1: the month's LLM budget in USD (default 15; "0" = standard scripts only).
   LLM_MONTHLY_BUDGET_USD?: string;
-  // §7.2 nightly digest: Email Routing binding, recipient and sender (an address on the zone).
+  // §7.2 weekly digest: Email Routing binding, recipient and sender (an address on the zone).
   DIGEST_MAIL?: SendEmail;
   MAINTAINER_EMAIL?: string;
   DIGEST_FROM?: string;
