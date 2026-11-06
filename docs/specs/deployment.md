@@ -52,6 +52,12 @@ monitoring, no schema migrations (the schema is created once by hand).
    data change is reverted by a PR; the merge redeploys.
 7. **Provisioning** is manual and documented step by step in
    `docs/guides/deploy.md`, which also holds the go-live checklist.
+8. **Roster workflow.** Beside `ci` and `deploy`,
+   `.github/workflows/roster.yml` (maintainer-tooling §6) refreshes
+   `data/members.csv` and `data/district_offices.csv` from upstream on a
+   schedule and opens a data PR; merging that PR is what deploys it, by
+   the same merge → seed → site path as any data change. It deploys
+   nothing itself and needs no Cloudflare secret.
 
 ## Data & contracts
 | Name | Set in | Read by | Without it |
