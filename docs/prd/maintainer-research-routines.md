@@ -219,7 +219,7 @@ run). After 2026-12-19 the shipping PR records the counts and the spend.
 
 ## State (updated 2026-11-06)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [~] 1. Prompt files and the output contract · feat/maintainer-research-routines-prompt
+  - [~] 1. Prompt files and the output contract · feat/maintainer-research-routines-prompt · PR #43
   - [ ] 5. Roll-call import
   - [ ] 2. Federal positions and dates
   - [ ] 3. Senate leader candidate signals
@@ -228,7 +228,7 @@ run). After 2026-12-19 the shipping PR records the counts and the spend.
 - Folded: §1 (routines parts of the delta: Behavior item 7, Data &
   contracts, Invariants, Performance budget; `import-rollcall` parts wait
   for §5).
-- Branch / open PRs: feat/maintainer-research-routines-prompt.
+- Branch / open PRs: feat/maintainer-research-routines-prompt · PR #43.
 - Files changed (file:line map): `.claude/routines/federal-positions.md`,
   `senate-leader-signals.md`, `state-holdings.md` (shared `## Output
   contract`, then `## Steps`, `## Cadence`); `worker/test/routines.test.ts`
@@ -241,8 +241,8 @@ run). After 2026-12-19 the shipping PR records the counts and the spend.
   before opening the PR; batch two of state holdings is CA, OH, GA, NJ, VA,
   AZ, MA, TN, IN, MO (2020 Census order after batch one).
 - Known failures / blockers: none.
-- Next action: merge the §1 PR, then /implement-prd-section
-  docs/prd/maintainer-research-routines.md (§5).
+- Next action: merge PR #43, then /implement-prd-section
+  docs/prd/maintainer-research-routines.md (next: §5. Roll-call import).
 ## Open questions
 1. Where the routine runs. Proposal: the account's Claude Code scheduled
    routines (cloud), because they already have repository access and a
