@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import {
   ELECTIONS_HEADER, ELECTORAL_ASK, actionYaml, checkElections, forbiddenPhrases, goalYaml, parseElections, primarySlug,
 } from '../src/electoral';
+import { appendIdRows, nextId, readIds } from '../src/ids';
 import { loadRows, parseCsv } from '../src/load';
 import { electoralSeat, parseRule, rank, topTwo } from '../src/ranking';
 import { MemoryRepo } from '../src/repo';
@@ -41,9 +42,16 @@ function dataWith(o: Opts = {}): string {
   lines[i] = cells.join(',');
   writeFileSync(members, lines.join('\n'));
   if (o.election !== null) writeFileSync(join(dir, 'elections.csv'), electionCsv(o.election ?? ELECTION));
-  const goal = goalYaml(ROY, ELECTION, 'https://clerk.house.gov/Votes/2026243');
+  // stable-data-ids §1: the fixture registers its ids the way make-primary-goal does.
+  const registry = readIds(dir);
+  const [goalId, actionId] = [nextId(registry, 'goal'), nextId(registry, 'action')];
+  appendIdRows(dir, [
+    { kind: 'goal', id: goalId, slug: SLUG, status: 'live', since: '2026-11-05' },
+    { kind: 'action', id: actionId, slug: `${SLUG}-call`, status: 'live', since: '2026-11-05' },
+  ]);
+  const goal = goalYaml(goalId, ROY, ELECTION, 'https://clerk.house.gov/Votes/2026243');
   writeFileSync(join(dir, 'goals', `${SLUG}.yaml`), o.goal ? o.goal(goal) : goal);
-  writeFileSync(join(dir, 'actions', `${SLUG}-call.yaml`), actionYaml(ROY));
+  writeFileSync(join(dir, 'actions', `${SLUG}-call.yaml`), actionYaml(actionId, ROY));
   if (o.closeFederal) {
     for (const slug of ['house-caucus', 'ndaa-1217', 'ndaa-report-vote', 'senate-leader']) {
       const p = join(dir, 'goals', `${slug}.yaml`);
@@ -179,7 +187,7 @@ describe('no advocacy words (Open question 1)', () => {
   });
   it('every electoral goal and action in data/, and the templates, carry none', () => {
     const files = ['goals', 'actions'].flatMap((d) => readdirSync(join(DATA, d)).filter((f) => f.startsWith('primary-')).map((f) => readFileSync(join(DATA, d, f), 'utf8')));
-    for (const text of [...files, goalYaml(ROY, ELECTION), actionYaml(ROY), ELECTORAL_ASK]) expect(forbiddenPhrases(text)).toEqual([]);
+    for (const text of [...files, goalYaml(6, ROY, ELECTION), actionYaml(6, ROY), ELECTORAL_ASK]) expect(forbiddenPhrases(text)).toEqual([]);
     expect(() => load({ goal: (y) => y.replace(/^summary: .*$/m, 'summary: "Vote against the incumbent."') })).toThrow(/vote against/);
   });
 });

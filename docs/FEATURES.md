@@ -5,10 +5,10 @@
 
 | Feature | State | What it does | Spec | Change | Updated |
 |---|---|---|---|---|---|
-| action-router | BUILDING | Address → delegation → ranked goals, goal pages, prep, dona… | [spec](specs/action-router.md) | [deploy](prd/deploy.md) 2/3 +6 | 2026-11-04 |
-| deployment | BUILDING | Merge → Worker + D1 seed + Pages deploy, PR previews, rollb… | [spec](specs/deployment.md) | [deploy](prd/deploy.md) 2/3 +3 | 2026-11-04 |
-| electoral-record | BUILDING | One-seat sourced record before a 2028 primary: member's pos… | [spec](specs/electoral-record.md) | [primary-2028](prd/primary-2028.md) 1/2 +1 | 2026-11-04 |
-| maintainer-tooling | BUILDING | Draft a sourced position row, nightly report digest by emai… | [spec](specs/maintainer-tooling.md) | [state-holdings-sweep](prd/state-holdings-sweep.md) 2/3 +4 | 2026-11-04 |
+| action-router | BUILDING | Address → delegation → ranked goals, goal pages, prep, dona… | [spec](specs/action-router.md) | [deploy](prd/deploy.md) 2/3 +6 | 2026-11-05 |
+| deployment | BUILDING | Merge → Worker + D1 seed + Pages deploy, PR previews, rollb… | [spec](specs/deployment.md) | [deploy](prd/deploy.md) 2/3 +3 | 2026-11-05 |
+| electoral-record | BUILDING | One-seat sourced record before a 2028 primary: member's pos… | [spec](specs/electoral-record.md) | [primary-2028](prd/primary-2028.md) 1/2 +1 | 2026-11-05 |
+| maintainer-tooling | BUILDING | Draft a sourced position row, nightly report digest by emai… | [spec](specs/maintainer-tooling.md) | [stable-data-ids](prd/stable-data-ids.md) 0/3 +4 | 2026-11-05 |
 | commitment-funnel | PINNED | Private commitment and captain list after a receipt, "Your… | [spec](specs/commitment-funnel.md) | [call-follow-through](prd/call-follow-through.md) 0/5 | 2026-11-05 |
 | district-counters | PINNED | This week's receipt counts per district and state on cards… | [spec](specs/district-counters.md) | [call-follow-through](prd/call-follow-through.md) 0/5 | 2026-11-05 |
 | member-pages | PINNED | Roster import, member page with contact and position, whip… | [spec](specs/member-pages.md) | [call-follow-through](prd/call-follow-through.md) 0/5 +2 | 2026-11-05 |

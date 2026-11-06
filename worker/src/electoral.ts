@@ -162,11 +162,12 @@ export function recordFor(m: Member, goals: Goal[], actions: Action[], positions
 const q = (s: string): string => JSON.stringify(s);
 const seatLabel = (m: Member): string => (m.district === 0 ? `${m.state} at large` : `${m.state}-${String(m.district).padStart(2, '0')}`);
 
-export function goalYaml(m: Member, e: ElectionRow, rollCallUrl?: string): string {
+export function goalYaml(id: number, m: Member, e: ElectionRow, rollCallUrl?: string): string {
   const slug = primarySlug(m.state, m.district ?? 0);
   const seat = seatLabel(m);
   const sources = rollCallUrl ? `\n  - {title: ${q(`Roll call 243 (House vote on the integration section): ${m.name} voted ${m.rc243}`)}, url: ${q(rollCallUrl)}}` : ' []';
   return [
+    `id: ${id}   # from data/ids.md; never changed, never reused (stable-data-ids §1)`,
     `slug: ${slug}`,
     'category: electoral',
     `title: ${q(`Rep. ${m.name}'s record before the ${seat} 2028 primary`)}`,
@@ -192,9 +193,10 @@ export function goalYaml(m: Member, e: ElectionRow, rollCallUrl?: string): strin
 
 export const ELECTORAL_ASK = "Ask the office who is running against them in the 2028 primary and say why you're asking.";
 
-export function actionYaml(m: Member): string {
+export function actionYaml(id: number, m: Member): string {
   const slug = primarySlug(m.state, m.district ?? 0);
   return [
+    `id: ${id}   # from data/ids.md; never changed, never reused (stable-data-ids §1)`,
     `slug: ${slug}-call`,
     `goal: ${slug}`,
     'type: call',

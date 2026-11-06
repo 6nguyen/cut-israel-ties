@@ -1,1 +1,2 @@
 design/stitch/DESIGN.md  # Stitch-exported design system; tool-written, re-exported not edited
+data/ids.md  # goal/action id registry, read by the loader (stable-data-ids); lives beside the rows it keys

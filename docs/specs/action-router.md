@@ -180,14 +180,16 @@ receipts and reports are in `personalised-documents.md`.
   (`{title, url}` rows), `successor_slug` targets, and that every
   position row carries a source. `goals.status` also allows `upcoming`;
   `goals.decider` is the one-line "who decides".
+- Goal/action `id`s come from YAML and `data/ids.md`, never file order; a
+  missing, duplicate, retired or unregistered id fails the seed.
 - The static site reads `data/` at build through the Worker's loader
   (Vite alias `@worker` → `worker/src`, `web/src/lib/goals.ts`), so
   pages and API agree on every row and on the lifecycle. Share cards are
   rendered at build by `sharp` from an SVG template; absolute share URLs
   need `SITE_URL` in the Pages build environment.
 - Donation config is read at build, not by the Worker (the pages are
-  static; this replaces the PRD's "Worker vars"): `MONTHLY_COST_USD`
-  (number, default 15 from the PRD estimate) and `STRIPE_LINKS` (JSON
+  static): `MONTHLY_COST_USD`
+  (number, default 15) and `STRIPE_LINKS` (JSON
   `{once_5, once_20, once_50, monthly_5}` of Stripe Payment Link URLs,
   default `{}`). Set both in the Pages build environment, like `SITE_URL`;
   parsing is `web/src/lib/donate.ts`. Invalid values fall back to the
@@ -232,6 +234,8 @@ receipts and reports are in `personalised-documents.md`.
       leadership goal with `our_picks` shows them in order before any
       section, and the ask names the first pick; every date, count or name
       in `prep_md` is a `data/` row or carries a `[VERIFY: …]` marker.
+- [ ] Adding, renaming or removing a goal/action file moves no other id
+      (`worker/test/ids.test.ts`).
 - [ ] No coordinate is ever sent or logged: during the location path the
       only requests are `GET /districts/<name>.json` (no query string) and
       `POST /api/route {state, district, by_location}`

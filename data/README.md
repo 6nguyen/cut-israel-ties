@@ -7,8 +7,9 @@ number or a name that is not a row here.
 
 | File | Table | Notes |
 |---|---|---|
-| `goals/<slug>.yaml` | `goals` | `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
-| `actions/<slug>.yaml` | `actions` | One file per action; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
+| `ids.md` | (registry) | `kind \| id \| slug \| status \| since`: every goal and action id ever published. Ids are assigned once, never changed, never reused after a file is removed (its row turns `retired`); the next id is the highest ever used plus one. The loader refuses a YAML id that is missing, duplicated, retired, unregistered or on another slug (stable-data-ids §1-2). |
+| `goals/<slug>.yaml` | `goals` | `id` from `ids.md`. `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
+| `actions/<slug>.yaml` | `actions` | One file per action; `id` from `ids.md`; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
@@ -138,7 +139,9 @@ links the clerk's roll-call page. Steps, all in one data/ PR:
    writes `goals/primary-<st>-<d>.yaml` (category `electoral`, status
    `upcoming`, priority 1, eligibility above) and
    `actions/primary-<st>-<d>-call.yaml` from the templates in
-   `worker/src/electoral.ts`. It refuses without steps 1 and 2.
+   `worker/src/electoral.ts`, each with the next free `id` from `ids.md`,
+   and appends both `live` rows to `ids.md`. It refuses without steps 1
+   and 2.
 4. `npm test -w worker` (loader, ranking and forbidden-phrase checks), then
    flip `status` to `active` in a later data/ PR when the federal goal it
    follows closes; priority 1 keeps it below every active federal and state

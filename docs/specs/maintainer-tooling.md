@@ -56,7 +56,10 @@ and nothing here writes to `data/` or to `positions`.
    `states` from `data/` on every run, so a merged data PR plus a deploy
    is the whole publishing flow. User tables (`receipts`, `reports`,
    `screenings`, `blocks`, `generations`, `digest_runs`) are never touched
-   by the seed.
+   by the seed. The loader's id registry checks (`data/ids.md`: every goal
+   and action YAML `id` present, integer, unique, live and on its own
+   slug) run before any SQL is written, so a re-keyed row never reaches
+   the delete + re-insert.
    `seed:remote` applies `seed.sql` only (FK checks deferred to the end
    of the batch); `schema:remote` applies `schema.sql`, which drops every
    table, once at provisioning (`docs/specs/deployment.md`).

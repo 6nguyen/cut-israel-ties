@@ -1,5 +1,5 @@
 # Production deployment — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-04
+Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-05
 
 ## Problem
 The action-router shipped (archive/2026-11-action-router.md) as code that
@@ -143,8 +143,7 @@ measured budget numbers above.
   test-web, build — all PASS; `wrangler deploy --dry-run` on the rendered
   config passes. Not run: anything against Cloudflare (no account).
 - Remaining: §3 (owner); docs/specs/action-router.md §Performance budget
-  production numbers; goal/action ids are positional in load.ts, so a
-  reordered data file would re-key rows that receipts reference (own fix).
+  production numbers.
 - Next action: owner runs docs/guides/deploy.md §1, then ticks §5 and
   records the numbers in action-router.md; a PR flips §1–§2 to `[x]`.
 ## Open questions
@@ -171,3 +170,4 @@ measured budget numbers above.
   proposal, none blocking). Added to `## Next` and written in the same
   PR because no queued feature can reach users without it.
 - 2026-11-04 — §1–2 merged via PR #29; §3 stays blocked on provisioning (docs/guides/deploy.md §1, then §5).
+- 2026-11-05 — the positional-id known bug is fixed by `docs/prd/stable-data-ids.md` (explicit ids + `data/ids.md`); dropped from Remaining.

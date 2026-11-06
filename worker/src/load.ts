@@ -7,6 +7,7 @@ import { parseRule } from './ranking';
 import { checkPrep } from './prep';
 import { districtError } from './districts';
 import { applyElections, checkElections, checkElectoral, parseElections, type ElectionRow } from './electoral';
+import { checkId, readIds } from './ids';
 
 export interface Rows {
   goals: Goal[];
@@ -95,15 +96,19 @@ export function checkMembers(rows: Record<string, string>[]): void {
 }
 
 export function loadRows(dataDir: string, updatedAt = new Date().toISOString()): Rows {
+  // stable-data-ids §2: ids come from the YAML and must match data/ids.md; the file order never numbers a row.
+  const registry = readIds(dataDir);
+  const goalIds = new Set<number>();
+  const actionIds = new Set<number>();
   const goals: Goal[] = readdirSync(join(dataDir, 'goals'))
     .filter((f) => f.endsWith('.yaml'))
     .sort()
-    .map((f, i) => {
+    .map((f) => {
       const y = parseYaml(readFileSync(join(dataDir, 'goals', f), 'utf8')) as Record<string, unknown>;
       const eligibility = json(y.eligibility);
       parseRule(eligibility);
       const g: Goal = {
-        id: i + 1,
+        id: checkId(registry, 'goal', f, String(y.slug), y.id, goalIds),
         slug: String(y.slug),
         category: y.category as Goal['category'],
         title: String(y.title),
@@ -148,10 +153,10 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   const actions: Action[] = readdirSync(join(dataDir, 'actions'))
     .filter((f) => f.endsWith('.yaml'))
     .sort()
-    .map((f, i) => {
+    .map((f) => {
       const y = parseYaml(readFileSync(join(dataDir, 'actions', f), 'utf8')) as Record<string, unknown>;
       const a: Action = {
-        id: i + 1,
+        id: checkId(registry, 'action', f, String(y.slug), y.id, actionIds),
         goal_id: goalId(String(y.goal)),
         slug: String(y.slug),
         type: y.type as Action['type'],
