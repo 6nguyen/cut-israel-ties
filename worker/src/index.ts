@@ -81,7 +81,7 @@ export function createApp(deps: Deps) {
       if (kind === 'incomplete') {
         return c.json({ error: 'incomplete', message: 'Enter a full street address with number, street, city and state.' }, 400);
       }
-      const geo = await geocode(body.address, deps.fetch, c.env.GEOCODER_URL);
+      const geo = await geocode(body.address, deps.fetch, c.env.GEOCODER_URL, c.env.DISTRICT_VINTAGE || undefined);
       if (!geo.ok) {
         const status = geo.reason === 'upstream' ? 502 : 404;
         return c.json(

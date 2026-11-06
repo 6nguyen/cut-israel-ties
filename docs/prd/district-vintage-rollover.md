@@ -126,16 +126,16 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Pin the Worker to the sitting Congress
+  - [~] 1. Pin the Worker to the sitting Congress
   - [ ] 2. cd120 geometry with a Missouri override
-  - [ ] 3. Dated flip
-- Completed: none.
+  - [!] 3. Dated flip
+- Completed: none merged. §1 built on `feat/district-vintage-rollover`.
 - Folded: none.
-- Branch / open PRs: none.
-- Remaining: all; §1 half a day, §2 one day, §3 half a day on 2027-01-03.
-- Decisions since last update: none.
-- Known failures / blockers: §3 waits for roster-freshness §4 and the 2027-01-03 date; Georgia probe result open.
-- Next action: /implement-prd-section docs/prd/district-vintage-rollover.md §1.
+- Branch / open PRs: `feat/district-vintage-rollover` (integrated by the orchestrator's PR, no PR of its own).
+- Remaining: §2 one day; §3 half a day on 2027-01-03.
+- Decisions since last update: see `## Changes` 2026-11-05.
+- Known failures / blockers: §3 `[!]` blocked: 2027-01-03 (and roster-freshness §4 merged first); Georgia probe result open until §2's probe run.
+- Next action: /implement-prd-section docs/prd/district-vintage-rollover.md §2.
 
 ## Open questions
 - Keep cd119 geometry after the flip for a "who voted in December" view?
@@ -146,3 +146,5 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
 
 ## Changes
 - 2026-11-05: created from the district rollover research.
+- 2026-11-05: open questions closed by their proposals: no cd119 geometry after the flip; the Missouri override lives in code (`VINTAGE_OVERRIDES`), moved to `data/` only if a second court order lands.
+- 2026-11-05 (§1): geocoder answers recorded from `geographies/coordinates`: Austin (-97.7431, 30.2672) `Current_Current` = TX-10 (120th layer), `ACS2025_Current` = TX-37 (119th); downtown Kansas City (-94.5786, 39.0997) MO-4 vs MO-5. The Missouri re-query goes to `geographies/coordinates` with the match's coordinates, so the address is sent to Census once; `parseCensus` reads both response shapes.

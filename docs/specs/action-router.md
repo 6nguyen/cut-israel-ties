@@ -25,7 +25,9 @@ receipts and reports are in `personalised-documents.md`.
    calls the geocoder.
 3. **Lookup.** The Worker sends the address to the Census Geocoder
    (`geographies/onelineaddress`, benchmark `Public_AR_Current`, vintage
-   `Current_Current`) and reads the 119th Congressional District and state.
+   = Worker var `DISTRICT_VINTAGE`, `ACS2025_Current` = 119th map until
+   2027-01-03) and reads the district layer and state; `VINTAGE_OVERRIDES`
+   re-queries Missouri once by coordinates (`on-device-districts.md`).
    At-large districts (`00`, `98`) are district 0. The location path
    never reaches the geocoder: the browser resolves a one-time position
    against `/districts/*.json` and posts `{state, district, by_location:
