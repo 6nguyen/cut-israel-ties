@@ -25,7 +25,7 @@ function Card({ g, n, state, district }: { g: GoalCard; n: number; state: string
       <div class="p-5 flex flex-col gap-4 flex-1">
         <p class="text-base">{g.summary}</p>
         <div class="border-2 border-ink">
-          <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Your targets ({g.targets.length})</p>
+          <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call ({g.targets.length})</p>
           <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
           <Counts goal={g.slug} state={state} district={district} />
         </div>
@@ -64,7 +64,7 @@ export default function Results() {
     <div>
       <p class="label-ticker mb-2">{where} · <button class="underline" onClick={change}>change address</button></p>
       <h1 class="display-lg">Your two actions this week</h1>
-      <p class="mt-3 text-base max-w-2xl">Based on your delegation in {where}: {[data.house, ...data.senators].filter(Boolean).map((m) => m!.name).join(', ')}.</p>
+      <p class="mt-3 text-base max-w-2xl">Your people in Congress for {where}: {[data.house, ...data.senators].filter(Boolean).map((m) => m!.name).join(', ')}.</p>
       {data.goals.length === 0 ? (
         <div class="card p-5 mt-8 max-w-xl">
           <p class="font-semibold">No goal is open for your district right now.</p>

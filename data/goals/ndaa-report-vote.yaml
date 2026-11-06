@@ -1,9 +1,9 @@
 id: 3
 slug: ndaa-report-vote
 category: federal_vote
-title: Vote no on an NDAA report that keeps the integration section
-summary: Once the conference report is filed, it is voted on without amendment. A no vote from your member is the last lever on the integration section this year.
-what_we_want: Your representative and senators vote no on the conference report if the integration section survived conference.
+title: Block the military bill if Israel integration stays in
+summary: Once the final military bill is filed, nobody can change a word. Each member gets one yes-or-no vote on the whole thing. If the Israel integration section is still in it, a no vote from your member is the last chance this year.
+what_we_want: Your representative and senators vote no on the final military bill if the Israel integration section is still in it.
 status: upcoming   # becomes active on the deploy after ndaa-1217 is completed or expired (§2.3)
 window_start: 2026-12-01
 window_end: 2026-12-31
@@ -12,7 +12,7 @@ priority: 3
 eligibility: {"any": [{"house": {}}, {"senator": {}}]}
 our_picks: []
 sources: []
-decider: Every member of the House and Senate, on the conference report
+decider: Every member of the House and Senate, in one yes-or-no vote on the final bill
 this_week: ""
 this_week_date: ""
 detail_md: ""

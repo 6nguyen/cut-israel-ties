@@ -87,7 +87,7 @@ describe('GET /api/goals and /api/goals/:slug/targets (§2)', () => {
     const body = (await (await get('/api/goals')).json()) as { goals: Goal[] };
     expect(body.goals.map((g) => g.slug)).toEqual(['ndaa-1217', 'house-caucus', 'senate-leader', 'state-bonds']);
     expect(body.goals.every((g) => !('eligibility' in g))).toBe(true);
-    expect(body.goals[0].decider).toMatch(/conferees/);
+    expect(body.goals[0].decider).toMatch(/writing the final bill/);
   });
 
   it('federal goal targets for CA-46: the representative and both senators', async () => {

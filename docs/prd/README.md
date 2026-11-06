@@ -51,12 +51,14 @@ no `Needs` entry can run in parallel with the row above it. Rules:
   changes a PRD's Status or State block updates its row.
 - A PRD that ships, is superseded or is dropped loses its row in the
   commit that archives it (Lifecycle 4–5); completed work never stays here.
+- `prd-lint` fails on a `docs/prd/*.md` without a row, a row whose PRD is
+  missing or archived, and a row whose Status word differs from the PRD's.
 
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
-| 1 | [address-autocomplete.md](address-autocomplete.md) | APPROVED | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
+| 1 | [address-autocomplete.md](address-autocomplete.md) | APPROVED (§1 merged PR #44; next §2) | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
 | 2 | [leadership-routing.md](leadership-routing.md) | APPROVED | — | `caucus` column, `members_elect.csv`, one leadership slot on `/results` with House + Senate calls, `{{leader_line}}` naming the incumbent leader from a sourced row; deadline the House caucus vote |
-| 3 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
+| 3 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED (§1 merged PR #43; next §5) | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
 | 4 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
 | 5 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
 | 6 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
@@ -67,6 +69,7 @@ Targets is an existing spec stem or `new`. Writing the PRD deletes its row
 in the same commit; dropping an idea deletes its row.
 | # | Idea | Targets | Notes |
 |---|---|---|---|
+| 1 | Weekly social-trend watch: which frames about Jeffries, Schumer, the military bill and Israel are moving on Instagram, TikTok and search; proposes goal-title and `this_week` changes as a PR | maintainer-tooling | Needs a logged-in trend source or a listening tool; never edits `data/` on its own; follows `plain-english-copy` |
 
 ## Template (copy for a new feature)
 

@@ -1,9 +1,9 @@
 id: 5
 slug: state-bonds
 category: state
-title: Get your state treasury out of Israel Bonds
-summary: State treasurers hold Israel Bonds with public money and decide alone whether to roll them over. A public comment or a call to the treasurer's office is on the record.
-what_we_want: The treasurer stops buying and lets current Israel Bonds mature without rollover.
+title: Get your state's money out of Israel Bonds
+summary: Many states lend public money to Israel's government by buying Israel Bonds. One person, your state treasurer, decides whether to keep buying them when the old ones come due. A call or a public comment to that office goes on the record.
+what_we_want: The treasurer stops buying Israel Bonds and lets the ones the state holds run out instead of renewing them.
 status: active
 window_start: 2026-01-01
 window_end: 2027-12-31
@@ -12,36 +12,51 @@ priority: 1
 eligibility: {"state": {"nonempty": ["israel_bonds_usd", "campaign_name"]}}
 our_picks: []
 sources: []
-decider: Your state treasurer, alone, at each rollover
+decider: Your state treasurer, alone, each time the bonds come due
 this_week: ""
 this_week_date: ""
-detail_md: ""
+detail_md: |
+  **What are Israel Bonds?** They are loans to the Israeli government.
+  Many US state treasuries buy them with public money, the same money that
+  pays for schools and roads, and renew them when they come due.
+
+  **Who decides?** In most states, one elected official: the state
+  treasurer. No vote in Congress, no federal agency. That makes this the
+  shortest line between you and a decision.
+
+  **What can you do?** Call the treasurer's office, or send a public
+  comment, asking them to stop buying and to let the current bonds run out
+  instead of renewing them. Ask how much the state holds and when the next
+  decision is. The answer you get becomes a sourced row on this site.
 prep_md: |
   ## Where things stand
   *As of 2026-11-04.* State treasurers hold Israel Bonds with public money
-  and decide, alone and at each rollover, whether to buy more or let them
-  mature. Our state table has no sourced holdings, treasurer name, rollover
-  date or campaign link yet, so this page states none [VERIFY: holdings
-  amount and date for your state, from the treasurer's own report]. A phone
-  call or a public comment to the treasurer's office is on the record.
+  and decide, alone and each time the bonds come due, whether to buy more
+  or let them run out. Our state table has no sourced holdings, treasurer
+  name, renewal date or campaign link yet, so this page states none
+  [VERIFY: holdings amount and date for your state, from the treasurer's
+  own report]. A phone call or a public comment to the treasurer's office
+  is on the record.
 
   ## Timeline
   - 2026-01-01: our window opens.
-  - Your state's next rollover or public-comment date is not yet sourced
+  - Your state's next renewal or public-comment date is not yet sourced
     [VERIFY: next_comment_date for your state].
   - 2027-12-31: our window closes.
 
   ## What to say in 30 seconds
   "Hello, I'm a resident of [your town]. I'm asking the State Treasurer to
-  stop buying Israel Bonds and to let the ones the state holds mature
-  without rollover. Could you tell me how much the state holds, when the
-  next rollover decision is, and how I can put a comment on the record?"
+  stop buying Israel Bonds and to let the ones the state holds run out
+  without renewing them. Could you tell me how much the state holds, when
+  the next renewal decision is, and how I can put a comment on the
+  record?"
 
   ## Likely pushback and answers
-  - **"These are ordinary investments."** They are bought with public money.
-    Ask for the holdings figure and the rollover schedule in writing.
+  - **"These are ordinary investments."** They are bought with public
+    money. Ask for the holdings figure and the renewal schedule in
+    writing.
   - **"That is a federal foreign-policy matter."** The decision to buy or
-    roll over is the state treasurer's own; no federal body decides it.
+    renew is the state treasurer's own; no federal body decides it.
   - **"The office only takes comments at hearings."** Ask when the next
     comment period is and whether a written comment is entered in the
     record.
@@ -50,11 +65,12 @@ prep_md: |
 
   ## What counts as a win
   The treasurer announces that the state will not buy more and will let
-  current bonds mature without rollover. Smaller: the office gives you the
-  holdings figure and the next decision date, which becomes a sourced row.
+  current bonds run out without renewing them. Smaller: the office gives
+  you the holdings figure and the next decision date, which becomes a
+  sourced row.
 
   ## Sources
-  Holdings and rollover figures come from each state's own records and are
+  Holdings and renewal figures come from each state's own records and are
   added to the state table with a source. [VERIFY: treasurer report or
   public-records response for your state.]
 partner_url: ""

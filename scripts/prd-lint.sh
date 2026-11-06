@@ -125,6 +125,20 @@ repo_rules() {  # repo_rules <docs dir>
           print F ":" NR ": Next row target \"" t "\" is not a spec stem or new"
         if (n == 11) print F ":" NR ": Next has more than 10 rows"
       }' "$d/prd/README.md"
+    # Index <-> docs/prd/*.md one to one; the row's Status word mirrors the PRD's.
+    for f in "$d"/prd/*.md; do
+      [ -f "$f" ] || continue; stem="$(basename "$f" .md)"
+      [ "$stem" = README ] && continue
+      row=$(awk '/^## /{on = ($0 ~ /^## Index/)} on && /^\| [0-9]+ \| \[/' "$d/prd/README.md" | grep -E "\]\($stem\.md\)" | head -1)
+      if [ -z "$row" ]; then echo "$f:1: PRD not in docs/prd/README.md index"; continue; fi
+      ps=$(sed -n 2p "$f" | sed -E 's/^Status: ([A-Z]+).*/\1/')
+      rs=$(printf '%s' "$row" | awk -F'|' '{ sub(/^ +/, "", $4); split($4, w, " "); print w[1] }')
+      [ "$ps" = "$rs" ] || echo "$f:2: index Status \"$rs\" does not mirror PRD Status \"$ps\""
+    done
+    awk -v F="$d/prd/README.md" -v D="$d/prd" '/^## /{on = ($0 ~ /^## Index/)} on && /^\| [0-9]+ \| \[/ {
+        l = $0; sub(/^\| [0-9]+ \| \[[^]]*\]\(/, "", l); sub(/\).*/, "", l)
+        if (system("test -f \"" D "/" l "\"") != 0) print F ":" NR ": index row for missing docs/prd/" l
+      }' "$d/prd/README.md"
   fi
   if [ -f "$d/FEATURES.md" ]; then
     "$HERE/features.sh" --check "$(dirname "$d")" | sed "s#^docs/FEATURES.md: #$d/FEATURES.md:1: #"

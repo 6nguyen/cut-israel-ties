@@ -4,7 +4,7 @@ goal: house-caucus
 type: call
 target_scope: house
 order: 1
-ask_text: Ask your representative to say on the record that they will vote against any NDAA report that keeps the integration section.
+ask_text: Ask your representative to vote for a new leader unless Hakeem Jeffries promises, in public, to take the Israel integration section out of the military bill.
 form_schema:
   fields:
     - {name: first_name, label: First name, max: 40, required: true}
@@ -12,8 +12,8 @@ form_schema:
     - {name: why, label: Why this matters to you, max: 280, required: true, multiline: true, hint: One or two sentences in your own words.}
     - {name: affiliation, label: Occupation or affiliation (optional), max: 80, required: false}
 prompt_template: |
-  Open with the caller's first name and city. Ask the representative to say on the record that they will vote against
-  any NDAA report that keeps the integration section, so the caucus whip count reflects it. Name the prior vote if the
-  facts list one. Close by asking for a yes or no and when the office will say so publicly.
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "NDAA"], "ask": "on the record"}
+  Open with the caller's first name and city. House Democrats are about to vote on their leader: ask the representative
+  to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. Name the prior
+  vote if the facts list one. Close by asking whether that is a condition for their vote and when the office will say so.
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "leader"], "ask": "vote only for a leader"}
 script_blocks: leadership

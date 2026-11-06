@@ -41,24 +41,24 @@ const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision
         </section>
       )}
       <section aria-labelledby="situation">
-        <p class="label-code">The situation</p>
-        <h2 id="situation" class="headline-lg mt-1">What is happening</h2>
+        <p class="label-code">The basics</p>
+        <h2 id="situation" class="headline-lg mt-1">What is going on</h2>
         {situation
           ? <div class="prose-cut mt-4 max-w-2xl" set:html={situation} />
           : <p class="mt-4 max-w-2xl">{goal.summary}</p>}
       </section>
       <section class="card-lg p-5 lg:p-6 bg-acid" aria-labelledby="want">
-        <p class="label-code">What we want</p>
+        <p class="label-code">What we are asking for</p>
         <h2 id="want" class="headline-lg mt-1">{goal.what_we_want}</h2>
       </section>
       <section aria-labelledby="decides">
-        <p class="label-code">Who decides and when</p>
+        <p class="label-code">Who makes the call, and when</p>
         <h2 id="decides" class="headline-md mt-1">{goal.decider ?? 'Not yet sourced'}</h2>
         <p class="mt-2 label-code text-ink/70">{date ? `${electoral ? 'Primary' : 'Decision'} ${date}` : 'Date not yet scheduled'}{goal.window_end ? ` · ${electoral ? 'filing deadline' : 'window closes'} ${fmtDate(goal.window_end)}` : ''}</p>
       </section>
       {pick && (
         <section class="card p-5" aria-labelledby="pick">
-          <p class="label-code">Our pick</p>
+          <p class="label-code">Who we would back instead</p>
           <h2 id="pick" class="headline-lg mt-1">{pick.name}</h2>
           <p class="mt-3 max-w-2xl">{pick.rationale}</p>
           <p class="mt-3 label-ticker"><a href={pick.source_url} rel="noopener" class="underline">Source</a>{pick.signal_date ? ` · ${fmtDate(pick.signal_date)}` : ''}</p>
@@ -66,7 +66,7 @@ const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision
       )}
       {open && (
         <section aria-labelledby="actions">
-          <p class="label-code">Actions</p>
+          <p class="label-code">Your move</p>
           <h2 id="actions" class="headline-lg mt-1">What you can do</h2>
           <ul class="mt-4 flex flex-col gap-3 max-w-2xl">
             {actions.map((a) => (
@@ -83,7 +83,7 @@ const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision
     <aside class="flex flex-col gap-8">
       {open && (
         <section aria-labelledby="targets">
-          <p class="label-code">Your targets</p>
+          <p class="label-code">Your people in Congress</p>
           <h2 id="targets" class="headline-md mt-1 mb-3">Who to call</h2>
           <GoalTargets client:load slug={goal.slug} />
         </section>
@@ -99,7 +99,7 @@ const electoral = goal.category === 'electoral'; // primary-2028 §1.2: decision
       <section aria-labelledby="sources">
         <p class="label-code">Sources</p>
         {srcs.length === 0
-          ? <p id="sources" class="mt-2 text-sm text-ink/70">Sources are added as the record is sourced; nothing on this page is computed.</p>
+          ? <p id="sources" class="mt-2 text-sm text-ink/70">No sources linked yet. Nothing on this page is guessed by a model; every claim gets a link as we find it.</p>
           : <ul id="sources" class="mt-2 flex flex-col gap-1 text-sm">{srcs.map((s) => <li><a href={s.url} rel="noopener" class="underline">{s.title}</a></li>)}</ul>}
       </section>
       <SubscribeLine />
