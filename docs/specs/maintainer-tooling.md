@@ -36,13 +36,24 @@ and nothing here writes to `data/` or to `positions`.
 3. **Nightly digest** — a Worker cron (`0 9 * * *` UTC) runs `runDigest`:
    reports created after the last recorded run (first run: the past 24 h),
    screenings in the same window, devices blocked at run time and every
-   `pending` visit listing (office-visits). With no new reports and no
-   pending listing nothing is sent (the run is still recorded). Otherwise
-   one email goes to `MAINTAINER_EMAIL` via Cloudflare Email Routing:
-   subject `[cut-ties] N report(s)[ · M visit listing(s) to review] ·
+   `pending` visit listing (office-visits), and the `generations` token
+   sums since the last run and since the 1st of the month. With no new
+   reports and no pending listing nothing is sent (the run is still
+   recorded) unless the month's LLM spend crossed 80% of
+   `LLM_MONTHLY_BUDGET_USD` since the last run (spend before the last
+   run < 80% ≤ spend now, arithmetic over the two sums, so it fires once
+   a month): then the table alone goes out, no model call, subject
+   `[cut-ties] LLM budget 80% · YYYY-MM-DD`. Otherwise one email goes to
+   `MAINTAINER_EMAIL` via Cloudflare Email Routing: subject `[cut-ties] N
+   report(s)[ · M visit listing(s) to review][ · LLM budget 80%] ·
    YYYY-MM-DD`; body = Haiku prose (3–6 sentences from the counts table)
    followed by `---` and the code-rendered table (member, goal × outcome
-   counts, screened-out classes, blocked devices), then `---` and the
+   counts, screened-out classes, blocked devices, then the "LLM spend"
+   block: since last run — documents, redrafts, standard scripts, $;
+   month to date — $ of $budget and the per cent; today's cap; per
+   action — documents, redraft share, output-check failure classes,
+   standard scripts; every figure from `costUsd` / `dailyCap` over
+   `tokensSince` sums), then `---` and the
    pending listings, each with signed approve / reject / hide / delete
    links to `https://<DIGEST_FROM domain>/api/visits/review?token=…`
    (7-day HMAC tokens from `VISITS_REVIEW_SECRET`; unset → the block
@@ -120,12 +131,17 @@ and nothing here writes to `data/` or to `positions`.
 - `worker/src/digest.ts`: `buildDigest(reports, members, goals, since, now)`
   (pure; counts member × goal × outcome, CSV header
   `bioguide_id,member,goal_slug,outcome,note,created_at,device_hash`),
-  `digestTable`, `digestProse`, `buildMime` (multipart/mixed, UTF-8 text +
-  base64 CSV), `runDigest(deps, env)` with injected `repo`, `fetch`, `now`
-  and `send`. `worker/src/index.ts` exports `scheduled` and the default
+  `buildSpend(windowSums, spentMonth, budget, cap, actions)` and
+  `spendTable` (pure; `BUDGET_ALERT_SHARE` 0.8), `digestTable`,
+  `digestProse` (its digit check also admits the spend block's figures),
+  `buildMime` (multipart/mixed, UTF-8 text + base64 CSV), `runDigest(deps,
+  env)` with injected `repo`, `fetch`, `now` and `send`; its result
+  carries `alert: 'budget80' | null`. The budget and ceiling come from
+  `LLM_MONTHLY_BUDGET_USD` and `MAX_GENERATIONS_PER_DAY`. `worker/src/index.ts` exports `scheduled` and the default
   `{ fetch, scheduled }`.
 - Repo methods: `reportsSince(since)` (non-hidden, `created_at > since`),
-  `screeningsSince(since)`, `activeBlocks(now)` (`until > now`),
+  `screeningsSince(since)`, `tokensSince(iso)` (generation-cost §1; shared
+  with the daily cap), `activeBlocks(now)` (`until > now`),
   `lastDigestRun()`, `recordDigestRun(at, count)`; D1 table
   `digest_runs(ran_at TEXT PRIMARY KEY, report_count INTEGER)`. The run
   is recorded after a successful send, so a failed send is retried next
@@ -148,10 +164,14 @@ and nothing here writes to `data/` or to `positions`.
       for | uncommitted | against yields no row.
 - [ ] `loadRows` throws `has no source` for a positions row lacking
       `source_url` or `source_date`.
-- [ ] Every count in the digest comes from `buildDigest`; the model sees
-      only the counts table (no notes, no device hashes) and any number it
-      adds that is not in the counts discards its prose.
-- [ ] No new reports → no email and no model call.
+- [ ] Every count in the digest comes from `buildDigest` and every dollar
+      figure and cap from `buildSpend` over `cost.ts`; the model sees
+      only the rendered table (no notes, no device hashes) and any number
+      it adds that is not in the table discards its prose.
+- [ ] No new reports → no email and no model call, except the one
+      table-only mail the month the spend crosses 80% of the budget; the
+      next run with nothing new sends nothing
+      (`worker/test/digest.test.ts`).
 - [ ] The digest never reads or writes `positions`; `/api/report` never
       changes a position.
 - [ ] Tests run with no network: the page and the Anthropic endpoint are
