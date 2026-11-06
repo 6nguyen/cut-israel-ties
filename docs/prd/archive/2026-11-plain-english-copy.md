@@ -1,5 +1,5 @@
 # Plain-English copy — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-06
+Status: SHIPPED 2026-11-06 (PR #46) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 The site is for people who want to act and are new to how Congress works.
@@ -124,20 +124,19 @@ No flag. Ships on the next deploy. Signal: receipts per goal on the
 leadership goals versus the week before (district counters), read by the
 maintainer, not shown.
 
-## State (updated 2026-11-06, PR pending)
+## State (updated 2026-11-06, PR #46)
 - Sections:
-  - [~] 1. Goals and actions in plain English · feat/plain-english-copy
-  - [~] 2. Site labels in plain English · feat/plain-english-copy
-- Completed: data, web, specs rewritten on the branch.
+  - [x] 1. Goals and actions in plain English · PR #46 merged
+  - [x] 2. Site labels in plain English · PR #46 merged
+- Completed: §1–2, data, web and specs rewritten and merged (PR #46).
 - Folded: §Spec delta applied to goal-pages, action-router, district-counters, electoral-record.
-- Branch / open PRs: feat/plain-english-copy.
+- Branch / open PRs: none.
 - Files changed (file:line map): data/goals/*.yaml, data/actions/*.yaml (ask_text; house-caucus prompt + doc_format), data/script_blocks/leadership.yaml (askh1–4, askhs1–3, cx1/cx3/cx7), web/src/lib/goals.ts:42, web/src/components/Target.tsx:7, Results.tsx:28,66, PrepAction.tsx:53, GoalTargets.tsx:41, web/src/pages/index.astro, goals/index.astro, goals/[slug].astro, goals/[slug]/prep.astro, layouts/Base.astro:4, pages/card.png.ts:7, worker/test/goals.test.ts:90.
-- Tests run + result: worker vitest 45 passed.
-- Remaining: CI green, merge.
+- Tests run + result: worker vitest 45 passed; CI green on PR #46.
+- Remaining: none.
 - Decisions since last update: titles name the incumbent; precise terms stay in the words said to staff; "trending" is reported press, not measured platform data (see Open questions).
 - Known failures / blockers: none.
-- Next action: open the PR; on merge, archive (Lifecycle 4).
-
+- Next action: none (shipped, archived).
 ## Open questions
 1. Social-trend evidence is press reporting, not platform data: no public
    hashtag or view counts for "Jeffries"/"Schumer" were obtainable
@@ -152,3 +151,4 @@ maintainer, not shown.
 
 ## Changes
 - 2026-11-06 — created and built on feat/plain-english-copy in one PR; both open questions resolved by their proposals.
+- 2026-11-06 — PR #46 merged with both sections; SHIPPED and archived.
