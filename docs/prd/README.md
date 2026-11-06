@@ -52,7 +52,6 @@ A PRD with no `Needs` entry can run in parallel with the row above it.
 | 7 | [roster-freshness.md](roster-freshness.md) | APPROVED | — | `data/district_offices.csv`, contact-form fallbacks, weekly roster PR workflow, `not_returning` / `left_office`; member pages and targets |
 | 8 | [district-vintage-rollover.md](district-vintage-rollover.md) | APPROVED | 7 (§3 only) | Worker vintage pin and Missouri override, cd120 geometry build, dated flip on 2027-01-03; geocoder and on-device lookup |
 | 9 | [call-follow-through.md](call-follow-through.md) | APPROVED | 7 (hours; ships with DC default without it) | voicemail retry, office hours on call buttons and reminder default, next-office chain, "one of N" echo on the receipt, decision-date webcal feed; receipt screen and act page |
-| 10 | [leader-call-scripts.md](leader-call-scripts.md) | BUILDING | — | `data/script_blocks/leadership.yaml`, `compose.ts`, composed standard script and `<starting_script>` for the leadership goals, "Another version" on the act page |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row

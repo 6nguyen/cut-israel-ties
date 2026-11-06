@@ -1,5 +1,5 @@
 # Leader call scripts — composable blocks for the leadership goals — PRD
-Status: BUILDING · Owner: George Nguyen · Last updated: 2026-11-06
+Status: SHIPPED 2026-11-06 (PR #34) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 The two leadership goals (`house-caucus`, `senate-leader`) carry one
@@ -157,12 +157,12 @@ composed scripts versus the 2026-11-05 single template, and the share of
   - [x] 4. Seed check
 - Completed: see Changes.
 - Folded: none.
-- Branch / open PRs: `feat/leader-call-scripts`.
-- Remaining: PR review and merge; the fifth reel if it becomes reachable.
+- Branch / open PRs: none (PR #34).
+- Remaining: none (the fifth reel stays untranscribed; the other four cover its points).
 - Decisions since last update: none.
 - Known failures / blockers: the fifth reel is login-walled and was not
   transcribed; the other four cover the same points.
-- Next action: merge.
+- Next action: none; archived.
 
 ## Open questions
 1. Should the self ask also cover the deputy leaders' constituents?
@@ -174,3 +174,5 @@ composed scripts versus the 2026-11-05 single template, and the share of
 ## Changes
 - 2026-11-06 — created; no blocking questions, APPROVED 2026-11-06 (auto);
   built in the same PR.
+- 2026-11-06 — SHIPPED (PR #34): all four sections merged in one PR; spec
+  delta folded into `docs/specs/personalised-documents.md`; archived.

@@ -1,5 +1,5 @@
 # Leader call scripts: what the viral "call Jeffries and Schumer" reels tell callers
-Researched: 2026-11-06 · Informs: [leader-call-scripts](../prd/leader-call-scripts.md)
+Researched: 2026-11-06 · Informs: [leader-call-scripts](../prd/archive/2026-11-leader-call-scripts.md)
 
 ## Question
 Five Instagram reels posted after the 2026-11-03 midterms tell viewers to
