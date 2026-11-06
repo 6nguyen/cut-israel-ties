@@ -1,4 +1,4 @@
-// §7.2 nightly maintainer digest. Counts are computed here, by code; the model only writes prose
+// §7.2 weekly maintainer digest. Counts are computed here, by code; the model only writes prose
 // from those counts, and any number it adds that is not in the counts throws the prose away.
 // Nothing in this file reads or writes `positions` (a report never changes a position).
 import { SCREEN_MODEL, callMessage } from './anthropic';
@@ -8,7 +8,7 @@ import { reviewSection } from './visits';
 import type { Action, BlockRow, Env, Goal, Member, Repo, ReportOutcome, ReportRow, ScreeningRow, TokenSum } from './types';
 
 export const DIGEST_MODEL = SCREEN_MODEL; // claude-haiku-5-5
-const DAY = 86_400_000;
+const WEEK = 7 * 86_400_000;
 
 export interface DigestCount { bioguide_id: string; member: string; goal_slug: string; goal_title: string; outcome: ReportOutcome; n: number }
 export interface Digest {
@@ -139,7 +139,7 @@ export function allowedDigits(d: Digest, abuse: AbuseSummary, spend?: Spend): Se
   return s;
 }
 
-const PROSE_SYSTEM = `You write the one-paragraph summary at the top of a nightly maintainer digest for a civic-action site.
+const PROSE_SYSTEM = `You write the one-paragraph summary at the top of a weekly maintainer digest for a civic-action site.
 The digest lists how constituents say congressional offices answered an ask, grouped by member, goal and outcome.
 Write 3–6 plain sentences for the maintainer: what moved, which members drew the most reports, anything worth a follow-up.
 Use only the numbers in the table you are given; never compute, estimate or introduce another number. No headings, no lists, no markdown.`;
@@ -225,7 +225,7 @@ export type DigestResult = { sent: false; reason: 'no_recipient' | 'no_reports';
 export async function runDigest(deps: DigestDeps, env: Env): Promise<DigestResult> {
   const now = deps.now();
   const log = deps.log ?? ((l: string) => console.log(l));
-  const since = (await deps.repo.lastDigestRun()) ?? new Date(now.getTime() - DAY);
+  const since = (await deps.repo.lastDigestRun()) ?? new Date(now.getTime() - WEEK);
   const to = env.MAINTAINER_EMAIL?.trim();
   if (!to) { log('digest: MAINTAINER_EMAIL unset, skipped'); return { sent: false, reason: 'no_recipient', since: since.toISOString() }; }
   const reports = await deps.repo.reportsSince(since);

@@ -335,7 +335,7 @@ export function createApp(deps: Deps) {
 
 const app = createApp({ repo: (env) => new D1Repo(env.DB), fetch: (...a) => fetch(...a), now: () => new Date() });
 
-/** §7.2 cron (`0 9 * * *` in wrangler.jsonc): the nightly maintainer digest. */
+/** §7.2 cron (`0 9 * * 1` in wrangler.jsonc): the weekly maintainer digest. */
 export const scheduled: ExportedHandlerScheduledHandler<Env> = async (_controller, env) => {
   await runDigest({ repo: new D1Repo(env.DB), fetch: (...a) => fetch(...a), now: () => new Date(), send: sendWithEmailRouting }, env);
 };
