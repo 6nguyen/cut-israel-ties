@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { districtLabel } from '../lib/api';
 import type { Place } from '../lib/store';
-import { CHANNELS, NAME_MAX, addCommitment, atDue, copyLine, defaultDue, fmtDue, maxDue, saveCaptain, validName, ymd, type Channel, type Person } from '../lib/commitments';
+import { CHANNELS, NAME_MAX, addCommitment, atDue, copyLine, defaultDue, fmtDue, maxDue, retryDue, retryFor, saveCaptain, validName, ymd, type Channel, type Person } from '../lib/commitments';
 import { buildIcs, downloadIcs } from '../lib/ics';
 
 interface Props {
@@ -19,6 +19,34 @@ interface Props {
 }
 
 const BLANK = (): Person => ({ name: '', channel: 'text', done: false });
+
+/** The commitment reminder: one 15-minute event at the due time, the goal deep link, no name. */
+function reminderIcs(goal: string, title: string, due: string, url: string, retry = false): string {
+  return buildIcs({ uid: `${goal}-${retry ? 'retry-' : ''}${Date.parse(due)}@cut-the-ties`, start: new Date(due), title: `${retry ? 'Try again' : 'Call about'}: ${title}`, url, description: `Your words are ready at ${url}` });
+}
+
+interface RetryProps { goal: string; action: string; target: string; who: string; title: string }
+/** call-follow-through §1: under `no_answer`, the voicemail line and one "Try again" that stores a `retry` commitment due at the DC office's next open slot (≥60 min ahead). Nothing posts. */
+export function Retry({ goal, action, target, who, title }: RetryProps) {
+  const [due, setDue] = useState<string | null>(() => retryFor(goal, target)?.due ?? null);
+  const url = `${location.origin}/goals/${goal}/act/${action}?target=${target}`;
+  function tryAgain() {
+    const iso = retryDue(new Date()).toISOString();
+    addCommitment({ goal, action, target, due: iso, kind: 'retry', who });
+    setDue(iso);
+  }
+  return (
+    <div class="flex flex-col gap-2" data-retry>
+      <p class="text-sm">Voicemail counts. Offices tally messages daily; say your street address so yours is logged.</p>
+      {due ? (
+        <div class="flex flex-wrap gap-2 items-center">
+          <p class="text-sm font-semibold" data-retry-due>Try {who} again by {fmtDue(due)}. It's on your week.</p>
+          <button type="button" class="btn btn-ghost" onClick={() => downloadIcs(`retry-${goal}`, reminderIcs(goal, title, due, url, true))}>Add reminder (.ics)</button>
+        </div>
+      ) : <button type="button" class="btn btn-ghost self-start" onClick={tryAgain}>Try again</button>}
+    </div>
+  );
+}
 
 /** commitment-funnel §1: one private commitment, then the captain list of three, before any share affordance. */
 export default function Funnel({ goal, action, target, who, title, type, decision, place, onFinished }: Props) {
@@ -49,9 +77,7 @@ export default function Funnel({ goal, action, target, who, title, type, decisio
     setSaved(true);
     finish();
   }
-  function reminder() {
-    downloadIcs(`call-${goal}`, buildIcs({ uid: `${goal}-${Date.parse(due)}@cut-the-ties`, start: new Date(due), title: `Call about: ${title}`, url, description: `Your words are ready at ${url}` }));
-  }
+  function reminder() { downloadIcs(`call-${goal}`, reminderIcs(goal, title, due, url)); }
   async function copy() { await navigator.clipboard?.writeText(copyLine(title, due, url)); setCopied(true); }
 
   if (step === 'commit') return (

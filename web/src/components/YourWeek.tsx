@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { districtLabel } from '../lib/api';
 import { clearPlace, deviceId, loadPlace, type Place } from '../lib/store';
-import { atDue, clearFunnel, fmtDay, fmtDue, isOverdue, loadCaptain, loadCommitments, loadVisits, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment, type JoinedVisit } from '../lib/commitments';
+import { atDue, clearFunnel, fmtDay, fmtDue, isOverdue, keyOf, kindOf, loadCaptain, loadCommitments, loadVisits, receiptLine, saveCaptain, saveCommitments, ymd, type Captain, type Commitment, type JoinedVisit } from '../lib/commitments';
 import { fmtWhen, withdrawVisit } from '../lib/visits';
 
 /** The build-time slice of every published goal the card needs (index.astro passes it). */
@@ -63,7 +63,7 @@ export default function YourWeek({ goals }: Props) {
   // office-visits: a joined visit shows even without a stored address (one can be joined from a member page).
   if (!place && visits.length === 0) return null;
   const where = place ? districtLabel(place.state, place.district) : '';
-  const open = items.filter((c) => !hidden.includes(c.goal));
+  const open = items.filter((c) => !hidden.includes(keyOf(c)));
   if (open.length === 0 && !captain && dropped.length === 0 && visits.length === 0) return null;
 
   function update(list: Commitment[]) { saveCommitments(list); setItems(list); }
@@ -117,18 +117,22 @@ export default function YourWeek({ goals }: Props) {
       {open.map((c) => {
         const g = goalOf(c.goal);
         const late = isOverdue(c.due);
-        const key = `c:${c.goal}`;
+        const key = keyOf(c);
+        const retry = kindOf(c) === 'retry';
+        const drop = () => update(items.filter((x) => keyOf(x) !== key));
         return (
-          <div class="border-t-2 border-ink pt-3 flex flex-col gap-2" data-commitment>
-            <p class="font-semibold">{late ? 'Still on? ' : ''}You said you'd call about <a href={`/goals/${c.goal}/act/${c.action}`} class="underline">{g?.title ?? c.goal}</a> by {fmtDue(c.due)}.</p>
+          <div class="border-t-2 border-ink pt-3 flex flex-col gap-2" data-commitment data-kind={kindOf(c)}>
+            <p class="font-semibold">{late ? 'Still on? ' : ''}{retry
+              ? <>Try {c.who ?? 'the office'} again about <a href={`/goals/${c.goal}/act/${c.action}?target=${c.target}`} class="underline">{g?.title ?? c.goal}</a> by {fmtDue(c.due)}.</>
+              : <>You said you'd call about <a href={`/goals/${c.goal}/act/${c.action}`} class="underline">{g?.title ?? c.goal}</a> by {fmtDue(c.due)}.</>}</p>
             <div class="flex flex-wrap gap-2 items-center">
-              <button type="button" class="btn btn-primary" onClick={() => update(items.filter((x) => x.goal !== c.goal))}>Done</button>
+              <button type="button" class="btn btn-primary" onClick={drop}>Done</button>
               {late ? (
                 <>
-                  {editing === key ? dateInput(key, (iso) => update(items.map((x) => (x.goal === c.goal ? { ...x, due: iso } : x)))) : <button type="button" class="btn btn-ghost" onClick={() => { setDate(ymd(new Date())); setEditing(key); }}>New date</button>}
-                  <button type="button" class="btn btn-ghost" onClick={() => update(items.filter((x) => x.goal !== c.goal))}>Drop</button>
+                  {editing === key ? dateInput(key, (iso) => update(items.map((x) => (keyOf(x) === key ? { ...x, due: iso } : x)))) : <button type="button" class="btn btn-ghost" onClick={() => { setDate(ymd(new Date())); setEditing(key); }}>New date</button>}
+                  <button type="button" class="btn btn-ghost" onClick={drop}>Drop</button>
                 </>
-              ) : <button type="button" class="btn btn-ghost" onClick={() => setHidden([...hidden, c.goal])}>Not yet</button>}
+              ) : <button type="button" class="btn btn-ghost" onClick={() => setHidden([...hidden, key])}>Not yet</button>}
             </div>
           </div>
         );

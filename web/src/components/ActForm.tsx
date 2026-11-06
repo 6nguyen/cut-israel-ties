@@ -3,7 +3,7 @@ import type { DocFormat, FormField, GenerateDone } from '@worker/generate';
 import type { TargetCard } from '../lib/api';
 import { deviceId, loadPlace } from '../lib/store';
 import { commitmentFor, fmtDue } from '../lib/commitments';
-import Funnel from './Funnel';
+import Funnel, { Retry } from './Funnel';
 import OpenChip from './OpenChip';
 import { isOpen } from '../lib/hours';
 
@@ -274,6 +274,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
                     <button type="submit" class="btn btn-ghost self-start" disabled={!outcome}>Send</button>
                   </form>
                 ) : <p class="text-sm">Thanks. Reports go to the maintainer; they never change a listed position on their own.</p>}
+                {outcome === 'no_answer' && <Retry goal={goal} action={action} target={target} who={`${phase.doc.target.role} ${phase.doc.target.name}`} title={title ?? goal} />}
                 <div class="border-t-2 border-ink pt-3">
                   <label class="label-code block mb-1" for="reflection">One line for yourself: how did it feel? (stays on this page)</label>
                   <input id="reflection" type="text" class="input-field w-full text-sm" />

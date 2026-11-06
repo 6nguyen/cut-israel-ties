@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CAPTAIN_KEY, COMMIT_KEY, addCommitment, ceilingFor, clearFunnel, defaultDue, hasOpenItems, loadCaptain, loadCommitments, maxDue, receiptLine, saveCaptain, validName } from './commitments';
+import { CAPTAIN_KEY, COMMIT_KEY, addCommitment, ceilingFor, clearFunnel, commitmentFor, defaultDue, hasOpenItems, loadCaptain, loadCommitments, maxDue, receiptLine, retryDue, retryFor, saveCaptain, validName } from './commitments';
 
 const people = (names: string[]) => names.map((name) => ({ name, channel: 'text' as const, done: false }));
 
@@ -55,6 +55,22 @@ describe('local schema and open items (§1.2, §2.1)', () => {
     clearFunnel();
     expect(localStorage.getItem(COMMIT_KEY)).toBeNull();
     expect(hasOpenItems()).toBe(false);
+  });
+  it('a retry is one per goal and target, sits beside the call commitment and is due at an open slot ≥60 min ahead (call-follow-through §1)', () => {
+    addCommitment({ goal: 'g', action: 'g-call', target: 'X1', due: '2026-11-05T15:00:00.000Z' });
+    addCommitment({ goal: 'g', action: 'g-call', target: 'X1', due: '2026-11-05T16:00:00.000Z', kind: 'retry', who: 'Sen. One' });
+    addCommitment({ goal: 'g', action: 'g-call', target: 'X1', due: '2026-11-05T17:00:00.000Z', kind: 'retry', who: 'Sen. One' });
+    addCommitment({ goal: 'g', action: 'g-call', target: 'X2', due: '2026-11-05T17:00:00.000Z', kind: 'retry', who: 'Sen. Two' });
+    expect(loadCommitments().map((c) => [c.kind ?? 'call', c.target, c.due])).toEqual([['call', 'X1', '2026-11-05T15:00:00.000Z'], ['retry', 'X1', '2026-11-05T17:00:00.000Z'], ['retry', 'X2', '2026-11-05T17:00:00.000Z']]);
+    expect(commitmentFor('g')?.due).toBe('2026-11-05T15:00:00.000Z');
+    expect(retryFor('g', 'X1')?.who).toBe('Sen. One');
+    expect(retryFor('g', 'X3')).toBeNull();
+    addCommitment({ goal: 'g', action: 'g-call', target: 'X1', due: '2026-11-06T15:00:00.000Z' }); // a new call commitment keeps the retries
+    expect(loadCommitments()).toHaveLength(3);
+    // Mon 2026-11-02 16:30 EST → 17:30 EST, still open; Mon 17:30 EST → next slot Tue 09:00 EST; Hawaii 10:00 HST (15:00 EST) → 16:00 EST.
+    expect(retryDue(new Date('2026-11-02T21:30:00Z')).toISOString()).toBe('2026-11-02T22:30:00.000Z');
+    expect(retryDue(new Date('2026-11-02T22:30:00Z')).toISOString()).toBe('2026-11-03T14:00:00.000Z');
+    expect(retryDue(new Date('2026-11-02T20:00:00Z')).toISOString()).toBe('2026-11-02T21:00:00.000Z');
   });
   it('a receipted list is no longer open', () => {
     saveCaptain({ v: 1, goal: 'g', due: '2026-11-05T17:00:00.000Z', people: people(['Ana', 'Ben', 'Cy']) });

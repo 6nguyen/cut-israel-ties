@@ -169,17 +169,17 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
 ## State (updated 2026-11-05)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
   - [~] 2. Office hours
-  - [ ] 1. Voicemail and busy follow-up
+  - [~] 1. Voicemail and busy follow-up
   - [ ] 3. Next-office chain
   - [ ] 4. "One of N" echo
   - [ ] 5. Decision-date feed
-- Completed: §2 (built on the branch, awaiting the integration PR): hours library, 10:00 default, open/closed chips on the act and member pages.
+- Completed: §2 and §1 (built on the branch, awaiting the integration PR): hours library, 10:00 default, open/closed chips on the act and member pages; voicemail line, one retry per goal and target, retry items on Your week.
 - Folded: none.
 - Branch / open PRs: `feat/call-follow-through` (no PR; the orchestrator integrates).
-- Remaining: §1, §3, §4, §5 on the same branch.
+- Remaining: §3, §4, §5 on the same branch.
 - Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: district-office hours come from the roster PRD; §2 ships with the DC default alone if that PRD is not merged.
-- Next action: §1 voicemail retry.
+- Next action: §3 next-office chain.
 
 ## Open questions
 - Should the retry default to the district office when the DC mailbox was
@@ -193,3 +193,4 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
 - 2026-11-05 (§2): every funnel time anchor (default, decision-date cap, 7-day cap, "New date" input) moves to one constant `DUE_HOUR = 10`; a 17:00 cap would have put a Pacific caller's decision-day reminder after DC closed. Stored commitments are untouched.
 - 2026-11-05 (§2): `hours.ts` ships with the DC default and a unit-tested parser (`Mon-Fri 9-5`, `9:00 AM - 5:00 PM`, day ranges, `;`/`,` segments, "closed" segments); `district_offices.csv` and its `hours` column come from the roster PRD. `hoursWarnings.unparseable` / `countUnparseable()` are the build-warning hooks for that build; nothing reads them yet.
 - 2026-11-05 (§2): the act page reorders the two Worker-listed numbers (DC, district) when DC is closed; the member page is static HTML, so its chips hydrate but the DC-first order stays. Results-card "Call" buttons (`Target.tsx`) get no chip: the PRD names the act and member pages.
+- 2026-11-05 (§1): the retry row stores `who` ("Rep. Correa") so "Your week" names the office without a roster lookup; the item links to the act page with `?target=`, where both numbers show DC first (the Proposal: no automatic switch). The retry is due at the DC office's next open slot ≥60 min ahead; the "Try again" button is rendered outside the report form so it survives "Send".

@@ -66,10 +66,26 @@ who was on it. The receipt itself and the share sheet are in
    next?" and the goal deep link. When the browser can share files, a
    1200×630 PNG drawn on the device from the goal-card template is
    attached; it carries the goal title, the district and the date only.
+9. **Voicemail retry** (`call-follow-through` §1). Choosing `no_answer`
+   in the office-response picker shows "Voicemail counts. Offices tally
+   messages daily; say your street address so yours is logged." and one
+   "Try again" button. The tap stores a commitment of kind `retry` for
+   the same goal and target, due at the DC office's next open slot at
+   least 60 minutes ahead (`retryDue`, `hours.ts`), replaces the button
+   with "Try <Role Name> again by <due>" and offers "Add reminder (.ics)"
+   (a "Try again: <title>" event). One open retry per goal and target:
+   a remount finds it and offers no second one. On "Your week" the item
+   reads "Try <office> again about <title> by <due>", links to the act
+   page with `?target=<id>` (both numbers, DC first), and has the same
+   Done / Not yet / Still on? controls as a call. A retry never posts
+   anything; nothing counts until a new receipt.
 
 ## Data & contracts
 - `localStorage` `cut-ties:commitments` = `[{v: 1, goal, action, target,
-  due}]` (one per goal; `due` ISO); `cut-ties:captain` = `{v: 1, goal,
+  due, kind?, who?}]` (`due` ISO; `kind` `call` (default) or `retry`;
+  `who` the "Role Name" a retry shows). Key = `call:<goal>` or
+  `retry:<goal>:<target>`: one call per goal, one retry per goal and
+  target (`keyOf`); `cut-ties:captain` = `{v: 1, goal,
   due, people: [{name, channel: text|in_person|call, done}] ×3, who?,
   receipted?}` where `who` is the target official's surname for the
   share line and `receipted` marks a list whose receipt posted. Records
@@ -109,6 +125,9 @@ who was on it. The receipt itself and the share sheet are in
       (`web/src/components/funnel.test.ts`).
 - [ ] A captain field with a digit or `@` is refused and nothing is
       stored; the whole flow makes no request carrying a name.
+- [ ] `no_answer` → "Try again" stores exactly one `retry` due ≥60 min
+      ahead inside DC hours, a remount offers no second one, and no
+      request is made (`funnel.test.ts`, `commitments.test.ts`).
 - [ ] Two ticks post nothing; the third posts exactly one receipt with
       `action: captain-list`, no `target`, no names; the Worker stores
       `kind 'captain-list'` with null ids (`worker/test/generate.test.ts`).

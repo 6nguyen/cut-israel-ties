@@ -58,8 +58,9 @@ stores identifies them. Address routing, goals and ranking are in
    once both are answered or skipped: "Share" (device share sheet with
    the goal deep link, clipboard fallback), the office-response picker
    (`will_support · undecided · opposed · no_answer · other` + note
-   ≤140) → `POST /api/report`, a reflection line that never leaves the
-   page, and a link to `/donate`. Share is offered after a receipt or a
+   ≤140) → `POST /api/report` (`no_answer` also shows the voicemail line
+   and "Try again", `commitment-funnel.md` §9), a reflection line that
+   never leaves the page, and a link to `/donate`. Share is offered after a receipt or a
    completed captain list, never before. Reports never change a
    position row.
 

@@ -5,10 +5,15 @@ export const COMMIT_KEY = 'cut-ties:commitments';
 export const CAPTAIN_KEY = 'cut-ties:captain';
 /** office-visits §2.3: the visits this device said it would come to (and the organiser's contact, received once). */
 export const VISITS_KEY = 'cut-ties:visits';
+import { nextOpenSlot, type Office } from './hours';
 
 export type Channel = 'text' | 'in_person' | 'call';
 export const CHANNELS: [Channel, string][] = [['text', 'text'], ['in_person', 'in person'], ['call', 'call']];
-export interface Commitment { v: 1; goal: string; action: string; target: string; due: string }
+/** `kind` (call-follow-through §1): `call` is the private commitment, `retry` a second attempt after `no_answer`; readers default a missing kind to `call`. `who` is the office's public "Sen. Name" for the retry line. */
+export interface Commitment { v: 1; goal: string; action: string; target: string; due: string; kind?: 'call' | 'retry'; who?: string }
+export const kindOf = (c: Commitment): 'call' | 'retry' => c.kind ?? 'call';
+/** One list key per item: the call commitment is one per goal, a retry one per goal and target. */
+export const keyOf = (c: Commitment): string => (kindOf(c) === 'retry' ? `retry:${c.goal}:${c.target}` : `call:${c.goal}`);
 export interface Person { name: string; channel: Channel; done: boolean }
 /** `who` is the official's surname for the receipt line ("…calling Casar…"); `receipted` is set once the list posted its receipt. */
 export interface Captain { v: 1; goal: string; due: string; people: Person[]; who?: string; receipted?: boolean }
@@ -22,9 +27,12 @@ export function loadCommitments(): Commitment[] {
   return Array.isArray(list) ? list.filter((c) => c && c.v === 1 && typeof c.goal === 'string' && typeof c.due === 'string') : [];
 }
 export function saveCommitments(list: Commitment[]): void { write(COMMIT_KEY, list.length ? list : null); }
-/** One open commitment per goal: a new one replaces the old. */
-export function addCommitment(c: Omit<Commitment, 'v'>): void { saveCommitments([...loadCommitments().filter((x) => x.goal !== c.goal), { v: 1, ...c }]); }
-export function commitmentFor(goal: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal) ?? null; }
+/** One open commitment per goal (and one open retry per goal and target): a new one replaces the old. */
+export function addCommitment(c: Omit<Commitment, 'v'>): void { const n: Commitment = { v: 1, ...c }; saveCommitments([...loadCommitments().filter((x) => keyOf(x) !== keyOf(n)), n]); }
+export function commitmentFor(goal: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal && kindOf(c) === 'call') ?? null; }
+export function retryFor(goal: string, target: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal && c.target === target && kindOf(c) === 'retry') ?? null; }
+/** §1: the retry is due at the office's next open slot, at least 60 minutes from now. */
+export function retryDue(now: Date, office?: Office | null): Date { return nextOpenSlot(new Date(now.getTime() + 60 * 60_000), office); }
 
 export function loadCaptain(): Captain | null {
   const c = read<Captain>(CAPTAIN_KEY);
