@@ -16,7 +16,8 @@ Rules:
 ## Index (the feature set)
 | Spec | Capability | Owner surfaces |
 |---|---|---|
-| [action-router.md](action-router.md) | Address → delegation → ranked goals, goal pages, prep, donate/about | `web/src/pages/`, `worker/src/route.ts`, `worker/src/ranking.ts`, `worker/src/prep.ts` |
+| [action-router.md](action-router.md) | Address → delegation → two ranked goal cards, return visit, targets per goal | `web/src/pages/index.astro`, `web/src/pages/results.astro`, `worker/src/route.ts`, `worker/src/ranking.ts` |
+| [goal-pages.md](goal-pages.md) | Goals overview, goal detail and prep pages, goal lifecycle, donate/about/privacy, state goal copy | `web/src/pages/goals/`, `web/src/pages/donate.astro`, `worker/src/prep.ts`, `worker/src/state-copy.ts` |
 | [personalised-documents.md](personalised-documents.md) | Act page → screened, generated document → receipt and report | `web/src/components/ActForm.tsx`, `worker/src/generate.ts`, `worker/src/anthropic.ts` |
 | [maintainer-tooling.md](maintainer-tooling.md) | Draft a sourced position row, nightly report digest by email, seed `data/` into D1 | `worker/scripts/draft-position.ts`, `worker/src/digest.ts`, `worker/scripts/seed.ts` |
 | [deployment.md](deployment.md) | Merge → Worker + D1 seed + Pages deploy, PR previews, rollback, variable table | `.github/workflows/deploy.yml`, `worker/scripts/render-deploy-config.ts`, `web/functions/api/[[path]].ts` |
