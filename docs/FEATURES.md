@@ -16,4 +16,4 @@
 | district-counters | SHIPPED | This week's receipt counts per district and state on cards… | [spec](specs/district-counters.md) | - | 2026-11-05 |
 | goal-pages | SHIPPED | Goals overview, goal detail and prep pages, goal lifecycle,… | [spec](specs/goal-pages.md) | - | 2026-11-05 |
 | office-visits | SHIPPED | List a district-office visit, maintainer approval from the… | [spec](specs/office-visits.md) | - | 2026-11-04 |
-| personalised-documents | SHIPPED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | - | 2026-11-05 |
+| personalised-documents | SHIPPED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | - | 2026-11-06 |
