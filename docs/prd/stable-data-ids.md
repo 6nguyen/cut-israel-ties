@@ -106,7 +106,7 @@ the point after which it cannot be fixed without a data migration.
   (all three built on `feat/stable-data-ids`, awaiting the integration PR)
 - Completed: §1–3 built and green on `feat/stable-data-ids` (tsc, test 205 passed / 18 new in `worker/test/ids.test.ts`, prd-lint, doc-lint); the Spec delta is applied; `deploy.md`'s known-bug line is dropped.
 - Folded: the Spec delta's four MODIFIED lines are applied in the specs; archive this PRD when the integration PR merges.
-- Branch / open PRs: `feat/stable-data-ids` (no PR of its own; the orchestrator integrates it).
+- Branch / open PRs: `feat/stable-data-ids` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
 - Remaining: flip §1–3 to `[x]`, archive to `docs/prd/archive/`, and run `scripts/features.sh .` when the integration PR merges. Must land before the first production seed (`deploy.md` §3).
 - Decisions since last update: see `## Changes` 2026-11-05 (registry module, retired-id reading, lenient live-row-without-file, script body moved under `src/`).
 - Known failures / blockers: none.

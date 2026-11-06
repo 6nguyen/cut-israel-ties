@@ -166,7 +166,7 @@ and the roster paragraphs of [data-ingestion](../research/data-ingestion.md).
 - Folded: spec delta applied in `docs/specs/member-pages.md`,
   `action-router.md` §7, `maintainer-tooling.md` §6, `deployment.md` §8
   (same branch; the final integration PR archives this file).
-- Branch / open PRs: `feat/roster-freshness` (no PR; the orchestrator integrates it).
+- Branch / open PRs: `feat/roster-freshness` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
 - Remaining: first scheduled run of `roster.yml`; hand-entered office rows for the 4 members with none (Gallagher, Wahab, Blair, Graham).
 - Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: Senate XML must be re-tested from a GitHub Actions runner (200 observed only from a residential IP; the workflow only warns when it fails). The member page is 4.7 KB gzip, over the 2.7 KB figure measured on 2026-11-04 before other features landed; budget is the landing page's, not this one's.

@@ -178,8 +178,7 @@ Relies on: `docs/research/generation-cost.md`.
   deployment.md and maintainer-tooling.md). `[x]` once the integration
   PR merges.
 - Folded: none.
-- Branch / open PRs: `feat/generation-cost` (the orchestrator
-  integrates; no PR from this branch).
+- Branch / open PRs: `feat/generation-cost` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
 - Remaining: merge via the orchestrator's integration PR; then the
   30-day measurements in Rollout & metrics.
 - Decisions since last update: see `## Changes` 2026-11-05.

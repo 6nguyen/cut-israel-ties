@@ -175,7 +175,7 @@ Relies on [action-conversion-levers](../research/action-conversion-levers.md),
   - [~] 5. Decision-date feed
 - Completed: §1–§5 built on the branch, awaiting the integration PR: hours library, 10:00 default, open/closed chips; voicemail retry; next-office chain over a local receipt log; first-person counts echo; `/feeds/decisions.ics` with subscribe lines on `/goals` and goal pages.
 - Folded: none.
-- Branch / open PRs: `feat/call-follow-through` (no PR; the orchestrator integrates).
+- Branch / open PRs: `feat/call-follow-through` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
 - Remaining: nothing on this branch; district-office hours arrive with the roster PRD's `district_offices.csv`.
 - Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: district-office hours come from the roster PRD; §2 ships with the DC default alone if that PRD is not merged.

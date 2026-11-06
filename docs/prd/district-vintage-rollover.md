@@ -131,7 +131,7 @@ and the TIGER paragraphs of [data-ingestion](../research/data-ingestion.md).
   - [!] 3. Dated flip
 - Completed: none merged. §1 and §2 built on `feat/district-vintage-rollover`; §3's switch (`ACTIVE_CONGRESS`, `SEATS_CONGRESS`, `DISTRICTS_DIR`) and the deploy-guide checklist (`docs/guides/deploy.md` §6) are in place with the constants at 119.
 - Folded: none.
-- Branch / open PRs: `feat/district-vintage-rollover` (integrated by the orchestrator's PR, no PR of its own).
+- Branch / open PRs: `feat/district-vintage-rollover` merged into `integ/next-steps`; integration PR #32 (https://github.com/6nguyen/cut-the-ties/pull/32) to `main`, the only PR for this feature.
 - Remaining: §3 on 2027-01-03: set the three constants to 120 / `Current_Current`, flip the two `pip.test.ts` assertions, run the checklist; half a day.
 - Decisions since last update: see `## Changes` 2026-11-05.
 - Known failures / blockers: §3 `[!]` blocked: 2027-01-03 (and roster-freshness §4 merged first). Georgia closed (see Changes). Fixture dates read 2026-11-06 because recording ran after 00:00 UTC.
