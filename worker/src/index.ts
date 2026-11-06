@@ -64,17 +64,18 @@ export function createApp(deps: Deps) {
     } catch {
       return c.json({ error: 'bad_json', message: 'Send a JSON body.' }, 400);
     }
-    const ok = await verifyTurnstile(
-      typeof body.turnstile === 'string' ? body.turnstile : undefined,
-      c.env.TURNSTILE_SECRET,
-      c.req.header('CF-Connecting-IP'),
-      deps.fetch,
-    );
-    if (!ok) return c.json({ error: 'turnstile', message: 'Bot check failed. Reload and try again.' }, 403);
-
     let state: string;
     let district: number;
     if (typeof body.address === 'string' && body.address.trim() !== '') {
+      // Turnstile guards the geocode (an upstream call per request). The {state, district} path below is the
+      // same D1 read as GET /api/goals/:slug/targets and runs without a widget (the results page's return visit).
+      const ok = await verifyTurnstile(
+        typeof body.turnstile === 'string' ? body.turnstile : undefined,
+        c.env.TURNSTILE_SECRET,
+        c.req.header('CF-Connecting-IP'),
+        deps.fetch,
+      );
+      if (!ok) return c.json({ error: 'turnstile', message: 'Bot check failed. Reload and try again.' }, 403);
       const kind = classifyAddress(body.address);
       if (kind === 'zip_only') {
         return c.json({ error: 'zip_only', message: 'A ZIP code is not enough: many cities are split between districts. Enter your street address.' }, 400);

@@ -126,8 +126,12 @@ documents, receipts and reports are in `personalised-documents.md`.
   Errors: 400 `bad_json | zip_only | incomplete | missing`, 403
   `turnstile`, 404 `unresolved | no_delegation`, 502 `upstream`; every
   error body is `{error, message}`.
-- Turnstile is verified when `TURNSTILE_SECRET` is set and skipped
-  otherwise (local dev). `GEOCODER_URL` overrides the Census base URL.
+- Turnstile is verified on the `{address}` body (it guards the geocode)
+  when `TURNSTILE_SECRET` is set and skipped otherwise (local dev). A
+  `{state, district}` body is never checked: it is the same read as
+  `GET /api/goals/:slug/targets`, and the results page sends it with no
+  widget on a return visit or reload (before 2026-11-06 that reload
+  showed "Bot check failed"). `GEOCODER_URL` overrides the Census base URL.
 - Ranking (`worker/src/ranking.ts`): eligibility rule JSON (`always`,
   `all`, `any`, `house{field: value}`, `senator{…}`, `state{nonempty:
   […]}`) evaluated against the delegation; score = priority × urgency

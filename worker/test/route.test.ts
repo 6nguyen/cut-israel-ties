@@ -174,14 +174,21 @@ describe('Turnstile', () => {
     expect((await post({ state: 'CA', district: 46 })).status).toBe(200);
     expect(calls.some((u) => u.includes('challenges.cloudflare.com'))).toBe(false);
   });
-  it('required and verified when the secret is set', async () => {
+  it('required and verified for an address when the secret is set', async () => {
     const env = { ...ENV, TURNSTILE_SECRET: 's' };
     const bad = app({ turnstileOk: false });
-    expect((await bad.post({ state: 'CA', district: 46, turnstile: 't' }, env)).status).toBe(403);
-    expect((await bad.post({ state: 'CA', district: 46 }, env)).status).toBe(403);
+    expect((await bad.post({ address: FIXTURES[0].address, turnstile: 't' }, env)).status).toBe(403);
+    expect((await bad.post({ address: FIXTURES[0].address }, env)).status).toBe(403);
     const good = app({ turnstileOk: true });
-    expect((await good.post({ state: 'CA', district: 46, turnstile: 't' }, env)).status).toBe(200);
+    expect((await good.post({ address: FIXTURES[0].address, turnstile: 't' }, env)).status).toBe(200);
     expect(good.calls.filter((u) => u.includes('challenges.cloudflare.com'))).toHaveLength(1);
+  });
+  it('not asked for {state, district}: the results page re-routes a return visit with no widget', async () => {
+    const env = { ...ENV, TURNSTILE_SECRET: 's' };
+    const { post, calls } = app({ turnstileOk: false });
+    expect((await post({ state: 'CA', district: 46 }, env)).status).toBe(200);
+    expect((await post({ state: 'CA', district: 46, turnstile: 'stale' }, env)).status).toBe(200);
+    expect(calls.some((u) => u.includes('challenges.cloudflare.com'))).toBe(false);
   });
 });
 
