@@ -70,7 +70,8 @@ receipts and reports are in `personalised-documents.md`.
    scheduled", CTA to `/goals/<slug>`. Below, an "Outcomes" strip lists
    every `completed` and `expired` goal with its `outcome_note` and
    decision date (empty state: "No goal has closed yet"). Two columns at
-   ≥768 px.
+   ≥768 px. The footer, and each goal page's aside, carry the
+   decision-date feed link (`decision-feed.md`).
 9. **Goal detail (`/goals/<slug>`).** Hero (category chip, status chip
    when closed, title, summary, decision date); "The situation"
    (`detail_md` rendered as markdown, else the summary); "What we want";
@@ -205,8 +206,7 @@ receipts and reports are in `personalised-documents.md`.
 - `by_location: true` on the route body marks a location-path route; the
   Worker ignores unknown fields, so it is a metric placeholder until one
   reads it. No new storage key: the location path saves only the resolved
-  `{state, district}`.
-## Invariants (regression checklist)
+  `{state, district}`.## Invariants (regression checklist)
 - [ ] The address is never logged, stored or echoed: the only outbound
       request carrying it is the geocoder call, and the response body
       does not contain it (`worker/test/route.test.ts`).

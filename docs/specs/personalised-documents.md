@@ -60,16 +60,22 @@ stores identifies them. Address routing, goals and ranking are in
    and the standard script with `reason: upstream`. One "Regenerate"
    button.
 4. **Receipt, share, report.** The output screen offers copy, download
-   `.txt`, `tel:` links for every phone on file, the contact-form link
+   `.txt`, `tel:` links for every phone on file (each with the open/closed
+   chip of `web/src/lib/hours.ts`; when the DC office is closed the
+   district number is listed first with "DC office closed; district
+   office answers in office hours."), the contact-form link
    for letters and comments, and "I did it" → `POST /api/receipt`
    (goal, action, target, stored state/district, device hash). After a
    receipt, first the commitment line and the captain list
    (`commitment-funnel.md` §1–4; each skippable in one tap), and only
-   once both are answered or skipped: "Share" (device share sheet with
-   the goal deep link, clipboard fallback), the office-response picker
+   once both are answered or skipped: the next-office buttons and the
+   "You're one of <N>" line (`commitment-funnel.md` §10), then "Share"
+   (device share sheet with the goal deep link, clipboard fallback), the
+   office-response picker
    (`will_support · undecided · opposed · no_answer · other` + note
-   ≤140) → `POST /api/report`, a reflection line that never leaves the
-   page, and a link to `/donate`. Share is offered after a receipt or a
+   ≤140) → `POST /api/report` (`no_answer` also shows the voicemail line
+   and "Try again", `commitment-funnel.md` §9), a reflection line that
+   never leaves the page, and a link to `/donate`. Share is offered after a receipt or a
    completed captain list, never before. Reports never change a
    position row.
 5. **Standard script.** When no model may run — the day's cap is

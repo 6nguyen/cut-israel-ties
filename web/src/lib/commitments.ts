@@ -5,10 +5,16 @@ export const COMMIT_KEY = 'cut-ties:commitments';
 export const CAPTAIN_KEY = 'cut-ties:captain';
 /** office-visits §2.3: the visits this device said it would come to (and the organiser's contact, received once). */
 export const VISITS_KEY = 'cut-ties:visits';
+import { nextOpenSlot, type Office } from './hours';
+import { buildIcs } from './ics';
 
 export type Channel = 'text' | 'in_person' | 'call';
 export const CHANNELS: [Channel, string][] = [['text', 'text'], ['in_person', 'in person'], ['call', 'call']];
-export interface Commitment { v: 1; goal: string; action: string; target: string; due: string }
+/** `kind` (call-follow-through §1): `call` is the private commitment, `retry` a second attempt after `no_answer`; readers default a missing kind to `call`. `who` is the office's public "Sen. Name" for the retry line. */
+export interface Commitment { v: 1; goal: string; action: string; target: string; due: string; kind?: 'call' | 'retry'; who?: string }
+export const kindOf = (c: Commitment): 'call' | 'retry' => c.kind ?? 'call';
+/** One list key per item: the call commitment is one per goal, a retry one per goal and target. */
+export const keyOf = (c: Commitment): string => (kindOf(c) === 'retry' ? `retry:${c.goal}:${c.target}` : `call:${c.goal}`);
 export interface Person { name: string; channel: Channel; done: boolean }
 /** `who` is the official's surname for the receipt line ("…calling Casar…"); `receipted` is set once the list posted its receipt. */
 export interface Captain { v: 1; goal: string; due: string; people: Person[]; who?: string; receipted?: boolean }
@@ -22,9 +28,12 @@ export function loadCommitments(): Commitment[] {
   return Array.isArray(list) ? list.filter((c) => c && c.v === 1 && typeof c.goal === 'string' && typeof c.due === 'string') : [];
 }
 export function saveCommitments(list: Commitment[]): void { write(COMMIT_KEY, list.length ? list : null); }
-/** One open commitment per goal: a new one replaces the old. */
-export function addCommitment(c: Omit<Commitment, 'v'>): void { saveCommitments([...loadCommitments().filter((x) => x.goal !== c.goal), { v: 1, ...c }]); }
-export function commitmentFor(goal: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal) ?? null; }
+/** One open commitment per goal (and one open retry per goal and target): a new one replaces the old. */
+export function addCommitment(c: Omit<Commitment, 'v'>): void { const n: Commitment = { v: 1, ...c }; saveCommitments([...loadCommitments().filter((x) => keyOf(x) !== keyOf(n)), n]); }
+export function commitmentFor(goal: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal && kindOf(c) === 'call') ?? null; }
+export function retryFor(goal: string, target: string): Commitment | null { return loadCommitments().find((c) => c.goal === goal && c.target === target && kindOf(c) === 'retry') ?? null; }
+/** §1: the retry is due at the office's next open slot, at least 60 minutes from now. */
+export function retryDue(now: Date, office?: Office | null): Date { return nextOpenSlot(new Date(now.getTime() + 60 * 60_000), office); }
 
 export function loadCaptain(): Captain | null {
   const c = read<Captain>(CAPTAIN_KEY);
@@ -32,7 +41,24 @@ export function loadCaptain(): Captain | null {
 }
 export function saveCaptain(c: Captain | null): void { write(CAPTAIN_KEY, c); }
 /** "Start over": every funnel item goes. */
-export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); write(VISITS_KEY, null); }
+export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); write(VISITS_KEY, null); write(RECEIPTS_KEY, null); }
+
+// call-follow-through §3: the device's own receipts for the next-office chain. Goal, action, target and
+// a time; pruned to 24 h on every read. Never sent: the Worker already has the receipt row.
+export const RECEIPTS_KEY = 'cut-ties:receipts';
+export interface LoggedReceipt { v: 1; goal: string; action: string; target: string; at: string }
+const DAY_MS = 24 * 60 * 60_000;
+export function recentReceipts(now: Date = new Date()): LoggedReceipt[] {
+  const list = read<LoggedReceipt[]>(RECEIPTS_KEY);
+  return Array.isArray(list) ? list.filter((r) => r?.v === 1 && typeof r.at === 'string' && now.getTime() - Date.parse(r.at) < DAY_MS) : [];
+}
+export function logReceipt(r: Omit<LoggedReceipt, 'v' | 'at'>, now: Date = new Date()): void {
+  write(RECEIPTS_KEY, [...recentReceipts(now).filter((x) => !(x.goal === r.goal && x.action === r.action && x.target === r.target)), { v: 1, ...r, at: now.toISOString() }]);
+}
+/** The targets of one action this device filed a receipt for in the last 24 h. */
+export function receiptedTargets(goal: string, action: string, now: Date = new Date()): Set<string> {
+  return new Set(recentReceipts(now).filter((r) => r.goal === goal && r.action === action).map((r) => r.target));
+}
 
 /** §2.1 return visit: anything still to do? A list that already posted its receipt is finished. */
 export function hasOpenItems(): boolean {
@@ -56,21 +82,25 @@ export function validName(s: unknown): s is string {
 }
 
 const DAY = 86_400_000;
-const at17 = (d: Date): Date => { const x = new Date(d); x.setHours(17, 0, 0, 0); return x; };
-/** Open question 1: the next weekday at 17:00 local, never past the goal's decision date (its 17:00) when one is set. */
+/** call-follow-through §2: every funnel time anchor is 10:00 local; 10:00 anywhere in the US (Hawaii included) falls inside DC hours. */
+export const DUE_HOUR = 10;
+const atHour = (d: Date): Date => { const x = new Date(d); x.setHours(DUE_HOUR, 0, 0, 0); return x; };
+/** A date input's value at the funnel hour, local time. */
+export const atDue = (ymdValue: string): Date => new Date(`${ymdValue}T${String(DUE_HOUR).padStart(2, '0')}:00:00`);
+/** The next weekday at 10:00 local, never past the goal's decision date (its 10:00) when one is set. */
 export function defaultDue(now: Date, decisionDate: string | null | undefined): Date {
-  let d = at17(new Date(now.getTime() + DAY));
-  while (d.getDay() === 0 || d.getDay() === 6) d = at17(new Date(d.getTime() + DAY));
+  let d = atHour(new Date(now.getTime() + DAY));
+  while (d.getDay() === 0 || d.getDay() === 6) d = atHour(new Date(d.getTime() + DAY));
   const ceiling = ceilingFor(decisionDate);
   return ceiling && ceiling < d ? ceiling : d;
 }
 export function ceilingFor(decisionDate: string | null | undefined): Date | null {
   if (!decisionDate || !/^\d{4}-\d{2}-\d{2}$/.test(decisionDate)) return null;
-  return at17(new Date(decisionDate + 'T12:00:00'));
+  return atHour(new Date(decisionDate + 'T12:00:00'));
 }
 /** The latest date the user may pick: ≤7 days out and never past the decision date (a call again before the vote may use the whole window). */
 export function maxDue(now: Date, decisionDate: string | null | undefined, wholeWindow: boolean): Date {
-  const week = at17(new Date(now.getTime() + 7 * DAY));
+  const week = atHour(new Date(now.getTime() + 7 * DAY));
   const ceiling = ceilingFor(decisionDate);
   if (wholeWindow && ceiling) return ceiling;
   return ceiling && ceiling < week ? ceiling : week;
@@ -94,4 +124,9 @@ export function receiptLine(district: string, who: string | undefined, due: stri
 /** §1.4 "Copy a message": the goal deep link with one line naming the goal and the date, for the user's own groups. */
 export function copyLine(title: string, due: string, url: string): string {
   return `Will you call about "${title}" by ${fmtDay(due)}? Two minutes, the words are ready: ${url}`;
+}
+
+/** The commitment reminder: one 15-minute event at the due time, the goal deep link, no name. */
+export function reminderIcs(goal: string, title: string, due: string, url: string, retry = false): string {
+  return buildIcs({ uid: `${goal}-${retry ? 'retry-' : ''}${Date.parse(due)}@cut-the-ties`, start: new Date(due), title: `${retry ? 'Try again' : 'Call about'}: ${title}`, url, description: `Your words are ready at ${url}` });
 }

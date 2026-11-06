@@ -13,8 +13,9 @@ who was on it. The receipt itself and the share sheet are in
 1. **Commitment line.** On the receipt screen, before any share
    affordance, one line: "Will you call by <date>?" for a letter or
    comment, "Will you call again before the vote?" for a call. A date
-   input (17:00 local) defaults to the next weekday, never later than the
-   goal's decision date; the user may move it up to seven days out
+   input (10:00 local; 10:00 anywhere in the US falls inside DC office
+   hours, `call-follow-through`) defaults to the next weekday, never
+   later than the goal's decision date; the user may move it up to seven days out
    (a repeat call may use the whole window to the decision date). "Yes,
    I'll call" stores the commitment locally and moves on; "Skip" is one
    tap. Nothing is sent and no counter moves.
@@ -51,7 +52,7 @@ who was on it. The receipt itself and the share sheet are in
    keeps every commitment) and "Start over" (clears the place and every
    commitment and list).
 6. **Overdue and closed.** An item past its due time reads "Still on?"
-   with "Done", "New date" (a date input, 17:00 local) and "Drop"
+   with "Done", "New date" (a date input, 10:00 local) and "Drop"
    (deletes it locally). On load, items whose goal is no longer active
    are removed and the card shows one line per goal: "<title>:
    <outcome_note>" (or "the window closed" / "closed"); a goal no longer
@@ -65,18 +66,51 @@ who was on it. The receipt itself and the share sheet are in
    next?" and the goal deep link. When the browser can share files, a
    1200×630 PNG drawn on the device from the goal-card template is
    attached; it carries the goal title, the district and the date only.
+9. **Voicemail retry** (`call-follow-through` §1). Choosing `no_answer`
+   in the office-response picker shows "Voicemail counts. Offices tally
+   messages daily; say your street address so yours is logged." and one
+   "Try again" button. The tap stores a commitment of kind `retry` for
+   the same goal and target, due at the DC office's next open slot at
+   least 60 minutes ahead (`retryDue`, `hours.ts`), replaces the button
+   with "Try <Role Name> again by <due>" and offers "Add reminder (.ics)"
+   (a "Try again: <title>" event). One open retry per goal and target:
+   a remount finds it and offers no second one. On "Your week" the item
+   reads "Try <office> again about <title> by <due>", links to the act
+   page with `?target=<id>` (both numbers, DC first), and has the same
+   Done / Not yet / Still on? controls as a call. A retry never posts
+   anything; nothing counts until a new receipt.
+
+10. **Next office and echo** (`call-follow-through` §3–4). Once the
+    commitment and captain steps are answered or skipped, and before
+    "Share", the receipt screen shows "Next: <Role Name>" for each target
+    of the goal with no receipt from this device in the last 24 h (local
+    log `cut-ties:receipts`, written when `/api/receipt` succeeds), each
+    linking to `/goals/<slug>/act/<action>?target=<id>`; when every target
+    has one it reads "All three called this week." (two targets: "All of
+    your targets called this week."); a goal with one target shows
+    nothing. Below it, with a stored place, the `Counts` island in `echo`
+    mode: "You're one of <N> constituents in <STATE-NN> who called this
+    week", the state line when the district is under threshold, else
+    "Counted." (`district-counters.md` §6). Both load with the receipt
+    screen, after the act page's own bundle.
 
 ## Data & contracts
 - `localStorage` `cut-ties:commitments` = `[{v: 1, goal, action, target,
-  due}]` (one per goal; `due` ISO); `cut-ties:captain` = `{v: 1, goal,
+  due, kind?, who?}]` (`due` ISO; `kind` `call` (default) or `retry`;
+  `who` the "Role Name" a retry shows). Key = `call:<goal>` or
+  `retry:<goal>:<target>`: one call per goal, one retry per goal and
+  target (`keyOf`); `cut-ties:receipts` = `[{v: 1, goal, action, target,
+  at}]`, one row per goal, action and target, pruned to 24 h on every
+  read, cleared by "Start over"; `cut-ties:captain` = `{v: 1, goal,
   due, people: [{name, channel: text|in_person|call, done}] ×3, who?,
   receipted?}` where `who` is the target official's surname for the
   share line and `receipted` marks a list whose receipt posted. Records
   with another `v`, a wrong shape or an invalid name are ignored.
   `cut-ties:device` (`web/src/lib/store.ts`) is shared with the receipt
   flow. Nothing in these keys is ever sent.
-- Deadline rules (`web/src/lib/commitments.ts`): default = next weekday
-  17:00 local, capped at the decision date's 17:00; editable maximum =
+- Deadline rules (`web/src/lib/commitments.ts`, `DUE_HOUR = 10`): default
+  = next weekday 10:00 local, capped at the decision date's 10:00; editable
+  maximum =
   min(now + 7 days, decision date), or the decision date alone for a
   repeat call; a missing decision date means no cap.
 - `POST /api/receipt` accepts `{goal, action: 'captain-list', state?,
@@ -107,12 +141,18 @@ who was on it. The receipt itself and the share sheet are in
       (`web/src/components/funnel.test.ts`).
 - [ ] A captain field with a digit or `@` is refused and nothing is
       stored; the whole flow makes no request carrying a name.
+- [ ] "Next:" lists only targets without a receipt in the last 24 h,
+      links carry `?target=`, and the slot is empty for a one-target goal
+      (`funnel.test.ts`, `commitments.test.ts`).
+- [ ] `no_answer` → "Try again" stores exactly one `retry` due ≥60 min
+      ahead inside DC hours, a remount offers no second one, and no
+      request is made (`funnel.test.ts`, `commitments.test.ts`).
 - [ ] Two ticks post nothing; the third posts exactly one receipt with
       `action: captain-list`, no `target`, no names; the Worker stores
       `kind 'captain-list'` with null ids (`worker/test/generate.test.ts`).
 - [ ] The `.ics` parses (CRLF, ≤75 octets per line, required properties
       in order), carries the goal link and no name (`web/src/lib/ics.test.ts`).
-- [ ] The default deadline is the next weekday 17:00 local and never
+- [ ] The default deadline is the next weekday 10:00 local and never
       later than the decision date (`web/src/lib/commitments.test.ts`).
 - [ ] A return visit with an open item shows "Your week" above the
       address field and does not redirect; "Change address" keeps the

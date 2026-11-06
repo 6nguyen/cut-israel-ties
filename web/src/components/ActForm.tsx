@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { DocFormat, FormField, GenerateDone } from '@worker/generate';
 import type { TargetCard } from '../lib/api';
 import { deviceId, loadPlace } from '../lib/store';
-import { commitmentFor, fmtDue } from '../lib/commitments';
+import { commitmentFor, fmtDue, logReceipt } from '../lib/commitments';
 import Funnel from './Funnel';
+import OpenChip from './OpenChip';
+import { isOpen } from '../lib/hours';
 
 interface Props {
   goal: string;
@@ -28,6 +30,12 @@ const STANDARD_WHY: Record<string, string> = {
   upstream: 'The drafting service is not answering, so this one is built from our template with your lines dropped in.',
 };
 const OUTCOMES: [string, string][] = [['will_support', 'Will support'], ['undecided', 'Undecided'], ['opposed', 'Opposed'], ['no_answer', 'No answer'], ['other', 'Other']];
+
+/** call-follow-through §2: the Worker lists the DC number first, the district number second; when DC is closed the district office (no sourced hours yet) goes first. */
+export function phoneOrder(phones: string[], now: Date = new Date()): { phone: string; district: boolean }[] {
+  const list = phones.map((phone, i) => ({ phone, district: phones.length > 1 && i === 1 }));
+  return list.length > 1 && !isOpen(now) ? [list[1], list[0]] : list;
+}
 
 /** Parses the Worker's SSE body (`event:` + `data:` lines, blank-line separated). */
 async function readSse(body: ReadableStream<Uint8Array>, on: (event: string, data: Record<string, unknown>) => void): Promise<void> {
@@ -72,6 +80,12 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   const place = loadPlace();
+  const [extras, setExtras] = useState<typeof import('./ReceiptExtras') | null>(null); // call-follow-through: loaded once a receipt exists
+
+  useEffect(() => {
+    if (receipt === null || extras) return;
+    import('./ReceiptExtras').then(setExtras).catch(() => {});
+  }, [receipt]);
 
   useEffect(() => {
     setPromised(commitmentFor(goal)?.due ?? null); // commitment-funnel §2.4
@@ -142,6 +156,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
     const res = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ goal, action, target, state: place?.state, district: place?.district, device: deviceId() }) });
     const data = (await res.json().catch(() => ({}))) as { id?: number; message?: string };
     if (!res.ok || !data.id) { setError(data.message ?? 'Could not record that.'); return; }
+    logReceipt({ goal, action, target }); // call-follow-through §3
     setReceipt(data.id);
   }
 
@@ -236,9 +251,13 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             <button type="button" class="btn btn-ghost" onClick={() => void generate()}>Regenerate</button>
           </div>
           <div class="flex flex-wrap gap-2 items-center">
-            {phase.doc.target.phones.map((p) => (
-              <a href={`tel:${p.replace(/[^\d+]/g, '')}`} class="btn btn-primary">Call {phase.doc.target.role} {phase.doc.target.name} · {p}</a>
+            {phoneOrder(phase.doc.target.phones).map(({ phone, district }) => (
+              <span class="flex items-center gap-2">
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="btn btn-primary" data-office={district ? 'district' : 'dc'}>Call {phase.doc.target.role} {phase.doc.target.name} · {phone}</a>
+                <OpenChip state={district ? place?.state : undefined} />
+              </span>
             ))}
+            {phoneOrder(phase.doc.target.phones)[0]?.district && <p class="text-sm w-full" data-dc-closed>DC office closed; district office answers in office hours.</p>}
             {type !== 'call' && phase.doc.target.contact_form_url && (
               <a href={phase.doc.target.contact_form_url} class="btn btn-primary" rel="noopener" target="_blank">Open the contact form ↗</a>
             )}
@@ -251,10 +270,14 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
                 <p class="font-semibold"><span class="chip bg-acid text-ink mr-2">✓</span>Counted. No name, no address: just this goal, this office, today.</p>
                 <Funnel goal={goal} action={action} target={target} who={phase.doc.target.name.trim().split(/\s+/).pop()} title={title ?? goal} type={type} decision={decision ?? null} place={place} onFinished={() => setFunnelDone(true)} />
                 {funnelDone && (
-                  <div class="flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
-                    <a href="/results" class="btn btn-ghost">Your other action</a>
-                  </div>
+                  <>
+                    {extras && <extras.NextOffice goal={goal} action={action} choices={choices} />}
+                    {extras && place && <extras.Counts goal={goal} state={place.state} district={scope === 'state' ? null : place.district} echo />}
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
+                      <a href="/results" class="btn btn-ghost">Your other action</a>
+                    </div>
+                  </>
                 )}
                 {!reported ? (
                   <form class="flex flex-col gap-2 border-t-2 border-ink pt-3" onSubmit={(e) => { e.preventDefault(); if (outcome) void report(); }}>
@@ -270,6 +293,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
                     <button type="submit" class="btn btn-ghost self-start" disabled={!outcome}>Send</button>
                   </form>
                 ) : <p class="text-sm">Thanks. Reports go to the maintainer; they never change a listed position on their own.</p>}
+                {outcome === 'no_answer' && extras && <extras.Retry goal={goal} action={action} target={target} who={`${phase.doc.target.role} ${phase.doc.target.name}`} title={title ?? goal} />}
                 <div class="border-t-2 border-ink pt-3">
                   <label class="label-code block mb-1" for="reflection">One line for yourself: how did it feel? (stays on this page)</label>
                   <input id="reflection" type="text" class="input-field w-full text-sm" />

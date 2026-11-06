@@ -24,30 +24,43 @@ function largest(b: Buckets): { key: keyof Buckets; n: number } | null {
   return best;
 }
 
+/** The scope and verb the line names: the district's largest bucket, else the state's, else null. */
+function pick(c: CountsResponse, state: string, district: number | null): { n: number; where: string; verb: string } | null {
+  const d = district === null ? null : largest(c.district);
+  if (d) return { n: d.n, where: districtLabel(state, district as number), verb: VERB[d.key] };
+  const s = largest(c.state);
+  if (s) return { n: s.n, where: STATE_NAMES[state] ?? state, verb: VERB[s.key] };
+  return null;
+}
 /**
  * §2.1 grammar: "12 constituents in TX-35 called this week" from the district buckets, else
  * "12 constituents in Texas called this week" from the state buckets, else null (render nothing).
  */
 export function counterLine(c: CountsResponse, state: string, district: number | null): string | null {
-  const d = district === null ? null : largest(c.district);
-  if (d) return `${d.n} constituents in ${districtLabel(state, district as number)} ${VERB[d.key]} this week`;
-  const s = largest(c.state);
-  if (s) return `${s.n} constituents in ${STATE_NAMES[state] ?? state} ${VERB[s.key]} this week`;
-  return null;
+  const p = pick(c, state, district);
+  return p && `${p.n} constituents in ${p.where} ${p.verb} this week`;
+}
+/** call-follow-through §4: the same scope after the user's own receipt; "Counted." when no bucket clears the threshold. */
+export function echoLine(c: CountsResponse | null, state: string, district: number | null): string {
+  const p = c && pick(c, state, district);
+  return p ? `You're one of ${p.n} constituents in ${p.where} who ${p.verb} this week` : 'Counted.';
 }
 
-/** Fetches once; renders nothing until the response arrives and nothing when no bucket clears the threshold (§2.3). */
-export default function Counts({ goal, state, district }: { goal: string; state: string; district: number | null }) {
+/**
+ * Fetches once; renders nothing until the response arrives and nothing when no bucket clears the
+ * threshold (§2.3). With `echo` (the receipt screen) the line is first-person and a failed or empty
+ * response reads "Counted.".
+ */
+export default function Counts({ goal, state, district, echo = false }: { goal: string; state: string; district: number | null; echo?: boolean }) {
   const [line, setLine] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
     const qs = `goal=${encodeURIComponent(goal)}&state=${encodeURIComponent(state)}${district === null ? '' : `&district=${district}`}`;
     fetch(`/api/counts?${qs}`)
-      .then((r) => (r.ok ? (r.json() as Promise<CountsResponse>) : null))
-      .then((c) => { if (live && c) setLine(counterLine(c, state, district)); })
-      .catch(() => {});
+      .then((r) => (r.ok ? (r.json() as Promise<CountsResponse>) : null), () => null)
+      .then((c) => { if (live) setLine(echo ? echoLine(c, state, district) : c && counterLine(c, state, district)); });
     return () => { live = false; };
-  }, [goal, state, district]);
+  }, [goal, state, district, echo]);
   if (!line) return null;
   return <p class="label-code text-sm px-3 py-2 border-t-2 border-ink bg-newsprint" data-counts>{line}</p>;
 }

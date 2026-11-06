@@ -58,7 +58,12 @@ never by this capability, and nothing here calls an LLM.
    office (the derived or hand-filled `district_phone`) and the contact
    link labelled by `contact_kind`: "Contact form", "Contact form (asks
    for your ZIP)" or "Office website"; a link without a kind is never
-   shown. Under the hero (`components/Offices.astro`): for a
+   shown. Each `tel:` button carries an "Open now" / "Closed · opens
+   <weekday> <time>" chip (`web/src/components/OpenChip.tsx`) computed
+   from the visitor's clock after hydration: DC is Mon–Fri 09:00–18:00 ET,
+   the district office follows its sourced `hours` in the state's zone or
+   the same default shifted there (`web/src/lib/hours.ts`); the static
+   order stays DC first. Under the hero (`components/Offices.astro`): for a
    `not_returning` member the line "Leaves office 2027-01-03. Votes on the
    NDAA and the funding bill until then.", then every district office from
    `data/district_offices.csv` in file order (city, phone as `tel:`,
