@@ -47,11 +47,7 @@ A PRD with no `Needs` entry can run in parallel with the row above it.
 | 2 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
 | 3 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
 | 4 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
-| 5 | [stable-data-ids.md](stable-data-ids.md) | APPROVED | — | explicit `id` in goal and action YAML, `data/ids.md` registry, loader guards; must merge before the first production seed (deploy §3) |
-| 6 | [generation-cost.md](generation-cost.md) | APPROVED | — | budget-derived daily cap (`LLM_MONTHLY_BUDGET_USD`), cost telemetry in the digest, cheaper call scripts, standard script when capped; Worker generation path |
-| 7 | [roster-freshness.md](roster-freshness.md) | APPROVED | — | `data/district_offices.csv`, contact-form fallbacks, weekly roster PR workflow, `not_returning` / `left_office`; member pages and targets |
-| 8 | [district-vintage-rollover.md](district-vintage-rollover.md) | APPROVED | 7 (§3 only) | Worker vintage pin and Missouri override, cd120 geometry build, dated flip on 2027-01-03; geocoder and on-device lookup |
-| 9 | [call-follow-through.md](call-follow-through.md) | APPROVED | 7 (hours; ships with DC default without it) | voicemail retry, office hours on call buttons and reminder default, next-office chain, "one of N" echo on the receipt, decision-date webcal feed; receipt screen and act page |
+| 5 | [district-vintage-rollover.md](district-vintage-rollover.md) | BUILDING (§3 blocked until 2027-01-03) | — (§3 date-gated 2027-01-03) | §1–2 shipped (PR #32); §3 dated flip on 2027-01-03 per `docs/guides/deploy.md` §6 |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row
