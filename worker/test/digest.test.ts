@@ -2,11 +2,12 @@
 import { describe, expect, it } from 'vitest';
 import { join } from 'node:path';
 import { ANTHROPIC_URL } from '../src/anthropic';
-import { DIGEST_MODEL, buildDigest, buildMime, digestTable, runDigest, summariseAbuse, type Mail } from '../src/digest';
+import { DOC_MODEL } from '../src/anthropic';
+import { DIGEST_MODEL, buildDigest, buildMime, buildSpend, digestTable, runDigest, spendTable, summariseAbuse, type Mail } from '../src/digest';
 import { loadRows, parseCsv } from '../src/load';
-import { MemoryRepo } from '../src/repo';
+import { MemoryRepo, sumTokens } from '../src/repo';
 import { scheduled } from '../src/index';
-import type { Env, ReportRow } from '../src/types';
+import type { Env, GenerationRow, ReportRow } from '../src/types';
 import { ENV } from './fixtures';
 
 const rows = loadRows(join(__dirname, '..', '..', 'data'), '2026-11-04T00:00:00Z');
@@ -16,6 +17,19 @@ const ndaa = rows.goals.find((g) => g.slug === 'ndaa-1217')!;
 const bonds = rows.goals.find((g) => g.slug === 'state-bonds')!;
 const CORREA = 'C001110';
 const PADILLA = rows.members.find((m) => m.chamber === 'senate' && m.state === 'CA')!.bioguide_id;
+const CALL = rows.actions.find((a) => a.goal_id === ndaa.id)!;
+
+const gen = (over: Partial<GenerationRow>): GenerationRow => ({
+  action_id: CALL.id, target_id: CORREA, shingles: new Uint32Array(), created_at: '2026-11-04T15:00:00Z', device_hash: 'dev-g', ip_hash: 'ip-g',
+  input_tokens: 900, output_tokens: 200, model: DOC_MODEL, attempt: 1, check_fail: null, ...over,
+});
+// generation-cost §2 acceptance: 12 documents, 3 of them redrafts. 9 × $0.0077 + 3 × $0.0153 = $0.1152.
+const TWELVE: GenerationRow[] = [
+  ...Array.from({ length: 9 }, (_, i) => gen({ device_hash: `dev-g${i}` })),
+  gen({ input_tokens: 1800, output_tokens: 400, attempt: 2, check_fail: 'digit' }),
+  gen({ input_tokens: 1800, output_tokens: 400, attempt: 2, check_fail: 'digit' }),
+  gen({ input_tokens: 1800, output_tokens: 400, attempt: 2, check_fail: 'word_count' }),
+];
 
 const report = (over: Partial<ReportRow>): ReportRow => ({
   bioguide_id: CORREA, goal_id: ndaa.id, outcome: 'will_support', note: null, created_at: '2026-11-04T15:00:00Z', device_hash: 'dev-a', ...over,
@@ -42,9 +56,10 @@ function stub(opts: { prose?: string; fail?: boolean } = {}) {
   return { impl, calls };
 }
 
-function job(opts: { prose?: string; fail?: boolean; reports?: ReportRow[]; env?: Partial<Env> } = {}) {
+function job(opts: { prose?: string; fail?: boolean; reports?: ReportRow[]; gens?: GenerationRow[]; env?: Partial<Env> } = {}) {
   const repo = new MemoryRepo(rows);
   repo.reports.push(...(opts.reports ?? REPORTS));
+  repo.generations.push(...(opts.gens ?? []));
   repo.screenings.push({ device_hash: 'dev-x', action_id: 1, class: 'injection', created_at: '2026-11-04T20:00:00Z' }, { device_hash: 'dev-x', action_id: 1, class: 'off_topic', created_at: '2026-11-04T20:05:00Z' });
   repo.blocks.set('dev-x', '2026-11-06T00:00:00Z');
   repo.blocks.set('dev-old', '2026-11-01T00:00:00Z');
@@ -141,6 +156,62 @@ describe('runDigest', () => {
 
   it('the Worker exports a scheduled handler', () => {
     expect(typeof scheduled).toBe('function');
+  });
+});
+
+describe('LLM spend (generation-cost §2)', () => {
+  it('12 documents and 3 redrafts: counts, fixture-price dollars, month to date, budget and cap in the table; prose digits bounded', async () => {
+    const j = job({ gens: TWELVE, prose: 'Five reports came in. Generation ran 12 documents with 3 redrafts for $0.12 of the $15.00 budget; the cap is 22.' });
+    const r = await j.run();
+    expect(r).toMatchObject({ sent: true, total: 5, model: DIGEST_MODEL, alert: null });
+    const text = j.sent[0].text;
+    expect(text).toContain('LLM spend\n  since last run: 12 documents, 3 redrafts, 0 standard scripts, $0.12');
+    expect(text).toContain('  month to date: $0.12 of $15.00 (1%)');
+    expect(text).toContain("  today's cap: 22 documents"); // floor((15 − 0.1152) / 26 days / 0.025 default blended)
+    expect(text).toContain(`  ${CALL.slug}: 12 documents, redrafts 25% (digit 2, word_count 1)`);
+    expect(text).toContain('Generation ran 12 documents'); // the prose stayed: every digit run is in the table
+    expect(j.sent[0].subject).toBe('[cut-ties] 5 reports · 2026-11-05');
+    // the prose call saw the spend block (it may restate it) and nothing else new
+    expect(String((j.calls[0].messages as { content: string }[])[0].content)).toContain('LLM spend');
+  });
+
+  it('a prose number that is only almost in the spend block still drops the prose', async () => {
+    const j = job({ gens: TWELVE, prose: 'Generation cost $0.13 across 12 documents.' });
+    expect(await j.run()).toMatchObject({ sent: true, model: null });
+    expect(j.sent[0].text).not.toContain('$0.13');
+  });
+
+  it('standard rows count without cost and the per-action line names them', () => {
+    const spend = buildSpend(sumTokens([...TWELVE, gen({ model: 'standard', input_tokens: 0, output_tokens: 0 }), gen({ model: 'standard', input_tokens: 0, output_tokens: 0 })]), 0.1152, 15, 22, rows.actions);
+    expect(spend.window).toEqual({ docs: 12, redrafts: 3, standard: 2, usd: expect.closeTo(0.1152, 6) });
+    expect(spendTable(spend)).toContain(`${CALL.slug}: 12 documents, redrafts 25% (digit 2, word_count 1), 2 standard`);
+    expect(spendTable(spend)).toContain('since last run: 12 documents, 3 redrafts, 2 standard scripts, $0.12');
+  });
+
+  it('crossing 80% of the budget sends once with zero reports; the next run with nothing new sends nothing', async () => {
+    // one Opus row at 150k in / 10k out = $0.60 + $0.20 + the screen allowance ≥ 80% of a $1 budget
+    const j = job({ reports: [], gens: [gen({ input_tokens: 150_000, output_tokens: 10_000 })], env: { LLM_MONTHLY_BUDGET_USD: '1' } });
+    const r = await j.run();
+    expect(r).toMatchObject({ sent: true, total: 0, model: null, alert: 'budget80' });
+    expect(j.sent).toHaveLength(1);
+    expect(j.sent[0].subject).toBe('[cut-ties] LLM budget 80% · 2026-11-05');
+    expect(j.sent[0].text).toContain('month to date: $0.80 of $1.00 (80%)');
+    expect(j.sent[0].text).toContain("today's cap: 20 documents"); // the floor: the budget is nearly gone
+    expect(j.calls).toHaveLength(0); // no prose call for a spend-only mail
+    expect(j.repo.digestRuns.at(-1)).toEqual({ ran_at: NOW.toISOString(), report_count: 0 });
+    // next night: the spend before the last run is already over the share, so nothing crosses again
+    expect(await j.run()).toEqual({ sent: false, reason: 'no_reports', since: NOW.toISOString() });
+    expect(j.sent).toHaveLength(1);
+  });
+
+  it('under the share, or with the budget at 0, no spend-only mail; with reports the subject carries both', async () => {
+    const under = job({ reports: [], gens: [gen({ input_tokens: 100_000 })], env: { LLM_MONTHLY_BUDGET_USD: '1' } });
+    expect(await under.run()).toMatchObject({ sent: false, reason: 'no_reports' });
+    const zero = job({ reports: [], gens: [gen({ input_tokens: 150_000, output_tokens: 10_000 })], env: { LLM_MONTHLY_BUDGET_USD: '0' } });
+    expect(await zero.run()).toMatchObject({ sent: false, reason: 'no_reports' });
+    const both = job({ gens: [gen({ input_tokens: 150_000, output_tokens: 10_000 })], env: { LLM_MONTHLY_BUDGET_USD: '1' } });
+    expect(await both.run()).toMatchObject({ sent: true, total: 5, alert: 'budget80' });
+    expect(both.sent[0].subject).toBe('[cut-ties] 5 reports · LLM budget 80% · 2026-11-05');
   });
 });
 
