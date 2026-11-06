@@ -29,7 +29,9 @@ there.
    A "Where everyone stands →" link opens `/goals/<slug>/whip` for goals
    that have a whip table (`member-pages.md`). The
    sidebar's "Who to call" island reads the stored `{state, district}`
-   and calls `GET /api/goals/<slug>/targets`; with nothing stored it shows
+   and calls `GET /api/goals/<slug>/targets` (for a leadership goal: the
+   incoming delegation's Democratic-caucus seats, members-elect included,
+   `action-router.md` Behavior 7); with nothing stored it shows
    "Enter your address" linking to `/`. A non-empty target list carries
    the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
    block instead of targets and actions. Every page carries Open Graph
@@ -138,8 +140,9 @@ there.
       it up, and a closed goal without `outcome_note` fails the seed
       (`worker/test/goals.test.ts`).
 - [ ] An `upcoming` goal has no page, no act page and is absent from
-      `/api/goals`; `/api/goals/:slug/targets` returns Democrats only for
-      leadership goals and the treasurer row for state goals.
+      `/api/goals`; `/api/goals/:slug/targets` returns Democratic-caucus
+      seats of the incoming delegation only for leadership goals and the
+      treasurer row for state goals.
 - [ ] Every goal with `prep_md` has `/goals/<slug>/prep` with all six
       sections and no `upcoming` goal has one; a `prep_md` missing a
       heading, out of order, with an empty section or an undated "Where

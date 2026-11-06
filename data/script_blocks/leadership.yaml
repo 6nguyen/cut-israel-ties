@@ -87,16 +87,16 @@ slots:
     variants:
       - id: askh1
         when: {chamber: house, self: false}
-        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{pick_line}}"
+        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: askh2
         when: {chamber: house, self: false}
-        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{pick_line}}"
+        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{leader_line}} {{pick_line}}"
       - id: askh3
         when: {chamber: house, self: false}
-        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section, and say so before the vote. {{pick_line}}"
+        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: askh4
         when: {chamber: house, self: false}
-        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section, and who that is. {{pick_line}}"
+        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: askhs1
         when: {chamber: house, self: true}
         text: "I am asking {{target_name}} to commit in public, before the vote, to stripping the integration section, or to step aside. Members should vote only for a leader who does. {{pick_line}}"
@@ -108,16 +108,16 @@ slots:
         text: "{{target_name}} can keep this job by committing in public to strip the integration section. Without that, I am asking members to vote only for a leader who will. {{pick_line}}"
       - id: asks1
         when: {chamber: senate, self: false}
-        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. {{pick_line}}"
+        text: "I am asking {{target_role}} {{target_name}} to vote only for a leader who commits, in public, to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: asks2
         when: {chamber: senate, self: false}
-        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{pick_line}}"
+        text: "Will {{target_role}} {{target_name}} vote only for a leader who has said in public that the integration section comes out? Yes or no. {{leader_line}} {{pick_line}}"
       - id: asks3
         when: {chamber: senate, self: false}
-        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section, and say so before the vote. {{pick_line}}"
+        text: "My ask is that {{target_role}} {{target_name}} vote only for a leader who commits publicly to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: asks4
         when: {chamber: senate, self: false}
-        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section, and who that is. {{pick_line}}"
+        text: "Please tell me whether {{target_role}} {{target_name}} will vote only for a leader who commits in public to stripping the integration section. {{leader_line}} {{pick_line}}"
       - id: askss1
         when: {chamber: senate, self: true}
         text: "I am asking {{target_name}} to commit in public, before the vote, to stripping the integration section, or to step aside. Senators should vote only for a leader who does. {{pick_line}}"

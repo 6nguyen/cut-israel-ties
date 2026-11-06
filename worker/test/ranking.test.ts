@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { join } from 'node:path';
-import { evaluate, parseRule, rank, topTwo, urgency } from '../src/ranking';
+import { evaluate, parseRule, rank, ruleInput, slots, topTwo, urgency } from '../src/ranking';
 import { loadRows } from '../src/load';
 import { MemoryRepo } from '../src/repo';
 import type { Delegation, Goal, Member } from '../src/types';
@@ -16,12 +16,11 @@ const member = (o: Partial<Member>): Member => ({
   rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null, district_office_address: null, district_office_city: null,
   contact_kind: null, not_returning: 0, left_office: null, caucus: 'D', ...o,
 });
-const delegation = (house: 'D' | 'R' | null, sens: ('D' | 'R')[]): Delegation => ({
-  state: 'XX', district: 1,
-  house: house ? member({ party: house }) : null,
-  senators: sens.map((p, i) => member({ party: p, chamber: 'senate', district: null, bioguide_id: `S${i}` })),
-  state_row: null,
-});
+const delegation = (house: 'D' | 'R' | null, sens: ('D' | 'R')[]): Delegation => {
+  const h = house ? member({ party: house, caucus: house }) : null;
+  const s = sens.map((p, i) => member({ party: p, caucus: p, chamber: 'senate', district: null, bioguide_id: `S${i}` }));
+  return { state: 'XX', district: 1, house: h, senators: s, state_row: null, incoming: { house: h, senators: s, uncalled: [] } };
+};
 
 describe('urgency (§5.2)', () => {
   it('2 within 14 days, 1.5 within 45, 1 otherwise, 1 when past or missing', () => {
@@ -109,7 +108,7 @@ describe('ranking table (§5.4): six delegations', () => {
   for (const [label, house, sens, expected] of cases) {
     it(`${label} → ${expected.join(' + ')}`, async () => {
       const goals = await repo.activeGoals();
-      expect(topTwo(goals, delegation(house, sens), TODAY).map((g) => g.slug)).toEqual(expected);
+      expect(topTwo(goals, delegation(house, sens), TODAY).map((s) => s.goal.slug)).toEqual(expected);
     });
   }
   it('D/DD: caucus (2×2=4) beats senate leader (2×1=2) because its date is within 14 days', async () => {
@@ -130,7 +129,7 @@ describe('ranking table (§5.4): six delegations', () => {
     const base = rows.goals[0];
     const ndaa: Goal = { ...base, slug: 'n', category: 'federal_vote', eligibility: '{"house":{}}' };
     const state: Goal = { ...base, slug: 's', category: 'state', eligibility: '{"state":{"nonempty":["campaign_name"]}}' };
-    expect(topTwo([ndaa, state], delegation('D', []), TODAY).map((g) => g.slug)).toEqual(['n', 's']);
+    expect(topTwo([ndaa, state], delegation('D', []), TODAY).map((s) => s.goal.slug)).toEqual(['n', 's']);
     expect(topTwo([ndaa, state], delegation(null, []), TODAY)).toEqual([]);
   });
 });

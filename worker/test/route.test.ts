@@ -4,7 +4,7 @@ import { createApp } from '../src/index';
 import { loadRows } from '../src/load';
 import { MemoryRepo } from '../src/repo';
 import { DEFAULT_VINTAGE, VINTAGE_OVERRIDES, classifyAddress, parseCensus } from '../src/geocode';
-import type { RouteResponse } from '../src/route';
+import { buildRoute, type RouteResponse } from '../src/route';
 import { ENV, FIXTURES, VINTAGE_POINTS, censusReply, fakeFetch, vintageCoordinatesReply } from './fixtures';
 
 const rows = loadRows(join(__dirname, '..', '..', 'data'), '2026-11-04T00:00:00Z');
@@ -55,8 +55,10 @@ describe('POST /api/route — six fixture addresses (§1 acceptance)', () => {
   }
 
   it('all-Republican delegation gets NDAA + state, with the treasurer as target', async () => {
-    const { post } = app();
-    const body = (await (await post({ address: FIXTURES[3].address })).json()) as RouteResponse;
+    // TX-21 with no incoming change: the seeded results seat Talarico (D) in Cornyn's seat, which the
+    // live route uses (leadership-routing §2), so the elect rows are stripped for the all-Republican case.
+    const repo = Object.assign(Object.create(new MemoryRepo(rows)) as MemoryRepo, { membersElect: async () => [] });
+    const body = await buildRoute(repo, 'TX', 21, TODAY);
     expect(body.goals.map((g) => g.slug)).toEqual(['ndaa-1217', 'state-bonds']);
     expect(body.goals[1].targets[0].role).toBe('Treasurer');
     // NDAA targets: house + both senators; leadership goals never list the other party.

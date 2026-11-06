@@ -9,7 +9,7 @@ window_start: 2026-11-01
 window_end: 2027-01-31
 decision_date: 2026-11-18   # placeholder: caucus meeting date
 priority: 2
-eligibility: {"house": {"party": "D"}}
+eligibility: {"house": {"caucus": "D"}}
 our_picks: []
 sources:
   - {title: "The New Republic: Calls to replace Jeffries and Schumer explode after Democratic wins (November 2026)", url: "https://newrepublic.com/post/217644/calls-replace-jeffries-schumer-explode-democratic-wins"}

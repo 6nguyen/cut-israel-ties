@@ -1,5 +1,5 @@
 import type {
-  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, MemberElect, Office, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
+  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Incoming, IncomingSeat, Member, MemberElect, Office, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow, UncalledSeat,
   LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, TokenSum, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
 
@@ -59,7 +59,7 @@ export class D1Repo implements Repo {
   }
 
   async delegation(state: string, district: number): Promise<Delegation> {
-    const [members, stateRow] = await Promise.all([
+    const [members, stateRow, elects] = await Promise.all([
       this.db
         .prepare(
           `SELECT * FROM members WHERE state = ? AND (chamber = 'senate' OR (chamber = 'house' AND district = ?))`,
@@ -67,8 +67,9 @@ export class D1Repo implements Repo {
         .bind(state, district)
         .all<Member>(),
       this.db.prepare(`SELECT * FROM states WHERE state = ?`).bind(state).first<StateRow>(),
+      this.membersElect(state),
     ]);
-    return assembleDelegation(state, district, members.results, stateRow ?? null);
+    return assembleDelegation(state, district, members.results, stateRow ?? null, elects);
   }
 
   async actionBySlug(slug: string): Promise<Action | null> {
@@ -304,11 +305,30 @@ export function foldBuckets(rows: { inDistrict: boolean; kind: ReceiptKind; type
   return { district, state };
 }
 
-export function assembleDelegation(state: string, district: number, allMembers: Member[], stateRow: StateRow | null): Delegation {
+/** leadership-routing §2.1: who holds one seat in January — the sitting member, else the elect row replacing them, else nobody. */
+function incomingSeat(m: Member, elects: MemberElect[]): { seat: IncomingSeat | null; uncalled: UncalledSeat | null } {
+  if (!m.not_returning && !m.left_office) return { seat: m, uncalled: null };
+  const e = elects.find((x) => x.replaces === m.bioguide_id);
+  if (e) return { seat: { ...e, elect: true, replaces_name: m.name }, uncalled: null };
+  // A seat left early is filled or vacant, not "uncalled"; only a not_returning seat waits on a result.
+  return { seat: null, uncalled: m.left_office ? null : { chamber: m.chamber, caucus: m.caucus, replaces_name: m.name } };
+}
+
+export function assembleDelegation(state: string, district: number, allMembers: Member[], stateRow: StateRow | null, elects: MemberElect[] = []): Delegation {
   const members = allMembers.filter((m) => !m.left_office); // roster-freshness §4: a departed member is never a target; the row stays for receipts
   const house = members.find((m) => m.chamber === 'house' && m.district === district) ?? null;
   const senators = members.filter((m) => m.chamber === 'senate').sort((a, b) => a.name.localeCompare(b.name));
-  return { state, district, house, senators, state_row: stateRow };
+  const incoming: Incoming = { house: null, senators: [], uncalled: [] };
+  const houseRows = house ? [house] : allMembers.filter((m) => m.chamber === 'house' && m.district === district);
+  for (const m of [...houseRows, ...allMembers.filter((m) => m.chamber === 'senate')]) {
+    const { seat, uncalled } = incomingSeat(m, elects);
+    if (uncalled) incoming.uncalled.push(uncalled);
+    if (!seat) continue;
+    if (m.chamber === 'house') incoming.house = seat;
+    else incoming.senators.push(seat);
+  }
+  incoming.senators.sort((a, b) => a.name.localeCompare(b.name));
+  return { state, district, house, senators, state_row: stateRow, incoming };
 }
 
 /** In-memory Repo over the same rows seed.ts emits. Used by tests and `seed.ts --check`. */
@@ -345,7 +365,7 @@ export class MemoryRepo implements Repo {
     const members = this.rows.members.filter(
       (m) => m.state === state && (m.chamber === 'senate' || (m.chamber === 'house' && m.district === district)),
     );
-    return assembleDelegation(state, district, members, this.rows.states.find((s) => s.state === state) ?? null);
+    return assembleDelegation(state, district, members, this.rows.states.find((s) => s.state === state) ?? null, await this.membersElect(state));
   }
 
   async actionBySlug(slug: string): Promise<Action | null> { return this.rows.actions.find((a) => a.slug === slug) ?? null; }

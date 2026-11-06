@@ -129,12 +129,17 @@ match the House member; `{}` means "a House member exists") ·
 `{"senator": {…}}` (at least one senator matches) ·
 `{"state": {"nonempty": [field, …]}}` (any listed state field is set).
 Fields a rule may test, with the value each accepts:
-- house: `party` (`D`/`R`/`I`), `hasc`, `conferee`, `btb_cosponsor`
-  (`0`/`1`), `rc243` (string), `target_2028` (`0`/`1`), `state` (two
-  letters), `district` (integer; `0` = at large). An `electoral` goal's rule
-  is exactly `{"house": {"target_2028": 1, "state": "XX", "district": N}}`.
-- senator: `party` (`D`/`R`/`I`), `jrd_april_2026` (string).
+- house: `party` (`D`/`R`/`I`), `caucus` (`D`/`R`), `hasc`, `conferee`,
+  `btb_cosponsor` (`0`/`1`), `rc243` (string), `target_2028` (`0`/`1`),
+  `state` (two letters), `district` (integer; `0` = at large). An
+  `electoral` goal's rule is exactly
+  `{"house": {"target_2028": 1, "state": "XX", "district": N}}`.
+- senator: `party` (`D`/`R`/`I`), `caucus` (`D`/`R`), `jrd_april_2026`
+  (string).
 - state: any `states.csv` column except `state`.
+A `leadership` goal's rule is evaluated against the incoming delegation
+(members-elect stand in for departing members), so it may test only
+`caucus`; every other goal sees the sitting delegation.
 Score = `priority` × urgency (2 when `decision_date` is ≤14 days away,
 1.5 when ≤45, else 1; a past or empty date scores 1). Ties go to the
 earlier decision date, then the slug. The top two are shown; a single
@@ -157,7 +162,7 @@ eligible goal is paired with the state goal.
   regenerates once, then refuses.
 - `standard_template` or `script_blocks` (one of the two while the goal
   is `active`): the script served when no model may run
-  (`docs/specs/personalised-documents.md` §5). `script_blocks: <name>`
+  (`docs/specs/standard-scripts.md`). `script_blocks: <name>`
   names `script_blocks/<name>.yaml`:
   - `incumbents`: bioguide ids whose script asks them to commit or step
     aside (`when: {self: true}` variants).

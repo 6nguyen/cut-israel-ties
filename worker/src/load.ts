@@ -374,7 +374,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
   checkElectoral(goals, actions, members);
   // generation-cost §4 / leader-call-scripts §4: every active action's standard script (template or composed blocks)
   // fills and passes the output check for every target.
-  checkStandardTemplates(goals, actions, members, positions, states);
+  checkStandardTemplates(goals, actions, members, positions, states, membersElect);
 
   return { goals, actions, members, membersElect, offices, positions, states, elections };
 }

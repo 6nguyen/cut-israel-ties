@@ -1,5 +1,6 @@
 // Six fixture addresses (§1 acceptance) with the Census Geocoder reply each one
-// produces under the 119th map. Tests never hit the network.
+// produces under the 119th map. Leadership goals are routed on the incoming delegation
+// (leadership-routing §2): TX seats Talarico (D) in Cornyn's seat, PA-1 seats Harvie (D) in Fitzpatrick's. Tests never hit the network.
 import type { Env } from '../src/types';
 
 export interface Fixture {
@@ -15,8 +16,8 @@ export const FIXTURES: Fixture[] = [
   { label: 'D/DD', address: '1000 N Main St, Santa Ana, CA 92701', state: 'CA', district: 46, expectGoals: ['ndaa-1217', 'house-caucus'] },
   { label: 'D/RR', address: '301 W 2nd St, Austin, TX 78701', state: 'TX', district: 35, expectGoals: ['ndaa-1217', 'house-caucus'] },
   { label: 'R/DD', address: '15400 Civic Dr, Victorville, CA 92392', state: 'CA', district: 23, expectGoals: ['ndaa-1217', 'senate-leader'] },
-  { label: 'R/RR', address: '100 Main Plaza, New Braunfels, TX 78130', state: 'TX', district: 21, expectGoals: ['ndaa-1217', 'state-bonds'] },
-  { label: 'R/DR', address: '1 N Main St, Doylestown, PA 18901', state: 'PA', district: 1, expectGoals: ['ndaa-1217', 'senate-leader'] },
+  { label: 'R/RR (incoming R/DR)', address: '100 Main Plaza, New Braunfels, TX 78130', state: 'TX', district: 21, expectGoals: ['ndaa-1217', 'senate-leader'] },
+  { label: 'R/DR (incoming D/DR)', address: '1 N Main St, Doylestown, PA 18901', state: 'PA', district: 1, expectGoals: ['ndaa-1217', 'house-caucus'] },
   { label: 'D/DR', address: '1400 John F Kennedy Blvd, Philadelphia, PA 19107', state: 'PA', district: 2, splitCity: true, expectGoals: ['ndaa-1217', 'house-caucus'] },
 ];
 

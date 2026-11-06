@@ -1,5 +1,5 @@
 # Leadership routing — reach every caucus vote a visitor has — PRD
-Status: APPROVED 2026-11-06 (auto) · Owner: George Nguyen · Last updated: 2026-11-06
+Status: SHIPPED 2026-11-06 (PR #52) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 Two votes decide who leads the Democrats in the 120th Congress. One is the
@@ -250,32 +250,42 @@ Relies on: `docs/research/leader-call-scripts.md`,
 - **Measure:** the share of leadership-card views with ≥2 targets, and
   call receipts per leadership card, against before.
 
-## State (updated 2026-11-06, PR #48 open)
+## State (updated 2026-11-06, PR #52)
 - Sections:
-  - [~] 1. Caucus and incoming-member data · feat/leadership-routing-caucus-data · PR #48
-  - [ ] 2. Router: one leadership slot, the incoming caucus
-  - [ ] 3. One ask for both chambers, with the leader named by a sourced row
-- Completed: PRD.
-- Folded: §1 (member-pages.md §Data & contracts).
-- Branch / open PRs: feat/leadership-routing-caucus-data.
-- Files changed (file:line map): `worker/src/types.ts:35` (`Caucus`, `MemberElect`,
-  `Repo.membersElect`); `worker/src/load.ts:103-135,288-300` (caucus checks,
-  `caucusOf`, `ELECT_EXPIRY`, `checkMembersElect`, `Rows.membersElect`);
-  `worker/schema.sql:103-118` (`members.caucus`, `members_elect`);
-  `worker/src/repo.ts:86,356`; `worker/scripts/seed.ts:25-30`;
-  `worker/scripts/import-members.ts` (HEADER + caucus); `worker/src/make-primary-goal.ts:40`;
-  `data/members.csv` (caucus column, 122 `not_returning=1`); `data/members_elect.csv`
-  (76 rows); `data/README.md`; `docs/specs/member-pages.md`;
-  `worker/test/members.test.ts:124`.
-- Tests run + result: quiet-check tsc PASS, test PASS, build PASS; prd-lint 0 violations.
-- Remaining: §2–3.
-- Decisions since last update: Kevin Kiley (CA-3, `I` in the roster) hand-set
-  `caucus = R`. Rows whose source is Green Papers/270towin/Wikipedia rather than
-  AP/state office are listed in the PR body for owner spot-check. No `members_elect`
-  row for seats without a departing same-number member (TX-35, UT-1, CA-6 under
-  Prop 50), for uncalled races, or for IL-2 (no https contact URL). Phones empty.
+  - [x] 1. Caucus and incoming-member data · PR #48 merged
+  - [x] 2. Router: one leadership slot, the incoming caucus · feat/leadership-routing-router-and-ask · PR #52
+  - [x] 3. One ask for both chambers, with the leader named by a sourced row · feat/leadership-routing-router-and-ask · PR #52
+- Completed: PRD, §1, §2, §3.
+- Folded: §1 (member-pages.md §Data & contracts); §2–3 (action-router.md
+  Behavior 5/7, Data & contracts, Invariants; personalised-documents.md
+  Behavior 5; goal-pages.md Behavior 2 and Invariants).
+- Branch / open PRs: feat/leadership-routing-router-and-ask · PR #52 (§2 + §3 in one PR).
+- Files changed (file:line map): `worker/src/types.ts` (`ElectSeat`, `IncomingSeat`,
+  `UncalledSeat`, `Incoming`, `TAKES_OFFICE`, `Delegation.incoming`);
+  `worker/src/repo.ts` (`incomingSeat`, `assembleDelegation` with elects);
+  `worker/src/ranking.ts` (`ruleInput`, `caucus` field, `Slot`, `slots`, `topTwo`
+  returns slots); `worker/src/route.ts` (`electCard`, `GoalCard.chamber/also/uncalled`,
+  `TargetCard.elect`); `worker/src/generate.ts` (`LeaderRow`, elect `Target`,
+  `incumbentIds`, `pickLeader`, `leaderLine`, `resolveTarget` elect ids);
+  `worker/src/standard.ts` (`leader_line`, elect seed targets); `worker/src/load.ts`,
+  `worker/src/index.ts` (report `known` for elect ids); `data/goals/house-caucus.yaml`,
+  `data/goals/senate-leader.yaml` (caucus rules); `data/positions/house-caucus.csv`,
+  `data/positions/senate-leader.csv` (new, header only); `data/script_blocks/leadership.yaml`
+  (`{{leader_line}}`, trimmed asks); `data/README.md` (grammar);
+  `web/src/components/Results.tsx` (`Card`, `Block`), `web/src/components/Target.tsx`
+  (elect line, Contact link); tests `worker/test/leadership.test.ts` (new),
+  `web/src/components/Results.test.tsx` (new), fixtures/route/goals/electoral/ranking
+  expectations updated for the incoming delegation.
+- Tests run + result: quiet-check tsc PASS, test PASS (worker), test-web PASS
+  (78), build PASS; results page 28.1 KB gzipped by the transitive-chunk
+  measure vs 27.8 KB on main (+0.3 KB; budget +2 KB).
+- Remaining: none.
+- Decisions since last update: leader-line wording shortened and three ask
+  variants trimmed to fit `max_words` 120 (see Changes); TX-21 and PA-1 route
+  fixtures now expect `senate-leader` / `house-caucus` because Talarico and
+  Harvie are incoming Democrats; the all-Republican case strips elect rows.
 - Known failures / blockers: none.
-- Next action: merge PR #48, then `/implement-prd-section docs/prd/leadership-routing.md` (next: §2. Router: one leadership slot, the incoming caucus).
+- Next action: merge PR #52, then /implement-prd-section (next: none; PRD archived).
 ## Open questions
 1. Name Jeffries and Schumer to every Democratic office, and how?
    Answered by the owner on 2026-11-06: conditional. The leader is named
@@ -300,3 +310,15 @@ Relies on: `docs/research/leader-call-scripts.md`,
   `not_returning` set from the 2026-11-03 results. Kevin Kiley (CA-3, `I` in
   the roster) is hand-set `caucus = R`, the same rule the PRD gives for
   King and Sanders. Spec delta for `member-pages.md` folded.
+- 2026-11-06 — §2 and §3 built on one branch and one PR (both touch
+  `route.ts`, `standard.ts` and `leadership.yaml`, so two PRs would have
+  conflicted). Deviation from §3.3 wording: the non-`for` leader lines
+  end "Until that changes, the vote should go to someone else." instead
+  of "so I am asking <target_role> <target_name> to vote for someone else
+  unless that changes", and the House/Senate ask variants drop "from the
+  NDAA" / "and say so before the vote" / "and who that is" — the
+  longest combination for a four-word name was 122 words against the
+  120-word `max_words` of the call script. Dates in the elect line are
+  formatted like every other date on the page ("Takes office Jan 3,
+  2027, replaces <name>"). Spec deltas for `action-router.md`,
+  `personalised-documents.md` and `goal-pages.md` folded.

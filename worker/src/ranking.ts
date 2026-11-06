@@ -1,5 +1,8 @@
 // §5 Goal ranking (deterministic). Pure functions; no I/O.
-import type { Delegation, Goal, Member, StateRow } from './types';
+import { CAUCUSES, type Delegation, type Goal, type Member, type StateRow } from './types';
+
+/** What a rule is evaluated against: a seat view (sitting or incoming) plus the state row. */
+export interface RuleInput { house: object | null; senators: object[]; state_row: StateRow | null }
 
 type Rule =
   | { always: true }
@@ -9,12 +12,17 @@ type Rule =
   | { senator: Partial<Record<keyof Member, unknown>> }
   | { state: { nonempty: (keyof StateRow)[] } };
 
-function matches(member: Member, where: Record<string, unknown>): boolean {
-  return Object.entries(where).every(([k, v]) => (member as unknown as Record<string, unknown>)[k] === v);
+function matches(seat: object, where: Record<string, unknown>): boolean {
+  return Object.entries(where).every(([k, v]) => (seat as Record<string, unknown>)[k] === v);
 }
 
-/** Evaluate one eligibility rule against a delegation. Unknown keys throw so a bad seed fails loudly. */
-export function evaluate(rule: Rule, d: Delegation): boolean {
+/** leadership-routing §2.2: leadership goals are judged on the incoming delegation; every other goal on the sitting one. */
+export function ruleInput(goal: Goal, d: Delegation): RuleInput {
+  return goal.category === 'leadership' ? { house: d.incoming.house, senators: d.incoming.senators, state_row: d.state_row } : d;
+}
+
+/** Evaluate one eligibility rule against a delegation view. Unknown keys throw so a bad seed fails loudly. */
+export function evaluate(rule: Rule, d: RuleInput): boolean {
   if ('always' in rule) return rule.always === true;
   if ('all' in rule) return rule.all.every((r) => evaluate(r, d));
   if ('any' in rule) return rule.any.some((r) => evaluate(r, d));
@@ -33,10 +41,14 @@ export function evaluate(rule: Rule, d: Delegation): boolean {
 
 /** §5.1 inputs: the only member/state fields a rule may test, with the value type each accepts. */
 // primary-2028 §1.1: electoral goals name one seat, so `target_2028`, `state` and `district` join the house inputs.
-const HOUSE_FIELDS: Record<string, 'party' | 'flag' | 'text' | 'int'> = { party: 'party', hasc: 'flag', conferee: 'flag', rc243: 'text', btb_cosponsor: 'flag', target_2028: 'flag', state: 'text', district: 'int' };
-const SENATOR_FIELDS: Record<string, 'party' | 'flag' | 'text' | 'int'> = { party: 'party', jrd_april_2026: 'text' };
+// leadership-routing §2.2: `caucus` (D|R) joins both sets; it is the only field a rule may test on a member-elect.
+type FieldType = 'party' | 'caucus' | 'flag' | 'text' | 'int';
+const HOUSE_FIELDS: Record<string, FieldType> = { party: 'party', caucus: 'caucus', hasc: 'flag', conferee: 'flag', rc243: 'text', btb_cosponsor: 'flag', target_2028: 'flag', state: 'text', district: 'int' };
+const SENATOR_FIELDS: Record<string, FieldType> = { party: 'party', caucus: 'caucus', jrd_april_2026: 'text' };
 const STATE_FIELDS = new Set<keyof StateRow>(['treasurer_name', 'treasurer_phone', 'decider', 'israel_bonds_usd', 'holdings_date', 'holdings_source', 'campaign_name', 'campaign_url', 'next_comment_date', 'holdings_status']);
 const PARTIES = new Set(['D', 'R', 'I']);
+const CAUCUS_SET = new Set<string>(CAUCUSES);
+const EXPECTS: Record<FieldType, string> = { party: 'D|R|I', caucus: 'D|R', flag: '0|1', int: 'a non-negative integer', text: 'a string' };
 
 function checkWhere(kind: 'house' | 'senator', where: unknown): void {
   if (typeof where !== 'object' || where === null || Array.isArray(where)) throw new Error(`eligibility: ${kind} must be an object`);
@@ -44,8 +56,8 @@ function checkWhere(kind: 'house' | 'senator', where: unknown): void {
   for (const [k, v] of Object.entries(where)) {
     const t = allowed[k];
     if (!t) throw new Error(`eligibility: ${kind}.${k} is not a §5.1 input (allowed: ${Object.keys(allowed).join(', ')})`);
-    const ok = t === 'party' ? typeof v === 'string' && PARTIES.has(v) : t === 'flag' ? v === 0 || v === 1 : t === 'int' ? Number.isInteger(v) && (v as number) >= 0 : typeof v === 'string';
-    if (!ok) throw new Error(`eligibility: ${kind}.${k} expects ${t === 'party' ? 'D|R|I' : t === 'flag' ? '0|1' : t === 'int' ? 'a non-negative integer' : 'a string'}, got ${JSON.stringify(v)}`);
+    const ok = t === 'party' ? typeof v === 'string' && PARTIES.has(v) : t === 'caucus' ? typeof v === 'string' && CAUCUS_SET.has(v) : t === 'flag' ? v === 0 || v === 1 : t === 'int' ? Number.isInteger(v) && (v as number) >= 0 : typeof v === 'string';
+    if (!ok) throw new Error(`eligibility: ${kind}.${k} expects ${EXPECTS[t]}, got ${JSON.stringify(v)}`);
   }
 }
 
@@ -128,7 +140,7 @@ export interface Ranked {
 export function rank(goals: Goal[], d: Delegation, today: Date): Ranked[] {
   return goals
     .filter((g) => g.status === 'active')
-    .map((g) => ({ goal: g, score: score(g, today), eligible: evaluate(parseRule(g.eligibility), d) }))
+    .map((g) => ({ goal: g, score: score(g, today), eligible: evaluate(parseRule(g.eligibility), ruleInput(g, d)) }))
     .filter((r) => r.eligible)
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
@@ -139,14 +151,28 @@ export function rank(goals: Goal[], d: Delegation, today: Date): Ranked[] {
     });
 }
 
+/** One results slot: a goal, plus (leadership-routing §2.3) the other leadership goal riding on the same card. */
+export interface Slot { goal: Goal; also: Goal | null }
+
+/** §2.3: the leadership goals share one slot; the higher-ranked is the card, the other is `also`, so the slot keeps the higher score. */
+export function slots(ranked: Ranked[]): Slot[] {
+  const out: Slot[] = [];
+  for (const r of ranked) {
+    const lead = r.goal.category === 'leadership' ? out.find((s) => s.goal.category === 'leadership') : undefined;
+    if (lead) { if (!lead.also) lead.also = r.goal; continue; }
+    out.push({ goal: r.goal, also: null });
+  }
+  return out;
+}
+
 /**
- * §1.3 + §5.4: the top two. If only one is eligible, the second card is the
+ * §1.3 + §5.4: the top two slots. If only one is eligible, the second card is the
  * state goal (even when its own rule failed); if none, an empty list.
  */
-export function topTwo(goals: Goal[], d: Delegation, today: Date): Goal[] {
-  const ranked = rank(goals, d, today).map((r) => r.goal);
-  if (ranked.length >= 2) return ranked.slice(0, 2);
-  if (ranked.length === 0) return [];
-  const state = goals.find((g) => g.category === 'state' && g.status === 'active' && g.slug !== ranked[0].slug);
-  return state ? [ranked[0], state] : ranked;
+export function topTwo(goals: Goal[], d: Delegation, today: Date): Slot[] {
+  const top = slots(rank(goals, d, today));
+  if (top.length >= 2) return top.slice(0, 2);
+  if (top.length === 0) return [];
+  const state = goals.find((g) => g.category === 'state' && g.status === 'active' && g.slug !== top[0].goal.slug);
+  return state ? [top[0], { goal: state, also: null }] : top;
 }

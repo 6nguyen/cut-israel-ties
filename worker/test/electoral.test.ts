@@ -125,28 +125,30 @@ describe('eligibility (§1.1, §5.1 grammar)', () => {
 describe('ranking (§1.3)', () => {
   const activeGoal = (y: string) => y.replace(/^status: .*$/m, 'status: active');
   it('ranks last among eligible goals while any federal goal is open, and leads only once they are closed', async () => {
-    // TX-21 (R, R senators, TX holdings unknown): ndaa-1217 is the only other eligible goal, so the
-    // seat goal fills the second card; it never outranks an open federal goal.
+    // TX-21 (R, R senators, Talarico (D) incoming for Cornyn's seat, TX holdings unknown): ndaa-1217 and
+    // senate-leader are the other eligible goals; the seat goal ranks after both and never outranks an open federal goal.
     const open = load({ goal: activeGoal });
     const tx21 = await new MemoryRepo(open).delegation('TX', 21);
     const active = open.goals.filter((g) => g.status === 'active');
     const ranked = rank(active, tx21, TODAY);
     expect(ranked.map((r) => r.goal.slug).at(-1)).toBe(SLUG);
-    expect(ranked.map((r) => r.goal.slug)).toEqual(['ndaa-1217', SLUG]);
+    expect(ranked.map((r) => r.goal.slug)).toEqual(['ndaa-1217', 'senate-leader', SLUG]);
     expect(Math.max(...ranked.filter((r) => r.goal.slug !== SLUG).map((r) => r.score))).toBeGreaterThan(ranked.at(-1)!.score);
 
     const closed = load({ closeFederal: true, goal: activeGoal });
     const closedActive = closed.goals.filter((g) => g.status === 'active');
     expect(closedActive.map((g) => g.slug).sort()).toEqual([SLUG, 'state-bonds']);
     const d = await new MemoryRepo(closed).delegation('TX', 21);
-    expect(topTwo(closedActive, d, TODAY).map((g) => g.slug)).toEqual([SLUG, 'state-bonds']); // state goal ineligible for TX, padded in
+    expect(topTwo(closedActive, d, TODAY).map((s) => s.goal.slug)).toEqual([SLUG, 'state-bonds']); // state goal ineligible for TX, padded in
   });
   it('a delegation with two open federal goals never sees it', async () => {
     const open = load({ goal: activeGoal });
     const repo = new MemoryRepo(open);
-    const d = { ...(await repo.delegation('TX', 21)), house: { ...ROY, party: 'D' as const } }; // house-caucus + ndaa-1217 eligible
+    const base = await repo.delegation('TX', 21);
+    const roy = { ...ROY, party: 'D' as const, caucus: 'D' as const };
+    const d = { ...base, house: roy, incoming: { ...base.incoming, house: roy } }; // house-caucus + ndaa-1217 eligible
     const active = open.goals.filter((g) => g.status === 'active');
-    expect(topTwo(active, d, TODAY).map((g) => g.slug)).not.toContain(SLUG);
+    expect(topTwo(active, d, TODAY).map((s) => s.goal.slug)).not.toContain(SLUG);
     expect(rank(active, d, TODAY).map((r) => r.goal.slug).at(-1)).toBe(SLUG);
   });
 });
