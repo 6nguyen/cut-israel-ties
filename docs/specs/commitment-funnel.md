@@ -80,12 +80,28 @@ who was on it. The receipt itself and the share sheet are in
    Done / Not yet / Still on? controls as a call. A retry never posts
    anything; nothing counts until a new receipt.
 
+10. **Next office and echo** (`call-follow-through` §3–4). Once the
+    commitment and captain steps are answered or skipped, and before
+    "Share", the receipt screen shows "Next: <Role Name>" for each target
+    of the goal with no receipt from this device in the last 24 h (local
+    log `cut-ties:receipts`, written when `/api/receipt` succeeds), each
+    linking to `/goals/<slug>/act/<action>?target=<id>`; when every target
+    has one it reads "All three called this week." (two targets: "All of
+    your targets called this week."); a goal with one target shows
+    nothing. Below it, with a stored place, the `Counts` island in `echo`
+    mode: "You're one of <N> constituents in <STATE-NN> who called this
+    week", the state line when the district is under threshold, else
+    "Counted." (`district-counters.md` §6). Both load with the receipt
+    screen, after the act page's own bundle.
+
 ## Data & contracts
 - `localStorage` `cut-ties:commitments` = `[{v: 1, goal, action, target,
   due, kind?, who?}]` (`due` ISO; `kind` `call` (default) or `retry`;
   `who` the "Role Name" a retry shows). Key = `call:<goal>` or
   `retry:<goal>:<target>`: one call per goal, one retry per goal and
-  target (`keyOf`); `cut-ties:captain` = `{v: 1, goal,
+  target (`keyOf`); `cut-ties:receipts` = `[{v: 1, goal, action, target,
+  at}]`, one row per goal, action and target, pruned to 24 h on every
+  read, cleared by "Start over"; `cut-ties:captain` = `{v: 1, goal,
   due, people: [{name, channel: text|in_person|call, done}] ×3, who?,
   receipted?}` where `who` is the target official's surname for the
   share line and `receipted` marks a list whose receipt posted. Records
@@ -125,6 +141,9 @@ who was on it. The receipt itself and the share sheet are in
       (`web/src/components/funnel.test.ts`).
 - [ ] A captain field with a digit or `@` is refused and nothing is
       stored; the whole flow makes no request carrying a name.
+- [ ] "Next:" lists only targets without a receipt in the last 24 h,
+      links carry `?target=`, and the slot is empty for a one-target goal
+      (`funnel.test.ts`, `commitments.test.ts`).
 - [ ] `no_answer` → "Try again" stores exactly one `retry` due ≥60 min
       ahead inside DC hours, a remount offers no second one, and no
       request is made (`funnel.test.ts`, `commitments.test.ts`).

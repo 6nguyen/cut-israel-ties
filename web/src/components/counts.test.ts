@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h, render } from 'preact';
 import { act } from 'preact/test-utils';
-import Counts, { counterLine, type CountsResponse } from './Counts';
+import Counts, { counterLine, echoLine, type CountsResponse } from './Counts';
 
 const zero = { calls: 0, letters: 0, comments: 0, captain_lists: 0 };
 const resp = (district: Partial<typeof zero>, state: Partial<typeof zero> = {}): CountsResponse => ({ district: { ...zero, ...district }, state: { ...zero, ...state }, since: '2026-10-28T12:00:00Z' });
@@ -53,5 +53,32 @@ describe('<Counts> (§2.3)', () => {
     await flush();
     expect(root.textContent).toBe('');
     expect(root.textContent).not.toContain('0');
+  });
+});
+
+describe('echo mode (call-follow-through §4)', () => {
+  it('speaks in the first person with the same scope rules, and reads "Counted." with no bucket or no response', () => {
+    expect(echoLine(resp({ calls: 12 }, { calls: 40 }), 'TX', 35)).toBe("You're one of 12 constituents in TX-35 who called this week");
+    expect(echoLine(resp({}, { calls: 8 }), 'TX', 35)).toBe("You're one of 8 constituents in Texas who called this week");
+    expect(echoLine(resp({}), 'TX', 35)).toBe('Counted.');
+    expect(echoLine(null, 'TX', 35)).toBe('Counted.');
+  });
+  it('<Counts echo> fetches once and falls back to "Counted." on an empty or failed response', async () => {
+    const f = vi.fn(async () => new Response(JSON.stringify(resp({ calls: 12 })), { status: 200 }));
+    vi.stubGlobal('fetch', f);
+    act(() => { render(h(Counts, { goal: 'ndaa-1217', state: 'TX', district: 35, echo: true }), root); });
+    await flush();
+    expect(root.querySelector('[data-counts]')?.textContent).toBe("You're one of 12 constituents in TX-35 who called this week");
+    expect(f).toHaveBeenCalledTimes(1);
+    render(null, root);
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(resp({})), { status: 200 })));
+    act(() => { render(h(Counts, { goal: 'ndaa-1217', state: 'TX', district: 35, echo: true }), root); });
+    await flush();
+    expect(root.querySelector('[data-counts]')?.textContent).toBe('Counted.');
+    render(null, root);
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline'); }));
+    act(() => { render(h(Counts, { goal: 'ndaa-1217', state: 'TX', district: 35, echo: true }), root); });
+    await flush();
+    expect(root.querySelector('[data-counts]')?.textContent).toBe('Counted.');
   });
 });

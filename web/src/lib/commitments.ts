@@ -6,6 +6,7 @@ export const CAPTAIN_KEY = 'cut-ties:captain';
 /** office-visits §2.3: the visits this device said it would come to (and the organiser's contact, received once). */
 export const VISITS_KEY = 'cut-ties:visits';
 import { nextOpenSlot, type Office } from './hours';
+import { buildIcs } from './ics';
 
 export type Channel = 'text' | 'in_person' | 'call';
 export const CHANNELS: [Channel, string][] = [['text', 'text'], ['in_person', 'in person'], ['call', 'call']];
@@ -40,7 +41,24 @@ export function loadCaptain(): Captain | null {
 }
 export function saveCaptain(c: Captain | null): void { write(CAPTAIN_KEY, c); }
 /** "Start over": every funnel item goes. */
-export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); write(VISITS_KEY, null); }
+export function clearFunnel(): void { write(COMMIT_KEY, null); write(CAPTAIN_KEY, null); write(VISITS_KEY, null); write(RECEIPTS_KEY, null); }
+
+// call-follow-through §3: the device's own receipts for the next-office chain. Goal, action, target and
+// a time; pruned to 24 h on every read. Never sent: the Worker already has the receipt row.
+export const RECEIPTS_KEY = 'cut-ties:receipts';
+export interface LoggedReceipt { v: 1; goal: string; action: string; target: string; at: string }
+const DAY_MS = 24 * 60 * 60_000;
+export function recentReceipts(now: Date = new Date()): LoggedReceipt[] {
+  const list = read<LoggedReceipt[]>(RECEIPTS_KEY);
+  return Array.isArray(list) ? list.filter((r) => r?.v === 1 && typeof r.at === 'string' && now.getTime() - Date.parse(r.at) < DAY_MS) : [];
+}
+export function logReceipt(r: Omit<LoggedReceipt, 'v' | 'at'>, now: Date = new Date()): void {
+  write(RECEIPTS_KEY, [...recentReceipts(now).filter((x) => !(x.goal === r.goal && x.action === r.action && x.target === r.target)), { v: 1, ...r, at: now.toISOString() }]);
+}
+/** The targets of one action this device filed a receipt for in the last 24 h. */
+export function receiptedTargets(goal: string, action: string, now: Date = new Date()): Set<string> {
+  return new Set(recentReceipts(now).filter((r) => r.goal === goal && r.action === action).map((r) => r.target));
+}
 
 /** §2.1 return visit: anything still to do? A list that already posted its receipt is finished. */
 export function hasOpenItems(): boolean {
@@ -106,4 +124,9 @@ export function receiptLine(district: string, who: string | undefined, due: stri
 /** §1.4 "Copy a message": the goal deep link with one line naming the goal and the date, for the user's own groups. */
 export function copyLine(title: string, due: string, url: string): string {
   return `Will you call about "${title}" by ${fmtDay(due)}? Two minutes, the words are ready: ${url}`;
+}
+
+/** The commitment reminder: one 15-minute event at the due time, the goal deep link, no name. */
+export function reminderIcs(goal: string, title: string, due: string, url: string, retry = false): string {
+  return buildIcs({ uid: `${goal}-${retry ? 'retry-' : ''}${Date.parse(due)}@cut-the-ties`, start: new Date(due), title: `${retry ? 'Try again' : 'Call about'}: ${title}`, url, description: `Your words are ready at ${url}` });
 }

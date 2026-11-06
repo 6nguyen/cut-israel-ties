@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { DocFormat, FormField, GenerateDone } from '@worker/generate';
 import type { TargetCard } from '../lib/api';
 import { deviceId, loadPlace } from '../lib/store';
-import { commitmentFor, fmtDue } from '../lib/commitments';
-import Funnel, { Retry } from './Funnel';
+import { commitmentFor, fmtDue, logReceipt } from '../lib/commitments';
+import Funnel from './Funnel';
 import OpenChip from './OpenChip';
 import { isOpen } from '../lib/hours';
 
@@ -73,6 +73,12 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   const place = loadPlace();
+  const [extras, setExtras] = useState<typeof import('./ReceiptExtras') | null>(null); // call-follow-through: loaded once a receipt exists
+
+  useEffect(() => {
+    if (receipt === null || extras) return;
+    import('./ReceiptExtras').then(setExtras).catch(() => {});
+  }, [receipt]);
 
   useEffect(() => {
     setPromised(commitmentFor(goal)?.due ?? null); // commitment-funnel §2.4
@@ -143,6 +149,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
     const res = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ goal, action, target, state: place?.state, district: place?.district, device: deviceId() }) });
     const data = (await res.json().catch(() => ({}))) as { id?: number; message?: string };
     if (!res.ok || !data.id) { setError(data.message ?? 'Could not record that.'); return; }
+    logReceipt({ goal, action, target }); // call-follow-through §3
     setReceipt(data.id);
   }
 
@@ -255,10 +262,14 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
                 <p class="font-semibold"><span class="chip bg-acid text-ink mr-2">✓</span>Counted. No name, no address: just this goal, this office, today.</p>
                 <Funnel goal={goal} action={action} target={target} who={phase.doc.target.name.trim().split(/\s+/).pop()} title={title ?? goal} type={type} decision={decision ?? null} place={place} onFinished={() => setFunnelDone(true)} />
                 {funnelDone && (
-                  <div class="flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
-                    <a href="/results" class="btn btn-ghost">Your other action</a>
-                  </div>
+                  <>
+                    {extras && <extras.NextOffice goal={goal} action={action} choices={choices} />}
+                    {extras && place && <extras.Counts goal={goal} state={place.state} district={scope === 'state' ? null : place.district} echo />}
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-ghost" onClick={() => void share()}>{copied ? 'Link copied' : 'Share'}</button>
+                      <a href="/results" class="btn btn-ghost">Your other action</a>
+                    </div>
+                  </>
                 )}
                 {!reported ? (
                   <form class="flex flex-col gap-2 border-t-2 border-ink pt-3" onSubmit={(e) => { e.preventDefault(); if (outcome) void report(); }}>
@@ -274,7 +285,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
                     <button type="submit" class="btn btn-ghost self-start" disabled={!outcome}>Send</button>
                   </form>
                 ) : <p class="text-sm">Thanks. Reports go to the maintainer; they never change a listed position on their own.</p>}
-                {outcome === 'no_answer' && <Retry goal={goal} action={action} target={target} who={`${phase.doc.target.role} ${phase.doc.target.name}`} title={title ?? goal} />}
+                {outcome === 'no_answer' && extras && <extras.Retry goal={goal} action={action} target={target} who={`${phase.doc.target.role} ${phase.doc.target.name}`} title={title ?? goal} />}
                 <div class="border-t-2 border-ink pt-3">
                   <label class="label-code block mb-1" for="reflection">One line for yourself: how did it feel? (stays on this page)</label>
                   <input id="reflection" type="text" class="input-field w-full text-sm" />

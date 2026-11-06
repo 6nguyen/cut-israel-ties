@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CAPTAIN_KEY, COMMIT_KEY, addCommitment, ceilingFor, clearFunnel, commitmentFor, defaultDue, hasOpenItems, loadCaptain, loadCommitments, maxDue, receiptLine, retryDue, retryFor, saveCaptain, validName } from './commitments';
+import { addCommitment, CAPTAIN_KEY, ceilingFor, clearFunnel, COMMIT_KEY, commitmentFor, defaultDue, hasOpenItems, loadCaptain, loadCommitments, logReceipt, maxDue, receiptedTargets, receiptLine, recentReceipts, retryDue, retryFor, saveCaptain, validName } from './commitments';
 
 const people = (names: string[]) => names.map((name) => ({ name, channel: 'text' as const, done: false }));
 
@@ -81,5 +81,21 @@ describe('local schema and open items (§1.2, §2.1)', () => {
   it('the receipt line names a district, an official and a date, never a person', () => {
     const line = receiptLine('TX-35', 'Casar', '2026-11-07T23:00:00.000Z');
     expect(line).toMatch(/^Three of us in TX-35 are calling Casar before Nov \d+\. Who's next\?$/);
+  });
+});
+
+describe('local receipt log (call-follow-through §3)', () => {
+  it('keeps one row per goal, action and target for 24 h and is cleared with the funnel', () => {
+    const t0 = new Date('2026-11-02T15:00:00Z');
+    logReceipt({ goal: 'g', action: 'a', target: 'X' }, t0);
+    logReceipt({ goal: 'g', action: 'a', target: 'X' }, new Date(t0.getTime() + 60_000)); // same target: replaced, not doubled
+    logReceipt({ goal: 'g', action: 'a', target: 'Y' }, t0);
+    expect(recentReceipts(t0).map((r) => r.target)).toEqual(['X', 'Y']);
+    expect(receiptedTargets('g', 'a', new Date(t0.getTime() + 23 * 60 * 60_000))).toEqual(new Set(['X', 'Y']));
+    expect(receiptedTargets('g', 'a', new Date(t0.getTime() + 24 * 60 * 60_000))).toEqual(new Set(['X'])); // Y is a day old, X a minute younger
+    expect(receiptedTargets('g', 'other', t0).size).toBe(0);
+    clearFunnel();
+    expect(recentReceipts(t0)).toEqual([]);
+    expect(localStorage.getItem('cut-ties:receipts')).toBeNull();
   });
 });

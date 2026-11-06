@@ -40,3 +40,22 @@ export function downloadIcs(name: string, ics: string): void {
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+// call-follow-through §5: the public decision-date feed, built once per web build (no user data).
+export interface FeedEvent { uid: string; date: string; title: string; url: string }
+/** YYYY-MM-DD → YYYYMMDD, and the all-day DTEND (the next day). */
+const dateOnly = (ymd: string): string => ymd.replace(/-/g, '');
+const nextDay = (ymd: string): string => new Date(Date.parse(`${ymd}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+/** One all-day VEVENT per entry with a stable UID; REFRESH-INTERVAL and X-PUBLISHED-TTL of one day. */
+export function buildFeed(events: FeedEvent[], stamp: Date): string {
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cut the Ties//Decision dates//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    `X-WR-CALNAME:${icsText('Cut the ties — decision dates')}`, 'REFRESH-INTERVAL;VALUE=DURATION:P1D', 'X-PUBLISHED-TTL:P1D',
+    ...events.flatMap((e) => [
+      'BEGIN:VEVENT', `UID:${e.uid}`, `DTSTAMP:${icsDate(stamp)}`, `DTSTART;VALUE=DATE:${dateOnly(e.date)}`, `DTEND;VALUE=DATE:${dateOnly(nextDay(e.date))}`,
+      `SUMMARY:${icsText(e.title)}`, `DESCRIPTION:${icsText(e.url)}`, `URL:${e.url}`, 'END:VEVENT',
+    ]),
+    'END:VCALENDAR',
+  ];
+  return lines.flatMap(fold).join('\r\n') + '\r\n';
+}

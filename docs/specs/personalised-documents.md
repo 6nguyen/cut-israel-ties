@@ -55,8 +55,10 @@ stores identifies them. Address routing, goals and ranking are in
    (goal, action, target, stored state/district, device hash). After a
    receipt, first the commitment line and the captain list
    (`commitment-funnel.md` §1–4; each skippable in one tap), and only
-   once both are answered or skipped: "Share" (device share sheet with
-   the goal deep link, clipboard fallback), the office-response picker
+   once both are answered or skipped: the next-office buttons and the
+   "You're one of <N>" line (`commitment-funnel.md` §10), then "Share"
+   (device share sheet with the goal deep link, clipboard fallback), the
+   office-response picker
    (`will_support · undecided · opposed · no_answer · other` + note
    ≤140) → `POST /api/report` (`no_answer` also shows the voicemail line
    and "Try again", `commitment-funnel.md` §9), a reflection line that

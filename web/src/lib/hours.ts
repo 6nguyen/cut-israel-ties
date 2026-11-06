@@ -13,34 +13,25 @@ const WEEKDAYS = [1, 2, 3, 4, 5];
 export const DC_RULES: Rule[] = [{ days: WEEKDAYS, open: 9 * 60, close: 18 * 60 }];
 
 /** Each state's main time zone (the capital's where a state spans two); territories included. */
-export const STATE_ZONES: Record<string, string> = {
-  AL: 'America/Chicago', AK: 'America/Anchorage', AZ: 'America/Phoenix', AR: 'America/Chicago', CA: 'America/Los_Angeles',
-  CO: 'America/Denver', CT: 'America/New_York', DE: 'America/New_York', DC: 'America/New_York', FL: 'America/New_York',
-  GA: 'America/New_York', HI: 'Pacific/Honolulu', ID: 'America/Boise', IL: 'America/Chicago', IN: 'America/Indiana/Indianapolis',
-  IA: 'America/Chicago', KS: 'America/Chicago', KY: 'America/New_York', LA: 'America/Chicago', ME: 'America/New_York',
-  MD: 'America/New_York', MA: 'America/New_York', MI: 'America/Detroit', MN: 'America/Chicago', MS: 'America/Chicago',
-  MO: 'America/Chicago', MT: 'America/Denver', NE: 'America/Chicago', NV: 'America/Los_Angeles', NH: 'America/New_York',
-  NJ: 'America/New_York', NM: 'America/Denver', NY: 'America/New_York', NC: 'America/New_York', ND: 'America/Chicago',
-  OH: 'America/New_York', OK: 'America/Chicago', OR: 'America/Los_Angeles', PA: 'America/New_York', RI: 'America/New_York',
-  SC: 'America/New_York', SD: 'America/Chicago', TN: 'America/Chicago', TX: 'America/Chicago', UT: 'America/Denver',
-  VT: 'America/New_York', VA: 'America/New_York', WA: 'America/Los_Angeles', WV: 'America/New_York', WI: 'America/Chicago',
-  WY: 'America/Denver', PR: 'America/Puerto_Rico', VI: 'America/Puerto_Rico', GU: 'Pacific/Guam', MP: 'Pacific/Guam', AS: 'Pacific/Pago_Pago',
-};
+const ZONES: [string, string][] = [
+  ['America/New_York', 'CT DE DC FL GA KY ME MD MA NH NJ NY NC OH PA RI SC VT VA WV'],
+  ['America/Chicago', 'AL AR IL IA KS LA MN MS MO NE ND OK SD TN TX WI'],
+  ['America/Denver', 'CO MT NM UT WY'], ['America/Los_Angeles', 'CA NV OR WA'], ['America/Anchorage', 'AK'], ['America/Phoenix', 'AZ'],
+  ['Pacific/Honolulu', 'HI'], ['America/Boise', 'ID'], ['America/Indiana/Indianapolis', 'IN'], ['America/Detroit', 'MI'],
+  ['America/Puerto_Rico', 'PR VI'], ['Pacific/Guam', 'GU MP'], ['Pacific/Pago_Pago', 'AS'],
+];
+export const STATE_ZONES: Record<string, string> = {};
+for (const [zone, states] of ZONES) for (const st of states.split(' ')) STATE_ZONES[st] = zone;
 
 /** Build warning count: every `hours` string that did not parse (the roster build reads it; the UI never does). */
 export const hoursWarnings = { unparseable: 0 };
 
-const DAY_NAMES: Record<string, number> = { su: 0, m: 1, mo: 1, tu: 2, t: 2, w: 3, we: 3, th: 4, r: 4, f: 5, fr: 5, sa: 6, s: 6 };
+const DAY2 = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa'];
+/** "Mon", "Monday", "M", "Th", "R" (Thursday) → 0–6; null for anything else. */
 function dayIndex(tok: string): number | null {
   const t = tok.toLowerCase().replace(/[^a-z]/g, '');
-  if (!t) return null;
-  if (t === 'sun' || t.startsWith('sund')) return 0;
-  if (t === 'sat' || t.startsWith('satu')) return 6;
-  if (t.startsWith('thu')) return 4;
-  if (t.startsWith('tue')) return 2;
-  const two = t.slice(0, 2);
-  if (t.length >= 2 && two in DAY_NAMES) return DAY_NAMES[two];
-  return t.length === 1 && t in DAY_NAMES ? DAY_NAMES[t] : null;
+  const i = t.length === 1 ? 'umtwrfs'.indexOf(t) : t.length > 1 ? DAY2.indexOf(t.slice(0, 2)) : -1;
+  return i < 0 ? null : i;
 }
 function dayRange(a: number, b: number): number[] {
   const out: number[] = [];
@@ -140,12 +131,8 @@ export function countUnparseable(hours: Iterable<string | null | undefined>): nu
 }
 
 interface Parts { y: number; mo: number; d: number; h: number; mi: number; wd: number }
-const fmtCache = new Map<string, Intl.DateTimeFormat>();
-function fmtFor(zone: string): Intl.DateTimeFormat {
-  let f = fmtCache.get(zone);
-  if (!f) { f = new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }); fmtCache.set(zone, f); }
-  return f;
-}
+const fmtCache: Record<string, Intl.DateTimeFormat> = {};
+const fmtFor = (zone: string): Intl.DateTimeFormat => (fmtCache[zone] ??= new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }));
 const WD: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 /** Wall-clock parts of an instant in a zone. */
 export function zoneParts(t: Date, zone: string): Parts {

@@ -2,9 +2,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h, render } from 'preact';
 import { act } from 'preact/test-utils';
-import Funnel, { Retry } from './Funnel';
+import Funnel from './Funnel';
+import { NextOffice, Retry } from './ReceiptExtras';
 import YourWeek from './YourWeek';
-import { CAPTAIN_KEY, COMMIT_KEY, loadCaptain, loadCommitments } from '../lib/commitments';
+import { CAPTAIN_KEY, COMMIT_KEY, loadCaptain, loadCommitments, logReceipt } from '../lib/commitments';
 
 const PLACE = { state: 'TX', district: 35 };
 const GOALS = [
@@ -82,6 +83,35 @@ describe('Retry after no_answer (call-follow-through §1)', () => {
     expect([...root.querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Add reminder (.ics)']);
     expect(fetchMock).not.toHaveBeenCalled();
     vi.useRealTimers();
+  });
+});
+
+describe('NextOffice (call-follow-through §3)', () => {
+  const choices = [{ id: 'A1', label: 'Sen. Alpha' }, { id: 'B2', label: 'Sen. Beta' }, { id: 'C3', label: 'Rep. Gamma' }];
+  const mountNext = (c = choices) => act(() => { render(h(NextOffice, { goal: 'ndaa-1217', action: 'ndaa-1217-call', choices: c }), root); });
+  it('lists "Next: <office>" for every target without a receipt today, linking to the act page with the target', async () => {
+    logReceipt({ goal: 'ndaa-1217', action: 'ndaa-1217-call', target: 'A1' });
+    logReceipt({ goal: 'other-goal', action: 'other-call', target: 'B2' }); // another goal's receipt does not count
+    logReceipt({ goal: 'ndaa-1217', action: 'ndaa-1217-call', target: 'C3' }, new Date(Date.now() - 25 * 60 * 60_000)); // yesterday's is pruned
+    await mountNext();
+    const links = [...root.querySelectorAll('[data-next-office] a')];
+    expect(links.map((a) => a.textContent)).toEqual(['Next: Sen. Beta', 'Next: Rep. Gamma']);
+    expect(links[0].getAttribute('href')).toBe('/goals/ndaa-1217/act/ndaa-1217-call?target=B2');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('reads "All three called this week." once every target has a receipt, the generic line for two, nothing for one', async () => {
+    for (const t of ['A1', 'B2', 'C3']) logReceipt({ goal: 'ndaa-1217', action: 'ndaa-1217-call', target: t });
+    await mountNext();
+    expect(root.querySelector('[data-next-done]')?.textContent).toBe('All three called this week.');
+    render(null, root);
+    await mountNext(choices.slice(0, 2));
+    expect(root.querySelector('[data-next-done]')?.textContent).toBe('All of your targets called this week.');
+    render(null, root);
+    await mountNext(choices.slice(0, 1));
+    expect(root.querySelector('[data-next-office]')).toBeNull();
+    render(null, root);
+    await mountNext([{ id: 'A1', label: '' }]); // the URL-only choice before the roster loads
+    expect(root.querySelector('[data-next-office]')).toBeNull();
   });
 });
 
