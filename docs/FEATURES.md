@@ -9,7 +9,7 @@
 | deployment | BUILDING | Merge → Worker + D1 seed + Pages deploy, PR previews, rollb… | [spec](specs/deployment.md) | [deploy](prd/deploy.md) 2/3 +1 | 2026-11-06 |
 | electoral-record | BUILDING | One-seat sourced record before a 2028 primary: member's pos… | [spec](specs/electoral-record.md) | [primary-2028](prd/primary-2028.md) 1/2 | 2026-11-04 |
 | goal-pages | BUILDING | Goals overview, goal detail and prep pages, goal lifecycle,… | [spec](specs/goal-pages.md) | [address-autocomplete](prd/address-autocomplete.md) 0/5 +1 | 2026-11-06 |
-| maintainer-tooling | BUILDING | Draft a sourced position row, weekly report digest by email… | [spec](specs/maintainer-tooling.md) | [state-holdings-sweep](prd/state-holdings-sweep.md) 2/3 +1 | 2026-11-04 |
+| maintainer-tooling | BUILDING | Draft a sourced position row, weekly report digest by email… | [spec](specs/maintainer-tooling.md) | [maintainer-research-routines](prd/maintainer-research-routines.md) 0/5 +1 | 2026-11-06 |
 | member-pages | BUILDING | Roster import, member page with contact and position, whip… | [spec](specs/member-pages.md) | [district-vintage-rollover](prd/district-vintage-rollover.md) 2/3 +1 | 2026-11-06 |
 | on-device-districts | BUILDING | Browser location → district on the device, per-state TopoJS… | [spec](specs/on-device-districts.md) | [address-autocomplete](prd/address-autocomplete.md) 0/5 +1 | 2026-11-06 |
 | personalised-documents | PINNED | Act page → screened, generated document → receipt and report | [spec](specs/personalised-documents.md) | [leadership-routing](prd/leadership-routing.md) 0/3 | 2026-11-06 |
