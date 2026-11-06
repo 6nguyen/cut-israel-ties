@@ -56,7 +56,7 @@ no `Needs` entry can run in parallel with the row above it. Rules:
 
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
-| 1 | [leadership-routing.md](leadership-routing.md) | APPROVED | — | `caucus` column, `members_elect.csv`, one leadership slot on `/results` with House + Senate calls, `{{leader_line}}` naming the incumbent leader from a sourced row; deadline the House caucus vote |
+| 1 | [leadership-routing.md](leadership-routing.md) | APPROVED (§1 merged PR #48; next §2) | — | `caucus` column, `members_elect.csv`, one leadership slot on `/results` with House + Senate calls, `{{leader_line}}` naming the incumbent leader from a sourced row; deadline the House caucus vote |
 | 2 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED (§1 merged PR #43; next §5) | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–2 |
 | 3 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
 | 4 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
