@@ -18,7 +18,7 @@ export const SENATE_XML_URL = 'https://www.senate.gov/general/contact_informatio
 /** roster-freshness §4: the 120th Congress convenes at noon; a member missing from the roster before this day is `stale:`, from this day on `left:`. */
 export const TRANSITION_DATE = '2027-01-03';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'data', 'members.csv');
-export const HEADER = ['bioguide_id', 'name', 'party', 'chamber', 'state', 'district', 'dc_phone', 'district_phone', 'contact_form_url', 'hasc', 'conferee', 'rc243', 'jrd_april_2026', 'btb_cosponsor', 'target_2028', 'money_url', 'district_office_address', 'district_office_city', 'contact_kind', 'not_returning', 'left_office'];
+export const HEADER = ['bioguide_id', 'name', 'party', 'chamber', 'state', 'district', 'dc_phone', 'district_phone', 'contact_form_url', 'hasc', 'conferee', 'rc243', 'jrd_april_2026', 'btb_cosponsor', 'target_2028', 'money_url', 'district_office_address', 'district_office_city', 'contact_kind', 'not_returning', 'left_office', 'caucus'];
 const FROM_DATASET = new Set(['party', 'chamber', 'state', 'district', 'dc_phone', 'contact_form_url', 'contact_kind']);
 const PARTY: Record<string, string> = { Democrat: 'D', Republican: 'R', Independent: 'I' };
 

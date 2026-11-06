@@ -1,5 +1,5 @@
 import type {
-  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, Office, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
+  Action, BlockRow, Delegation, GenerationCounts, GenerationRow, Goal, Member, MemberElect, Office, Position, ReceiptRow, Repo, ReportRow, ScreenClass, ScreeningRow, StateRow,
   LatestReport, ReceiptBuckets, ReceiptKind, ReceiptLimitCounts, TokenSum, Visit, VisitRequestRow, VisitRow, VisitStatus,
 } from './types';
 
@@ -82,6 +82,9 @@ export class D1Repo implements Repo {
   }
   async offices(bioguideId: string): Promise<Office[]> {
     return (await this.db.prepare(`SELECT * FROM district_offices WHERE bioguide_id = ? ORDER BY rowid`).bind(bioguideId).all<Office>()).results;
+  }
+  async membersElect(state: string): Promise<MemberElect[]> {
+    return (await this.db.prepare(`SELECT * FROM members_elect WHERE state = ? ORDER BY rowid`).bind(state).all<MemberElect>()).results;
   }
   async stateRow(state: string): Promise<StateRow | null> {
     return (await this.db.prepare(`SELECT * FROM states WHERE state = ?`).bind(state).first<StateRow>()) ?? null;
@@ -321,7 +324,7 @@ export class MemoryRepo implements Repo {
   private visitsDeleted = 0; // keeps ids unique after a delete, like AUTOINCREMENT would
 
   constructor(
-    private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[]; offices?: Office[] },
+    private rows: { goals: Goal[]; actions: Action[]; members: Member[]; positions: Position[]; states: StateRow[]; offices?: Office[]; membersElect?: MemberElect[] },
   ) {}
 
   async activeGoals(): Promise<Goal[]> {
@@ -350,6 +353,7 @@ export class MemoryRepo implements Repo {
   async member(bioguideId: string): Promise<Member | null> { return this.rows.members.find((m) => m.bioguide_id === bioguideId) ?? null; }
   async stateRow(state: string): Promise<StateRow | null> { return this.rows.states.find((s) => s.state === state) ?? null; }
   async offices(bioguideId: string): Promise<Office[]> { return (this.rows.offices ?? []).filter((o) => o.bioguide_id === bioguideId); }
+  async membersElect(state: string): Promise<MemberElect[]> { return (this.rows.membersElect ?? []).filter((e) => e.state === state); }
 
   async generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts> {
     const hourAgo = iso(new Date(now.getTime() - HOUR));

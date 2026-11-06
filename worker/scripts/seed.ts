@@ -8,7 +8,7 @@ import { loadRows } from '../src/load';
 const here = dirname(fileURLToPath(import.meta.url));
 const rows = loadRows(join(here, '..', '..', 'data'));
 if (process.argv.includes('--check')) {
-  console.log(`data/ ok: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);
+  console.log(`data/ ok: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.membersElect.length} members-elect, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);
   process.exit(0);
 }
 
@@ -22,14 +22,15 @@ const sql = [
   // Production rows in receipts/reports/generations reference goals and actions; deferring the FK
   // checks to the end of the batch lets the delete + re-insert (same ids) pass under D1's enforced FKs.
   'PRAGMA defer_foreign_keys = true;',
-  'DELETE FROM positions; DELETE FROM district_offices; DELETE FROM actions; DELETE FROM goals; DELETE FROM members; DELETE FROM states;',
+  'DELETE FROM positions; DELETE FROM district_offices; DELETE FROM members_elect; DELETE FROM actions; DELETE FROM goals; DELETE FROM members; DELETE FROM states;',
   ...insert('goals', rows.goals as unknown as Record<string, unknown>[]),
   ...insert('actions', rows.actions as unknown as Record<string, unknown>[]),
   ...insert('members', rows.members as unknown as Record<string, unknown>[]),
   ...insert('district_offices', rows.offices as unknown as Record<string, unknown>[]),
+  ...insert('members_elect', rows.membersElect as unknown as Record<string, unknown>[]),
   ...insert('positions', rows.positions.map((p) => ({ ...p, changed_by: 'seed', changed_at: now }))),
   ...insert('states', rows.states as unknown as Record<string, unknown>[]),
 ].join('\n');
 
 writeFileSync(join(here, '..', 'seed.sql'), sql + '\n');
-console.log(`seed.sql: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);
+console.log(`seed.sql: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.membersElect.length} members-elect, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);

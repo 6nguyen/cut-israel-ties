@@ -25,6 +25,27 @@ export interface Member {
   contact_kind: ContactKind | null;
   not_returning: number; // 1 = hand-set from election results; keeps every target slot
   left_office: string | null; // ISO date set by the import once the member drops out of the roster (never before 2027-01-03)
+  caucus: Caucus; // leadership-routing §1.1: derived from party for D/R; an independent's row must say (King, Sanders = D)
+}
+
+/** leadership-routing §1.1: which caucus a seat votes with in a leadership election. */
+export type Caucus = 'D' | 'R';
+export const CAUCUSES = ['D', 'R'] as const;
+
+/** leadership-routing §1.3: one called race whose winner replaces a departing member (data/members_elect.csv; gone after 2027-01-10). */
+export interface MemberElect {
+  elect_id: string; // <STATE>-<district | S>-<surname-kebab>
+  name: string;
+  party: Party;
+  caucus: Caucus;
+  chamber: Chamber;
+  state: string;
+  district: number | null;
+  replaces: string; // bioguide_id of a member with not_returning or left_office set
+  contact_url: string; // the member-elect's own site, https
+  phone: string | null; // ten digits, from that site only
+  source_url: string; // the called race
+  source_date: string;
 }
 
 export const CONTACT_KINDS = ['form', 'zip_gate', 'homepage'] as const;
@@ -171,6 +192,8 @@ export interface Repo {
   stateRow(state: string): Promise<StateRow | null>;
   // roster-freshness §1: a member's district offices in file order (route.ts reads them for the district line).
   offices(bioguideId: string): Promise<Office[]>;
+  // leadership-routing §1.3: a state's members-elect (route.ts builds the incoming delegation from them).
+  membersElect(state: string): Promise<MemberElect[]>;
   // §4 writes and counters (worker/src/generate.ts is the only caller)
   generationCounts(deviceHash: string, ipHash: string, actionId: number, now: Date): Promise<GenerationCounts>;
   recentShingles(actionId: number, limit: number): Promise<Uint32Array[]>;
