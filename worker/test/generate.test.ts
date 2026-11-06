@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { join } from 'node:path';
 import { createApp } from '../src/index';
 import { loadRows } from '../src/load';
-import { MemoryRepo } from '../src/repo';
+import { MemoryRepo, decodeShingles } from '../src/repo';
 import { ANTHROPIC_URL, DOC_MODEL, SCREEN_MODEL, encodeSse, sseEvents } from '../src/anthropic';
 import { BodyExtractor, checkOutput, docRequest, overlap, parseFormat, parseSchema, sanitize, shapeFields, shingles, wordCount, type Doc, type GenerateContext } from '../src/generate';
 import type { GenerationRow, ScreenClass } from '../src/types';
@@ -165,6 +165,53 @@ describe('POST /api/generate — happy path', () => {
     const bad = await generate({ action: 'state-bonds-call', target: CORREA });
     expect(bad.status).toBe(400);
     expect(((await bad.json()) as { error: string }).error).toBe('no_target');
+  });
+});
+
+describe('POST /api/generate — bookkeeping writes are best-effort (D1 write cap, 2026-11-06)', () => {
+  it('a failing generations INSERT after a good draft still ends in done, and is logged', async () => {
+    const { generate, repo } = app();
+    repo.insertGeneration = async () => { throw new Error("D1_ERROR: Your account has exceeded D1's free tier daily row write limit."); };
+    const evs = await events(await generate());
+    expect(evs.map((e) => e.event)).not.toContain('error');
+    expect(doneOf(evs)?.body).toContain('Rep. Correa');
+    expect(sink.join('\n')).toContain('generate: generations write failed');
+    expect(sink.join('\n')).not.toContain('generate: failed');
+  });
+
+  it('the standard-script path survives the same failure', async () => {
+    const { generate, repo } = app();
+    repo.insertGeneration = async () => { throw new Error('D1_ERROR: write limit'); };
+    const evs = await events(await generate({}, ENV as unknown as Record<string, unknown>)); // no API key → standard script
+    expect(doneOf(evs)?.standard).toBe(true);
+    expect(sink.join('\n')).toContain('generate: generations write failed');
+  });
+
+  it('a failing screenings INSERT still answers the screened-out caller with 422', async () => {
+    const { generate, repo } = app({ screen: () => ({ class: 'off_topic', reason: 'Not about this goal.' }) });
+    repo.insertScreening = async () => { throw new Error('D1_ERROR: write limit'); };
+    const res = await generate();
+    expect(res.status).toBe(422);
+    expect(((await res.json()) as { error: string }).error).toBe('screened');
+    expect(sink.join('\n')).toContain('generate: screening write failed');
+  });
+});
+
+describe('decodeShingles (D1 returns BLOB columns as byte arrays)', () => {
+  const sh = Uint32Array.from([1, 0xdeadbeef, 2 ** 32 - 1, 7]);
+  it('decodes the byte array D1 hands back', () => {
+    expect(decodeShingles(Array.from(new Uint8Array(sh.buffer)))).toEqual(sh);
+  });
+  it('decodes an ArrayBuffer or a typed view, and drops a trailing partial lane', () => {
+    expect(decodeShingles(sh.buffer)).toEqual(sh);
+    expect(decodeShingles(new Uint8Array(sh.buffer))).toEqual(sh);
+    expect(decodeShingles([...new Uint8Array(sh.buffer), 9, 9])).toEqual(sh);
+    expect(decodeShingles([])).toEqual(new Uint32Array(0));
+    expect(decodeShingles(null)).toEqual(new Uint32Array(0));
+  });
+  it('round-trips through overlap: the stored shingles of a body match that body', () => {
+    const a = shingles(validDoc(FIELDS, 1).body);
+    expect(overlap(decodeShingles(Array.from(new Uint8Array(a.buffer))), a)).toBe(1);
   });
 });
 
