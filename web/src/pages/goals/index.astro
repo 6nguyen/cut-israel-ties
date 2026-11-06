@@ -5,11 +5,11 @@ import { activeGoals, closedGoals, CATEGORY, fmtDate } from '../../lib/goals';
 const goals = activeGoals();
 const closed = closedGoals();
 ---
-<Base title="All goals — Cut the Ties" description="Every open decision on US military ties with Israel, ordered by how much your call matters, and the outcomes so far.">
+<Base title="All goals — Cut the Ties" description="Everything being decided right now on US military ties with Israel, ordered by how much your call matters, and how past fights ended.">
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
     <p class="label-code">All goals</p>
-    <h1 class="display-lg mt-2">Every open decision</h1>
-    <p class="mt-3 max-w-2xl text-lg">Ordered by priority. Enter your address on the <a href="/" class="underline decoration-acid decoration-2 underline-offset-4">front page</a> to see the two where your call matters most this week.</p>
+    <h1 class="display-lg mt-2">Everything being decided right now</h1>
+    <p class="mt-3 max-w-2xl text-lg">Biggest lever first. Enter your address on the <a href="/" class="underline decoration-acid decoration-2 underline-offset-4">front page</a> to see the two where your call matters most this week.</p>
     <ol class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="Active goals">
       {goals.map((g, i) => (
         <li class="card flex flex-col">

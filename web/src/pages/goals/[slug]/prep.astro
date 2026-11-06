@@ -39,7 +39,7 @@ const actions = open ? actionsFor(goal).map((a) => ({ slug: a.slug, label: verbs
       {leadership && (
         <section aria-labelledby="picks">
           <p class="label-code">Our picks</p>
-          <h2 id="picks" class="headline-lg mt-1">{ranked.length > 0 ? 'Who to put the condition to' : 'Our picks are not set yet'}</h2>
+          <h2 id="picks" class="headline-lg mt-1">{ranked.length > 0 ? 'Who we would back instead' : 'Our picks are not set yet'}</h2>
           {ranked.length > 0 ? (
             <>
               <ol class="mt-4 flex flex-col gap-3 max-w-2xl">
@@ -55,16 +55,16 @@ const actions = open ? actionsFor(goal).map((a) => ({ slug: a.slug, label: verbs
                   </li>
                 ))}
               </ol>
-              <p class="mt-3 label-ticker text-ink/70">Picks set by the maintainer from sourced rows{pickDate ? `, as of ${fmtDate(pickDate)}` : ''}. Nothing here is counted by a model.</p>
+              <p class="mt-3 label-ticker text-ink/70">Picks chosen by hand from sourced reporting{pickDate ? `, as of ${fmtDate(pickDate)}` : ''}. Nothing here is counted by a model.</p>
             </>
           ) : (
-            <p class="mt-3 max-w-2xl">The maintainer scan of declared interest, stated position and attention has not been published, so no name is put forward. The ask below stands without one.</p>
+            <p class="mt-3 max-w-2xl">We have not finished checking who has said they want the job and where they stand, so we are not naming anyone yet. The ask below works without a name.</p>
           )}
         </section>
       )}
       {leadership && (
         <section class="card-lg p-5 lg:p-6 bg-acid" aria-labelledby="ask">
-          <p class="label-code">The ask, same for every caller</p>
+          <p class="label-code">What to ask for, in one line</p>
           <h2 id="ask" class="headline-lg mt-1">{ask}</h2>
         </section>
       )}
@@ -84,8 +84,8 @@ const actions = open ? actionsFor(goal).map((a) => ({ slug: a.slug, label: verbs
     <aside class="flex flex-col gap-8">
       {actions.length > 0 && (
         <section id="take-action" aria-labelledby="take-action-h">
-          <p class="label-code">Take action</p>
-          <h2 id="take-action-h" class="headline-md mt-1 mb-3">Use your script</h2>
+          <p class="label-code">Make the call</p>
+          <h2 id="take-action-h" class="headline-md mt-1 mb-3">Get your script</h2>
           <PrepAction client:load slug={goal.slug} actions={actions} />
         </section>
       )}

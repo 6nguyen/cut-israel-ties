@@ -15,9 +15,9 @@ const suggestProvider = configuredProvider();
   <section class="relative hero-gradient text-newsprint overflow-hidden">
     <div class="absolute inset-0 halftone pointer-events-none"></div>
     <div class="relative mx-auto max-w-[1360px] px-4 lg:px-10 py-14 lg:py-24">
-      <p class="label-code text-hazard mb-4">Constituent action · US military ties with Israel</p>
+      <p class="label-code text-hazard mb-4">Call your people in Congress · US military ties with Israel</p>
       <h1 class="display-xl max-w-4xl">Find the two things you can do <span class="text-acid">this week</span></h1>
-      <p class="mt-5 text-lg max-w-2xl">One site to end US aid, military partnership and integration with Israel. Enter your address. We find your members of Congress and give you the words that work.</p>
+      <p class="mt-5 text-lg max-w-2xl">One site to end US aid to Israel and get the US military out of its wars. Enter your address. We find the people who represent you in Congress and give you the exact words to say when you call.</p>
       <div class="mt-8 max-w-2xl">
         <YourWeek client:load goals={weekGoals} />
         <AddressForm client:load siteKey={siteKey} provider={suggestProvider} />
@@ -26,8 +26,8 @@ const suggestProvider = configuredProvider();
   </section>
 
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-12">
-    <p class="label-code">Open goals</p>
-    <h2 class="headline-lg mt-2">Where the decisions are being made</h2>
+    <p class="label-code">What you can change</p>
+    <h2 class="headline-lg mt-2">What's being decided right now</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
       {goals.map((g) => (
         <article class="card flex flex-col">

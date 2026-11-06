@@ -4,7 +4,7 @@ goal: ndaa-report-vote
 type: call
 target_scope: both
 order: 1
-ask_text: Ask your member to vote no on the NDAA conference report because it keeps the integration section.
+ask_text: Ask your member to vote no on the final military bill because the Israel integration section is still in it.
 form_schema:
   fields:
     - {name: first_name, label: First name, max: 40, required: true}

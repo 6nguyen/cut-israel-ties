@@ -1,9 +1,9 @@
 id: 4
 slug: senate-leader
 category: leadership
-title: A Senate Democratic leader who will strip the integration section
-summary: Senate Democrats choose their leader by secret ballot in caucus. Your Democratic senator's ballot is a lever on every later vote.
-what_we_want: Your senator conditions their leadership ballot on a public commitment to strip the integration section and end the 2028 MOU replacement.
+title: Kick out Chuck Schumer
+summary: Chuck Schumer runs the Democrats in the Senate. This winter, Senate Democrats vote in secret on whether he keeps the job, and several incoming senators have already said no. If you have a Democratic senator, their ballot is the lever, and a call from you lands before they cast it.
+what_we_want: Your senator votes for a new leader unless Schumer promises, in public, to stop Israel's integration into the US military and to oppose a new long-term weapons deal with Israel.
 status: active
 window_start: 2026-11-01
 window_end: 2027-01-31
@@ -12,58 +12,81 @@ priority: 2
 eligibility: {"senator": {"party": "D"}}
 our_picks: []
 sources:
+  - {title: "Democracy Now: Incoming senators call for new leadership to replace Schumer (2026-11-06)", url: "https://www.democracynow.org/2026/11/6/headlines/incoming_freshman_senators_call_for_new_leadership_to_replace_top_democrat_chuck_schumer"}
   - {title: "The Hill: Schumer says he has the votes (2026-11-04)", url: "https://thehill.com/homenews/senate/6198456-schumer-senate-majority-leader-support/"}
   - {title: "Star Tribune: Flanagan wants a new Senate Democratic leader (2026-11-04)", url: "https://www.startribune.com/peggy-flanagan-wants-new-senate-democratic-leader-to-replace-chuck-schumer/601910776"}
   - {title: "The Lever: Will the blue wave come for Schumer? (2026-11-03)", url: "https://www.levernews.com/would-a-blue-wave-put-schumers-leadership-on-the-line/"}
   - {title: "Newsweek: If not Schumer, who?", url: "https://www.newsweek.com/chuck-schumer-favorites-replace-democratic-senate-leader-12656990"}
-decider: Senate Democrats, by secret ballot in caucus
-this_week: ""
-this_week_date: ""
-detail_md: ""
+decider: Senate Democrats, by secret ballot among themselves
+this_week: Five incoming senators say they will not vote for Schumer, and he says he has the votes anyway. Your senator's answer is still open.
+this_week_date: 2026-11-06
+detail_md: |
+  **Who is Chuck Schumer?** He leads the Democrats in the Senate. After
+  every election, Senate Democrats vote in secret on who leads them. The
+  leader decides what the party fights for and what it lets through.
+
+  **Why does this matter for Israel?** This year's military bill has a
+  section that ties US troops and weapons to Israel's military for the
+  long haul, and the ten-year US weapons deal with Israel runs out in
+  2028, when a new one will be on the table. Schumer has not promised to
+  fight the first or oppose the second. A leader who will not fight them
+  means the Senate never votes on them.
+
+  **What can you do?** Only Democratic senators vote on their leader. The
+  ballot is secret, so you cannot ask how they voted, but you can ask what
+  they will require of a leader before they vote. If you have a
+  Democratic senator, call and ask them to vote for a new leader unless
+  Schumer makes those promises in public. If both your senators are
+  Republicans, this one is not yours; the military bill or your state is.
 prep_md: |
   ## Where things stand
-  *As of 2026-11-04.* Senate Democrats choose their leader by secret ballot
-  in caucus. No challenger has declared, and five incoming senators have said
-  they will not vote for the incumbent [VERIFY: count and names, from The
-  Hill, Star Tribune and The Lever, 2026-11-04]. The vote date is not
-  published: press says December, this goal's placeholder is 2027-01-05
-  [VERIFY: the caucus date]. The ballot is secret, so what can be asked of a
-  senator is a condition they will apply, stated before the vote.
+  *As of 2026-11-06.* Senate Democrats pick their leader by secret ballot
+  among themselves. No one has yet said they are running against Schumer,
+  and five incoming senators have said they will not vote for him
+  [VERIFY: count and names, from Democracy Now, The Hill, Star Tribune and
+  The Lever, 2026-11-04 to 2026-11-06]. The vote date is not published:
+  press says December, and our placeholder is 2027-01-05 [VERIFY: the
+  caucus date]. Because the ballot is secret, what you can ask your
+  senator for is a condition they will apply, said out loud before the
+  vote.
 
   ## Timeline
   - 2026-11-01: our window opens.
-  - 2026-11-04: midterm results in; leadership talk starts.
-  - December 2026: caucus leadership election expected [VERIFY: date].
-  - 2027-01-05: placeholder date in our data until the caucus date is
+  - 2026-11-04: midterm results in; talk of replacing Schumer starts.
+  - December 2026: Senate Democrats expected to vote on their leader
+    [VERIFY: date].
+  - 2027-01-05: placeholder date in our data until the real one is
     published.
   - 2027-01-31: our window closes.
-  - 2028: the current US-Israel MOU expires, so a new MOU is the next lever
-    [VERIFY: expiry year and the status of any replacement talks].
+  - 2028: the current ten-year US weapons deal with Israel runs out, so a
+    new one is the next fight [VERIFY: expiry year and the status of any
+    replacement talks].
 
   ## What to say in 30 seconds
-  "Hello, I'm a constituent from [your town]. Senate Democrats are about to
-  pick a leader. I'm asking Senator [name] to vote only for a leader who
-  commits, in public, to stripping the integration section from the NDAA and
-  to opposing a new MOU. Will the senator tell me whether that is a condition
+  "Hi, I'm a constituent from [your town]. Senate Democrats are about to
+  pick a leader. I'm asking Senator [name] to vote for a new leader unless
+  Chuck Schumer promises, in public, to take the Israel integration
+  section out of the military bill and to oppose a new long-term weapons
+  deal with Israel. Will the Senator tell me whether that is a condition
   for their vote?"
 
   ## Likely pushback and answers
-  - **"The ballot is secret."** The ask is the condition, not the ballot. A
-    senator can say what they will require of a leader without saying how
-    they voted.
-  - **"There is no candidate to choose between yet."** That is why now: the
-    condition is put to whoever runs. Ask the senator to put it to every
-    candidate, including the incumbent.
-  - **"Leadership is about much more than one section."** Agreed; this is
-    one commitment asked of every candidate, not a litmus test on the rest.
-  - **"Why only Democrats?"** Only Democratic senators vote in this caucus,
-    so a Republican senator is not a target for this goal.
+  - **"The ballot is secret."** You are asking for the condition, not the
+    ballot. A senator can say what they will require of a leader without
+    saying how they voted.
+  - **"Nobody is running against him yet."** That is why now. The
+    condition goes to whoever runs, including Schumer. Ask the Senator to
+    put it to every candidate.
+  - **"Leadership is about much more than one issue."** Agreed. This is
+    one promise asked of every candidate, not a test on everything else.
+  - **"Why only Democrats?"** Only Democratic senators vote on their
+    leader, so a Republican senator is not a target for this goal.
 
   ## What counts as a win
-  Your senator tells you or your office, or says publicly, that they will
-  apply the condition. Bigger: a candidate adopts the commitment, or the
-  elected leader makes it. Report the answer you got; positions are recorded
-  from reports, with a source.
+  Your senator tells you, or says publicly, that they will apply the
+  condition. Bigger: a candidate makes the promise, or the elected leader
+  does. Report the answer you got; we record positions from reports, with
+  a source.
 
   ## Sources
   Dated reporting behind this page is listed below. Everything marked
