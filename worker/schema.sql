@@ -189,7 +189,7 @@ CREATE TABLE blocks (
   until TEXT NOT NULL
 );
 
--- §7.2: one row per nightly digest run; the next run reads reports newer than MAX(ran_at).
+-- §7.2: one row per weekly digest run; the next run reads reports newer than MAX(ran_at).
 CREATE TABLE digest_runs (
   ran_at TEXT PRIMARY KEY,
   report_count INTEGER NOT NULL DEFAULT 0

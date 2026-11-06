@@ -6,7 +6,7 @@ import { createApp } from '../src/index';
 import { runDigest } from '../src/digest';
 import { MemoryRepo } from '../src/repo';
 import { loadRows } from '../src/load';
-import { personalData, signReview, validContact, verifyReview } from '../src/visits';
+import { REVIEW_TTL_MS, personalData, signReview, validContact, verifyReview } from '../src/visits';
 import type { Env } from '../src/types';
 import { ENV, fakeFetch } from './fixtures';
 
@@ -70,6 +70,8 @@ describe('office-visits: listing and review', () => {
     const other = await signReview('other-secret', id, 'approve', new Date(NOW.getTime() + 60_000));
     expect((await h.json('GET', `/api/visits/review?token=${other}`)).status).toBe(403);
     expect((await verifyReview(SECRET, await signReview(SECRET, 7, 'reject', new Date(NOW.getTime() + 1000)), NOW))).toEqual({ ok: true, id: 7, action: 'reject' });
+    // links must survive until the next weekly digest: two weeks
+    expect(REVIEW_TTL_MS).toBe(14 * 86_400_000);
     // review needs the secret
     const off = harness({ VISITS_REVIEW_SECRET: undefined });
     expect((await off.review(1, 'approve')).status).toBe(503);

@@ -1,5 +1,6 @@
 // §7.2 digest: counts by code, prose by a stubbed Haiku, one email with the raw rows as CSV.
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ANTHROPIC_URL } from '../src/anthropic';
 import { DOC_MODEL } from '../src/anthropic';
@@ -148,14 +149,24 @@ describe('runDigest', () => {
     expect(j.repo.digestRuns).toHaveLength(1);
   });
 
-  it('first run with no marker looks back 24 h', async () => {
-    const j = job({ reports: [report({ created_at: '2026-11-04T08:00:00Z' }), report({ created_at: '2026-11-04T10:00:00Z' })] });
+  it('first run with no marker looks back one week', async () => {
+    const j = job({ reports: [report({ created_at: '2026-10-29T08:00:00Z' }), report({ created_at: '2026-10-29T10:00:00Z' })] });
     j.repo.digestRuns.length = 0;
-    expect(await j.run()).toMatchObject({ sent: true, total: 1, since: '2026-11-04T09:00:00.000Z' });
+    expect(await j.run()).toMatchObject({ sent: true, total: 1, since: '2026-10-29T09:00:00.000Z' });
   });
 
-  it('the Worker exports a scheduled handler', () => {
+  it('a week of reports since the last run arrives in one email', async () => {
+    const j = job({ reports: [report({ created_at: '2026-10-30T12:00:00Z' }), report({ created_at: '2026-11-02T12:00:00Z' }), report({ created_at: '2026-11-05T08:00:00Z' })] });
+    j.repo.digestRuns.length = 0;
+    j.repo.digestRuns.push({ ran_at: '2026-10-29T09:00:00.000Z', report_count: 0 });
+    expect(await j.run()).toMatchObject({ sent: true, total: 3 });
+    expect(j.sent).toHaveLength(1);
+  });
+
+  it('the Worker exports a scheduled handler, scheduled weekly (Mondays 09:00 UTC)', () => {
     expect(typeof scheduled).toBe('function');
+    const cfg = readFileSync(join(__dirname, '..', 'wrangler.jsonc'), 'utf8');
+    expect(cfg).toMatch(/"crons": \["0 9 \* \* 1"\]/);
   });
 });
 

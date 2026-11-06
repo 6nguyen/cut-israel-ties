@@ -5,8 +5,8 @@
   "compatibility_date": "2025-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
-  // §7.2 nightly digest (worker/src/digest.ts): 09:00 UTC.
-  "triggers": { "crons": ["0 9 * * *"] },
+  // §7.2 weekly digest (worker/src/digest.ts): Mondays 09:00 UTC.
+  "triggers": { "crons": ["0 9 * * 1"] },
   // Cloudflare Email Routing. Enable Email Routing on the zone and add MAINTAINER_EMAIL as a
   // verified destination; DIGEST_FROM must be an address on the zone.
   "send_email": [{ "name": "DIGEST_MAIL" }],

@@ -6,7 +6,7 @@ import type { Member, VisitPublic, VisitRow, VisitStatus } from './types';
 export const VISIT_LIMITS = { note_max: 140, contact_max: 200, city_max: 40, pending_per_device: 1, requests_per_day: 5 } as const;
 /** A listing stays findable this long past `ends_at` (office local time, compared in UTC). */
 export const VISIT_GRACE_MS = 12 * 3_600_000;
-export const REVIEW_TTL_MS = 7 * 86_400_000;
+export const REVIEW_TTL_MS = 14 * 86_400_000; // two weekly digests, so a late read still works
 export const REVIEW_ACTIONS = ['approve', 'reject', 'hide', 'delete'] as const;
 export type ReviewAction = (typeof REVIEW_ACTIONS)[number];
 

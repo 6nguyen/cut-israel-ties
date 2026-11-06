@@ -6,7 +6,7 @@ others say they will come, so the ask arrives in person and in company. The
 site hosts the listing and the head count only; coordination happens in the
 organiser's own channel (a link or handle), which the site hands to a device
 only after that device has asked to come. Nothing is public until a
-maintainer approves it from the nightly digest. Stops short of office
+maintainer approves it from the weekly digest. Stops short of office
 addresses (the office's own site has them), of any directory of people, and
 of any public act before the private one: a visit is reached from the
 captain screen and the member page, never as a first step.
@@ -24,7 +24,7 @@ captain screen and the member page, never as a first step.
    maintainer has checked it". The device remembers the listing id so the
    page can offer "Remove my listing" once it is visible. No edits: remove
    and list again.
-2. **Review (maintainer).** The nightly digest carries every `pending`
+2. **Review (maintainer).** The weekly digest carries every `pending`
    listing (member, city, window, contact, note, listed-at) with four
    signed links: approve, reject, hide, delete. A listing alone is enough
    to send the mail when there are no reports. `GET /api/visits/review?token=`
@@ -32,7 +32,7 @@ captain screen and the member page, never as a first step.
    visible on the next request, reject and delete remove the row and its
    requests, hide keeps an approved row off every page. Tokens are
    `<id>.<action>.<expiry ms>.<HMAC-SHA256 hex>` signed with
-   `VISITS_REVIEW_SECRET`, valid 7 days; bad, foreign or expired → 403;
+   `VISITS_REVIEW_SECRET`, valid 14 days; bad, foreign or expired → 403;
    secret unset → 503 and the digest says so instead of printing links.
 3. **Finding.** `GET /api/visits?member=` returns approved, unexpired
    listings (a listing expires 12 h after `ends_at`) with their stored
