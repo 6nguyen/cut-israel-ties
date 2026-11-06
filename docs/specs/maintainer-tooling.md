@@ -147,8 +147,9 @@ and nothing here writes to `data/` or to `positions`.
   is recorded after a successful send, so a failed send is retried next
   night with the same window.
 - `wrangler.jsonc`: `triggers.crons = ["0 9 * * *"]`, `send_email`
-  binding `DIGEST_MAIL`, vars `MAINTAINER_EMAIL` (empty = digest off) and
-  `DIGEST_FROM` (a verified Email Routing sender). `cloudflare:email` is
+  binding `DIGEST_MAIL`, var `DIGEST_FROM` (a sender on the zone) and the
+  Worker secret `MAINTAINER_EMAIL` (unset = digest off; a secret so the
+  address stays out of the public repo). `cloudflare:email` is
   imported lazily inside the sender so tests never load it.
 - `parseCsv` (`worker/src/load.ts`) reads RFC 4180 quoted cells, so the
   digest attachment and any quoted data cell round-trip.
