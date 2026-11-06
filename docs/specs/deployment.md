@@ -68,6 +68,7 @@ monitoring, no schema migrations (the schema is created once by hand).
 | `SITE_URL` | Pages build env (from `SITE_DOMAIN`) | `web/astro.config.mjs` | relative share-image URLs |
 | `MONTHLY_COST_USD`, `STRIPE_LINKS` | GitHub Actions variables → build env | `web/src/lib/donate.ts` | `/donate` shows $0 / "link not configured" |
 | `PUBLIC_TURNSTILE_SITE_KEY` | GitHub Actions variable → build env | landing and act pages | no widget; `/api/route` refused once the secret is set |
+| `PUBLIC_SUGGEST_PROVIDER`, `PUBLIC_SUGGEST_TOKEN` | GitHub Actions variable + secret → build env | `web/src/lib/suggest.ts` (landing combobox, `/privacy`) | plain address field, no suggestions; build warns when only one is set |
 | `API_ORIGIN` | dev shell; Pages Preview variable | dev proxy; `web/functions/api/[[path]].ts` | dev → `localhost:8787`; previews answer 503 on `/api/*` |
 | `MAX_GENERATIONS_PER_DAY`, `LLM_MONTHLY_BUDGET_USD`, `DIGEST_FROM`, `GEOCODER_URL` | `worker/wrangler.jsonc` `vars` | Worker | code defaults (budget 15); Email Routing rejects the digest |
 | `DISTRICT_VINTAGE` | `worker/wrangler.jsonc` `vars` | Worker (`geocode.ts`) | code default `ACS2025_Current` (119th map); `Current_Current` from 2027-01-03 with `ACTIVE_CONGRESS` |
@@ -99,8 +100,8 @@ never in `CI_TARGETS`. Bindings `DB` and `DIGEST_MAIL` are declared in
 - [ ] `deploy.yml` steps run `deploy-worker` before `seed-remote` before
       `deploy-web`; `ci.yml` never names a deploy target.
 - [ ] Every name in `.env.example` is read by code or a workflow; every
-      `env.X` in `worker/src` and `process.env`/`import.meta.env` read in
-      `web/` is in `.env.example`.
+      `env.X` in `worker/src` and `process.env`/`import.meta.env`/`env.PUBLIC_*`
+      read in `web/` is in `.env.example`.
 - [ ] A re-run `seed:remote` leaves `receipts`, `reports`,
       `generations`, `screenings`, `blocks` and `digest_runs` untouched.
 - [ ] A PR from this repo gets exactly one preview comment, updated on
