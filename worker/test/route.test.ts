@@ -154,6 +154,14 @@ describe('POST /api/route — refusals (§1.2, §1.4)', () => {
     expect(((await res.json()) as RouteResponse).goals.map((g) => g.slug)).toEqual(['ndaa-1217', 'house-caucus']);
     expect(calls.filter((u) => u.includes('census.gov'))).toHaveLength(0);
   });
+  it('a picked suggestion posts {state, district, by_suggestion} and the Worker ignores the flag (address-autocomplete §3)', async () => {
+    const { post, calls } = app();
+    const res = await post({ state: 'CA', district: 46, by_suggestion: true });
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).not.toContain('by_suggestion');
+    expect(calls.filter((u) => u.includes('census.gov'))).toHaveLength(0);
+  });
   it('a district with no members on file → 404 no_delegation', async () => {
     const { post } = app();
     expect((await post({ state: 'ZZ', district: 0 })).status).toBe(404);

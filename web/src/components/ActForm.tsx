@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import type { DocFormat, FormField, GenerateDone } from '@worker/generate';
 import type { TargetCard } from '../lib/api';
 import { deviceId, loadPlace } from '../lib/store';
@@ -6,6 +6,8 @@ import { commitmentFor, fmtDue, logReceipt } from '../lib/commitments';
 import Funnel from './Funnel';
 import OpenChip from './OpenChip';
 import { isOpen } from '../lib/hours';
+import { useTurnstile } from '../lib/turnstile';
+import type { Reason } from '../lib/goals';
 
 interface Props {
   goal: string;
@@ -18,6 +20,8 @@ interface Props {
   /** Goal title and decision date for the commitment step (commitment-funnel §1). */
   title?: string;
   decision?: string | null;
+  /** Goal `reasons`: first-person starting points shown above the "why" field, grouped by angle. */
+  reasons?: Reason[];
 }
 
 interface Choice { id: string; label: string }
@@ -62,7 +66,7 @@ async function readSse(body: ReadableStream<Uint8Array>, on: (event: string, dat
 }
 
 /** §4.1–4.6: the form, the streamed document, receipt, share and the office-response report. */
-export default function ActForm({ goal, action, type, scope, fields, fmt, siteKey, title, decision }: Props) {
+export default function ActForm({ goal, action, type, scope, fields, fmt, siteKey, title, decision, reasons }: Props) {
   const [choices, setChoices] = useState<Choice[] | null>(null);
   const [target, setTarget] = useState<string>('');
   const [values, setValues] = useState<Record<string, string>>({});
@@ -76,9 +80,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   const [copied, setCopied] = useState(false);
   const [funnelDone, setFunnelDone] = useState(false);
   const [promised, setPromised] = useState<string | null>(null);
-  const token = useRef<string | undefined>(undefined);
-  const widget = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string | undefined>(undefined);
+  const ts = useTurnstile(siteKey);
   const place = loadPlace();
   const [extras, setExtras] = useState<typeof import('./ReceiptExtras') | null>(null); // call-follow-through: loaded once a receipt exists
 
@@ -103,18 +105,6 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
       .catch(() => { if (!fromUrl) setChoices([]); });
   }, [goal, scope]);
 
-  useEffect(() => {
-    if (!siteKey || !widget.current) return;
-    const s = document.createElement('script');
-    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    s.async = true;
-    s.onload = () => {
-      const ts = (window as unknown as { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string } }).turnstile;
-      if (widget.current && ts) widgetId.current = ts.render(widget.current, { sitekey: siteKey, callback: (t) => { token.current = t; } });
-    };
-    document.head.appendChild(s);
-  }, [siteKey]);
-
   const valid = !!target && fields.every((f) => {
     const v = (values[f.name] ?? '').trim();
     return (!f.required || v.length > 0) && v.length <= f.max;
@@ -125,9 +115,16 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
     setPhase({ kind: 'generating', stage: 'Drafting…' });
     // leader-call-scripts §2: a fresh seed per request, so "Another version" composes a different standard script.
     const variant = Math.floor(Math.random() * 2 ** 31);
-    const body = { action, target, fields: Object.fromEntries(fields.map((f) => [f.name, (values[f.name] ?? '').trim()]).filter(([, v]) => v)), device: deviceId(), turnstile: token.current, variant };
+    const fieldValues = Object.fromEntries(fields.map((f) => [f.name, (values[f.name] ?? '').trim()]).filter(([, v]) => v));
+    const send = async (turnstile: string | undefined) =>
+      fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action, target, fields: fieldValues, device: deviceId(), turnstile, variant }) });
     try {
-      const res = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      let res = await send(await ts.nextToken());
+      if (res.status === 403) {
+        // The token can be spent or expired between the widget issuing it and the submit: one retry with a fresh one.
+        const err = (await res.clone().json().catch(() => ({}))) as { error?: string };
+        if (err.error === 'turnstile') { ts.reset(); res = await send(await ts.nextToken()); }
+      }
       if (!res.ok || !res.body) {
         const err = (await res.json().catch(() => ({ message: 'The server sent something we could not read.' }))) as { message?: string };
         throw new Error(err.message ?? `Request failed (${res.status}).`);
@@ -148,9 +145,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
       setError((e as Error).message);
       setPhase({ kind: 'form' });
     } finally {
-      const ts = (window as unknown as { turnstile?: { reset?: (id?: string) => void } }).turnstile;
-      ts?.reset?.(widgetId.current);
-      token.current = undefined;
+      ts.reset(); // the token rode on this request; the widget issues the next one
     }
   }
 
@@ -217,16 +212,37 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             return (
               <div>
                 <label class="label-code block mb-1" for={f.name}>{f.label}{f.required || /optional/i.test(f.label) ? '' : ' (optional)'}</label>
+                {f.multiline && reasons && reasons.length > 0 && (
+                  <details class="mb-2 text-sm">
+                    <summary class="cursor-pointer underline">Not sure what to say? Reasons people give, from a few angles</summary>
+                    <div class="mt-2 flex flex-col gap-3" data-reasons>
+                      {reasons.map((r) => (
+                        <div>
+                          <p class="label-code">{r.angle}</p>
+                          <ul class="list-disc pl-5 mt-1 flex flex-col gap-1">
+                            {r.points.map((p) => (
+                              <li>
+                                <button type="button" class="text-left underline decoration-dotted hover:decoration-solid" onClick={() => setValues({ ...values, [f.name]: v.trim() ? `${v.trim()} ${p}` : p })}>{p}</button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      <p class="text-xs text-ink/70">Tap one to drop it in, then change it so it sounds like you. Your own words carry more weight than ours.</p>
+                    </div>
+                  </details>
+                )}
                 {f.multiline ? <textarea rows={3} {...common} /> : <input type="text" {...common} />}
                 <p class={`label-ticker mt-1 ${over ? 'text-crimson' : 'text-ink/60'}`}>{f.hint ? `${f.hint} ` : ''}{v.length}/{f.max}</p>
               </div>
             );
           })}
-          <div ref={widget} />
           <button type="submit" class="btn btn-primary self-start" disabled={!valid}>Write my {kind} →</button>
           <p class="text-xs text-ink/70">Your lines are used as material for one {kind}, checked by code, and not stored. {fmt.min_words}–{fmt.max_words} words.</p>
         </form>
       )}
+      {/* Outside the form so the widget survives into the output phase: Regenerate needs a fresh token too. */}
+      <div ref={ts.mount} class="empty:hidden" />
       {error && <p role="alert" class="card border-crimson bg-newsprint text-ink px-4 py-3 text-sm font-semibold">{error}</p>}
 
       {(generating || phase.kind === 'output') && (

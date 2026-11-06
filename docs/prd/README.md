@@ -56,12 +56,11 @@ no `Needs` entry can run in parallel with the row above it. Rules:
 
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
-| 1 | [address-autocomplete.md](address-autocomplete.md) | APPROVED (§1 merged PR #44; next §2) | — (provider account, token and Pages variables: manual, before the flag flip) | landing address combobox, provider adapters (`web/src/lib/suggest.ts`), suggestion → on-device district, `by_suggestion` placeholder, `/privacy` copy; landing page only |
-| 2 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED (§1 merged PR #43; next §5) | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside 1–3 |
-| 3 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
-| 4 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
-| 5 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
-| 6 | [district-vintage-rollover.md](district-vintage-rollover.md) | BUILDING (§3 blocked until 2027-01-03) | — (§3 date-gated 2027-01-03) | §1–2 shipped (PR #32); §3 dated flip on 2027-01-03 per `docs/guides/deploy.md` §6 |
+| 1 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED (§1 merged PR #43; next §5) | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside the rest |
+| 2 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
+| 3 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
+| 4 | [primary-2028.md](primary-2028.md) | BUILDING (§2 blocked) | — | `electoral` goal per 2028 target, `data/elections.csv`; §2 picks wait for counsel; stays `upcoming` until the NDAA goal closes |
+| 5 | [district-vintage-rollover.md](district-vintage-rollover.md) | BUILDING (§3 blocked until 2027-01-03) | — (§3 date-gated 2027-01-03) | §1–2 shipped (PR #32); §3 dated flip on 2027-01-03 per `docs/guides/deploy.md` §6 |
 
 ## Next (ideas without a PRD, in intended order; ≤10)
 Targets is an existing spec stem or `new`. Writing the PRD deletes its row

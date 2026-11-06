@@ -1,5 +1,5 @@
 # Address autocomplete: why the live field failed and how other sites fill usable addresses
-Researched: 2026-11-06 · Informs: [address-autocomplete](../prd/address-autocomplete.md)
+Researched: 2026-11-06 · Informs: [address-autocomplete](../prd/archive/2026-11-address-autocomplete.md)
 
 ## Question
 Every address tried on the live landing page on 2026-11-06 failed ("We

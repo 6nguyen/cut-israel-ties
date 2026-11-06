@@ -8,6 +8,8 @@ import type { Action, Goal } from '@worker/types';
 export type { Action, Goal };
 export interface Pick { name: string; rationale: string; source_url: string; signal?: string; signal_date?: string }
 export interface Source { title: string; url: string }
+/** personalised-documents §1: one angle of the act form's reasons panel. */
+export interface Reason { angle: string; points: string[] }
 
 let cache: ReturnType<typeof loadRows> | null = null;
 function rows() { return (cache ??= loadRows(join(process.cwd(), '..', 'data'))); }
@@ -28,6 +30,7 @@ export function feedGoals(): Goal[] {
 export function actionsFor(goal: Goal): Action[] { return rows().actions.filter((a) => a.goal_id === goal.id).sort((a, b) => a.order - b.order); }
 export function picks(goal: Goal): Pick[] { return JSON.parse(goal.our_picks) as Pick[]; }
 export function sources(goal: Goal): Source[] { return JSON.parse(goal.sources) as Source[]; }
+export function reasons(goal: Goal): Reason[] { return JSON.parse(goal.reasons) as Reason[]; }
 export function markdown(md: string | null): string { return md ? (marked.parse(md, { async: false }) as string) : ''; }
 
 // §3 prep pages
