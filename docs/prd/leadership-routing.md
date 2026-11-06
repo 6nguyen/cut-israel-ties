@@ -250,21 +250,32 @@ Relies on: `docs/research/leader-call-scripts.md`,
 - **Measure:** the share of leadership-card views with ≥2 targets, and
   call receipts per leadership card, against before.
 
-## State (updated 2026-11-06, PR pending)
+## State (updated 2026-11-06, PR #48 open)
 - Sections:
-  - [ ] 1. Caucus and incoming-member data
+  - [~] 1. Caucus and incoming-member data · feat/leadership-routing-caucus-data · PR #48
   - [ ] 2. Router: one leadership slot, the incoming caucus
   - [ ] 3. One ask for both chambers, with the leader named by a sourced row
 - Completed: PRD.
-- Folded: none.
-- Branch / open PRs: docs/prd-leadership-routing.
-- Files changed (file:line map): none yet.
-- Tests run + result: none (docs only).
-- Remaining: §1–3.
-- Decisions since last update: Open question 1 answered by the owner (conditional naming).
-- Known failures / blockers: none. §2 is useless without §1's rows.
-- Next action: `/implement-prd-section docs/prd/leadership-routing.md` §1.
-
+- Folded: §1 (member-pages.md §Data & contracts).
+- Branch / open PRs: feat/leadership-routing-caucus-data.
+- Files changed (file:line map): `worker/src/types.ts:35` (`Caucus`, `MemberElect`,
+  `Repo.membersElect`); `worker/src/load.ts:103-135,288-300` (caucus checks,
+  `caucusOf`, `ELECT_EXPIRY`, `checkMembersElect`, `Rows.membersElect`);
+  `worker/schema.sql:103-118` (`members.caucus`, `members_elect`);
+  `worker/src/repo.ts:86,356`; `worker/scripts/seed.ts:25-30`;
+  `worker/scripts/import-members.ts` (HEADER + caucus); `worker/src/make-primary-goal.ts:40`;
+  `data/members.csv` (caucus column, 122 `not_returning=1`); `data/members_elect.csv`
+  (76 rows); `data/README.md`; `docs/specs/member-pages.md`;
+  `worker/test/members.test.ts:124`.
+- Tests run + result: quiet-check tsc PASS, test PASS, build PASS; prd-lint 0 violations.
+- Remaining: §2–3.
+- Decisions since last update: Kevin Kiley (CA-3, `I` in the roster) hand-set
+  `caucus = R`. Rows whose source is Green Papers/270towin/Wikipedia rather than
+  AP/state office are listed in the PR body for owner spot-check. No `members_elect`
+  row for seats without a departing same-number member (TX-35, UT-1, CA-6 under
+  Prop 50), for uncalled races, or for IL-2 (no https contact URL). Phones empty.
+- Known failures / blockers: none.
+- Next action: merge PR #48, then `/implement-prd-section docs/prd/leadership-routing.md` (next: §2. Router: one leadership slot, the incoming caucus).
 ## Open questions
 1. Name Jeffries and Schumer to every Democratic office, and how?
    Answered by the owner on 2026-11-06: conditional. The leader is named
@@ -284,3 +295,8 @@ Relies on: `docs/research/leader-call-scripts.md`,
 ## Changes
 - 2026-11-06 — created. Open question 1 answered by the owner before
   creation; no blocking questions, so APPROVED 2026-11-06 (auto).
+- 2026-11-06 — §1 built: `caucus` column (derive/fail rules), `members_elect.csv`
+  + D1 table + `Repo.membersElect`, seed checks with the 2027-01-10 expiry,
+  `not_returning` set from the 2026-11-03 results. Kevin Kiley (CA-3, `I` in
+  the roster) is hand-set `caucus = R`, the same rule the PRD gives for
+  King and Sanders. Spec delta for `member-pages.md` folded.

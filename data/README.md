@@ -10,7 +10,8 @@ number or a name that is not a row here.
 | `ids.md` | (registry) | `kind \| id \| slug \| status \| since`: every goal and action id ever published. Ids are assigned once, never changed, never reused after a file is removed (its row turns `retired`); the next id is the highest ever used plus one. The loader refuses a YAML id that is missing, duplicated, retired, unregistered or on another slug (stable-data-ids §1-2). |
 | `goals/<slug>.yaml` | `goals` | `id` from `ids.md`. `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
 | `actions/<slug>.yaml` | `actions` | One file per action; `id` from `ids.md`; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; `standard_template` or `script_blocks` the no-model script; shape below. |
-| `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
+| `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. `caucus` (`D`/`R`/empty) derives from a `D` or `R` party; an `I` row must say (King, Sanders `D`) or the seed fails naming it. |
+| `members_elect.csv` | `members_elect` | One row per member-elect of a called race replacing a member with `not_returning` or `left_office` (leadership-routing §1.3). `elect_id` is `<STATE>-<district \| S>-<surname-kebab>`; `contact_url` the member-elect's own https site; `phone` optional and only from that site; `source_url`/`source_date` the called race. The seed rejects a duplicate id, a `replaces` that is unknown, in another seat or returning, two rows for one seat, a bad phone/URL/date, and any row after 2027-01-10. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
 | `elections.csv` | (folded into `goals`) | `state,district,primary_date,filing_deadline,source_url`: one row per 2028 primary target, ISO dates, `source_url` the state election office page. The seed copies them into the electoral goal's `decision_date`, `window_end` and `sources` (primary-2028 §1). Header-only until a target exists. |
@@ -60,8 +61,9 @@ imported on 2026-11-05 from `unitedstates/congress-legislators`
 Senate XML, `homepage` for the 14 senators whose office lists no form,
 `zip_gate` for `<house site>/contact`, which usually asks for a ZIP
 first); `money_url`, `district_office_address`, `district_office_city`,
-`not_returning` (hand-set from election results) and every flag column
-stay as they are in the file and are empty until sourced. `district_phone`
+`not_returning` (hand-set from the 2026-11-03 results, each change with its
+AP or state-election-office URL in the commit body), `caucus` and every
+flag column stay as they are in the file and are empty until sourced. `district_phone`
 is empty for every row and is derived at seed time from
 `district_offices.csv`; a hand-filled value wins. `left_office` is set by
 the import, never by hand, on or after 2027-01-03 when a member drops out

@@ -8,7 +8,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { actionYaml, checkElections, electionFor, goalYaml, parseElections, primarySlug } from './electoral';
 import { appendIdRows, nextId, readIds } from './ids';
-import { parseCsv } from './load';
+import { caucusOf, parseCsv } from './load';
 import type { Member } from './types';
 
 export const USAGE = 'usage: npm run make-primary-goal -w worker -- <STATE> <district> [roll-call-url]';
@@ -37,7 +37,7 @@ export function makePrimaryGoal(dataDir: string, argv: string[], out: Log = cons
     hasc: Number(row.hasc || 0), conferee: Number(row.conferee || 0), rc243: row.rc243, jrd_april_2026: row.jrd_april_2026 || null,
     btb_cosponsor: Number(row.btb_cosponsor || 0), target_2028: 1, money_url: row.money_url || null,
     district_office_address: row.district_office_address || null, district_office_city: row.district_office_city || null,
-    contact_kind: (row.contact_kind || null) as Member['contact_kind'], not_returning: Number(row.not_returning || 0), left_office: row.left_office || null,
+    contact_kind: (row.contact_kind || null) as Member['contact_kind'], not_returning: Number(row.not_returning || 0), left_office: row.left_office || null, caucus: caucusOf(row),
   };
   const slug = primarySlug(state, district);
   const goalPath = join(dataDir, 'goals', `${slug}.yaml`);
