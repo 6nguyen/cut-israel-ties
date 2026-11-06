@@ -30,6 +30,7 @@ CREATE TABLE goals (
   eligibility TEXT NOT NULL,
   our_picks TEXT NOT NULL DEFAULT '[]',
   sources TEXT NOT NULL DEFAULT '[]',
+  reasons TEXT NOT NULL DEFAULT '[]',
   decider TEXT,
   successor_slug TEXT,
   this_week TEXT,

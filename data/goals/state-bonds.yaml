@@ -74,3 +74,26 @@ prep_md: |
   added to the state table with a source. [VERIFY: treasurer report or
   public-records response for your state.]
 partner_url: ""
+# personalised-documents §1: first-person starting points for the act form's "why" field. Plain words, no figures (numbers come from sourced rows).
+reasons:
+  - angle: "Public money lent to a foreign government"
+    points:
+      - "This is my state's cash, held for payroll and pensions. Lending it to any foreign government is not what it is for."
+      - "If the treasurer wants to lend our reserves abroad, that should be a public decision, not a renewal nobody announces."
+  - angle: "A risky borrower"
+    points:
+      - "A government fighting a war and facing international court cases is not a safe place for public money. I want it out before it is a problem."
+      - "The treasurer's job is to protect principal. A political bond is a political risk."
+  - angle: "Nobody asked us"
+    points:
+      - "I was never asked whether my state should bankroll Israel's government. Stop renewing and let us debate it in the open."
+      - "These bonds were rolled over for years without a vote. Letting them mature is the least disruptive way to stop."
+  - angle: "What was done in Gaza"
+    points:
+      - "My state's money should not help finance a government that did what it did in Gaza with American weapons."
+  - angle: "We have done this before"
+    points:
+      - "States pulled public money out of apartheid South Africa and the world is better for it. This is the same call."
+  - angle: "Just tell us what we hold"
+    points:
+      - "At minimum, publish how much of our money is in these bonds and when each one matures. I have a right to know."

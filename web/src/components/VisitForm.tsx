@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import { deviceId } from '../lib/store';
+import { useTurnstile } from '../lib/turnstile';
 import { markListed } from '../lib/visits';
 
 interface Props { member: string; name: string; city: string | null; siteKey?: string; onListed?: (id: number) => void }
@@ -16,21 +17,7 @@ export default function VisitForm({ member, name, city, siteKey, onListed }: Pro
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
-  const widget = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string | null>(null);
-  const token = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!siteKey || !widget.current) return;
-    const s = document.createElement('script');
-    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    s.async = true;
-    s.onload = () => {
-      const ts = (window as unknown as { turnstile?: { render: (el: HTMLElement, o: { sitekey: string; callback: (t: string) => void }) => string } }).turnstile;
-      if (widget.current && ts) widgetId.current = ts.render(widget.current, { sitekey: siteKey, callback: (t) => { token.current = t; } });
-    };
-    document.head.appendChild(s);
-  }, [siteKey]);
+  const ts = useTurnstile(siteKey);
 
   const today = new Date(); const min = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const valid = town.trim().length > 0 && date >= min && start < end && contact.trim().length > 0 && note.length <= NOTE_MAX;
@@ -39,13 +26,13 @@ export default function VisitForm({ member, name, city, siteKey, onListed }: Pro
     e.preventDefault();
     if (!valid || busy) return;
     setBusy(true); setError(null);
-    const res = await fetch('/api/visits', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ member, city: town.trim(), date, start, end, contact: contact.trim(), note: note.trim(), device: deviceId(), turnstile: token.current ?? undefined }) }).catch(() => null);
+    const turnstile = await ts.nextToken();
+    const res = await fetch('/api/visits', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ member, city: town.trim(), date, start, end, contact: contact.trim(), note: note.trim(), device: deviceId(), turnstile }) }).catch(() => null);
     setBusy(false);
     const body = (await res?.json().catch(() => ({}))) as { id?: number; message?: string } | undefined;
     if (!res || !res.ok || typeof body?.id !== 'number') {
       setError(body?.message ?? (res?.status === 503 ? 'Visit listings are paused for now.' : 'Could not list that. Try again.'));
-      const ts = (window as unknown as { turnstile?: { reset: (id: string) => void } }).turnstile;
-      if (ts && widgetId.current) ts.reset(widgetId.current);
+      ts.reset(); // the token rode on that request
       return;
     }
     markListed(body.id);
@@ -72,7 +59,7 @@ export default function VisitForm({ member, name, city, siteKey, onListed }: Pro
         <input class="input-field text-sm" value={note} maxLength={NOTE_MAX} placeholder="Meet by the flagpole; bring one question" onInput={(e) => setNote((e.target as HTMLInputElement).value)} />
       </label>
       <p class="text-xs text-ink/70">Shown to others only after review, and only as the city, the time and your note. Whoever says they'll come gets your link; nobody else does.</p>
-      {siteKey && <div ref={widget} />}
+      {siteKey && <div ref={ts.mount} />}
       {error && <p role="alert" class="text-sm text-crimson font-semibold">{error}</p>}
       <button type="submit" class="btn btn-primary self-start" disabled={!valid || busy}>{busy ? 'Listing…' : 'List this visit'}</button>
     </form>
