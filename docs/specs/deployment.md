@@ -25,10 +25,15 @@ monitoring, no schema migrations (the schema is created once by hand).
    `worker/wrangler.deploy.json` (gitignored), passed with `--config`.
    Local dev and tests use `wrangler.jsonc` as is.
 3. **Seed on every merge.** `seed:remote` renders `seed.sql` from
-   `data/` and applies only that file: it deletes and re-inserts the
-   five data tables inside one batch with `PRAGMA defer_foreign_keys`,
-   so rows in `receipts`, `reports` and `generations` that reference
-   goals and actions survive. `schema.sql` (drops every table) is
+   `data/` (`worker/scripts/seed-sql.ts`) and applies only that file.
+   `goals` and `actions`, which `receipts`, `reports`, `generations` and
+   `screenings` reference by id, are upserted by id and only ids that
+   left `data/` are deleted (an id with production references fails the
+   deploy: retire it, `data/ids.md`). The other five data tables are
+   deleted and re-inserted, children before parents. A wholesale
+   `DELETE FROM goals` fails D1's remote foreign-key check even under
+   `PRAGMA defer_foreign_keys` once one production row exists (deploy
+   run 42303908649, 2026-11-06). `schema.sql` (drops every table) is
    applied by `schema:remote` once, during provisioning.
 4. **Site.** `deploy-web` runs `wrangler pages deploy dist` from `web/`
    against the Direct Upload project `cut-ties` (`PAGES_PROJECT`
