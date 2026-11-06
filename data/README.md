@@ -9,7 +9,7 @@ number or a name that is not a row here.
 |---|---|---|
 | `ids.md` | (registry) | `kind \| id \| slug \| status \| since`: every goal and action id ever published. Ids are assigned once, never changed, never reused after a file is removed (its row turns `retired`); the next id is the highest ever used plus one. The loader refuses a YAML id that is missing, duplicated, retired, unregistered or on another slug (stable-data-ids §1-2). |
 | `goals/<slug>.yaml` | `goals` | `id` from `ids.md`. `eligibility` is a JSON rule evaluated by `worker/src/ranking.ts`; grammar below. The seed rejects a rule outside it. `status` lifecycle below. |
-| `actions/<slug>.yaml` | `actions` | One file per action; `id` from `ids.md`; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; shape below. |
+| `actions/<slug>.yaml` | `actions` | One file per action; `id` from `ids.md`; `goal` names the goal slug. `form_schema`, `prompt_template` and `doc_format` drive the §4 generator; `standard_template` or `script_blocks` the no-model script; shape below. |
 | `members.csv` | `members` | One row per sitting member. Flags (`hasc`, `conferee`, `rc243`, `jrd_april_2026`, `btb_cosponsor`, `target_2028`) stay empty until sourced. |
 | `positions/<goal>.csv` | `positions` | Append-only; every row needs `source_url` and `source_date`. |
 | `states.csv` | `states` | One row per state; `holdings_status` is `held`, `none` or `unknown` (empty = unknown). `held` needs `israel_bonds_usd`, `holdings_date` and `holdings_source`; `none` needs date and source; empty fields render as "not yet sourced". Rows come from `draft-holding`, below. |
@@ -146,6 +146,27 @@ eligible goal is paired with the state goal.
   the output must contain). The deterministic output check in
   `worker/src/generate.ts` enforces all of them; a failed check
   regenerates once, then refuses.
+- `standard_template` or `script_blocks` (one of the two while the goal
+  is `active`): the script served when no model may run
+  (`docs/specs/personalised-documents.md` §5). `script_blocks: <name>`
+  names `script_blocks/<name>.yaml`:
+  - `incumbents`: bioguide ids whose script asks them to commit or step
+    aside (`when: {self: true}` variants).
+  - `slots[]`, in output order: `name`, `pick` (variants per slot,
+    default 1), `carries` (`ask` and/or `mention`: every variant of the
+    slot must hold the `doc_format.ask` phrase / a `mentions` phrase),
+    `variants[] {id, text, when?}`. `when` keys: `chamber` (`house |
+    senate`), `self` (target is an incumbent), `has` (placeholder names
+    that must render non-empty, e.g. `user_affiliation`).
+  - `text` uses the same placeholders as `standard_template`
+    (`{{target_name}} {{target_role}} {{ask}} {{mention}}
+    {{position_line}} {{prior_vote_line}} {{pick_line}} {{user_<field>}}`).
+    No digits (the output check rejects numbers outside the fact
+    block), no URLs, emails or handles, no blocked terms.
+  - The seed check composes every target in scope with the shortest,
+    one-word and longest fixture fields and fails on a slot with fewer
+    eligible variants than `pick`, a composition outside
+    `min_words`–`max_words`, or one that fails the output check.
 
 ## Adding a 2028 primary target (primary-2028 §1)
 A target is a House member whose seat gets an `electoral` goal: a sourced

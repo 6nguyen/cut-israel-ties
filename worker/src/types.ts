@@ -103,6 +103,8 @@ export interface Action {
   doc_format: string;
   /** generation-cost §4: plain text with {{placeholders}}, rendered by worker/src/standard.ts when no model runs. */
   standard_template: string | null;
+  /** leader-call-scripts §1: JSON of `data/script_blocks/<name>.yaml`; when set the standard script is composed from it. */
+  script_blocks: string | null;
 }
 
 export interface Position {

@@ -110,7 +110,7 @@ export function createApp(deps: Deps) {
   // §4.2–4.8: personalised document. Rejections are JSON; a generation is an SSE stream of
   // status | delta | reset | done | error events.
   app.post('/api/generate', async (c) => {
-    const body = await readJson<{ action?: unknown; target?: unknown; fields?: unknown; device?: unknown; turnstile?: unknown }>(c);
+    const body = await readJson<{ action?: unknown; target?: unknown; fields?: unknown; device?: unknown; turnstile?: unknown; variant?: unknown }>(c);
     if (!body) return c.json({ error: 'bad_json', message: 'Send a JSON body.' }, 400);
     const ip = c.req.header('CF-Connecting-IP');
     const gdeps = {
@@ -120,7 +120,7 @@ export function createApp(deps: Deps) {
     };
     // generation-cost §4: a dead screen or drafting service is no longer a 502/503; `prepare` and `run` fall through to the standard script.
     const prepared = await prepare(gdeps, {
-      action: body.action, target: body.target, fields: body.fields, device: body.device, ip,
+      action: body.action, target: body.target, fields: body.fields, device: body.device, variant: body.variant, ip,
       verify: () => verifyTurnstile(typeof body.turnstile === 'string' ? body.turnstile : undefined, c.env.TURNSTILE_SECRET, ip, deps.fetch),
     });
     if (!prepared.ok) return c.json({ error: prepared.reject.error, message: prepared.reject.message }, prepared.reject.status);
@@ -252,7 +252,7 @@ export function createApp(deps: Deps) {
   // §1.1 list a visit. Stored pending; nothing shows until the maintainer approves it from the digest.
   app.post('/api/visits', async (c) => {
     if (!visitsOn(c.env)) return c.json({ error: 'paused', message: 'Visit listings are paused.' }, 503);
-    const body = await readJson<{ member?: unknown; city?: unknown; date?: unknown; start?: unknown; end?: unknown; contact?: unknown; note?: unknown; device?: unknown; turnstile?: unknown }>(c);
+    const body = await readJson<{ member?: unknown; city?: unknown; date?: unknown; start?: unknown; end?: unknown; contact?: unknown; note?: unknown; device?: unknown; turnstile?: unknown; variant?: unknown }>(c);
     const device_hash = body ? await visitDevice(body.device) : null;
     if (!body || typeof body.member !== 'string' || !BIOGUIDE.test(body.member) || typeof body.contact !== 'string' || !device_hash) {
       return c.json({ error: 'bad_request', message: 'Send member, date, start, end, contact and device.' }, 400);

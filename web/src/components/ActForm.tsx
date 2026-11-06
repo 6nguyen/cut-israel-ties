@@ -123,7 +123,9 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
   async function generate() {
     setError(null); setText(''); setReceipt(null); setReported(false); setOutcome(''); setNote(''); setFunnelDone(false);
     setPhase({ kind: 'generating', stage: 'Drafting…' });
-    const body = { action, target, fields: Object.fromEntries(fields.map((f) => [f.name, (values[f.name] ?? '').trim()]).filter(([, v]) => v)), device: deviceId(), turnstile: token.current };
+    // leader-call-scripts §2: a fresh seed per request, so "Another version" composes a different standard script.
+    const variant = Math.floor(Math.random() * 2 ** 31);
+    const body = { action, target, fields: Object.fromEntries(fields.map((f) => [f.name, (values[f.name] ?? '').trim()]).filter(([, v]) => v)), device: deviceId(), turnstile: token.current, variant };
     try {
       const res = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok || !res.body) {
@@ -248,7 +250,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
           <div class="flex flex-wrap gap-2">
             <button type="button" class="btn btn-ghost" onClick={() => { void navigator.clipboard?.writeText(text); setCopied(true); }}>{copied ? 'Copied' : 'Copy'}</button>
             <button type="button" class="btn btn-ghost" onClick={() => download(phase.doc)}>Download .txt</button>
-            <button type="button" class="btn btn-ghost" onClick={() => void generate()}>Regenerate</button>
+            <button type="button" class="btn btn-ghost" onClick={() => void generate()}>{phase.doc.standard && phase.doc.variant ? 'Another version' : 'Regenerate'}</button>
           </div>
           <div class="flex flex-wrap gap-2 items-center">
             {phoneOrder(phase.doc.target.phones).map(({ phone, district }) => (
