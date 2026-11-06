@@ -188,11 +188,20 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
 
   const kind = type === 'call' ? 'call script' : type === 'letter' ? 'letter' : 'comment';
   const generating = phase.kind === 'generating';
+  const whyField = fields.find((f) => f.multiline);
+  /** Reasons panel: append a starting point to the "why" field and put the cursor there, so the caller rewrites it. */
+  function addReason(point: string) {
+    if (!whyField) return;
+    setValues((cur) => { const v = (cur[whyField.name] ?? '').trim(); return { ...cur, [whyField.name]: v ? `${v} ${point}` : point }; });
+    document.getElementById(whyField.name)?.focus();
+  }
 
   return (
     <div class="flex flex-col gap-6">
-      {phase.kind === 'form' && promised && <p class="label-code" data-promise><span class="chip bg-acid text-ink mr-2">✓</span>You said you'd call by {fmtDue(promised)}.</p>}
       {phase.kind === 'form' && (
+        <div class="lg:grid lg:grid-cols-[minmax(0,42rem)_minmax(16rem,22rem)] lg:gap-8 lg:items-start">
+        <div class="flex flex-col gap-6">
+        {promised && <p class="label-code" data-promise><span class="chip bg-acid text-ink mr-2">✓</span>You said you'd call by {fmtDue(promised)}.</p>}
         <form class="card p-4 flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); if (valid) void generate(); }}>
           {choices.length > 1 && (
             <fieldset class="flex flex-col gap-2">
@@ -212,26 +221,6 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
             return (
               <div>
                 <label class="label-code block mb-1" for={f.name}>{f.label}{f.required || /optional/i.test(f.label) ? '' : ' (optional)'}</label>
-                {f.multiline && reasons && reasons.length > 0 && (
-                  <details class="mb-2 text-sm">
-                    <summary class="cursor-pointer underline">Not sure what to say? Reasons people give, from a few angles</summary>
-                    <div class="mt-2 flex flex-col gap-3" data-reasons>
-                      {reasons.map((r) => (
-                        <div>
-                          <p class="label-code">{r.angle}</p>
-                          <ul class="list-disc pl-5 mt-1 flex flex-col gap-1">
-                            {r.points.map((p) => (
-                              <li>
-                                <button type="button" class="text-left underline decoration-dotted hover:decoration-solid" onClick={() => setValues({ ...values, [f.name]: v.trim() ? `${v.trim()} ${p}` : p })}>{p}</button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                      <p class="text-xs text-ink/70">Tap one to drop it in, then change it so it sounds like you. Your own words carry more weight than ours.</p>
-                    </div>
-                  </details>
-                )}
                 {f.multiline ? <textarea rows={3} {...common} /> : <input type="text" {...common} />}
                 <p class={`label-ticker mt-1 ${over ? 'text-crimson' : 'text-ink/60'}`}>{f.hint ? `${f.hint} ` : ''}{v.length}/{f.max}</p>
               </div>
@@ -240,13 +229,36 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
           <button type="submit" class="btn btn-primary self-start" disabled={!valid}>Write my {kind} →</button>
           <p class="text-xs text-ink/70">Your lines are used as material for one {kind}, checked by code, and not stored. {fmt.min_words}–{fmt.max_words} words.</p>
         </form>
+        </div>
+        {whyField && reasons && reasons.length > 0 && (
+          <aside class="card p-4 mt-6 lg:mt-0 text-sm flex flex-col gap-4" aria-labelledby="reasons-heading" data-reasons>
+            <div>
+              <h2 id="reasons-heading" class="font-syne font-extrabold text-lg leading-tight">Not sure what to say?</h2>
+              <p class="text-ink/70 mt-1">Reasons people give, from a few angles. Tap one to drop it into your lines, then change it so it sounds like you.</p>
+            </div>
+            {reasons.map((r) => (
+              <div>
+                <p class="label-code">{r.angle}</p>
+                <ul class="mt-1 flex flex-col gap-1.5">
+                  {r.points.map((p) => (
+                    <li>
+                      <button type="button" class="text-left underline decoration-dotted hover:decoration-solid" onClick={() => addReason(p)}>{p}</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <p class="text-xs text-ink/70">Your own words carry more weight than ours.</p>
+          </aside>
+        )}
+        </div>
       )}
       {/* Outside the form so the widget survives into the output phase: Regenerate needs a fresh token too. */}
       <div ref={ts.mount} class="empty:hidden" />
-      {error && <p role="alert" class="card border-crimson bg-newsprint text-ink px-4 py-3 text-sm font-semibold">{error}</p>}
+      {error && <p role="alert" class="card border-crimson bg-newsprint text-ink px-4 py-3 text-sm font-semibold max-w-2xl">{error}</p>}
 
       {(generating || phase.kind === 'output') && (
-        <div class="card p-4">
+        <div class="card p-4 max-w-2xl">
           <p class="label-code" aria-live="polite">{generating ? phase.stage : phase.kind === 'output' && phase.doc.standard ? `Standard script — not personalised today · ${phase.doc.words} words` : `Your ${kind} · ${phase.kind === 'output' ? phase.doc.words : 0} words`}</p>
           {phase.kind === 'output' && phase.doc.standard && <p class="text-xs text-ink/70 mt-1">{STANDARD_WHY[phase.doc.reason ?? 'capacity'] ?? STANDARD_WHY.capacity}</p>}
           {phase.kind === 'output' && phase.doc.subject && <p class="font-syne font-extrabold mt-3">{phase.doc.subject}</p>}
@@ -255,14 +267,14 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
       )}
 
       {phase.kind === 'refused' && (
-        <div class="card p-4" role="alert">
+        <div class="card p-4 max-w-2xl" role="alert">
           <p class="font-semibold">{phase.message}</p>
           <button type="button" class="btn btn-ghost mt-4" onClick={() => setPhase({ kind: 'form' })}>Edit my lines</button>
         </div>
       )}
 
       {phase.kind === 'output' && (
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 max-w-2xl">
           <div class="flex flex-wrap gap-2">
             <button type="button" class="btn btn-ghost" onClick={() => { void navigator.clipboard?.writeText(text); setCopied(true); }}>{copied ? 'Copied' : 'Copy'}</button>
             <button type="button" class="btn btn-ghost" onClick={() => download(phase.doc)}>Download .txt</button>

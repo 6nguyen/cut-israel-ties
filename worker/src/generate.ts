@@ -524,9 +524,12 @@ export async function prepare(deps: GenerateDeps, input: GenerateInput): Promise
       standard = 'upstream';
     }
     if (screen && screen.cls !== 'ok') {
-      await repo.insertScreening(deviceHash, action.id, screen.cls, now);
-      const n = await repo.screenedOutCount(deviceHash, new Date(now.getTime() - DAY));
-      if (n >= LIMITS.block_after) await repo.block(deviceHash, new Date(now.getTime() + LIMITS.block_hours * HOUR));
+      const flagged = screen.cls;
+      await recordOrLog('screening', async () => {
+        await repo.insertScreening(deviceHash, action.id, flagged, now);
+        const n = await repo.screenedOutCount(deviceHash, new Date(now.getTime() - DAY));
+        if (n >= LIMITS.block_after) await repo.block(deviceHash, new Date(now.getTime() + LIMITS.block_hours * HOUR));
+      });
       const label = { off_topic: 'Off topic', injection: 'Not usable', harmful: 'Not acceptable' }[screen.cls];
       return reject(422, 'screened', `${label}: ${screen.reason || 'rewrite your lines about this goal and why it matters to you.'}`);
     }
@@ -548,6 +551,20 @@ export async function prepare(deps: GenerateDeps, input: GenerateInput): Promise
 export interface GenerateDone { subject: string; body: string; facts_used: string[]; words: number; target: TargetContact; standard: boolean; reason?: StandardReason; variant?: string }
 export type Emit = (event: 'status' | 'delta' | 'reset' | 'done' | 'error', data: unknown) => Promise<void> | void;
 
+/**
+ * A bookkeeping write never costs the caller a draft they already paid for. On 2026-11-06 production
+ * hit D1's free-tier daily row-write cap (every deploy reseeded ~4k rows), every INSERT threw, and the
+ * page showed "Something broke" after two good drafts. The failure is logged; only that request is
+ * missing from the limit counters and the uniqueness window.
+ */
+async function recordOrLog(label: string, write: () => Promise<void>): Promise<void> {
+  try {
+    await write();
+  } catch (e) {
+    console.error(`generate: ${label} write failed`, (e as Error).message);
+  }
+}
+
 /** generation-cost §4: the code-built script, streamed through the same events. Returns the check class when the fill is refused. */
 async function serveStandard(ctx: GenerateContext, emit: Emit, reason: StandardReason): Promise<string | null> {
   await emit('status', { stage: 'standard', reason });
@@ -567,7 +584,7 @@ export async function run(deps: GenerateDeps, ctx: GenerateContext, emit: Emit):
   const base = { action_id: ctx.action.id, target_id: ctx.target.id, device_hash: ctx.deviceHash, ip_hash: ctx.ipHash };
   if (ctx.standard) {
     const cls = await serveStandard(ctx, emit, ctx.standard);
-    await deps.repo.insertGeneration({ ...base, shingles: new Uint32Array(0), created_at: deps.now().toISOString(), input_tokens: 0, output_tokens: 0, model: STANDARD_MODEL, attempt: 1, check_fail: cls });
+    await recordOrLog('generations', () => deps.repo.insertGeneration({ ...base, shingles: new Uint32Array(0), created_at: deps.now().toISOString(), input_tokens: 0, output_tokens: 0, model: STANDARD_MODEL, attempt: 1, check_fail: cls }));
     return;
   }
   const usage = { input_tokens: 0, output_tokens: 0 };
@@ -628,11 +645,11 @@ export async function run(deps: GenerateDeps, ctx: GenerateContext, emit: Emit):
     }
   } finally {
     const billed = usage.input_tokens + usage.output_tokens > 0;
-    await deps.repo.insertGeneration({
+    await recordOrLog('generations', () => deps.repo.insertGeneration({
       ...base, shingles: final?.sh ?? new Uint32Array(0), created_at: deps.now().toISOString(),
       input_tokens: usage.input_tokens, output_tokens: usage.output_tokens, model: !final && upstream && !billed ? STANDARD_MODEL : DOC_MODEL,
       attempt: attempts, check_fail: attempts > 1 ? firstFail : null,
-    });
+    }));
   }
   if (!final && upstream) {
     await emit('reset', { reason: 'upstream' });

@@ -1,5 +1,6 @@
 // Render data/ into worker/seed.sql. Apply with `npm run seed` (local) or `seed:remote`.
 // `--check` (roster-freshness §3) runs the loader and its seed checks, prints the counts and writes nothing.
+import { createHash } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +32,13 @@ const sql = [
   ...insert('positions', rows.positions.map((p) => ({ ...p, changed_by: 'seed', changed_at: now }))),
   ...insert('states', rows.states as unknown as Record<string, unknown>[]),
 ].join('\n');
+// deployment spec §3: `seed-remote.ts` applies seed.sql only when this hash differs from the one stored in
+// `meta`. It covers the rows, not the SQL text, because positions carry the render time in `changed_at`.
+const hash = createHash('sha256').update(JSON.stringify(rows)).digest('hex');
+const stamp = [
+  'CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);',
+  `INSERT INTO meta (key, value) VALUES ('seed_sha256', '${hash}') ON CONFLICT(key) DO UPDATE SET value = excluded.value;`,
+].join('\n');
 
-writeFileSync(join(here, '..', 'seed.sql'), sql + '\n');
+writeFileSync(join(here, '..', 'seed.sql'), `${sql}\n${stamp}\n`);
 console.log(`seed.sql: ${rows.goals.length} goals, ${rows.actions.length} actions, ${rows.members.length} members, ${rows.membersElect.length} members-elect, ${rows.offices.length} offices, ${rows.positions.length} positions, ${rows.states.length} states`);

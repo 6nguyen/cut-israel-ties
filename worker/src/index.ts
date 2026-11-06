@@ -130,7 +130,7 @@ export function createApp(deps: Deps) {
       try {
         await run(gdeps, ctx, emit);
       } catch (e) {
-        console.error('generate: failed', (e as Error).message);
+        console.error('generate: failed', (e as Error).name, (e as Error).message, (e as Error).stack ?? '');
         await emit('error', { error: 'internal', message: 'Something broke on our side. Try again.' });
       }
     });
