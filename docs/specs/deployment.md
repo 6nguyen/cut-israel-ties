@@ -25,19 +25,24 @@ monitoring, no schema migrations (the schema is created once by hand).
    `worker/wrangler.deploy.json` (gitignored), passed with `--config`.
    Local dev and tests use `wrangler.jsonc` as is.
 3. **Seed when `data/` changed.** `seed:remote` renders `seed.sql`
-   from `data/` and runs `worker/scripts/seed-remote.ts`, which applies
-   that file only when its stamp differs from the database's: `seed.sql`
-   ends with an upsert of `meta.seed_sha256` (SHA-256 of the rendered
-   rows; `meta` is created `IF NOT EXISTS`, so no migration). A reseed
-   deletes and re-inserts the data tables inside one batch with
-   `PRAGMA defer_foreign_keys`, so rows in `receipts`, `reports` and
-   `generations` that reference goals and actions survive. The skip
-   exists because D1's free tier allows 100k row writes a day and a
-   reseed costs ~4k: fifteen merges on 2026-11-06 used the quota and
-   every INSERT in the Worker failed for the rest of the day.
-   `FORCE_SEED=1` applies regardless; `--local` targets local D1.
-   `schema.sql` (drops every table) is applied by `schema:remote` once,
-   during provisioning.
+   from `data/` (`worker/scripts/seed-sql.ts`) and runs
+   `worker/scripts/seed-remote.ts`, which applies that file only when
+   its stamp differs from the database's: `seed.sql` ends with an upsert
+   of `meta.seed_sha256` (SHA-256 of the rendered rows; `meta` is
+   created `IF NOT EXISTS`, so no migration). The skip exists because
+   D1's free tier allows 100k row writes a day and a reseed costs ~4k:
+   fifteen merges on 2026-11-06 used the quota and every INSERT in the
+   Worker failed for the rest of the day. `FORCE_SEED=1` applies
+   regardless; `--local` targets local D1. In a reseed, `goals` and
+   `actions`, which `receipts`, `reports`, `generations` and
+   `screenings` reference by id, are upserted by id and only ids that
+   left `data/` are deleted (an id with production references fails the
+   deploy: retire it, `data/ids.md`). The other five data tables are
+   deleted and re-inserted, children before parents. A wholesale
+   `DELETE FROM goals` fails D1's remote foreign-key check even under
+   `PRAGMA defer_foreign_keys` once one production row exists (deploy
+   run 42303908649, 2026-11-06). `schema.sql` (drops every table) is
+   applied by `schema:remote` once, during provisioning.
 4. **Site.** `deploy-web` runs `wrangler pages deploy dist` from `web/`
    against the Direct Upload project `cut-ties` (`PAGES_PROJECT`
    overrides). Production is `--branch main`; the custom domain points
