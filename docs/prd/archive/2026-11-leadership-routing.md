@@ -1,5 +1,5 @@
 # Leadership routing — reach every caucus vote a visitor has — PRD
-Status: SHIPPED 2026-11-06 (PR pending) · Owner: George Nguyen · Last updated: 2026-11-06
+Status: SHIPPED 2026-11-06 (PR #52) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
 Two votes decide who leads the Democrats in the 120th Congress. One is the
@@ -250,16 +250,16 @@ Relies on: `docs/research/leader-call-scripts.md`,
 - **Measure:** the share of leadership-card views with ≥2 targets, and
   call receipts per leadership card, against before.
 
-## State (updated 2026-11-06, §2–3 shipped)
+## State (updated 2026-11-06, PR #52)
 - Sections:
   - [x] 1. Caucus and incoming-member data · PR #48 merged
-  - [x] 2. Router: one leadership slot, the incoming caucus · feat/leadership-routing-router-and-ask
-  - [x] 3. One ask for both chambers, with the leader named by a sourced row · feat/leadership-routing-router-and-ask
+  - [x] 2. Router: one leadership slot, the incoming caucus · feat/leadership-routing-router-and-ask · PR #52
+  - [x] 3. One ask for both chambers, with the leader named by a sourced row · feat/leadership-routing-router-and-ask · PR #52
 - Completed: PRD, §1, §2, §3.
 - Folded: §1 (member-pages.md §Data & contracts); §2–3 (action-router.md
   Behavior 5/7, Data & contracts, Invariants; personalised-documents.md
   Behavior 5; goal-pages.md Behavior 2 and Invariants).
-- Branch / open PRs: feat/leadership-routing-router-and-ask (§2 + §3 in one PR).
+- Branch / open PRs: feat/leadership-routing-router-and-ask · PR #52 (§2 + §3 in one PR).
 - Files changed (file:line map): `worker/src/types.ts` (`ElectSeat`, `IncomingSeat`,
   `UncalledSeat`, `Incoming`, `TAKES_OFFICE`, `Delegation.incoming`);
   `worker/src/repo.ts` (`incomingSeat`, `assembleDelegation` with elects);
@@ -285,7 +285,7 @@ Relies on: `docs/research/leader-call-scripts.md`,
   fixtures now expect `senate-leader` / `house-caucus` because Talarico and
   Harvie are incoming Democrats; the all-Republican case strips elect rows.
 - Known failures / blockers: none.
-- Next action: merge the §2–3 PR; archived.
+- Next action: merge PR #52, then /implement-prd-section (next: none; PRD archived).
 ## Open questions
 1. Name Jeffries and Schumer to every Democratic office, and how?
    Answered by the owner on 2026-11-06: conditional. The leader is named
