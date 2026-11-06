@@ -24,12 +24,20 @@ monitoring, no schema migrations (the schema is created once by hand).
    `<domain>/api/*` on that zone. The result is
    `worker/wrangler.deploy.json` (gitignored), passed with `--config`.
    Local dev and tests use `wrangler.jsonc` as is.
-3. **Seed on every merge.** `seed:remote` renders `seed.sql` from
-   `data/` and applies only that file: it deletes and re-inserts the
-   five data tables inside one batch with `PRAGMA defer_foreign_keys`,
-   so rows in `receipts`, `reports` and `generations` that reference
-   goals and actions survive. `schema.sql` (drops every table) is
-   applied by `schema:remote` once, during provisioning.
+3. **Seed when `data/` changed.** `seed:remote` renders `seed.sql`
+   from `data/` and runs `worker/scripts/seed-remote.ts`, which applies
+   that file only when its stamp differs from the database's: `seed.sql`
+   ends with an upsert of `meta.seed_sha256` (SHA-256 of the rendered
+   rows; `meta` is created `IF NOT EXISTS`, so no migration). A reseed
+   deletes and re-inserts the data tables inside one batch with
+   `PRAGMA defer_foreign_keys`, so rows in `receipts`, `reports` and
+   `generations` that reference goals and actions survive. The skip
+   exists because D1's free tier allows 100k row writes a day and a
+   reseed costs ~4k: fifteen merges on 2026-11-06 used the quota and
+   every INSERT in the Worker failed for the rest of the day.
+   `FORCE_SEED=1` applies regardless; `--local` targets local D1.
+   `schema.sql` (drops every table) is applied by `schema:remote` once,
+   during provisioning.
 4. **Site.** `deploy-web` runs `wrangler pages deploy dist` from `web/`
    against the Direct Upload project `cut-ties` (`PAGES_PROJECT`
    overrides). Production is `--branch main`; the custom domain points
@@ -103,6 +111,8 @@ never in `CI_TARGETS`. Bindings `DB` and `DIGEST_MAIL` are declared in
       `web/` is in `.env.example`.
 - [ ] A re-run `seed:remote` leaves `receipts`, `reports`,
       `generations`, `screenings`, `blocks` and `digest_runs` untouched.
+- [ ] `seed:remote` with unchanged `data/` applies nothing (the stored
+      `meta.seed_sha256` matches); a data change applies the full file.
 - [ ] A PR from this repo gets exactly one preview comment, updated on
       each push.
 

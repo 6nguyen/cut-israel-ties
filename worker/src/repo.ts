@@ -20,6 +20,20 @@ const DAY = 24 * HOUR;
 const iso = (d: Date): string => d.toISOString();
 
 /** D1-backed Repo. Only the §4 endpoints write; nothing on the /api/route path does. */
+/**
+ * D1 hands a BLOB column back as a plain array of byte values, not an ArrayBuffer (verified against
+ * both local and remote D1, 2026-11-06); `new Uint32Array(number[])` made one lane per byte, so the
+ * uniqueness check never matched anything. Accepts every shape, drops a trailing partial lane.
+ */
+export function decodeShingles(value: unknown): Uint32Array {
+  const bytes = value instanceof ArrayBuffer ? new Uint8Array(value)
+    : Array.isArray(value) ? Uint8Array.from(value as number[])
+    : ArrayBuffer.isView(value) ? new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    : new Uint8Array(0);
+  const lanes = Math.floor(bytes.byteLength / 4);
+  return new Uint32Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + lanes * 4));
+}
+
 export class D1Repo implements Repo {
   constructor(private db: D1Database) {}
 
@@ -118,8 +132,8 @@ export class D1Repo implements Repo {
     const { results } = await this.db
       .prepare(`SELECT shingles FROM generations WHERE action_id = ? ORDER BY created_at DESC, id DESC LIMIT ?`)
       .bind(actionId, limit)
-      .all<{ shingles: ArrayBuffer }>();
-    return results.map((r) => new Uint32Array(r.shingles));
+      .all<{ shingles: unknown }>();
+    return results.map((r) => decodeShingles(r.shingles));
   }
   async insertGeneration(row: GenerationRow): Promise<void> {
     await this.db

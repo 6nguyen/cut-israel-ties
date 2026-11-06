@@ -12,11 +12,12 @@ stores identifies them. Address routing, goals and ranking are in
 1. **Act page.** `/goals/<slug>/act/<action>` (active goals only) renders
    the action's `form_schema` fields (first name 40, city 60, "why this
    matters to you" 280 multiline, optional affiliation 80) with live
-   counts and a Turnstile widget. Above the multiline "why" field a
-   collapsed "Not sure what to say?" panel lists the goal's `reasons`:
-   first-person starting points grouped by angle (who our government
-   answers to, being dragged into wars, my money, Gaza, readiness, speech);
-   tapping one appends it to the field for the caller to rewrite. The
+   counts and a Turnstile widget. Beside the form (below it on narrow
+   screens) an open "Not sure what to say?" panel lists the goal's
+   `reasons`: first-person starting points grouped by angle (who our
+   government answers to, being dragged into wars, my money, Gaza,
+   readiness, speech); tapping one appends it to the "why" field and
+   focuses it, for the caller to rewrite. The
    Turnstile widget sits outside the form, so it renders once the island
    has a target (not on the "Loading your target…" render) and stays
    through the output state for Regenerate; an expired token is dropped
@@ -73,9 +74,17 @@ stores identifies them. Address routing, goals and ranking are in
    instruction, then the draft is shown. One `generations` row per
    request (shingles, hashes, tokens, `attempt` 1|2 and `check_fail` =
    the first attempt's failure class when a redraft ran; empty shingles
-   on refusal). Both attempts throwing on the model call gives `reset`
-   and the standard script with `reason: upstream`. One "Regenerate"
-   button.
+   on refusal). The row is bookkeeping, not the product: when the
+   INSERT fails (D1's free-tier daily write cap, hit on 2026-11-06 after
+   fifteen reseeding deploys; an outage) the Worker logs
+   `generate: generations write failed` and the draft still ends in
+   `done`; only that request is missing from the limit counters and the
+   uniqueness window. The same holds for the screening row. D1 returns
+   the `shingles` BLOB as a byte array; `decodeShingles` rebuilds the
+   `Uint32Array` (a `new Uint32Array(bytes)` made one lane per byte and
+   the uniqueness check never matched). Both attempts throwing on the
+   model call gives `reset` and the standard script with
+   `reason: upstream`. One "Regenerate" button.
 4. **Receipt, share, report.** The output screen offers copy, download
    `.txt`, `tel:` links for every phone on file (each with the open/closed
    chip of `web/src/lib/hours.ts`; when the DC office is closed the

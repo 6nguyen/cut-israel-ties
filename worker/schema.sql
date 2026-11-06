@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS visit_requests;
 DROP TABLE IF EXISTS visits;
 DROP TABLE IF EXISTS digest_runs;
+DROP TABLE IF EXISTS meta;
 
 CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
@@ -244,3 +245,10 @@ CREATE TABLE visit_requests (
   UNIQUE (visit_id, device_hash)
 );
 CREATE INDEX visit_requests_device ON visit_requests(device_hash, created_at);
+
+-- Key/value bookkeeping; `seed_sha256` is the hash of the data/ rows last applied, so `seed:remote`
+-- can skip an unchanged reseed (deployment spec §3). seed.sql creates it IF NOT EXISTS as well.
+CREATE TABLE meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
