@@ -1,0 +1,334 @@
+{
+ "source": "TIGER2026 CD120 (https://www2.census.gov/geo/tiger/TIGER2026/CD/)",
+ "congress": 120,
+ "overrides": {
+  "MO": {
+   "vintage": 2025,
+   "congress": 119
+  }
+ },
+ "built": "2026-11-06",
+ "simplify": {
+  "method": "visvalingam",
+  "interval_m": 30,
+  "state_interval_m": 1000,
+  "keep_shapes": true
+ },
+ "limits": {
+  "state_gzip": 307200,
+  "states_gzip": 153600
+ },
+ "files": {
+  "DE": {
+   "bytes": 3736,
+   "gzip": 1425,
+   "sha256": "52afa90102224c6e84277369403c375e5edbb658ff191d82a11b8be62457437e",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_10_cd120.zip"
+  },
+  "DC": {
+   "bytes": 1463,
+   "gzip": 691,
+   "sha256": "5e161b727d81cd5c992e1f5197cc654e0b812245ef8fb9c3de3a449d8c4185a4",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_11_cd120.zip"
+  },
+  "FL": {
+   "bytes": 108554,
+   "gzip": 35139,
+   "sha256": "cbb13a276c7f000b70f677313c8d0c40984d7f37c8b593d16073f772fa4c78ee",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_12_cd120.zip"
+  },
+  "GA": {
+   "bytes": 143152,
+   "gzip": 46798,
+   "sha256": "90749e93c55eddb236de7996fa35df11942241d5df53c24136bab6830a723468",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_13_cd120.zip"
+  },
+  "HI": {
+   "bytes": 25418,
+   "gzip": 8924,
+   "sha256": "a83a10edb01b423df7a7d5bb59391888c48a1006d5aca46cc3d4fd8c00121815",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_15_cd120.zip"
+  },
+  "ID": {
+   "bytes": 94523,
+   "gzip": 30325,
+   "sha256": "b027dcd491a2d9bad65abb0f3ac74705e2edfda79f2975f1bb5de79608076821",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_16_cd120.zip"
+  },
+  "IL": {
+   "bytes": 98861,
+   "gzip": 32022,
+   "sha256": "5ff87e70eb271502560965920258846b77f2f447340e5d9faca6e2c37a38bd51",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_17_cd120.zip"
+  },
+  "IN": {
+   "bytes": 46100,
+   "gzip": 15217,
+   "sha256": "65790af627369d2af0303c81df051e748fb7bacbfda5efece6ac1a397afd02ff",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_18_cd120.zip"
+  },
+  "IA": {
+   "bytes": 45158,
+   "gzip": 14705,
+   "sha256": "16a4b71286422e1bcc511b34646165c9c9533570735e62ee49f0e5393f88f566",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_19_cd120.zip"
+  },
+  "KS": {
+   "bytes": 33055,
+   "gzip": 10225,
+   "sha256": "76fcfb75b20c42c6ce5d473f6e8e3cf4bcd2496096e9d5f02222d7d0ff57bebf",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_20_cd120.zip"
+  },
+  "KY": {
+   "bytes": 105113,
+   "gzip": 34703,
+   "sha256": "85dc469d85f6726f7303d9b8a6b9972a825b6aec1e1c9b84ae3a9fc6542c9f4b",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_21_cd120.zip"
+  },
+  "LA": {
+   "bytes": 108117,
+   "gzip": 35514,
+   "sha256": "6c6cf393531e5ac37e57e86239790cfd64e80e90f64f4647ca7ef39ffefda52e",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_22_cd120.zip"
+  },
+  "ME": {
+   "bytes": 47571,
+   "gzip": 16064,
+   "sha256": "bbda54dc5c1580a9004f4c48a89a14099d3710cd36ff4d2f0d96815d8a34c4ee",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_23_cd120.zip"
+  },
+  "MD": {
+   "bytes": 51475,
+   "gzip": 17029,
+   "sha256": "0ec91b19b206950d9489b5e3f777df6d991b3c637813a25d9655971f3a832c63",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_24_cd120.zip"
+  },
+  "MA": {
+   "bytes": 27829,
+   "gzip": 9526,
+   "sha256": "82933229b1cc5dc07cb134716ac1789ad8168a283b781197530a8b4826ac3637",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_25_cd120.zip"
+  },
+  "MI": {
+   "bytes": 42170,
+   "gzip": 13426,
+   "sha256": "2d3805d5e9a50cbf384ca58d42a50acf766979b1683a2425474f04d87f60d9ef",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_26_cd120.zip"
+  },
+  "MN": {
+   "bytes": 91716,
+   "gzip": 29574,
+   "sha256": "8b03c9807025fc6400d356ae9a6736eba12dc8386b3c44f292b350376aa92cfc",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_27_cd120.zip"
+  },
+  "MS": {
+   "bytes": 60888,
+   "gzip": 20507,
+   "sha256": "dd7d6aded350956442c9b183d04a6c977df92dbb3618cad9137789257ae538ab",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_28_cd120.zip"
+  },
+  "MO": {
+   "bytes": 70479,
+   "gzip": 23486,
+   "sha256": "6c38525a8d3ab4b4c6c4c7a4211ab962a959c7444b447bc4b8400ab428b13779",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2025/CD/tl_2025_29_cd119.zip"
+  },
+  "MT": {
+   "bytes": 75879,
+   "gzip": 23543,
+   "sha256": "cc4445b07f87f87c69e7d77034fef0388afddb2bf55f578a8576479d71208400",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_30_cd120.zip"
+  },
+  "NE": {
+   "bytes": 32554,
+   "gzip": 10408,
+   "sha256": "717821ef223ef24d4ee8ccc846da3b1ea93fa1e00141c9c61f6ad531c1ae10bb",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_31_cd120.zip"
+  },
+  "NV": {
+   "bytes": 27972,
+   "gzip": 8987,
+   "sha256": "6e80cc7f2f8293c66a177db7fd2bdd6c5cd35f4badc4344ba7fc8adb7e718386",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_32_cd120.zip"
+  },
+  "NH": {
+   "bytes": 32076,
+   "gzip": 10943,
+   "sha256": "0c0869b1fc206081a5f324c74c3234d96ea23efb6dedecf196c9db01e3bdb7ae",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_33_cd120.zip"
+  },
+  "NJ": {
+   "bytes": 45207,
+   "gzip": 15314,
+   "sha256": "b49651dcd8d200882c28f12d809beed82105f02f8fe43e782c0b58591d2514ce",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_34_cd120.zip"
+  },
+  "NM": {
+   "bytes": 28576,
+   "gzip": 8899,
+   "sha256": "dddf5f49ef206f2abcd7080a6adf8139209d2a6c5d078a0f39bd64b6090200e5",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_35_cd120.zip"
+  },
+  "NY": {
+   "bytes": 75759,
+   "gzip": 24720,
+   "sha256": "173e70e3205892708ba5c86e7bf1abbc3fcaea56851365d3ff5ca6f58734efa0",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_36_cd120.zip"
+  },
+  "NC": {
+   "bytes": 120339,
+   "gzip": 38932,
+   "sha256": "f21017f9fdc195b42941ad90fefd8e16d20d92fb325d6bc5823c529403c172ab",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_37_cd120.zip"
+  },
+  "ND": {
+   "bytes": 40168,
+   "gzip": 12441,
+   "sha256": "5c137c3b588a152555f25bb2882705e349d1c7aba320aeb65cbef6fc06f6ecd9",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_38_cd120.zip"
+  },
+  "OH": {
+   "bytes": 67531,
+   "gzip": 22027,
+   "sha256": "83c812cf96333ed6f5a0d6bf3a19045022b10f0a3c3ea21a393fbc1cf6e10aa2",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_39_cd120.zip"
+  },
+  "OK": {
+   "bytes": 67615,
+   "gzip": 21161,
+   "sha256": "72fb0a058bf2f840f9883f0b6d82d16f8abd4d412c48a4c59b71d2b950689aa7",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_40_cd120.zip"
+  },
+  "OR": {
+   "bytes": 70987,
+   "gzip": 23186,
+   "sha256": "d02f1d38fa914ae6e58fa201b74df8f26f54d5bdff4fa54e36d566975f1ce111",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_41_cd120.zip"
+  },
+  "PA": {
+   "bytes": 76669,
+   "gzip": 25242,
+   "sha256": "8837082570f6338ce0261c8472e0440aa94f5d67d911d9f23c84a995f7078a65",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_42_cd120.zip"
+  },
+  "RI": {
+   "bytes": 5107,
+   "gzip": 2014,
+   "sha256": "d054f63a0897cfe8a659cb212b602de0094ae89ee9eb61e374f66b67b4af5ff6",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_44_cd120.zip"
+  },
+  "SC": {
+   "bytes": 108784,
+   "gzip": 35820,
+   "sha256": "c218b6f27d7349e0e5f5bf7a92e2ec5895fbdfeb677c45983fec4c267945aa44",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_45_cd120.zip"
+  },
+  "SD": {
+   "bytes": 27550,
+   "gzip": 8664,
+   "sha256": "c9aa9f2f74909730fda6b565e0de7beb6fdb18666a68ea7702528cb56ee50610",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_46_cd120.zip"
+  },
+  "TN": {
+   "bytes": 110934,
+   "gzip": 36459,
+   "sha256": "1d099a2303e9c69d7a860e6dc0208ec3b3c8778cb30450211c1b6d4251f0a789",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_47_cd120.zip"
+  },
+  "TX": {
+   "bytes": 411217,
+   "gzip": 130645,
+   "sha256": "606186d88afffa35771b47ed32b950a19e84ed6c034dfa479ed0f59aaa51cacc",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_48_cd120.zip"
+  },
+  "UT": {
+   "bytes": 31312,
+   "gzip": 9755,
+   "sha256": "8b41b0d5b8d055447c32cdb049b7aaefcb4dcdcd45f7231c97d7f474fc3f60b3",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_49_cd120.zip"
+  },
+  "VT": {
+   "bytes": 24627,
+   "gzip": 8386,
+   "sha256": "e98f0edd62bb566fef5f5cb7c28fb14702c9a6dce60693a483bd18e5c9b04fcc",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_50_cd120.zip"
+  },
+  "VA": {
+   "bytes": 124896,
+   "gzip": 41098,
+   "sha256": "227d1589c3464dde86f6e44a508f614e86692f85a0a399f1c3ccd06590183da9",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_51_cd120.zip"
+  },
+  "WA": {
+   "bytes": 68465,
+   "gzip": 21859,
+   "sha256": "68a32396df880a88534ce410c05e26bb4f4ded365f352862e7818ae19612821d",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_53_cd120.zip"
+  },
+  "WV": {
+   "bytes": 74654,
+   "gzip": 24667,
+   "sha256": "031bf2e791dfc60d42ddb7d92c2c50f50d42af1b958bbfb0f0d61719d1e9c078",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_54_cd120.zip"
+  },
+  "WI": {
+   "bytes": 59338,
+   "gzip": 19344,
+   "sha256": "f7871f531b161ecaab18a840b6cf8731c673de817bbdd24784f0ef4225eab7ec",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_55_cd120.zip"
+  },
+  "WY": {
+   "bytes": 8912,
+   "gzip": 2678,
+   "sha256": "05c0336916634c2a5669db4df949b4d3ffc14adae6ec3efcd2c1a4e68b8bc93e",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_56_cd120.zip"
+  },
+  "AL": {
+   "bytes": 75816,
+   "gzip": 24740,
+   "sha256": "3facf250314292e1d7125d19436706d0e3df5d8623c2e4fd18b6c6bbb8e3812d",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_01_cd120.zip"
+  },
+  "AK": {
+   "bytes": 93662,
+   "gzip": 31181,
+   "sha256": "b92c5b84e50a40d31f4bec2a8aad49837cad48fa176832433bf4b5568bfa9afe",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_02_cd120.zip"
+  },
+  "AZ": {
+   "bytes": 68093,
+   "gzip": 22121,
+   "sha256": "68025e46843317cd8176d859877e3a882704636b6526076ec1c06a888911a039",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_04_cd120.zip"
+  },
+  "AR": {
+   "bytes": 58856,
+   "gzip": 19098,
+   "sha256": "df977cc525ee0ddd2fa4297f8c258aafbf7d6af9a31fb262dc495c4c7c206b54",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_05_cd120.zip"
+  },
+  "CA": {
+   "bytes": 322985,
+   "gzip": 102944,
+   "sha256": "7c5e71d0f021b07f17c89c353d696b6317f67bebe366a40a9a003a78e9f077f7",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_06_cd120.zip"
+  },
+  "CO": {
+   "bytes": 59436,
+   "gzip": 18706,
+   "sha256": "42796a65e559c48b11a75f689615055657dae5e029c303cd24526f551bb9b1e9",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_08_cd120.zip"
+  },
+  "CT": {
+   "bytes": 17631,
+   "gzip": 6109,
+   "sha256": "c4a55d051a556ae8feb75a3e6e293ba77a0cd90b9a7701a79777b7fbf3625db3",
+   "source": "https://www2.census.gov/geo/tiger/TIGER2026/CD/tl_2026_09_cd120.zip"
+  },
+  "states": {
+   "bytes": 106047,
+   "gzip": 36347,
+   "sha256": "047cfd65a034b709b80f3e4c328f37c720c2622fb8d8287d48496e24058c422c"
+  }
+ }
+}

@@ -51,7 +51,10 @@ monitoring, no schema migrations (the schema is created once by hand).
    Actions UI: it redeploys that commit's Worker, rows and site. A bad
    data change is reverted by a PR; the merge redeploys.
 7. **Provisioning** is manual and documented step by step in
-   `docs/guides/deploy.md`, which also holds the go-live checklist.
+   `docs/guides/deploy.md`, which also holds the go-live checklist and
+   the dated checklist for the 2027-01-03 district flip
+   (`ACTIVE_CONGRESS=120`, `DISTRICT_VINTAGE=Current_Current`, one PR,
+   rollback = revert; both district sets stay deployed).
 
 ## Data & contracts
 | Name | Set in | Read by | Without it |
