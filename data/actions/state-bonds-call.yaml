@@ -15,7 +15,7 @@ prompt_template: |
   Open with the caller's first name and city as a resident of the state. Ask the treasurer's office whether the state
   holds Israel Bonds, how much, and when it will stop rolling them over. Quote the holdings figure only if the facts list
   one. Close by asking for a written answer and the date of the next public comment opportunity.
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["Israel Bonds"], "ask": "rolling them over"}
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 160, "mentions": ["Israel Bonds"], "ask": "rolling them over"}
 standard_template: |
   Hi, my name is {{user_first_name}} and I live in {{user_city}}. I am calling the office of {{target_name}} about the state's holdings of Israel Bonds.
   I would like to know whether the state holds Israel Bonds today, how much, and when the office will stop rolling them over as they mature.

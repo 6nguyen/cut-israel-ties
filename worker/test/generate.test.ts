@@ -348,7 +348,7 @@ describe('POST /api/generate — screen (§4.8.2) and abuse response (§4.8.5)',
 
 describe('POST /api/generate — standard script (generation-cost §4)', () => {
   const NOKEY = ENV as unknown as Record<string, unknown>;
-  /** The §4 stream: status standard, exactly one delta, done {standard: true}, a 60–120-word body that passes the check. */
+  /** The §4 stream: status standard, exactly one delta, done {standard: true}, a 60–160-word body that passes the check. */
   async function expectStandard(res: Response, reason: string) {
     const evs = await events(res);
     expect(evs[0]).toEqual({ event: 'status', data: { stage: 'standard', reason } });
@@ -366,7 +366,7 @@ describe('POST /api/generate — standard script (generation-cost §4)', () => {
     expect(done.body).not.toMatch(/\{\{|\}\}/);
     expect(done.words).toBe(wordCount(done.body));
     expect(done.words).toBeGreaterThanOrEqual(60);
-    expect(done.words).toBeLessThanOrEqual(120);
+    expect(done.words).toBeLessThanOrEqual(160);
     expect(done.target.name).toBe('Lou Correa');
     return done;
   }
@@ -445,7 +445,7 @@ describe('POST /api/generate — script blocks (leader-call-scripts §2–§3)',
       expect(d.body).toContain('integration section');
       expect(d.body).toContain('vote only for a leader');
       expect(d.words).toBeGreaterThanOrEqual(60);
-      expect(d.words).toBeLessThanOrEqual(120);
+      expect(d.words).toBeLessThanOrEqual(160);
     }
     expect(a.variant).not.toBe(b.variant);
     expect(a.body).not.toBe(b.body);
@@ -528,7 +528,7 @@ describe('POST /api/generate — output check (§4.8.4) and uniqueness (§4.4)',
       docs.push(done!.body);
       const check = checkOutput({ subject: '', body: done!.body, facts_used: [] }, { targetName: 'Lou Correa', fmt, allowedDigits: new Set(facts.match(/\d+/g)), pickName: null });
       expect(check, `generation ${i}`).toEqual({ ok: true, words: expect.any(Number) });
-      expect(done!.words).toBeLessThanOrEqual(120);
+      expect(done!.words).toBeLessThanOrEqual(160);
       expect(done!.body.toLowerCase()).not.toContain('end aid');
     }
     expect(calls.opus).toBe(20);
@@ -578,8 +578,8 @@ describe('checkOutput, sanitize, shapeFields, BodyExtractor (unit)', () => {
     const lynch = { ...ctx, targetName: 'Stephen F. Lynch' };
     expect(checkOutput({ ...ok, body: ok.body.replace('Rep. Correa', 'Rep. Lynch') }, lynch)).toMatchObject({ ok: true }); // the surname is not a blocked term
     expect(checkOutput({ ...ok, body: `${ok.body.replace('Rep. Correa', 'Rep. Lynch')} We will find you.` }, lynch)).toMatchObject({ ok: false, cls: 'blocked' });
-    expect(checkOutput({ ...ok, body: `${ok.body} ${filler(5, 40)}` }, ctx)).toMatchObject({ ok: false, reason: expect.stringMatching(/word count \d+ is outside 60–120/) });
-    expect(checkOutput({ ...ok, body: 'Rep. Correa drop the integration section' }, ctx)).toMatchObject({ ok: false, reason: 'word count 6 is outside 60–120' });
+    expect(checkOutput({ ...ok, body: `${ok.body} ${filler(5, 80)}` }, ctx)).toMatchObject({ ok: false, reason: expect.stringMatching(/word count \d+ is outside 60–160/) });
+    expect(checkOutput({ ...ok, body: 'Rep. Correa drop the integration section' }, ctx)).toMatchObject({ ok: false, reason: 'word count 6 is outside 60–160' });
     expect(checkOutput(ok, { ...ctx, pickName: 'Chris Murphy' })).toMatchObject({ ok: false, reason: 'does not name our pick' });
   });
 

@@ -15,5 +15,5 @@ prompt_template: |
   Open with the caller's first name and city. House Democrats are about to vote on their leader: ask the representative
   to vote only for a leader who commits, in public, to stripping the integration section from the NDAA. Name the prior
   vote if the facts list one. Close by asking whether that is a condition for their vote and when the office will say so.
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["integration section", "leader"], "ask": "vote only for a leader"}
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 160, "mentions": ["integration section", "leader"], "ask": "vote only for a leader"}
 script_blocks: leadership
