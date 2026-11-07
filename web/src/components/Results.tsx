@@ -2,7 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { districtLabel, route, type GoalCard, type RouteResponse } from '../lib/api';
 import type { Chamber } from '@worker/types';
 import { clearPlace, loadPlace, takeRoute } from '../lib/store';
-import { CATEGORY, Target, fmtDate } from './Target';
+import { CATEGORY, TargetStack, fmtDate } from './Target';
 import Counts from './Counts';
 import Countdown, { targetOf } from './Countdown';
 
@@ -24,11 +24,9 @@ function Block({ g, state, district, label }: { g: GoalCard; state: string; dist
   return (
     <div class="flex flex-col gap-4" data-block={g.chamber ?? g.slug}>
       {label && <p class="label-code">{label}{date ? ` · Decision: ${date}` : ''}</p>}
-      <div class="border-2 border-ink">
-        <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call ({g.targets.length})</p>
-        <ul class="px-3">{g.targets.map((t) => <Target t={t} partner={g.partner_url} />)}</ul>
+      <TargetStack label={`Who to call (${g.targets.length})`} targets={g.targets} partner={g.partner_url}>
         <Counts goal={g.slug} state={state} district={district} />
-      </div>
+      </TargetStack>
       <p class="font-semibold">{g.ask_text}</p>
       <a href={g.action_href} class="btn btn-primary self-start">Get my script →</a>
     </div>

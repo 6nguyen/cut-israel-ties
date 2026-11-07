@@ -1,3 +1,4 @@
+import type preact from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { GoalCard, TargetCard } from '../lib/api';
 import type { RecordLine } from '@worker/electoral';
@@ -14,28 +15,53 @@ export function fmtDate(d: string | null): string | null {
   return Number.isNaN(t) ? d : new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-/** One target row: party block, role + name, prior vote, call button, position chip. Every value is a data/ row. */
+const ROLE: Record<string, string> = { 'Rep.': 'Representative', 'Sen.': 'Senator' };
+const PARTY_CLASS = (party: string | null) => (party === 'D' ? 'bg-acid' : party === 'R' ? 'bg-crimson text-paper' : 'bg-hazard');
+
+/** urgency-and-readability §7.3: "Senator · VA", "Representative · KY-04", "Representative-elect · NY-10", "Treasurer · MD". */
+export function roleLine(t: Pick<TargetCard, 'role' | 'state' | 'district'>): string {
+  const role = ROLE[t.role] ?? t.role;
+  if (!t.state) return role;
+  const seat = t.district === null || t.district === undefined ? t.state : t.district === 0 ? `${t.state} at large` : `${t.state}-${String(t.district).padStart(2, '0')}`;
+  return `${role} · ${seat}`;
+}
+
+const PHONE_SVG = (
+  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z" /></svg>
+);
+const ARROW_SVG = (
+  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
+);
+const SQUARE = 'w-11 h-11 shrink-0 border-2 border-ink shadow-brutal-sm flex items-center justify-center hover:bg-ink hover:text-acid';
+
+/**
+ * One target card (urgency-and-readability §7, style-guide spec 06): paper, 2 px ink border, small shadow. Header row =
+ * party badge, name over the role line, the prior-vote status line, and a 44 px call square (or a hazard contact square
+ * for a member-elect). Below it, in order: elect line, district line, position chip, holdings, visit, "On the record".
+ * Every value is a data/ row.
+ */
 export function Target({ t, partner }: { t: TargetCard; partner?: string | null }) {
   return (
-    <li class="border-t border-rule first:border-t-0 py-3">
-      <div class="flex items-center gap-3">
-        <span class={`w-8 h-8 shrink-0 border-2 border-ink flex items-center justify-center font-condensed text-lg ${t.party === 'D' ? 'bg-acid' : t.party === 'R' ? 'bg-crimson text-paper' : 'bg-hazard'}`}>{t.party ?? '·'}</span>
+    <li class="bg-paper border-2 border-ink shadow-brutal-sm p-3.5 hover:bg-hazard/10" data-target={t.bioguide_id ?? t.name}>
+      <div class="flex items-start gap-3">
+        <span class={`w-10 h-10 shrink-0 border-2 border-ink shadow-brutal-sm flex items-center justify-center font-condensed text-[20px] leading-none ${PARTY_CLASS(t.party)}`}>{t.party ?? '·'}</span>
         <div class="min-w-0 flex-1">
-          <p class="font-condensed uppercase tracking-wide text-xl leading-none">{t.role} {t.name}</p>
-          <p class="label-ticker text-ink/70 mt-0.5">{t.prior_vote}</p>
+          <p class="font-condensed uppercase tracking-wide text-2xl leading-none">{t.name}</p>
+          <p class="font-mono text-xs uppercase tracking-[0.08em] mt-1" data-role-line>{roleLine(t)}</p>
+          <p class="label-ticker text-ink/70 mt-1">{t.prior_vote}</p>
         </div>
         {t.phone && (
-          <a href={`tel:${t.phone.replace(/[^\d+]/g, '')}`} class="btn btn-ghost !py-2 !px-3 text-xs" aria-label={`Call ${t.name}`}>Call</a>
+          <a href={`tel:${t.phone.replace(/[^\d+]/g, '')}`} class={`${SQUARE} bg-acid`} aria-label={`Call ${t.name}`} title={`Call ${t.phone}`}>{PHONE_SVG}</a>
         )}
         {!t.phone && t.elect && (
-          <a href={t.elect.contact_url} class="btn btn-ghost !py-2 !px-3 text-xs" rel="noopener noreferrer" aria-label={`Contact ${t.name}`}>Contact</a>
+          <a href={t.elect.contact_url} class={`${SQUARE} bg-hazard`} rel="noopener noreferrer" aria-label={`Contact ${t.name}`} title="Contact">{ARROW_SVG}<span class="sr-only">Contact</span></a>
         )}
       </div>
       {t.elect && (
-        <p class="mt-1 text-sm label-ticker" data-elect-line>Takes office {fmtDate(t.elect.takes_office)}, replaces {t.elect.replaces_name}</p>
+        <p class="mt-2 text-sm label-ticker" data-elect-line>Takes office {fmtDate(t.elect.takes_office)}, replaces {t.elect.replaces_name}</p>
       )}
       {t.district_phone && (
-        <p class="mt-1 text-sm label-ticker" data-district-line>District: {t.district_city ? `${t.district_city} ` : ''}<a href={`tel:${t.district_phone.replace(/[^\d+]/g, '')}`} class="underline">{t.district_phone}</a></p>
+        <p class="mt-2 text-sm label-ticker" data-district-line>District: {t.district_city ? `${t.district_city} ` : ''}<a href={`tel:${t.district_phone.replace(/[^\d+]/g, '')}`} class="underline">{t.district_phone}</a></p>
       )}
       <p class="mt-2 text-sm"><span class={`chip mr-2 ${POSITION_CLASS[t.position]}`}>{POSITION[t.position]}</span>
         {t.position_source_url && <a href={t.position_source_url} class="underline label-ticker" rel="noopener">source</a>}
@@ -57,6 +83,17 @@ export function Target({ t, partner }: { t: TargetCard; partner?: string | null 
         </div>
       )}
     </li>
+  );
+}
+
+/** §7.1–7.2: the stack of cards under a "Who to call (n)" line; the counter line renders below it. */
+export function TargetStack({ label, targets, partner, children }: { label: string; targets: TargetCard[]; partner?: string | null; children?: preact.ComponentChildren }) {
+  return (
+    <div class="flex flex-col gap-3" data-target-stack>
+      <p class="label-code">{label}</p>
+      <ul class="flex flex-col gap-3">{targets.map((t) => <Target t={t} partner={partner} />)}</ul>
+      {children}
+    </div>
   );
 }
 

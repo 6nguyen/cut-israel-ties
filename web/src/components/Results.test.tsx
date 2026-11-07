@@ -52,7 +52,9 @@ describe('leadership card blocks', () => {
   });
   it('a member-elect shows role, the takes-office line and a Contact link, never a tel: or the switchboard', () => {
     const out = render(h(Target, { t: wiener }));
-    expect(out).toContain('Representative-elect Scott Wiener');
+    expect(out).toContain('>Scott Wiener</p>'); // §7.3: the name on its own line, the role line beneath it
+    expect(out).toMatch(/data-role-line[^>]*>Representative-elect</);
+    expect(out).toContain('aria-label="Contact Scott Wiener"');
     expect(out).toContain('Takes office Jan 3, 2027, replaces Nancy Pelosi');
     expect(out).toContain('href="https://scottwiener.com/"');
     expect(out).toContain('>Contact<');

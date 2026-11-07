@@ -37,11 +37,11 @@ export default function GoalTargets({ slug }: { slug: string }) {
     </div>
   );
   return (
-    <div class="border-2 border-ink bg-paper">
-      <p class="label-code px-3 py-2 border-b-2 border-ink bg-newsprint">Who to call in {s.where} ({s.targets.length}) · <a href="/results" class="underline">your two actions</a></p>
+    <div class="flex flex-col gap-3" data-target-stack>
+      <p class="label-code">Who to call in {s.where} ({s.targets.length}) · <a href="/results" class="underline">your two actions</a></p>
       {s.targets.length === 0
-        ? <p class="px-3 py-3 text-sm">No one in your delegation decides this goal.</p>
-        : <ul class="px-3">{s.targets.map((t) => <Target t={t} />)}</ul>}
+        ? <p class="text-sm">No one in your delegation decides this goal.</p>
+        : <ul class="flex flex-col gap-3">{s.targets.map((t) => <Target t={t} />)}</ul>}
       {s.targets.length > 0 && <Counts goal={slug} state={s.place.state} district={s.place.district} />}
     </div>
   );

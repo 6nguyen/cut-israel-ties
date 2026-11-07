@@ -9,7 +9,7 @@ import { parseCsv } from '@worker/load';
 import { targetsFor } from '@worker/route';
 import { RESEARCH_URL, fillAsk, holdingsLine, moneyUsd } from '@worker/state-copy';
 import type { Delegation, Goal, StateRow } from '@worker/types';
-import { Target } from './Target';
+import { Target, TargetStack, roleLine } from './Target';
 
 const CSV = join(process.cwd(), '..', 'data', 'states.csv');
 const stateGoal = { id: 9, slug: 'state-bonds', category: 'state', status: 'active' } as unknown as Goal;
@@ -89,5 +89,54 @@ describe('member target district line', () => {
     const out = render(h(Target, { t: targetsFor(goal, undefined, d, [], [])[0] }));
     expect(out).toContain('href="tel:2022252965"');
     expect(out).not.toContain('data-district-line');
+  });
+});
+
+// urgency-and-readability §7: one bordered card per person with the spec 06 header row; the role line is built from
+// the route's state/district, never typed by hand.
+describe('target cards (spec 06)', () => {
+  const correa = {
+    bioguide_id: 'C001110', name: 'Lou Correa', party: 'D', chamber: 'house', state: 'CA', district: 46, dc_phone: '202-225-2965', district_phone: null,
+    contact_form_url: 'https://correa.house.gov/contact', hasc: 0, conferee: 0, rc243: null, jrd_april_2026: null, btb_cosponsor: 0, target_2028: 0, money_url: null,
+    district_office_address: null, district_office_city: null, contact_kind: 'zip_gate', not_returning: 0, left_office: null,
+  } as const;
+  const padilla = { ...correa, bioguide_id: 'P000145', name: 'Alex Padilla', chamber: 'senate', district: null, dc_phone: '202-224-3553' } as const;
+  const goal = { id: 1, slug: 'ndaa-1217', category: 'federal_vote', status: 'active' } as unknown as Goal;
+  const d: Delegation = { state: 'CA', district: 46, house: { ...correa }, senators: [{ ...padilla }], state_row: null, incoming: { house: { ...correa }, senators: [{ ...padilla }], uncalled: [] } };
+  const cards = targetsFor(goal, undefined, d, [], []);
+  it('the route card carries state and district; the role line reads "Representative · CA-46" / "Senator · CA" / "Treasurer · MD"', () => {
+    expect(cards.map((t) => [t.state, t.district])).toEqual([['CA', 46], ['CA', null]]);
+    expect(roleLine(cards[0])).toBe('Representative · CA-46');
+    expect(roleLine(cards[1])).toBe('Senator · CA');
+    expect(roleLine({ role: 'Rep.', state: 'AK', district: 0 })).toBe('Representative · AK at large');
+    expect(roleLine({ role: 'Representative-elect', state: 'NY', district: 10 })).toBe('Representative-elect · NY-10');
+    expect(roleLine(targetsFor(stateGoal, undefined, delegation(cell(FIXTURE[0])), [])[0])).toBe('Treasurer · MD');
+    expect(roleLine({ role: 'Sen.' })).toBe('Senator'); // an older cached route without the fields degrades to the role alone
+  });
+  it('renders a bordered, shadowed card: party badge, name line, role line, status line, then a 44 px call square', () => {
+    const out = render(h(Target, { t: cards[0] }));
+    expect(out).toMatch(/^<li class="bg-paper border-2 border-ink shadow-brutal-sm p-3\.5 hover:bg-hazard\/10"/);
+    expect(out).toContain('w-10 h-10 shrink-0 border-2 border-ink shadow-brutal-sm');
+    expect(out).toContain('>Lou Correa</p>');
+    expect(out).toMatch(/data-role-line[^>]*>Representative · CA-46</);
+    expect(out).toContain('No recorded vote yet');
+    expect(out).toMatch(/<a href="tel:2022252965" class="w-11 h-11 [^"]*bg-acid" aria-label="Call Lou Correa"/);
+    expect(out).toContain('<svg aria-hidden="true"');
+    const order = ['>Lou Correa</p>', 'data-role-line', 'No recorded vote yet', 'aria-label="Call Lou Correa"', 'No stated position'].map((s) => out.indexOf(s));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(order.every((i) => i > -1)).toBe(true);
+  });
+  it('a member-elect gets the hazard contact square with the arrow glyph', () => {
+    const t = { ...cards[0], bioguide_id: 'CA-46-x', name: 'New Member', role: 'Representative-elect', phone: null, elect: { replaces_name: 'Lou Correa', takes_office: '2027-01-03', contact_url: 'https://example.org/' } };
+    const out = render(h(Target, { t }));
+    expect(out).toMatch(/<a href="https:\/\/example.org\/" class="w-11 h-11 [^"]*bg-hazard" rel="noopener noreferrer" aria-label="Contact New Member"/);
+    expect(out).not.toContain('tel:');
+    expect(out.indexOf('aria-label="Contact New Member"')).toBeLessThan(out.indexOf('data-elect-line'));
+  });
+  it('the stack is a label line, cards 12 px apart, then whatever follows (the counter line); no enclosing box', () => {
+    const out = render(h(TargetStack, { label: 'Who to call (2)', targets: cards, children: h('p', { 'data-counts': true }, '3 called') }));
+    expect(out).toMatch(/^<div class="flex flex-col gap-3" data-target-stack[^>]*><p class="label-code">Who to call \(2\)<\/p><ul class="flex flex-col gap-3">/);
+    expect(out.match(/<li class="bg-paper border-2/g)).toHaveLength(2);
+    expect(out.indexOf('data-counts')).toBeGreaterThan(out.lastIndexOf('</li>'));
   });
 });

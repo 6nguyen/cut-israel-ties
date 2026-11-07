@@ -8,6 +8,9 @@ export interface TargetCard {
   bioguide_id: string | null; // the target id: a bioguide id, an elect_id for a member-elect (leadership-routing §2.6), null for a treasurer
   name: string;
   role: string; // "Rep.", "Sen.", "Treasurer", "Representative-elect", "Senator-elect"
+  // urgency-and-readability §7: the card's role line ("Representative · KY-04", "Senator · VA"); null district = senator, treasurer or at-large.
+  state?: string;
+  district?: number | null;
   party: string | null;
   position: Position['position'];
   position_source_url: string | null;
@@ -104,6 +107,8 @@ function memberCard(m: Member, goal: Goal, positions: Position[], offices: Offic
     bioguide_id: m.bioguide_id,
     name: m.name,
     role: m.chamber === 'house' ? 'Rep.' : 'Sen.',
+    state: m.state,
+    district: m.chamber === 'house' ? m.district : null,
     party: m.party,
     position: p?.position ?? 'unknown',
     position_source_url: p?.source_url ?? null,
@@ -119,6 +124,8 @@ function electCard(e: ElectSeat): TargetCard {
     bioguide_id: e.elect_id,
     name: e.name,
     role: e.chamber === 'house' ? 'Representative-elect' : 'Senator-elect',
+    state: e.state,
+    district: e.chamber === 'house' ? e.district : null,
     party: e.party,
     position: 'unknown',
     position_source_url: null,
@@ -138,6 +145,8 @@ export function targetsFor(goal: Goal, action: Action | undefined, d: Delegation
         bioguide_id: null,
         name: s?.treasurer_name || `${d.state} State Treasurer`,
         role: 'Treasurer',
+        state: d.state,
+        district: null,
         party: null,
         position: 'unknown',
         position_source_url: null,

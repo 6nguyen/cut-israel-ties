@@ -62,5 +62,5 @@ export default function Counts({ goal, state, district, echo = false }: { goal: 
     return () => { live = false; };
   }, [goal, state, district, echo]);
   if (!line) return null;
-  return <p class="label-code text-sm px-3 py-2 border-t-2 border-ink bg-newsprint" data-counts>{line}</p>;
+  return <p class="label-code text-sm px-3 py-2 border-2 border-ink bg-newsprint" data-counts>{line}</p>;
 }
