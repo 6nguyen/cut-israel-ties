@@ -2,9 +2,9 @@
 Status: APPROVED 2026-11-06 (auto) · Owner: George Nguyen · Last updated: 2026-11-06
 
 ## Problem
-Six owner findings from using the live site on 2026-11-06, in one change
-because they touch the same three screens (result cards, `/results`, the
-act page) and the site chrome around them:
+Seven owner findings from using the live site on 2026-11-06, in one
+change because they touch the same three screens (result cards,
+`/results`, the act page) and the site chrome around them:
 1. The section headlines (`headline-lg`/`headline-md`: "Our picks are not
    set yet", the result-card title "Stop Israel's integration into the US
    military") are set in Syne 800, the style guide's headline face. The
@@ -36,6 +36,12 @@ act page) and the site chrome around them:
    owner supplied a 1024 × 1024 PNG mark (green fists breaking a rope,
    "CUT THE TIES", on an opaque white square) at
    `web/src/assets/logo-1024.png`.
+7. The "Who to call" list on `/results` is one bordered box with
+   rule-separated rows; the style guide's spec 06 (Target Chips) gives
+   each person their own white card with the ink outline and brutal
+   shadow, a 40 px party badge, a Bebas Neue name, a mono role line and
+   a square call button. The live page reads as a table, not a deck of
+   targets.
 
 ## Goals / Non-goals
 - Goals: headlines readable at a glance on a phone, in one display face;
@@ -43,7 +49,8 @@ act page) and the site chrome around them:
   formula weights every nearer deadline more, stated once in the spec as
   impact × urgency; a ticking countdown on the three screens; the
   typeahead switched on in production; the logo in the browser tab, the
-  header and the share card.
+  header and the share card; every target rendered as a spec 06 card
+  wherever `Target` renders.
 - Non-goals: a redesign of the type scale; countdown on the prep page,
   goal detail or `/goals` overview (cheap follow-up, not asked for); a
   self-hosted address provider; re-running the ranking evaluation study;
@@ -59,6 +66,7 @@ act page) and the site chrome around them:
 | Word budget with 30 % headroom above the target length | 5 Calls scripts (~120–150 words) | Adopt | 60–160 keeps a 60-second call and stops the overshoot loop |
 | Autocomplete from the third character | Mapbox Search JS, Geoapify demos | Adopt | Already built; needs the provider token in the Pages env |
 | Favicon set generated from one source mark (ico + PNG sizes + apple-touch + manifest) | Every production site; `realfavicongenerator` checklist | Adopt | Generated once by a script with `sharp` (already a web dependency) and committed to `web/public/` |
+| One card per legislator with party badge, name, role and a one-tap call button | 5 Calls, Resistbot, the Stitch spec 06 chip | Adopt | Spec 06 as drawn, with the site's party colours (acid/crimson/hazard) instead of the guide's blue |
 
 ## Users
 A first-time visitor on a phone, mid-scroll, deciding in seconds whether
@@ -189,6 +197,34 @@ date with one YAML field and regenerate icons with one command.
 5. Nothing else carries the mark (no watermark on scripts or flyers in
    this change).
 
+### 7. Target cards (spec 06)
+1. `Target` (`web/src/components/Target.tsx`) renders one card per
+   person instead of a rule-separated `<li>`: paper background, 2 px ink
+   border, `shadow-brutal-sm`, 14 px padding, `hover:bg-hazard/10`.
+   Cards stack with a 12 px gap. The change applies everywhere `Target`
+   renders: the result cards (`Results.tsx` `Block`) and the goal page's
+   "Who to call" island (`GoalTargets.tsx`).
+2. The enclosing "Who to call (n)" box goes: the label becomes a
+   `label-code` line above the stack, and the `Counts` line moves below
+   the stack, unchanged in content.
+3. Card header row, left to right: a 40 × 40 party badge (2 px ink
+   border, `shadow-brutal-sm`, Bebas Neue 20 px; D acid, R crimson,
+   other hazard, as today); the name in Bebas Neue 24 px uppercase on
+   its own line, with the role line in Space Mono 12 px uppercase
+   beneath it ("Senator · VA", "Representative · KY-04",
+   "Representative-elect · NY-10"); then the existing prior-vote line
+   as the mono status line. The call button becomes a 44 × 44 acid
+   square (2 px ink border, `shadow-brutal-sm`, inline phone SVG,
+   `aria-label="Call <name>"`, `hover:bg-ink hover:text-acid`); the
+   contact variant for a member-elect is a hazard square with an arrow
+   glyph and `aria-label="Contact <name>"`.
+4. Everything the row carries today keeps its place under the header
+   row inside the card, in this order: elect line, district line
+   (district phone stays a text link), position chip + source, holdings
+   line, visit line, "On the record" block.
+5. Leadership cards keep one stack per chamber block under the block's
+   label; electoral and state cards keep their single stack.
+
 ## Data & contracts
 - `data/goals/*.yaml`: new optional `decision_at` (ISO 8601 with offset)
   and `decision_date_confirmed: true|false` (default false). Seed copies
@@ -220,6 +256,8 @@ date with one YAML field and regenerate icons with one command.
 - MODIFIED `docs/specs/personalised-documents.md` §Data & contracts `doc_format`: default `max_words` 120 → 160; the five call actions set 160.
 - MODIFIED `docs/specs/goal-pages.md` §Behavior 1: "Priority n" chip → "Impact n"; §Data & contracts: `decision_at` and `decision_date_confirmed` fields; share card carries the logo mark.
 - MODIFIED `docs/specs/member-pages.md` §Data & contracts: share card carries the logo mark.
+- MODIFIED `docs/specs/action-router.md` §Behavior 5 (Results): targets box → one spec 06 card per target (party badge, Bebas name, mono role line, square call button); "Who to call (n)" label above the stack, `Counts` line below it.
+- MODIFIED `docs/specs/goal-pages.md` §Behavior 2 (goal detail "Who to call" island): the same target cards.
 - MODIFIED `docs/specs/deployment.md` §Data & contracts: ADDED the `PUBLIC_SUGGEST_*` Pages build variables and the token-restriction rule; ADDED the committed icon set and `npm run icons -w web`.
 
 ## Acceptance criteria
@@ -236,10 +274,12 @@ date with one YAML field and regenerate icons with one command.
 - [ ] On production with the token set: typing "1600 Penn" shows up to five suggestions within 2 s; picking one routes with `{state, district, by_suggestion: true}` and the typed text never reaches the Worker (network tab).
 - [ ] `/favicon.ico`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png` and `/site.webmanifest` return 200 on the Pages preview; the tab shows the mark in Chrome, Safari and Firefox; `npm run icons -w web` regenerates byte-identical files from the committed source.
 - [ ] The header mark is ≤8 KB transferred (192 px PNG) and the landing budget still holds; `/card.png` and a goal card show the mark in the top-right corner.
+- [ ] On `/results` each target is its own card with a 2 px ink border and `shadow-brutal-sm`; the party badge is 40 px with border and shadow; the name renders in Bebas Neue uppercase with the role on a mono line beneath; the call control is a 44 px acid square with `aria-label="Call <name>"` and a working `tel:` href; the "Who to call (n)" line sits above the stack and the `Counts` line below it (component test on a D/DD fixture delegation).
+- [ ] The goal page's "Who to call" island shows the same cards; the elect, district, position, holdings, visit and "On the record" lines all still render inside the card (existing `Target.test.ts` cases pass unchanged).
 - [ ] Infra cost stays $0/month: the provider's free tier covers the site's daily suggestion volume; the deploy guide names the quota and the 429 behavior.
 
 ## Rollout & metrics
-No feature flag; §1–§4 and §6 ship with the normal merge deploy. §5 is a
+No feature flag; §1–§4, §6 and §7 ship with the normal merge deploy. §5 is a
 deploy-time switch: nothing changes until the owner sets the token. Watch
 the weekly report digest for the generate refusal rate (`word_count`
 class) before and after §2, and the share of routes marked
@@ -252,13 +292,14 @@ class) before and after §2, and the share of routes marked
   - [ ] 2. Script length 60–160
   - [ ] 3. Ranking by impact and deadline
   - [ ] 4. Deadline countdown
+  - [ ] 7. Target cards (spec 06)
   - [!] 5. Address autocomplete while typing · blocked: owner creates the provider token and sets the Pages env; the docs part can merge first
 - Completed: none
 - Folded: none
 - Branch / open PRs: `docs/urgency-and-readability-prd` (this PRD, PR #57)
-- Files changed (file:line map): `web/src/styles/global.css:16-46`, `web/src/layouts/Base.astro:29-37`, `web/src/assets/logo-1024.png`, `web/scripts/icons.ts` (new), `web/public/` icon set (new), `web/src/pages/goals/[slug]/card.png.ts`, `web/src/pages/card.png.ts`, `data/actions/*.yaml` doc_format, `worker/src/generate.ts:50,298`, `worker/src/electoral.ts:217`, `worker/src/ranking.ts:117-130`, `web/src/components/Results.tsx:43-44,93`, `web/src/components/Countdown.tsx` (new), `web/src/pages/goals/[slug]/act/[action].astro:20`, `web/src/pages/goals/index.astro`, `worker/schema.sql:30`, `.env.example`, `docs/guides/deploy.md`
+- Files changed (file:line map): `web/src/styles/global.css:16-46`, `web/src/layouts/Base.astro:29-37`, `web/src/assets/logo-1024.png`, `web/scripts/icons.ts` (new), `web/public/` icon set (new), `web/src/pages/goals/[slug]/card.png.ts`, `web/src/pages/card.png.ts`, `data/actions/*.yaml` doc_format, `worker/src/generate.ts:50,298`, `worker/src/electoral.ts:217`, `worker/src/ranking.ts:117-130`, `web/src/components/Results.tsx:16-20,43-44,93`, `web/src/components/Target.tsx:18-33`, `web/src/components/GoalTargets.tsx:44`, `web/src/components/Countdown.tsx` (new), `web/src/pages/goals/[slug]/act/[action].astro:20`, `web/src/pages/goals/index.astro`, `worker/schema.sql:30`, `.env.example`, `docs/guides/deploy.md`
 - Tests run + result: none yet
-- Remaining: §1–§6
+- Remaining: §1–§7
 - Decisions since last update: H2 face is Bebas Neue, not Inter 700 (owner, 2026-11-06); urgency is a continuous ramp, not a ≤7-day step (owner); countdown ticks DD HH MM SS with the style-guide stamp (owner); mockup B picked with a 5 px border, edge fade and grain (owner); canvas at https://claude.ai/artifact/DJS4hDyCq8fdBDz931JXNn
 - Known failures / blockers: §5 needs the owner's token
 - Next action: `/implement-prd-section` §1
@@ -283,3 +324,5 @@ class) before and after §2, and the share of routes marked
 - 2026-11-06 — owner picked mockup B (the stamp is the clock) with a
   heavier 5 px border, an edge fade and a grain filter; §4.3–4.6
   rewritten for one stamp on all three screens.
+- 2026-11-06 — §7 added: every target becomes a spec 06 card (own ink
+  outline and shadow) on `/results` and the goal page.

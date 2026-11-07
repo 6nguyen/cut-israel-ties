@@ -56,7 +56,7 @@ no `Needs` entry can run in parallel with the row above it. Rules:
 
 | # | PRD | Status | Needs | Owner surfaces |
 |---|---|---|---|---|
-| 1 | [urgency-and-readability.md](urgency-and-readability.md) | APPROVED (next §1; §5 blocked on owner token) | — | Bebas Neue on H2 tokens, logo favicon set + header mark + share card, `max_words` 160 on call actions, continuous ranking urgency, ticking countdown stamp on result cards, `/results` and the act page, `PUBLIC_SUGGEST_*` deploy docs; user surfaces, runs alongside the maintainer rows |
+| 1 | [urgency-and-readability.md](urgency-and-readability.md) | APPROVED (next §1; §5 blocked on owner token) | — | Bebas Neue on H2 tokens, logo favicon set + header mark + share card, `max_words` 160 on call actions, continuous ranking urgency, ticking countdown stamp on result cards, `/results` and the act page, `PUBLIC_SUGGEST_*` deploy docs, spec 06 target cards; user surfaces, runs alongside the maintainer rows |
 | 2 | [maintainer-research-routines.md](maintainer-research-routines.md) | APPROVED (§1 merged PR #43; next §5) | — | three scheduled research routines (federal positions and dates, Senate-leader signals, state holdings batches), their prompt files and PR contract, `import-rollcall.ts`; maintainer tooling, no user surface, runs alongside the rest |
 | 3 | [deploy.md](deploy.md) | BUILDING (§3 blocked) | — | Cloudflare provisioning, CI deploy on merge, go-live checklist. Nothing reaches users before this |
 | 4 | [state-holdings-sweep.md](state-holdings-sweep.md) | BUILDING (§2 research) | — | `draft-holding`, `states.csv` checks, 50-state sweep; maintainer research, runs alone |
