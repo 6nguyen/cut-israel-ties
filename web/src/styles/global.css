@@ -14,7 +14,6 @@
   --color-paper: #FFFFFF;
 
   --font-condensed: "Bebas Neue", "Arial Narrow", sans-serif;
-  --font-syne: "Syne", "Helvetica Neue", sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;
 
@@ -41,8 +40,8 @@
 
 @utility display-xl { font-family: var(--font-condensed); text-transform: uppercase; letter-spacing: 0.02em; font-size: 56px; line-height: 52px; @media (width >= 64rem) { font-size: 96px; line-height: 88px; } }
 @utility display-lg { font-family: var(--font-condensed); text-transform: uppercase; letter-spacing: 0.02em; font-size: 40px; line-height: 38px; @media (width >= 64rem) { font-size: 64px; line-height: 60px; } }
-@utility headline-lg { font-family: var(--font-syne); font-weight: 800; font-size: 26px; line-height: 32px; letter-spacing: -0.01em; @media (width >= 64rem) { font-size: 32px; line-height: 38px; letter-spacing: -0.02em; } }
-@utility headline-md { font-family: var(--font-syne); font-weight: 700; font-size: 22px; line-height: 28px; }
+@utility headline-lg { font-family: var(--font-condensed); font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; font-size: 30px; line-height: 30px; @media (width >= 64rem) { font-size: 36px; line-height: 36px; } }
+@utility headline-md { font-family: var(--font-condensed); font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; font-size: 26px; line-height: 26px; }
 @utility label-code { font-family: var(--font-mono); font-weight: 700; font-size: 13px; line-height: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
 @utility label-ticker { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
 
@@ -71,5 +70,7 @@
 .prose-cut ul { list-style: square; padding-left: 1.25rem; }
 .prose-cut ol { list-style: decimal; padding-left: 1.25rem; }
 .prose-cut a { text-decoration: underline; text-decoration-color: var(--color-acid); text-decoration-thickness: 2px; text-underline-offset: 4px; }
-.prose-cut h2, .prose-cut h3 { font-family: var(--font-syne); font-weight: 800; margin-top: 1.5rem; }
+.prose-cut h2, .prose-cut h3 { font-family: var(--font-condensed); font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.05; margin-top: 1.5rem; }
+.prose-cut h2 { font-size: 1.75rem; }
+.prose-cut h3 { font-size: 1.5rem; }
 .prose-cut strong { font-weight: 600; }

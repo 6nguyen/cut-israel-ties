@@ -238,7 +238,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
         {whyField && reasons && reasons.length > 0 && (
           <aside class="card p-4 mt-6 lg:mt-0 text-sm flex flex-col gap-4" aria-labelledby="reasons-heading" data-reasons>
             <div>
-              <h2 id="reasons-heading" class="font-syne font-extrabold text-lg leading-tight">Not sure what to say?</h2>
+              <h2 id="reasons-heading" class="font-condensed uppercase tracking-wide text-2xl leading-none">Not sure what to say?</h2>
               <p class="text-ink/70 mt-1">Reasons people give, from a few angles. Tap one to drop it into your lines, then change it so it sounds like you.</p>
             </div>
             {reasons.map((r) => (
@@ -266,7 +266,7 @@ export default function ActForm({ goal, action, type, scope, fields, fmt, siteKe
         <div class="card p-4 max-w-2xl">
           <p class="label-code" aria-live="polite">{generating ? phase.stage : phase.kind === 'output' && phase.doc.standard ? `Standard script — not personalised today · ${phase.doc.words} words` : `Your ${kind} · ${phase.kind === 'output' ? phase.doc.words : 0} words`}</p>
           {phase.kind === 'output' && phase.doc.standard && <p class="text-xs text-ink/70 mt-1">{STANDARD_WHY[phase.doc.reason ?? 'capacity'] ?? STANDARD_WHY.capacity}</p>}
-          {phase.kind === 'output' && phase.doc.subject && <p class="font-syne font-extrabold mt-3">{phase.doc.subject}</p>}
+          {phase.kind === 'output' && phase.doc.subject && <p class="font-condensed uppercase tracking-wide text-xl leading-tight mt-3">{phase.doc.subject}</p>}
           <pre class="whitespace-pre-wrap font-sans text-base leading-relaxed mt-3 min-h-[8rem]">{text}{generating && <span class="animate-pulse">▍</span>}</pre>
         </div>
       )}

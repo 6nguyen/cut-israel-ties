@@ -21,7 +21,7 @@ export function Target({ t, partner }: { t: TargetCard; partner?: string | null 
       <div class="flex items-center gap-3">
         <span class={`w-8 h-8 shrink-0 border-2 border-ink flex items-center justify-center font-condensed text-lg ${t.party === 'D' ? 'bg-acid' : t.party === 'R' ? 'bg-crimson text-paper' : 'bg-hazard'}`}>{t.party ?? '·'}</span>
         <div class="min-w-0 flex-1">
-          <p class="font-syne font-extrabold leading-tight">{t.role} {t.name}</p>
+          <p class="font-condensed uppercase tracking-wide text-xl leading-none">{t.role} {t.name}</p>
           <p class="label-ticker text-ink/70 mt-0.5">{t.prior_vote}</p>
         </div>
         {t.phone && (
