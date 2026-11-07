@@ -27,7 +27,10 @@ stores identifies them. Address routing, goals and ranking are in
    for treasurer actions) preselects the target; otherwise the island
    loads the stored district's targets for the goal and offers a radio
    list, or "Enter your address" with nothing stored. Nothing submits
-   until every required field is present and within its limit.
+   until every required field is present and within its limit. The
+   goal's countdown stamp (`countdown-stamp.md`) sits to the
+   right of the ask H1 from 768 px and between the H1 and the form below
+   that; no stamp when the goal has no upcoming date.
 2. **Generation.** `POST /api/generate` runs the §4.8 guardrails in
    order, all before any Opus call: request shape → action and goal
    active → target on file for the action's scope → field shape and
@@ -160,7 +163,8 @@ stores identifies them. Address routing, goals and ranking are in
 - Action YAML (`data/actions/<slug>.yaml`): `form_schema.fields[]`
   (`name, label, max, required, multiline?, hint?`), `prompt_template`
   (action guidance appended to the system prompt), `doc_format`
-  (`kind, min_words, max_words, mentions[], ask`) and
+  (`kind, min_words, max_words, mentions[], ask`; `max_words` defaults
+  to 160 and the five call actions set 60–160 since 2026-11, 120 before) and
   `standard_template` (`standard-scripts.md`; required while the goal is active);
   `mentions` and `ask` are the exact phrases the output check requires.
 - Goal YAML `reasons[]` (`angle`, `points[]`): at most six angles, one to

@@ -106,7 +106,9 @@ export interface Goal {
   window_start: string | null;
   window_end: string | null;
   decision_date: string | null;
-  priority: number;
+  decision_at: string | null; // urgency-and-readability §4: ISO 8601 with offset; the countdown target when set
+  decision_date_confirmed: number; // 0/1: the countdown says "Decides" instead of "Expected"
+  priority: number; // impact, 1–5 (§3): 1 state, 2 leadership, 3 a federal vote deciding now
   eligibility: string; // JSON rule, see ranking.ts
   our_picks: string; // JSON [{name, rationale, source_url, signal, signal_date}]
   sources: string; // JSON [{title, url}]

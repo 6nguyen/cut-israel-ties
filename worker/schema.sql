@@ -28,6 +28,8 @@ CREATE TABLE goals (
   window_start TEXT,
   window_end TEXT,
   decision_date TEXT,
+  decision_at TEXT,
+  decision_date_confirmed INTEGER NOT NULL DEFAULT 0,
   priority INTEGER NOT NULL,
   eligibility TEXT NOT NULL,
   our_picks TEXT NOT NULL DEFAULT '[]',

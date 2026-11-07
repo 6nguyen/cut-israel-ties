@@ -214,7 +214,7 @@ export function actionYaml(id: number, m: Member): string {
     '  ask the office who has filed to run against the member in the 2028 primary and say, in the caller\'s own words, why the',
     '  caller is asking. Close by asking for the candidate filing deadline. Name no candidate and do not say how anyone should',
     '  vote.',
-    'doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["primary"], "ask": "who is running against"}',
+    'doc_format: {"kind": "call_script", "min_words": 60, "max_words": 160, "mentions": ["primary"], "ask": "who is running against"}',
     // generation-cost §4: the code-built script when no model may run; same placeholders as data/actions/*.yaml.
     'standard_template: |',
     "  Hi, my name is {{user_first_name}} and I live in {{user_city}}, in {{target_role}} {{target_name}}'s district. {{prior_vote_line}}",

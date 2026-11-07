@@ -13,7 +13,7 @@ const line = (o: Office) => [o.address, o.suite, o.building].filter(Boolean).joi
     : <ul class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {offices.map((o) => (
           <li class="card p-4 text-sm" data-office-id={o.office_id}>
-            <p class="font-syne font-extrabold">{o.city}</p>
+            <p class="font-condensed uppercase tracking-wide text-xl leading-none">{o.city}</p>
             {o.phone && <p class="mt-1"><a href={tel(o.phone)} class="underline font-semibold">{o.phone}</a></p>}
             <p class="mt-1 text-ink/80">{line(o)}</p>
             {o.hours && <p class="mt-1 text-ink/70">Hours: {o.hours}</p>}

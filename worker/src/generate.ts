@@ -47,7 +47,7 @@ export function parseSchema(a: Action): FormField[] {
 }
 export function parseFormat(a: Action): DocFormat {
   const d = JSON.parse(a.doc_format) as Partial<DocFormat>;
-  return { kind: d.kind ?? 'call_script', min_words: d.min_words ?? 0, max_words: d.max_words ?? 120, mentions: d.mentions ?? [], ask: d.ask ?? '' };
+  return { kind: d.kind ?? 'call_script', min_words: d.min_words ?? 0, max_words: d.max_words ?? 160, mentions: d.mentions ?? [], ask: d.ask ?? '' };
 }
 
 export type Shape = { ok: true; fields: Record<string, string> } | { ok: false; message: string };
@@ -295,7 +295,7 @@ export function startingScript(ctx: GenerateContext): string | null {
 export function docRequest(ctx: GenerateContext, extra: string | null): Record<string, unknown> {
   return {
     model: DOC_MODEL,
-    // generation-cost §3: a 60–120-word call script needs neither 1500 tokens nor medium effort.
+    // generation-cost §3: a 60–160-word call script needs neither 1500 tokens nor medium effort.
     max_tokens: ctx.fmt.kind === 'call_script' ? LIMITS.call_max_tokens : LIMITS.max_tokens,
     system: [{ type: 'text', text: systemPrompt(ctx.goal, ctx.action, ctx.fmt), cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: userMessage(ctx.facts, ctx.fields, ctx.schema, extra, startingScript(ctx)) }],

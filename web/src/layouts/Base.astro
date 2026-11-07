@@ -24,15 +24,21 @@ const imageUrl = abs(image ?? '/card.png');
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#090A0F" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=Space+Mono:wght@700&family=Syne:wght@800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
   </head>
   <body class="min-h-screen flex flex-col selection:bg-acid selection:text-ink">
     <header class="border-b-2 border-ink bg-newsprint">
       <div class="mx-auto max-w-[1360px] px-4 lg:px-10 h-14 flex items-center justify-between">
-        <a href="/" class="flex items-baseline gap-2">
-          <span class="font-condensed text-2xl tracking-wider uppercase">Cut the Ties</span>
+        <a href="/" class="flex items-center gap-2.5">
+          <img src="/mark-64.png" width="32" height="32" alt="" class="border-2 border-ink shadow-brutal-sm bg-paper" />
+          <span class="font-condensed text-2xl tracking-wider uppercase leading-none">Cut the Ties</span>
           <span class="label-ticker hidden sm:inline">Constituent action</span>
         </a>
         <nav class="flex items-center gap-4">
@@ -46,7 +52,7 @@ const imageUrl = abs(image ?? '/card.png');
     </main>
     <footer class="bg-ink text-newsprint border-t-2 border-ink mt-10">
       <div class="mx-auto max-w-[1360px] px-4 lg:px-10 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <p class="font-syne font-extrabold text-lg">
+        <p class="font-condensed uppercase tracking-wide text-2xl leading-none">
           Built and paid for by one person; donations keep it up.
           <a href="/donate" class="underline decoration-acid decoration-2 underline-offset-4 hover:text-acid">Donate</a>
         </p>

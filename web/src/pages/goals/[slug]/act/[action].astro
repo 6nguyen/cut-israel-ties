@@ -1,6 +1,7 @@
 ---
 import Base from '../../../../layouts/Base.astro';
 import ActForm from '../../../../components/ActForm';
+import Countdown from '../../../../components/Countdown';
 import { actionsFor, publishedGoals, type Action, type Goal, reasons } from '../../../../lib/goals';
 import { parseFormat, parseSchema } from '@worker/generate';
 import { fillAsk } from '@worker/state-copy';
@@ -16,8 +17,12 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 ---
 <Base title={`Your action — ${goal.title} — Cut the Ties`} description={fillAsk(action.ask_text, null)}>
   <section class="mx-auto max-w-[1360px] px-4 lg:px-10 py-10">
-    <p class="label-code"><a href={`/goals/${goal.slug}`} class="underline">{goal.title}</a> · the ask</p>
-    <h1 class="headline-lg mt-2 max-w-3xl">{fillAsk(action.ask_text, null)}</h1>
+    <div class="relative md:pr-[340px]">
+      <p class="label-code"><a href={`/goals/${goal.slug}`} class="underline">{goal.title}</a> · the ask</p>
+      <h1 class="headline-lg mt-2 max-w-3xl">{fillAsk(action.ask_text, null)}</h1>
+      {/* urgency-and-readability §4.6: the goal's own stamp, top-right of the H1 block; below it under 768 px. Server markup is the build-time clock; the island takes over on hydrate. */}
+      <Countdown client:load at={goal.decision_at} date={goal.decision_date} confirmed={goal.decision_date_confirmed === 1} id={`act-${goal.slug}`} class="mt-6 md:mt-0 md:absolute md:right-2 md:-top-1 z-10" />
+    </div>
     <div class="mt-8">
       <ActForm client:load goal={goal.slug} action={action.slug} type={action.type} scope={action.target_scope} fields={fields} fmt={fmt} siteKey={siteKey} title={goal.title} decision={goal.decision_date} reasons={reasons(goal)} />
     </div>

@@ -3,9 +3,9 @@
 // preact-render-to-string under node; every value is a data/ row shape.
 import { h } from 'preact';
 import { render } from 'preact-render-to-string';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { GoalCard, TargetCard } from '../lib/api';
-import { Card } from './Results';
+import { Card, soonest } from './Results';
 import { Target } from './Target';
 
 const wiener: TargetCard = {
@@ -19,6 +19,9 @@ const goal = (o: Partial<GoalCard>): GoalCard => ({
 } as GoalCard);
 const senate = goal({ slug: 'senate-leader', title: 'Senate', chamber: 'senate', decision_date: '2027-01-05', ask_text: 'Ask S', action_href: '/goals/senate-leader/act/senate-leader-call', targets: [padilla] });
 const html = (g: GoalCard) => render(h(Card, { g, n: 2, state: 'CA', district: 11 }));
+// urgency-and-readability §4: the stamp depends on the clock; pin it so the fixture dates stay upcoming.
+beforeAll(() => vi.useFakeTimers({ now: Date.parse('2026-11-06T12:00:00Z'), toFake: ['Date'] }));
+afterAll(() => vi.useRealTimers());
 
 describe('leadership card blocks', () => {
   it('renders House then Senate, each with its own date, targets, ask and CTA', () => {
@@ -42,12 +45,16 @@ describe('leadership card blocks', () => {
     expect(out).not.toContain('data-block="house"');
     const plain = html({ ...senate, uncalled: [] });
     expect(plain).not.toContain('Senate · Decision');
-    expect(plain).toContain('Decision: Jan 5, 2027');
+    expect(plain).not.toContain('Decision: Jan 5, 2027'); // §4.4: the stamp replaces the line for an upcoming date
+    expect(plain).toContain('data-countdown="senate-leader"');
+    expect(plain).toContain('Expected Jan 5');
     expect(plain).toContain('data-block="senate"');
   });
   it('a member-elect shows role, the takes-office line and a Contact link, never a tel: or the switchboard', () => {
     const out = render(h(Target, { t: wiener }));
-    expect(out).toContain('Representative-elect Scott Wiener');
+    expect(out).toContain('>Scott Wiener</p>'); // §7.3: the name on its own line, the role line beneath it
+    expect(out).toMatch(/data-role-line[^>]*>Representative-elect</);
+    expect(out).toContain('aria-label="Contact Scott Wiener"');
     expect(out).toContain('Takes office Jan 3, 2027, replaces Nancy Pelosi');
     expect(out).toContain('href="https://scottwiener.com/"');
     expect(out).toContain('>Contact<');
@@ -57,5 +64,37 @@ describe('leadership card blocks', () => {
     expect(sitting).toContain('tel:2022243553');
     expect(sitting).not.toContain('Contact');
     expect(sitting).not.toContain('data-elect-line');
+  });
+});
+
+describe('urgency-and-readability §4 stamps', () => {
+  it('a split leadership card stamps the sooner chamber block, named in the label, and keeps both block dates', () => {
+    const out = html(goal({ chamber: 'house', targets: [wiener], also: senate }));
+    expect(out).toContain('data-countdown="house-caucus"');
+    expect(out).toContain('Countdown · House · Expected Nov 18');
+    expect(out).toContain('House · Decision: Nov 18, 2026');
+    expect(out).toContain('Senate · Decision: Jan 5, 2027');
+  });
+  it('a confirmed date says Decides; a past or empty date keeps the Decision line and shows no stamp', () => {
+    expect(html(goal({ decision_date_confirmed: true }))).toContain('Decides Nov 18');
+    const past = html(goal({ decision_date: '2026-10-01' }));
+    expect(past).not.toContain('data-countdown');
+    expect(past).toContain('Decision: Oct 1, 2026');
+    const none = html(goal({ decision_date: null }));
+    expect(none).not.toContain('data-countdown');
+    expect(none).not.toContain('Decision:');
+  });
+  it('an electoral card keeps its primary line beside the stamp', () => {
+    const out = html(goal({ category: 'electoral', decision_date: '2028-03-07', election: { primary_date: '2028-03-07', filing_deadline: '2027-12-13', source_url: null } }));
+    expect(out).toContain('Primary: Mar 7, 2028');
+    expect(out).toContain('Filing deadline: Dec 13, 2027');
+    expect(out).toContain('data-countdown="house-caucus"');
+  });
+  it('soonest picks the nearest upcoming target across both slots and nested chamber goals', () => {
+    const far = goal({ slug: 'far', decision_date: '2027-06-01' });
+    const nested = goal({ slug: 'lead', chamber: 'house', decision_date: '2027-03-01', also: goal({ slug: 'sen', chamber: 'senate', decision_date: '2026-12-01' }) });
+    expect(soonest([far, nested])?.g.slug).toBe('sen');
+    expect(soonest([goal({ decision_date: '2026-01-01' }), goal({ decision_date: null })])).toBeNull();
+    expect(soonest([goal({ decision_at: '2026-11-07T12:00:00-05:00', decision_date: '2026-11-07' }), goal({ slug: 'date-only', decision_date: '2026-11-07' })])?.g.slug).toBe('date-only'); // 09:00 New York beats 12:00
   });
 });

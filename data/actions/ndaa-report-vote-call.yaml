@@ -15,7 +15,7 @@ prompt_template: |
   Open with the caller's first name and city. The conference report is filed and cannot be amended: ask the member to
   vote no on the NDAA conference report because it keeps the integration section. Name the prior vote if the facts list
   one. Use the caller's reason as their own words and close by asking how the member will vote.
-doc_format: {"kind": "call_script", "min_words": 60, "max_words": 120, "mentions": ["conference report", "integration section"], "ask": "vote no"}
+doc_format: {"kind": "call_script", "min_words": 60, "max_words": 160, "mentions": ["conference report", "integration section"], "ask": "vote no"}
 standard_template: |
   Hi, my name is {{user_first_name}} and I live in {{user_city}}. I am a constituent of {{target_role}} {{target_name}}.
   I am calling about the NDAA conference report. It keeps the integration section, and I am asking {{target_role}} {{target_name}} to vote no on the conference report because of it. {{prior_vote_line}} {{position_line}}

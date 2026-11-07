@@ -128,3 +128,42 @@ describe('GET /api/goals and /api/goals/:slug/targets (§2)', () => {
     expect(((await (await get('/api/goals/ndaa-1217/targets?state=ZZ&district=0')).json()) as { error: string }).error).toBe('no_delegation');
   });
 });
+
+describe('urgency-and-readability §4.1: decision_at and decision_date_confirmed', () => {
+  const rows = (edit: (y: string) => string) => loadRows(dataWith({ 'house-caucus': edit }), '2026-11-04T00:00:00Z');
+  const caucus = (r: ReturnType<typeof loadRows>) => r.goals.find((g) => g.slug === 'house-caucus')!;
+  it('default to null and 0 when the YAML omits them (every checked-in goal)', () => {
+    for (const g of loadRows(DATA, '2026-11-04T00:00:00Z').goals) {
+      expect(g.decision_at).toBeNull();
+      expect(g.decision_date_confirmed).toBe(0);
+    }
+  });
+  it('accepts an offset timestamp on the decision date and a confirmed flag; the route card carries both', async () => {
+    const r = rows((y) => y.replace(/^decision_date: 2026-11-18.*$/m, 'decision_date: 2026-11-18\ndecision_at: 2026-11-18T09:00:00-05:00\ndecision_date_confirmed: true'));
+    expect(caucus(r).decision_at).toBe('2026-11-18T09:00:00-05:00');
+    expect(caucus(r).decision_date_confirmed).toBe(1);
+    const route = await buildRoute(new MemoryRepo(r), 'CA', 11, TODAY);
+    const card = route.goals.flatMap((g) => [g, ...(g.also ? [g.also] : [])]).find((g) => g.slug === 'house-caucus')!;
+    expect(card.decision_at).toBe('2026-11-18T09:00:00-05:00');
+    expect(card.decision_date_confirmed).toBe(true);
+    const other = route.goals.find((g) => g.slug !== 'house-caucus')!;
+    expect(other.decision_at).toBeNull();
+    expect(other.decision_date_confirmed).toBe(false);
+  });
+  it('rejects a decision_at on another day than decision_date, or without an offset', () => {
+    expect(() => rows((y) => y.replace(/^decision_date: 2026-11-18.*$/m, 'decision_date: 2026-11-18\ndecision_at: 2026-11-19T09:00:00-05:00'))).toThrow(/falls on 2026-11-19, not decision_date 2026-11-18/);
+    expect(() => rows((y) => y.replace(/^decision_date: 2026-11-18.*$/m, 'decision_date: 2026-11-18\ndecision_at: 2026-11-18T09:00:00'))).toThrow(/ISO 8601 with an offset/);
+    expect(() => rows((y) => y.replace(/^decision_date: 2026-11-18.*$/m, 'decision_date: ""\ndecision_at: 2026-11-18T09:00:00-05:00'))).toThrow(/not decision_date \(empty\)/);
+  });
+  it('GET /api/goals returns both fields on every goal', async () => {
+    const app = createApp({ repo: () => new MemoryRepo(loadRows(DATA, '2026-11-04T00:00:00Z')), fetch: fakeFetch().impl, now: () => TODAY });
+    const res = await app.request('/api/goals', {}, ENV);
+    const body = (await res.json()) as { goals: Goal[] };
+    expect(body.goals.length).toBeGreaterThan(0);
+    for (const g of body.goals) {
+      expect(g).toHaveProperty('decision_at', null);
+      expect(g).toHaveProperty('decision_date_confirmed', 0);
+    }
+  });
+});
+

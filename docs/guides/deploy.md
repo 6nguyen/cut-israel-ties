@@ -56,6 +56,21 @@ Run from the repo root unless noted. `<domain>` is the apex domain
 12. Merge any PR to `main` (or re-run the last `deploy` workflow from
     the Actions tab). The `production` job deploys the Worker with the
     `<domain>/api/*` route, re-seeds D1 and publishes the site.
+13. Address suggestions (optional; the field works without them).
+    Create a Geoapify key (myprojects.geoapify.com → New project → API
+    keys; free tier 3 000 requests/day, no card) or a Mapbox public
+    token (account.mapbox.com → Tokens). Restrict it to
+    `https://<domain>/*` and `https://cut-ties.pages.dev/*` (Geoapify
+    "Allowed referrers", Mapbox "URL restrictions"): it ships in the
+    page source, so a copied key must be useless elsewhere. Then GitHub
+    → Settings → Secrets and variables → Actions: variable
+    `PUBLIC_SUGGEST_PROVIDER=geoapify` (or `mapbox`) and secret
+    `PUBLIC_SUGGEST_TOKEN=<key>`; `deploy.yml` passes both to the Pages
+    build. With only one set the build warns
+    `PUBLIC_SUGGEST_PROVIDER=… without PUBLIC_SUGGEST_TOKEN; suggestions
+    off` and ships the plain field. Past the daily quota the provider
+    answers 429 and the list closes silently; the Census geocoder still
+    resolves the typed address.
 
 ## 2. What a merge does
 `ci` runs on the push to `main`; when it succeeds, `deploy.yml`'s

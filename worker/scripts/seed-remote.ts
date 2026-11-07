@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MIGRATIONS, columnsOf, pending } from './migrate';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cwd = join(here, '..');
@@ -39,6 +40,23 @@ function storedHash(): string | null {
   }
 }
 
+/** Add the columns schema.sql gained since the database was provisioned, before seed.sql inserts into them. */
+function migrate(): void {
+  const existing: Record<string, string[]> = {};
+  for (const table of new Set(MIGRATIONS.map((m) => m.table))) {
+    try {
+      existing[table] = columnsOf(execFileSync('npx', [...base, '--json', '--command', `PRAGMA table_info(${table})`], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
+    } catch {
+      existing[table] = [];
+    }
+  }
+  for (const m of pending(existing, MIGRATIONS)) {
+    console.log(`seed-remote: adding ${m.table}.${m.column}`);
+    execFileSync('npx', [...base, '--command', m.ddl], { cwd, stdio: 'inherit' });
+  }
+}
+
+migrate();
 const stored = storedHash();
 if (!process.env.FORCE_SEED && stored === hash) {
   console.log(`seed-remote: data unchanged (${hash.slice(0, 12)}); nothing applied`);

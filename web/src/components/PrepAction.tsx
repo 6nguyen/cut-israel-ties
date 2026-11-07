@@ -54,7 +54,7 @@ export default function PrepAction({ slug, actions }: { slug: string; actions: P
       <ul class="px-3">
         {s.targets.map((t) => (
           <li class="border-t border-rule first:border-t-0 py-3">
-            <p class="font-syne font-extrabold leading-tight">{t.role} {t.name}</p>
+            <p class="font-condensed uppercase tracking-wide text-xl leading-none">{t.role} {t.name}</p>
             <div class="mt-2 flex flex-wrap gap-2">
               {actions.map((a) => (
                 <a href={act(slug, a.slug, t.bioguide_id)} class="btn btn-primary !py-2 !px-3 text-xs" aria-label={`${a.label} for ${t.role} ${t.name}`}>{a.label} →</a>

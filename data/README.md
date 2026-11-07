@@ -140,8 +140,11 @@ Fields a rule may test, with the value each accepts:
 A `leadership` goal's rule is evaluated against the incoming delegation
 (members-elect stand in for departing members), so it may test only
 `caucus`; every other goal sees the sitting delegation.
-Score = `priority` × urgency (2 when `decision_date` is ≤14 days away,
-1.5 when ≤45, else 1; a past or empty date scores 1). Ties go to the
+`priority` is the goal's impact (1 = state, 2 = leadership, 3 = a federal vote
+deciding now; 1–5 allowed). Score = impact × urgency, where urgency is
+`1 + 2 × max(0, 1 − min(days, 90) / 90)` for `days` whole UTC days to
+`decision_date` (3.0 on the decision day, 2.0 at 45 days, 1.0 at 90 or more;
+a past or empty date scores 1), rounded to 3 decimals. Ties go to the
 earlier decision date, then the slug. The top two are shown; a single
 eligible goal is paired with the state goal.
 

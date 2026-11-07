@@ -11,7 +11,8 @@ there.
 
 ## Behavior
 1. **Goals overview (`/goals`).** Every `active` goal as a card in
-   priority order: category chip, "Priority n" chip, title, summary (≤60
+   rank order: category chip, "Impact n" chip (the goal's `priority`,
+   `action-router.md` Ranking), title, summary (≤60
    words, enforced at seed), "We want" sentence, decision date or "not yet
    scheduled", CTA to `/goals/<slug>`. Below, an "Outcomes" strip lists
    every `completed` and `expired` goal with its `outcome_note` and
@@ -32,8 +33,10 @@ there.
    and calls `GET /api/goals/<slug>/targets` (for a leadership goal: the
    incoming delegation's Democratic-caucus seats, members-elect included,
    `action-router.md` Behavior 7); with nothing stored it shows
-   "Enter your address" linking to `/`. A non-empty target list carries
-   the same counter line as a result card (`district-counters.md`). A closed goal shows its outcome
+   "Enter your address" linking to `/`. Targets render as the same
+   cards as a result card (`target-cards.md`), with the counter line
+   below the stack when the list is non-empty (`district-counters.md`).
+   A closed goal shows its outcome
    block instead of targets and actions. Every page carries Open Graph
    and Twitter share metadata with a 1200×630 card at
    `/goals/<slug>/card.png` (other pages use `/card.png`).
@@ -120,12 +123,22 @@ there.
   `sources`
   (`{title, url}` rows), `successor_slug` targets, and that every
   position row carries a source. `goals.status` also allows `upcoming`;
-  `goals.decider` is the one-line "who decides".
+  `goals.decider` is the one-line "who decides". `goals.decision_at`
+  (optional, ISO 8601 with an offset, same calendar day as
+  `decision_date` or the seed fails) and `goals.decision_date_confirmed`
+  (`true|false`, default false) feed the countdown stamp; production D1
+  gets new columns through `seed-remote`'s migrate step
+  (`deployment.md` Behavior 3).
 - The static site reads `data/` at build through the Worker's loader
   (Vite alias `@worker` → `worker/src`, `web/src/lib/goals.ts`), so
   pages and API agree on every row and on the lifecycle. Share cards are
-  rendered at build by `sharp` from an SVG template; absolute share URLs
+  rendered at build by `sharp` from an SVG template with the logo mark
+  composited at 120 px in the top-right corner (`renderCard` in
+  `web/src/pages/goals/[slug]/card.png.ts`); absolute share URLs
   need `SITE_URL` in the Pages build environment.
+- Type tokens (`web/src/styles/global.css`): every H1/H2 and display
+  utility in Bebas Neue, body Inter 400/600, labels, chips and buttons
+  Space Mono 700; `Base.astro` loads exactly those three families.
 - Donation config is read at build, not by the Worker (the pages are
   static): `MONTHLY_COST_USD`
   (number, default 15) and `STRIPE_LINKS` (JSON
