@@ -1,6 +1,7 @@
 // §2.2 share card: one 1200×630 PNG per published goal, rendered at build from the goal row.
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
+import { join } from 'node:path';
 import { CATEGORY, publishedGoals, type Goal } from '../../../lib/goals';
 
 export function getStaticPaths() {
@@ -36,7 +37,13 @@ export function cardSvg(goal: Goal): string {
 </svg>`;
 }
 
+/** urgency-and-readability §6: rasterise a card and stamp the logo mark (120 px, top-right, inside the 72 px margin). */
+export async function renderCard(svg: string): Promise<Buffer> {
+  const mark = await sharp(join(process.cwd(), 'public', 'icon-192.png')).resize(120, 120).png().toBuffer();
+  return sharp(Buffer.from(svg)).composite([{ input: mark, top: 36, left: 1200 - 72 - 120 }]).png().toBuffer();
+}
+
 export const GET: APIRoute = async ({ props }) => {
-  const png = await sharp(Buffer.from(cardSvg((props as { goal: Goal }).goal))).png().toBuffer();
+  const png = await renderCard(cardSvg((props as { goal: Goal }).goal));
   return new Response(new Uint8Array(png), { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' } });
 };
