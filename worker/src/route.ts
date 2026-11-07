@@ -33,6 +33,8 @@ export interface GoalCard {
   title: string;
   summary: string;
   decision_date: string | null;
+  decision_at: string | null; // urgency-and-readability §4: countdown target when set
+  decision_date_confirmed: boolean;
   this_week: string | null;
   ask_text: string;
   action_href: string;
@@ -199,6 +201,8 @@ export async function buildRoute(repo: Repo, state: string, district: number, to
       title: g.title,
       summary: g.summary,
       decision_date: g.decision_date,
+      decision_at: g.decision_at,
+      decision_date_confirmed: g.decision_date_confirmed === 1,
       this_week: g.this_week,
       ask_text: fillAsk(action?.ask_text ?? g.what_we_want, g.category === 'state' ? d.state_row : null),
       action_href: action ? `/goals/${g.slug}/act/${action.slug}` : `/goals/${g.slug}`,

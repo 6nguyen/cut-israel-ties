@@ -5,6 +5,7 @@
 // path, failures stay silent, and `none` renders today's field. Rendered with preact under happy-dom;
 // the provider call is a spy and fetch is stubbed per test.
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h, render } from 'preact';
 import { act } from 'preact/test-utils';
@@ -15,7 +16,7 @@ import type { Suggestion } from '../lib/suggest';
 const S = (label: string): Suggestion => ({ label, state: 'CA', lon: -117.86, lat: 33.75 });
 // The CA-7 fixture point (web/src/lib/districts.fixture.json), served from the committed CA.json.
 const SACRAMENTO: Suggestion = { label: '1000 N Main St, Sacramento, CA 95814', state: 'CA', lon: -121.4934, lat: 38.5767 };
-const CA_JSON = readFileSync(new URL('../../public/districts/CA.json', import.meta.url), 'utf8');
+const CA_JSON = readFileSync(join(__dirname, '..', '..', 'public', 'districts', 'CA.json'), 'utf8');
 const ROUTE_OK = { state: 'CA', district: 7, house: null, senators: [], state_row: null, goals: [] };
 const bodies = () => fetchMock.mock.calls.map((c) => [String(c[0]), c[1]?.body ? JSON.parse(c[1].body as string) : null]);
 const click = (el: Element | null) => act(() => { el?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });

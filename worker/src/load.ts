@@ -53,6 +53,14 @@ export function parseCsv(text: string): Record<string, string>[] {
 }
 
 const str = (v: unknown): string | null => (v === undefined || v === null || v === '' ? null : String(v));
+
+/** urgency-and-readability §4.1: `decision_at` is ISO 8601 with an offset and falls on `decision_date`. */
+function checkDecisionAt(g: Pick<Goal, 'slug' | 'decision_date' | 'decision_at'>): void {
+  if (!g.decision_at) return;
+  const m = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})$/.exec(g.decision_at);
+  if (!m || Number.isNaN(Date.parse(g.decision_at))) throw new Error(`goal ${g.slug}: decision_at must be ISO 8601 with an offset, e.g. 2026-11-18T09:00:00-05:00`);
+  if (m[1] !== g.decision_date) throw new Error(`goal ${g.slug}: decision_at ${g.decision_at} falls on ${m[1]}, not decision_date ${g.decision_date ?? '(empty)'}`);
+}
 const int = (v: unknown): number => (v === undefined || v === null || v === '' ? 0 : Number(v));
 const intOrNull = (v: unknown): number | null => (v === undefined || v === null || v === '' ? null : Number(v));
 const numOrNull = intOrNull;
@@ -217,6 +225,8 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
         window_start: str(y.window_start),
         window_end: str(y.window_end),
         decision_date: str(y.decision_date),
+        decision_at: str(y.decision_at),
+        decision_date_confirmed: y.decision_date_confirmed === true ? 1 : 0,
         priority: int(y.priority),
         eligibility,
         our_picks: json(y.our_picks ?? []),
@@ -235,6 +245,7 @@ export function loadRows(dataDir: string, updatedAt = new Date().toISOString()):
       if (!['federal_vote', 'leadership', 'state', 'electoral'].includes(g.category)) throw new Error(`goal ${g.slug}: bad category`);
       if (!['upcoming', 'active', 'completed', 'expired'].includes(g.status)) throw new Error(`goal ${g.slug}: bad status`);
       if (!Number.isInteger(g.priority) || g.priority < 1) throw new Error(`goal ${g.slug}: priority must be a positive integer`);
+      checkDecisionAt(g);
       if (wordCount(g.summary) > 60) throw new Error(`goal ${g.slug}: summary is ${wordCount(g.summary)} words, max 60 (§2.1)`);
       if ((g.status === 'completed' || g.status === 'expired') && !g.outcome_note) throw new Error(`goal ${g.slug}: a ${g.status} goal needs outcome_note (§2.1)`);
       checkJsonList(g.slug, 'our_picks', g.our_picks, ['name', 'rationale', 'source_url'], 3);
