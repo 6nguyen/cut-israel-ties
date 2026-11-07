@@ -114,20 +114,25 @@ export function parseRule(json: string): Rule {
 
 const DAY = 86_400_000;
 
-/** §5.2: 2 within 14 days, 1.5 within 45, else 1. Past or missing dates score 1. */
+/** Three decimals so equal inputs give equal scores whatever the float path. */
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+
+/**
+ * urgency-and-readability §3: continuous, 1 + 2 × (1 − days/90) clamped to [1, 3]: 3 on the decision day, 2 at 45 days,
+ * 1 at 90 days or more. Past or missing dates score 1. `days` is whole UTC days from today's date to `decision_date`.
+ */
 export function urgency(decisionDate: string | null, today: Date): number {
   if (!decisionDate) return 1;
   const d = Date.parse(decisionDate + 'T00:00:00Z');
   if (Number.isNaN(d)) return 1;
   const days = (d - Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())) / DAY;
   if (days < 0) return 1;
-  if (days <= 14) return 2;
-  if (days <= 45) return 1.5;
-  return 1;
+  return round3(1 + 2 * Math.max(0, 1 - Math.min(days, 90) / 90));
 }
 
+/** score = impact (`priority`) × urgency; urgency spans 1–3, so impact still dominates (§3.3). */
 export function score(goal: Goal, today: Date): number {
-  return goal.priority * urgency(goal.decision_date, today);
+  return round3(goal.priority * urgency(goal.decision_date, today));
 }
 
 export interface Ranked {

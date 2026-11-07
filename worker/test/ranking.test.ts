@@ -22,16 +22,30 @@ const delegation = (house: 'D' | 'R' | null, sens: ('D' | 'R')[]): Delegation =>
   return { state: 'XX', district: 1, house: h, senators: s, state_row: null, incoming: { house: h, senators: s, uncalled: [] } };
 };
 
-describe('urgency (§5.2)', () => {
-  it('2 within 14 days, 1.5 within 45, 1 otherwise, 1 when past or missing', () => {
-    expect(urgency('2026-11-10', TODAY)).toBe(2);
-    expect(urgency('2026-11-18', TODAY)).toBe(2);
-    expect(urgency('2026-11-19', TODAY)).toBe(1.5);
-    expect(urgency('2026-12-19', TODAY)).toBe(1.5);
-    expect(urgency('2026-12-20', TODAY)).toBe(1);
+describe('urgency (urgency-and-readability §3)', () => {
+  it('3 on the decision day, falling linearly to 1 at 90 days; 1 when past or missing', () => {
+    expect(urgency('2026-11-04', TODAY)).toBe(3); // 0 days
+    expect(urgency('2026-11-16', TODAY)).toBe(2.733); // 12 days
+    expect(urgency('2026-12-08', TODAY)).toBe(2.244); // 34 days
+    expect(urgency('2026-12-19', TODAY)).toBe(2); // 45 days
+    expect(urgency('2027-02-02', TODAY)).toBe(1); // 90 days
+    expect(urgency('2027-03-04', TODAY)).toBe(1); // 120 days
+    expect(urgency('2026-11-03', TODAY)).toBe(1); // yesterday
     expect(urgency('2026-10-01', TODAY)).toBe(1);
     expect(urgency(null, TODAY)).toBe(1);
     expect(urgency('', TODAY)).toBe(1);
+    expect(urgency('not a date', TODAY)).toBe(1);
+  });
+  it('is monotone: a nearer date never scores lower', () => {
+    let prev = Infinity;
+    for (let i = 0; i <= 120; i++) {
+      const d = new Date(Date.UTC(2026, 10, 4 + i)).toISOString().slice(0, 10);
+      const u = urgency(d, TODAY);
+      expect(u, d).toBeLessThanOrEqual(prev);
+      expect(u).toBeGreaterThanOrEqual(1);
+      expect(u).toBeLessThanOrEqual(3);
+      prev = u;
+    }
   });
 });
 
@@ -111,13 +125,20 @@ describe('ranking table (§5.4): six delegations', () => {
       expect(topTwo(goals, delegation(house, sens), TODAY).map((s) => s.goal.slug)).toEqual(expected);
     });
   }
-  it('D/DD: caucus (2×2=4) beats senate leader (2×1=2) because its date is within 14 days', async () => {
+  it('D/DD: impact × urgency; ndaa-1217 (3 × 2.2, 36 days) leads house-caucus (2 × 2.689, 14 days) and senate-leader (2 × 1.622, 62 days)', async () => {
     const r = rank(await repo.activeGoals(), delegation('D', ['D', 'D']), TODAY);
     expect(r.map((x) => [x.goal.slug, x.score])).toEqual([
-      ['ndaa-1217', 4.5],
-      ['house-caucus', 4],
-      ['senate-leader', 2],
+      ['ndaa-1217', 6.6],
+      ['house-caucus', 5.378],
+      ['senate-leader', 3.244],
     ]);
+  });
+  it('impact dominates: an impact-3 goal inside 45 days beats an impact-2 goal deciding today; an exact tie goes to the nearer date', () => {
+    const base = rows.goals[0];
+    const mk = (slug: string, priority: number, date: string): Goal => ({ ...base, slug, priority, decision_date: date, eligibility: '{"always":true}' });
+    const d = delegation('D', []);
+    expect(rank([mk('two-today', 2, '2026-11-04'), mk('three-44', 3, '2026-12-18')], d, TODAY).map((x) => x.goal.slug)).toEqual(['three-44', 'two-today']);
+    expect(rank([mk('three-year', 3, '2027-11-04'), mk('one-today', 1, '2026-11-04')], d, TODAY).map((x) => [x.goal.slug, x.score])).toEqual([['one-today', 3], ['three-year', 3]]);
   });
   it('ties break on the earlier decision date', () => {
     const base = rows.goals[0];
