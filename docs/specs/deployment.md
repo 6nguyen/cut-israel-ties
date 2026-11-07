@@ -110,7 +110,8 @@ by `worker/test/env-example.test.ts`), `.github/workflows/deploy.yml`,
 `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
 `site.webmanifest`) is committed output of `npm run icons -w web` from
 `web/src/assets/logo-1024.png`; `web/test/icons.test.ts` fails when a
-regeneration differs. quiet-check
+regeneration differs in size or pixels (not bytes: libvips' palette
+quantiser differs per platform). quiet-check
 targets `deploy-worker` (`npm run deploy`), `seed-remote`
 (`npm run seed:remote`), `deploy-web` (`wrangler pages deploy`) are
 never in `CI_TARGETS`. Bindings `DB` and `DIGEST_MAIL` are declared in

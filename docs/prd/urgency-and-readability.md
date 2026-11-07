@@ -337,3 +337,6 @@ class) before and after §2, and the share of routes marked
   collects `.tsx` tests (it only matched `.ts` before); the target
   card's role line is built from new `state` / `district` fields on
   `TargetCard` rather than parsed from the name.
+- 2026-11-07 — the icon test compares decoded pixels, not bytes: the
+  Linux sharp binary quantises the palette differently from macOS, so
+  the byte-equal check failed in CI (run 42330477243).
