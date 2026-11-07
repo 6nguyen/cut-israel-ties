@@ -287,22 +287,22 @@ class) before and after §2, and the share of routes marked
 
 ## State (updated 2026-11-06, PR #57)
 - Sections: (build order; `[ ]` todo · `[~]` in progress · `[x]` merged · `[!]` blocked: reason)
-  - [ ] 1. Readable headlines
-  - [ ] 6. Logo and tab icon
-  - [ ] 2. Script length 60–160
-  - [ ] 3. Ranking by impact and deadline
-  - [ ] 4. Deadline countdown
-  - [ ] 7. Target cards (spec 06)
-  - [!] 5. Address autocomplete while typing · blocked: owner creates the provider token and sets the Pages env; the docs part can merge first
-- Completed: none
-- Folded: none
-- Branch / open PRs: `docs/urgency-and-readability-prd` (this PRD, PR #57)
-- Files changed (file:line map): `web/src/styles/global.css:16-46`, `web/src/layouts/Base.astro:29-37`, `web/src/assets/logo-1024.png`, `web/scripts/icons.ts` (new), `web/public/` icon set (new), `web/src/pages/goals/[slug]/card.png.ts`, `web/src/pages/card.png.ts`, `data/actions/*.yaml` doc_format, `worker/src/generate.ts:50,298`, `worker/src/electoral.ts:217`, `worker/src/ranking.ts:117-130`, `web/src/components/Results.tsx:16-20,43-44,93`, `web/src/components/Target.tsx:18-33`, `web/src/components/GoalTargets.tsx:44`, `web/src/components/Countdown.tsx` (new), `web/src/pages/goals/[slug]/act/[action].astro:20`, `web/src/pages/goals/index.astro`, `worker/schema.sql:30`, `.env.example`, `docs/guides/deploy.md`
-- Tests run + result: none yet
-- Remaining: §1–§7
+  - [x] 1. Readable headlines
+  - [x] 6. Logo and tab icon
+  - [x] 2. Script length 60–160
+  - [x] 3. Ranking by impact and deadline
+  - [x] 4. Deadline countdown
+  - [x] 7. Target cards (spec 06)
+  - [x] 5. Address autocomplete while typing · docs and build warning shipped; the owner still creates the provider token and sets the Pages env (`docs/guides/deploy.md` step 13), no code waits on it
+- Completed: §1 4f7932a · §6 ece0fcf · §2 0bec199 · §3 bdd0d22 · §4 20bd5a2 · §7 3197a8c · §5 + spec deltas (this commit)
+- Folded: new `docs/specs/countdown-stamp.md` and `target-cards.md`; spec deltas applied to `docs/specs/action-router.md`, `personalised-documents.md`, `goal-pages.md`, `member-pages.md`, `deployment.md`; archive on merge
+- Branch / open PRs: `docs/urgency-and-readability-prd` (PR #57, one commit per section)
+- Files changed (file:line map): `web/src/styles/global.css:16-46`, `web/src/layouts/Base.astro:27-41`, `web/src/assets/logo-1024.png`, `web/scripts/icons.ts`, `web/public/` icon set, `web/test/icons.test.ts`, `web/src/pages/goals/[slug]/card.png.ts` (`renderCard`), `web/src/pages/card.png.ts`, `web/src/pages/m/[id]/card.png.ts`, `data/actions/*.yaml` doc_format, `data/goals/*.yaml` `decision_at`/`decision_date_confirmed`, `worker/schema.sql`, `worker/scripts/migrate.ts`, `worker/scripts/seed-remote.ts:44-59`, `worker/src/generate.ts`, `worker/src/ranking.ts`, `worker/src/route.ts` (`decision_at`, `decision_date_confirmed`, TargetCard `state`/`district`), `web/src/components/Countdown.tsx`, `Results.tsx`, `Target.tsx`, `GoalTargets.tsx`, `Counts.tsx`, `web/src/pages/goals/[slug]/act/[action].astro`, `web/src/pages/goals/index.astro`, `web/vitest.config.ts`, `docs/guides/deploy.md`
+- Tests run + result: `prd-lint`, `doc-lint`, `tsc` 0 errors, `test` (worker) 341 passed / 24 files, `test-web` 130 passed / 20 files, `build` ok; visual checks of the act page, `/results` (desktop and 375 px) and `/goals/house-caucus` in the browser pane
+- Remaining: none in code; owner sets `PUBLIC_SUGGEST_PROVIDER` / `PUBLIC_SUGGEST_TOKEN`
 - Decisions since last update: H2 face is Bebas Neue, not Inter 700 (owner, 2026-11-06); urgency is a continuous ramp, not a ≤7-day step (owner); countdown ticks DD HH MM SS with the style-guide stamp (owner); mockup B picked with a 5 px border, edge fade and grain (owner); canvas at https://claude.ai/artifact/DJS4hDyCq8fdBDz931JXNn
-- Known failures / blockers: §5 needs the owner's token
-- Next action: `/implement-prd-section` §1
+- Known failures / blockers: none
+- Next action: owner merges PR #57; archive this PRD to `docs/prd/archive/` and drop the index row
 
 ## Open questions
 1. Geoapify or Mapbox? Proposal: Geoapify (no card on file, 3 000/day
@@ -326,3 +326,14 @@ class) before and after §2, and the share of routes marked
   rewritten for one stamp on all three screens.
 - 2026-11-06 — §7 added: every target becomes a spec 06 card (own ink
   outline and shadow) on `/results` and the goal page.
+- 2026-11-06 — build deviations: the header mark is `mark-64.png` (the
+  192 px PNG is 19 KB, past the 8 KB budget in §6.3; the 64 px one is
+  under); production D1 gains `decision_at` and
+  `decision_date_confirmed` through a new add-column step in
+  `seed-remote` (`worker/scripts/migrate.ts`), since `schema.sql` only
+  runs at provisioning; the stamp label wraps and the H1 reserves 400 px
+  (`/results`) / 340 px (act page) from the `md` breakpoint, not 1024 px,
+  so the stamp never overlaps the H1 at 768–1024 px; web vitest now
+  collects `.tsx` tests (it only matched `.ts` before); the target
+  card's role line is built from new `state` / `district` fields on
+  `TargetCard` rather than parsed from the name.

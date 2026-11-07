@@ -70,10 +70,12 @@ documents, receipts and reports are in `personalised-documents.md`.
 5. **Results (`/results`).** Header `<STATE-NN> · change address`, H1
    "Your two actions this week", one line naming the delegation ("Your
    people in Congress for <where>: …"), then
-   two slots: category chip, title, decision date, summary, the
-   targets for that goal (party, role, name, phone as `tel:`, position
-   chip, prior-vote line, source link when a position is sourced), the
-   ask text and a CTA to `/goals/<goal>/act/<action>`. When both
+   two slots: category chip, title, countdown stamp or past decision
+   date (`countdown-stamp.md`), summary, one card per target with its
+   party, role, name, phone as `tel:`, position chip, prior-vote line
+   and source link (`target-cards.md`), the ask text and a CTA to
+   `/goals/<goal>/act/<action>`. The page header carries one stamp for
+   the soonest target across both slots. When both
    leadership goals are eligible they share one slot: the higher-scoring
    goal is the card and the other rides on it as `also`; the card shows a
    "House" block, then a "Senate" block, each with that goal's decision
@@ -82,11 +84,12 @@ documents, receipts and reports are in `personalised-documents.md`.
    "<Chamber> seat: race not called yet." in place of its block. A
    member-elect target shows the role "Representative-elect" or
    "Senator-elect", the line "Takes office <date>, replaces <name>" and a
-   "Contact" link to `contact_url` when it has no phone (never a `tel:`
+   hazard "Contact" square (arrow glyph, `aria-label="Contact <name>"`)
+   linking `contact_url` when it has no phone (never a `tel:`
    or the switchboard). Zero eligible goals
    shows a message and a link to `/goals`. One column at 390 px, two at
    ≥1024 px. "Change address" clears the stored district and returns to
-   `/`. Under each card's targets box the `Counts` island adds one line
+   `/`. Under each card's target stack the `Counts` island adds one line
    ("12 constituents in TX-35 called this week", else the state line,
    else nothing) from `GET /api/counts`; buckets below the threshold
    arrive as 0 and the line waits for the response (`district-counters.md`).
@@ -120,7 +123,10 @@ documents, receipts and reports are in `personalised-documents.md`.
   `CA-11-wiener`), role "Representative-elect"/"Senator-elect", position
   `unknown`, prior vote "No recorded vote yet", `phone` from the elect
   row (null, never the switchboard) and `elect: {replaces_name,
-  takes_office: '2027-01-03', contact_url}`. Receipts, reports and the
+  takes_office: '2027-01-03', contact_url}`. Every `TargetCard` carries
+  `state` and `district` (null for a senator or treasurer); every
+  `GoalCard` carries `decision_at` and `decision_date_confirmed`
+  (`countdown-stamp.md`). Receipts, reports and the
   counts line take that `elect_id` as the target id (`target_id` is free
   text). `GET /api/goals/:slug/targets` follows the same rules.
   Errors: 400 `bad_json | zip_only | incomplete | missing`, 403
@@ -134,9 +140,10 @@ documents, receipts and reports are in `personalised-documents.md`.
   showed "Bot check failed"). `GEOCODER_URL` overrides the Census base URL.
 - Ranking (`worker/src/ranking.ts`): eligibility rule JSON (`always`,
   `all`, `any`, `house{field: value}`, `senator{…}`, `state{nonempty:
-  […]}`) evaluated against the delegation; score = priority × urgency
-  (2 when the decision is ≤14 days away, 1.5 when ≤45, else 1; past or
-  empty date = 1); ties by earlier decision date then slug. One eligible
+  […]}`) evaluated against the delegation; score = impact (`priority`,
+  1–5) × urgency (`1 + 2 × max(0, 1 − min(days, 90)/90)`, rounded to 3
+  decimals: 3 on the day, 2 at 45 days, 1 from 90 days; past or empty
+  date = 1); ties by earlier decision date then slug. One eligible
   goal is padded with the state goal. Two eligible leadership goals fold
   into one slot (`slots`): the higher-ranked is the slot's goal, the other
   its `also`. A rule may test only the §5.1
