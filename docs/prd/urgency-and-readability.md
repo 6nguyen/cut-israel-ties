@@ -126,23 +126,28 @@ date with one YAML field and regenerate icons with one command.
    browser clock. Server render shows the same markup computed at build
    time so there is no layout shift; the island takes over on hydrate.
    The label line says "Decides <Mon d>" when `decision_date_confirmed`
-   is true and "Expected <Mon d>" otherwise. The rotated (−3° to −4°)
-   dashed-crimson "COUNTDOWN" stamp from the style guide sits beside the
-   digits.
-3. Three mockups are on the design canvas (owner picks before build;
-   proposal below): **A** keeps the style guide's hazard bar under the
-   card hero and adds the digits plus the stamp; **B** makes the stamp
-   itself the clock, overlapping the hero's top-right corner; **C** is a
-   page-wide ink strip with acid digits and the goal title, for the top
-   of `/results` and the act page.
-4. Result card: the countdown replaces the "Decision: <date>" label for an
-   upcoming date (A or B); electoral cards keep the primary and
-   filing-deadline lines.
-5. `/results`: above the H1, one page-wide strip (C) for the soonest
-   upcoming target among the two slots, naming that goal; hidden when
-   neither slot has an upcoming date.
-6. Act page `/goals/<slug>/act/<action>`: the same strip (C) between the
-   H1 and the form, with the goal's own target.
+   is true and "Expected <Mon d>" otherwise.
+3. The clock *is* the style guide's protest stamp (mockup B, owner pick
+   2026-11-06): a block rotated −4°, white fill, 5 px dashed crimson
+   border (heavier than the guide's 3 px so it matches the stamp's size),
+   the digits inside, no drop shadow. Two ink effects, both CSS/SVG and
+   no image: a radial `mask-image` (opaque centre, fading to ~40 % at
+   the left and right ends, after the guide's
+   `radial-gradient(circle, black 70%, rgba(0,0,0,.6))`) so the ends
+   look under-inked, and an SVG `feTurbulence` + `feDisplacementMap`
+   filter (base frequency 0.9, scale 3) so the dashes and digits read
+   grainy. `prefers-reduced-motion` keeps both; they are static.
+4. Result card: the stamp overlaps the hero's top-right corner (hero gets
+   extra top padding so the title clears it) and replaces the "Decision:
+   <date>" label for an upcoming date; electoral cards keep the primary
+   and filing-deadline lines.
+5. `/results`: the same stamp, one size up, pinned to the top-right of
+   the page header block above the H1, for the soonest upcoming target
+   among the two slots with that goal's title in the label line; hidden
+   when neither slot has an upcoming date.
+6. Act page `/goals/<slug>/act/<action>`: the same stamp at the top-right
+   of the H1 block, with the goal's own target. On viewports under 640 px
+   the stamp sits below the H1 instead of overlapping it.
 7. Edge cases: a target more than 99 days out shows `DD` as the full day
    count (three digits) rather than overflowing; a past target renders
    nothing (cards keep the existing "Decision: <date>" label); an empty
@@ -246,7 +251,7 @@ class) before and after §2, and the share of routes marked
   - [ ] 6. Logo and tab icon
   - [ ] 2. Script length 60–160
   - [ ] 3. Ranking by impact and deadline
-  - [ ] 4. Deadline countdown · owner picks mockup A/B/C first (proposal: A on cards, C on pages)
+  - [ ] 4. Deadline countdown
   - [!] 5. Address autocomplete while typing · blocked: owner creates the provider token and sets the Pages env; the docs part can merge first
 - Completed: none
 - Folded: none
@@ -254,22 +259,18 @@ class) before and after §2, and the share of routes marked
 - Files changed (file:line map): `web/src/styles/global.css:16-46`, `web/src/layouts/Base.astro:29-37`, `web/src/assets/logo-1024.png`, `web/scripts/icons.ts` (new), `web/public/` icon set (new), `web/src/pages/goals/[slug]/card.png.ts`, `web/src/pages/card.png.ts`, `data/actions/*.yaml` doc_format, `worker/src/generate.ts:50,298`, `worker/src/electoral.ts:217`, `worker/src/ranking.ts:117-130`, `web/src/components/Results.tsx:43-44,93`, `web/src/components/Countdown.tsx` (new), `web/src/pages/goals/[slug]/act/[action].astro:20`, `web/src/pages/goals/index.astro`, `worker/schema.sql:30`, `.env.example`, `docs/guides/deploy.md`
 - Tests run + result: none yet
 - Remaining: §1–§6
-- Decisions since last update: H2 face is Bebas Neue, not Inter 700 (owner, 2026-11-06); urgency is a continuous ramp, not a ≤7-day step (owner); countdown ticks DD HH MM SS with the style-guide stamp (owner); mockups at https://claude.ai/artifact/DJS4hDyCq8fdBDz931JXNn
-- Known failures / blockers: §5 needs the owner's token; §4 needs the mockup pick
+- Decisions since last update: H2 face is Bebas Neue, not Inter 700 (owner, 2026-11-06); urgency is a continuous ramp, not a ≤7-day step (owner); countdown ticks DD HH MM SS with the style-guide stamp (owner); mockup B picked with a 5 px border, edge fade and grain (owner); canvas at https://claude.ai/artifact/DJS4hDyCq8fdBDz931JXNn
+- Known failures / blockers: §5 needs the owner's token
 - Next action: `/implement-prd-section` §1
 
 ## Open questions
-1. Which countdown mockup? Proposal: A (hazard bar + stamp) on the result
-   cards, C (ink strip) at the top of `/results` and the act page; B if
-   the owner wants the loudest card. Not blocking: all three share the
-   same component and data, only the wrapper differs.
-2. Geoapify or Mapbox? Proposal: Geoapify (no card on file, 3 000/day
+1. Geoapify or Mapbox? Proposal: Geoapify (no card on file, 3 000/day
    free, attribution line already supported); Mapbox if volume passes
    that.
-3. Should the countdown also sit on the goal detail and prep pages?
+2. Should the countdown also sit on the goal detail and prep pages?
    Proposal: not in this change; queue it under `## Next` if wanted after
    seeing the three screens.
-4. The logo PNG has an opaque white square. Proposal: keep it as a bordered
+3. The logo PNG has an opaque white square. Proposal: keep it as a bordered
    tile (§6.3); if the owner later supplies a transparent PNG or SVG the
    header and card swap the file with no other change.
 
@@ -279,3 +280,6 @@ class) before and after §2, and the share of routes marked
   continuous urgency ramp (was a ≤7-day step); §4 ticking DD HH MM SS
   with the protest stamp, three mockups on the canvas (was a days-left
   strip); §6 logo and tab icon added; `decision_at` field added.
+- 2026-11-06 — owner picked mockup B (the stamp is the clock) with a
+  heavier 5 px border, an edge fade and a grain filter; §4.3–4.6
+  rewritten for one stamp on all three screens.
